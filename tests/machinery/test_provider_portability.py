@@ -48,13 +48,38 @@ class ProviderPortabilityTests(unittest.TestCase):
                     except (OSError, ValueError):
                         continue
                     if report.get("pid") == pid:
-                        return {key: report[key] for key in
-                                ("pid", "procName", "osVersion", "exception", "termination", "asi")
-                                if key in report}
+                        selected = {key: report[key] for key in
+                                    ("pid", "procName", "osVersion", "exception", "termination", "asi", "ktriageinfo")
+                                    if key in report}
+                        threads = report.get("threads", [])
+                        fault = report.get("faultingThread", 0)
+                        if isinstance(fault, int) and 0 <= fault < len(threads):
+                            selected["faulting_symbols"] = [frame.get("symbol") for frame in
+                                                            threads[fault].get("frames", [])[:15]]
+                        return selected
             except (OSError, ValueError):
                 pass
             time.sleep(0.3)
         return {"status": "No matching bounded crash report available"}
+
+    @staticmethod
+    def _synthetic_denial_messages(pid, workspace):
+        """Read only system messages naming this synthetic PID and a denial."""
+        predicate = (f'eventMessage CONTAINS "({pid})" AND '
+                     '(eventMessage CONTAINS "deny" OR eventMessage CONTAINS "ignition")')
+        try:
+            with tempfile.TemporaryFile(dir=workspace) as output:
+                result = subprocess.run(["/usr/bin/log", "show", "--last", "1m", "--style", "compact",
+                                         "--info", "--debug", "--predicate", predicate],
+                                        stdout=output, stderr=subprocess.PIPE, timeout=10)
+                output.seek(0)
+                messages = output.read(8193)
+            return {"returncode": result.returncode,
+                    "messages": messages[:8192].decode("utf-8", "replace"),
+                    "truncated": len(messages) > 8192,
+                    "stderr": result.stderr[:1024].decode("utf-8", "replace")}
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            return {"status": type(exc).__name__}
 
     @unittest.skipUnless(sys.platform == "darwin", "macOS kernel sandbox startup")
     def test_sandboxed_python_startup_preserves_diagnostic_stderr(self):
@@ -95,6 +120,7 @@ class ProviderPortabilityTests(unittest.TestCase):
                           "pid": pid, "returncode": returncode, "stderr": stderr[:8192]}
             if returncode:
                 diagnostic["crash"] = self._synthetic_crash_report(pid, started)
+                diagnostic["pid_filtered_denial_log"] = self._synthetic_denial_messages(pid, workspace)
                 # Both controls are known test programs. The production sandbox
                 # is unchanged, and no user-selected provider is run unconfined.
                 for label, control in (("synthetic_python_without_sandbox", argv),
