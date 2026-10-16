@@ -1,0 +1,125 @@
+{
+  "name": "driven-vs-stopped",
+  "declared_difference": "same light hooked hold; scene a wheel at 2 rad/s, scene b wheel stopped",
+  "isolates": "effect of wheel motion and supplied work under the same hooked hold",
+  "scenes": [
+    {
+      "name": "a-hook-driven",
+      "description": "light hooked hold, driven wheel",
+      "synthetic": true,
+      "geometry": {
+        "radial": 1,
+        "angular": 10,
+        "vertical": 3,
+        "inner_radius": 0.03,
+        "outer_radius": 0.045,
+        "height": 0.08
+      },
+      "material": {
+        "density": 1800.0,
+        "consistency": 80.0,
+        "exponent": 1.0,
+        "yield_stress": 1200.0,
+        "yield_time": 10.0,
+        "rate_floor": 0.001
+      },
+      "gravity": 9.81,
+      "slip_beta": 2000.0,
+      "dt": 0.005,
+      "max_volume_drift": 0.01,
+      "hands": [
+        {
+          "name": "hook",
+          "side": "inner",
+          "angle_center": 0.0,
+          "angle_width": 0.7853981633974483,
+          "z_low": 0.03,
+          "z_high": 0.06,
+          "compliance": 0.0
+        }
+      ],
+      "schedule": [
+        {
+          "time": 0.0,
+          "wheel_omega": 2.0,
+          "hand_radii": {
+            "hook": 0.03
+          }
+        },
+        {
+          "time": 0.2,
+          "wheel_omega": 2.0,
+          "hand_radii": {
+            "hook": 0.0304
+          }
+        },
+        {
+          "time": 0.25,
+          "wheel_omega": 2.0,
+          "hand_radii": {
+            "hook": 0.0304
+          }
+        }
+      ]
+    },
+    {
+      "name": "b-hook-stopped",
+      "description": "light hooked hold, stopped wheel",
+      "synthetic": true,
+      "geometry": {
+        "radial": 1,
+        "angular": 10,
+        "vertical": 3,
+        "inner_radius": 0.03,
+        "outer_radius": 0.045,
+        "height": 0.08
+      },
+      "material": {
+        "density": 1800.0,
+        "consistency": 80.0,
+        "exponent": 1.0,
+        "yield_stress": 1200.0,
+        "yield_time": 10.0,
+        "rate_floor": 0.001
+      },
+      "gravity": 9.81,
+      "slip_beta": 2000.0,
+      "dt": 0.005,
+      "max_volume_drift": 0.01,
+      "hands": [
+        {
+          "name": "hook",
+          "side": "inner",
+          "angle_center": 0.0,
+          "angle_width": 0.7853981633974483,
+          "z_low": 0.03,
+          "z_high": 0.06,
+          "compliance": 0.0
+        }
+      ],
+      "schedule": [
+        {
+          "time": 0.0,
+          "wheel_omega": 0.0,
+          "hand_radii": {
+            "hook": 0.03
+          }
+        },
+        {
+          "time": 0.2,
+          "wheel_omega": 0.0,
+          "hand_radii": {
+            "hook": 0.0304
+          }
+        },
+        {
+          "time": 0.25,
+          "wheel_omega": 0.0,
+          "hand_radii": {
+            "hook": 0.0304
+          }
+        }
+      ]
+    }
+  ]
+}

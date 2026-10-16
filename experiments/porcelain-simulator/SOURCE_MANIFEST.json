@@ -1,0 +1,107 @@
+{
+  "export_simulation_source_sha256": "110de0be0ada72e2fa060c8ca83cb283a2334e159397b928df4af084ceb03a1c",
+  "files": {
+    "examples/compress_and_release.json": {
+      "bytes": 839,
+      "changes": "none",
+      "export_sha256": "fdec5860997e12162ccf479b24a6b40bb4152beac147d86e87091da2ad64513a"
+    },
+    "examples/pairs/driven-vs-stopped.json": {
+      "bytes": 2841,
+      "changes": "descriptive_text_only; numerical_inputs_unchanged",
+      "export_sha256": "0f7e6d02baca18c6644422143b2794bf5c957a396118601a9e3262d1d8c38480"
+    },
+    "examples/pairs/one-vs-two-contacts.json": {
+      "bytes": 3416,
+      "changes": "descriptive_text_only; numerical_inputs_unchanged",
+      "export_sha256": "e7268e91df65de4a52ca8a4baf170bdf7cd31e72b1e2d65c031bc6e4aa066ccc"
+    },
+    "examples/pairs/support-vs-squeeze.json": {
+      "bytes": 3327,
+      "changes": "descriptive_text_only; numerical_inputs_unchanged",
+      "export_sha256": "3eaca5be63b7fbb19a66cef3664ef786c8b12ff903cf426f3fb5387418e083f2"
+    },
+    "examples/pairs/wrist-support.json": {
+      "bytes": 3186,
+      "changes": "descriptive_text_only; numerical_inputs_unchanged",
+      "export_sha256": "22bd238c2f81d79b95a4757a4a976c420974fce9ca297fe7652440702743c0fd"
+    },
+    "porcelain/__init__.py": {
+      "bytes": 90,
+      "changes": "none",
+      "executable_ast_unchanged": true,
+      "export_sha256": "5c828d921490b3fd35a1b3ceea1ba677743226f60cb528219fef494cab537572"
+    },
+    "porcelain/core.py": {
+      "bytes": 29180,
+      "changes": "comments_or_docstrings_only",
+      "executable_ast_unchanged": true,
+      "export_sha256": "36b8a6ef1013fd61edc6f473d13ecb09ac033c06c4da12c832b2bb0ce4fe0e7c"
+    },
+    "porcelain/hands.py": {
+      "bytes": 12246,
+      "changes": "comments_or_docstrings_only",
+      "executable_ast_unchanged": true,
+      "export_sha256": "a0f04225cd30e34c82d77214806a2679f2cef264520982c77154a5dcb7d88a3c"
+    },
+    "porcelain/pair.py": {
+      "bytes": 9997,
+      "changes": "none",
+      "executable_ast_unchanged": true,
+      "export_sha256": "9db39301a45590e9a63d6337e3106220d788e6eb6cb45f3ac55969ad7a884d23"
+    },
+    "porcelain/report.py": {
+      "bytes": 5796,
+      "changes": "none",
+      "executable_ast_unchanged": true,
+      "export_sha256": "c5da5f4a30ab9040d8809a6a0dd5e7c33c3c3300662f525cf8c076ef4c705d84"
+    },
+    "porcelain/report_pair.py": {
+      "bytes": 5656,
+      "changes": "none",
+      "executable_ast_unchanged": true,
+      "export_sha256": "25874f873366b762be0f4c354a8fb0098c572343ff07718d0ffd793d7cd47950"
+    },
+    "porcelain/run.py": {
+      "bytes": 9400,
+      "changes": "comments_or_docstrings_only",
+      "executable_ast_unchanged": true,
+      "export_sha256": "7e221038cf08782a2fc0bb19a6952b85a8e2707fe3432c7eb94b2803b0d409e1"
+    },
+    "porcelain/verify.py": {
+      "bytes": 12271,
+      "changes": "none",
+      "executable_ast_unchanged": true,
+      "export_sha256": "9eb26dc30032073cb235a70c3ca40e4fa65df075863bf7e89909cda880d61db4"
+    },
+    "porcelain/verify_hands.py": {
+      "bytes": 11581,
+      "changes": "comments_or_docstrings_only",
+      "executable_ast_unchanged": true,
+      "export_sha256": "365aa377957db5d5315a7a9c4ade5126d858857d3af7613c80fc791c41d914b2"
+    },
+    "requirements-tested.txt": {
+      "bytes": 80,
+      "changes": "none",
+      "export_sha256": "3a3c759aca181cfab3200178b678fcd449164c4e46d6ea538ec92d76038ce031"
+    },
+    "requirements.txt": {
+      "bytes": 83,
+      "changes": "none",
+      "export_sha256": "d1c85a3758d24ee75b3b3cf1448aaa316221a1318232bdb05f6422da8b51eed0"
+    }
+  },
+  "preservation_checks": {
+    "executable_ast_unchanged_except_docstrings": true,
+    "numerical_example_inputs_unchanged": true
+  },
+  "schema": "porcelain-public-source-manifest/v1",
+  "scope": "Public runtime, verification and rendering modules; dependency declarations; five synthetic inputs. Public documentation is separately authored.",
+  "simulation_source_order": [
+    "__init__.py",
+    "core.py",
+    "hands.py",
+    "run.py",
+    "pair.py"
+  ]
+}
