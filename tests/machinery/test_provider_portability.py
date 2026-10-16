@@ -90,10 +90,20 @@ class ProviderPortabilityTests(unittest.TestCase):
             base = Path(temporary).resolve()
             workspace = base / "workspace"; workspace.mkdir()
             source = base / "sources"; source.mkdir()
+            unlisted = base / "not-readable.txt"
+            unlisted.write_text("synthetic sibling outside allowed roots", encoding="utf-8")
             program = base / "synthetic_startup.py"
             program.write_text(
                 "import json, os, socket, subprocess, threading\n"
-                "print(json.dumps({'startup': 'PASS'}))\n", encoding="utf-8")
+                "root = os.open('/', os.O_RDONLY)\n"
+                "os.close(root)\n"
+                "denied = False\n"
+                "try:\n"
+                f"    with open({str(unlisted)!r}, 'rb') as stream: stream.read(1)\n"
+                "except PermissionError:\n"
+                "    denied = True\n"
+                "print(json.dumps({'startup': 'PASS', 'unlisted_file_denied': denied}))\n",
+                encoding="utf-8")
             argv = [sys.executable, "-B", str(program)]
             readable = origami._program_paths(argv)
             profile = origami._profile(workspace, source, readable, None, None)
@@ -130,7 +140,14 @@ class ProviderPortabilityTests(unittest.TestCase):
                     diagnostic[label] = {"returncode": outcome.returncode,
                                          "stdout": outcome.stdout[:1024], "stderr": outcome.stderr[:8192]}
             self.assertEqual(returncode, 0, json.dumps(diagnostic, indent=2))
-            self.assertEqual(json.loads(stdout), {"startup": "PASS"})
+            self.assertEqual(json.loads(stdout), {"startup": "PASS", "unlisted_file_denied": True})
+
+    def test_loader_root_read_is_literal_and_other_restrictions_remain(self):
+        profile = origami._profile(Path("/workspace"), Path("/sources"), [], None, None)
+        self.assertIn('(allow file-read-data (literal "/"))', profile)
+        self.assertNotIn('(subpath "/")', profile)
+        for rule in ("(deny file-read*)", "(deny file-write*)", "(deny network*)", "(deny process-fork)"):
+            self.assertIn(rule, profile)
 
     def test_unsandboxed_environment_scrubbing_does_not_claim_file_isolation(self):
         for endpoints in ((), ("model.example:443",)):

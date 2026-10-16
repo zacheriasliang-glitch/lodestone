@@ -218,7 +218,8 @@ def _profile(workspace: Path, source_root: Path, readable, auth_path, proxy_port
     Network: denied, except outbound to the local endpoint proxy when one runs.
     Writes: only under the workspace. Reads: system prefixes, the provider
     program's own files, the source root, the workspace and, when declared, the
-    provider's auth directory; metadata everywhere so paths resolve. No forks.
+    provider's auth directory; metadata everywhere so paths resolve. The loader
+    can read the root directory itself, without granting reads below it. No forks.
     """
     reads = [_subpath(prefix) for prefix in SYSTEM_READ_PREFIXES]
     reads += [_subpath(path) for path in readable]
@@ -230,7 +231,11 @@ def _profile(workspace: Path, source_root: Path, readable, auth_path, proxy_port
         network += f'(allow network-outbound (remote ip "localhost:{int(proxy_port)}"))'
     return ("(version 1)(allow default)" + network + "(deny process-fork)"
             f"(deny file-write*)(allow file-write* {_subpath(workspace)})"
-            "(deny file-read*)(allow file-read-metadata)(allow file-read* " + "".join(reads) + ")")
+            "(deny file-read*)(allow file-read-metadata)"
+            # macOS 26 dyld's shared-cache loader reads the root directory.
+            # A literal rule covers only that entry, never its descendants.
+            '(allow file-read-data (literal "/"))'
+            "(allow file-read* " + "".join(reads) + ")")
 
 
 def _program_paths(argv):

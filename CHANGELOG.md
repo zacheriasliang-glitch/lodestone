@@ -14,7 +14,7 @@ its operational services remain separate. Public version 0.1.0 identifies this
 distribution; individual modules retain their own internal schema/version numbers.
 
 Local verification on macOS with Python 3.14: 340 core tests (3 live-laboratory
-cases intentionally skipped), 53 corpus-navigation tests, 30 portable ecosystem
+cases intentionally skipped), 53 corpus-navigation tests, 31 portable ecosystem
 tests and 2 download-integrity tests passed. Temporary-user smoke checks covered
 doctor, demo, Conscience wake and exact archive recovery. No provider contacted.
 
