@@ -33,6 +33,8 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Public entry points
         run: python -B tools/release/smoke.py
+      - name: Package file checksums
+        run: python -B verify_download.py
       - name: Conscience regression checks
         run: python -B -m unittest discover -s tests/ecosystem -q
       - name: Download integrity regressions

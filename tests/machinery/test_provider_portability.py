@@ -1,4 +1,8 @@
-"""Provider isolation labels without a model call, subprocess or network access."""
+"""Provider isolation labels plus a harmless macOS sandbox startup diagnostic.
+
+The startup test launches only this test's synthetic program, with no model or
+network call. Production provider stderr remains undisclosed.
+"""
 import contextlib
 from copy import deepcopy
 import importlib
@@ -6,6 +10,8 @@ import io
 import json
 import os
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -16,6 +22,38 @@ cli = importlib.import_module("lodestone_machinery.origami_cli")
 
 
 class ProviderPortabilityTests(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == "darwin", "macOS kernel sandbox startup")
+    def test_sandboxed_python_startup_preserves_diagnostic_stderr(self):
+        sandbox = origami._sandbox()
+        if sandbox is None:
+            self.skipTest("sandbox-exec is unavailable on this macOS host")
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary).resolve()
+            workspace = base / "workspace"; workspace.mkdir()
+            source = base / "sources"; source.mkdir()
+            program = base / "synthetic_startup.py"
+            program.write_text(
+                "import json, os, socket, subprocess, threading\n"
+                "print(json.dumps({'startup': 'PASS'}))\n", encoding="utf-8")
+            argv = [sys.executable, "-B", str(program)]
+            readable = origami._program_paths(argv)
+            profile = origami._profile(workspace, source, readable, None, None)
+            env = {key: os.environ[key] for key in ("PATH", "HOME", *origami.LOCALE_KEYS)
+                   if key in os.environ}
+            env.setdefault("PATH", "/usr/bin:/bin")
+            result = subprocess.run([sandbox, "-p", profile, *argv], cwd=workspace,
+                                    env=env, capture_output=True, text=True, timeout=20)
+            # Only the synthetic test program's stderr is exposed. Do not apply
+            # this diagnostic to user-selected providers or print environment data.
+            diagnostic = json.dumps({"python": sys.executable,
+                                     "resolved_python": str(Path(sys.executable).resolve()),
+                                     "prefix": sys.prefix, "base_prefix": sys.base_prefix,
+                                     "readable": [str(path) for path in readable],
+                                     "returncode": result.returncode,
+                                     "stderr": result.stderr[:8192]}, indent=2)
+            self.assertEqual(result.returncode, 0, diagnostic)
+            self.assertEqual(json.loads(result.stdout), {"startup": "PASS"})
+
     def test_unsandboxed_environment_scrubbing_does_not_claim_file_isolation(self):
         for endpoints in ((), ("model.example:443",)):
             with self.subTest(endpoints=endpoints):

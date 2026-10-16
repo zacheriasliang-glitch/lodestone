@@ -127,7 +127,9 @@ def main(argv=None):
             if args:
                 raise ValueError("doctor/context take global options before the command")
             result = doctor(root, workspace) if command == "doctor" else context(root)
-            print(json.dumps(result, indent=2, ensure_ascii=False))
+            # Terminal JSON must also work with legacy or ASCII output encodings.
+            # Escapes preserve Unicode values without changing source/record bytes.
+            print(json.dumps(result, indent=2, ensure_ascii=True))
             return 2 if result.get("status") == "ATTENTION" else 0
         if not (root / MACHINERY).is_file():
             raise ValueError("Package is incomplete: tools/machinery/run is missing; extract the complete release ZIP")

@@ -581,9 +581,10 @@ def main(argv: list[str] | None = None, *, root: Path | None = None, workspace: 
                       "n": n, "order": golden_permutation(n), "fractions": [golden_fraction(i) for i in range(n)]}
         if options.op == "run" and result.get("executed"):
             # The command owned stdout; the harness summary goes to stderr and the exit code is the command's.
-            print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False), file=sys.stderr)
+            print(json.dumps(result, indent=2, ensure_ascii=True, allow_nan=False), file=sys.stderr)
             return int((result.get("outcome") or {}).get("returncode", 2))
-        print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
+        # Only presentation uses escapes; canonical_bytes and stored records stay UTF-8.
+        print(json.dumps(result, indent=2, ensure_ascii=True, allow_nan=False))
         bad = (result.get("verdict") in ("REFUSE", "NEEDS_HOST", "DEFER") or result.get("failed_checks")
                or (options.op == "wake" and result["shape"]["doctor_status"] != "READY"))
         return 2 if bad else 0

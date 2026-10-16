@@ -51,6 +51,9 @@ under the current directory or selected workspace, while protecting existing
 from record paths remain allowed. Copy destinations, destructive sources, symlink
 aliases, simple shell redirects and bounded Git forms are assessed separately.
 Unsupported forms of recognized commands return `NEEDS_HOST`.
+The simple-shell parser accepts bounded POSIX-style syntax, including forward
+slashes in paths; backslash escapes remain unsupported and return `NEEDS_HOST`.
+It does not interpret native `cmd.exe` or PowerShell program effects.
 
 The grammar is deliberately bounded. Arbitrary program internals, Python scripts,
 plugins and race conditions are not contained or inspected. Record protection is

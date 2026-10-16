@@ -83,8 +83,10 @@ class HarnessTests(unittest.TestCase):
         target.parent.mkdir(parents=True)
         target.write_text('saved')
         import shlex
-        self.assertEqual(self.assess(['sh', '-c', 'echo changed > ' + shlex.quote(str(target))])['verdict'], 'REFUSE')
-        for script in ('! cp a b', 'time cp a b', 'echo x; cp a b', 'cp "$SRC" b'):
+        # The bounded shell grammar uses POSIX-style slashes, even on Windows.
+        self.assertEqual(self.assess(['sh', '-c', 'echo changed > ' + shlex.quote(target.as_posix())])['verdict'], 'REFUSE')
+        for script in ('! cp a b', 'time cp a b', 'echo x; cp a b', 'cp "$SRC" b',
+                       r'echo changed > "C:\records\item"'):
             self.assertEqual(self.assess(['sh', '-c', script])['verdict'], 'NEEDS_HOST', script)
 
     def test_path_with_spaces_stays_one_operand(self):

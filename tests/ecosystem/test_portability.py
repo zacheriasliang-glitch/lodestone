@@ -1,5 +1,6 @@
 """New-user checks in an extracted, no-Git package and an empty temporary HOME."""
 import contextlib
+import hashlib
 import importlib.util
 import io
 import json
@@ -127,6 +128,39 @@ class PortableTests(unittest.TestCase):
         content = json.loads(result.stdout)
         self.assertEqual(len(content['documents']), 2)
         self.assertNotIn('notion', content); self.assertNotIn('mailbox', content)
+
+    def test_unicode_json_survives_ascii_streams_without_changing_record_bytes(self):
+        label = 'Saṃsāra — 窯'
+        self.env['PYTHONIOENCODING'] = 'ascii:strict'
+        (self.package / 'README.md').write_text(label, encoding='utf-8')
+        context = self.invoke('context')
+        self.assertEqual(context.returncode, 0, context.stderr)
+        self.assertTrue(context.stdout.isascii())
+        self.assertEqual(json.loads(context.stdout)['documents'][0]['text'], label)
+
+        assessed = self.invoke('conscience', '--literal', label, 'assess', '--', 'cat', 'sealed-store/' + label)
+        self.assertEqual(assessed.returncode, 2, assessed.stderr)
+        self.assertTrue(assessed.stdout.isascii())
+        result = json.loads(assessed.stdout)
+        self.assertEqual(result['verdict'], 'REFUSE')
+        self.assertIn(label, result['rules'][0]['token'])
+        identity = result['handle'].split(':')[1]
+        record = self.workspace / 'organs/conscience/records' / (identity + '.json')
+        raw = record.read_bytes()
+        self.assertIn(label.encode('utf-8'), raw)
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), identity)
+        self.assertEqual(json.loads(raw)['payload']['host_literal'], label)
+
+        policy = json.loads((self.package / 'tools/ecosystem/conscience-policy.json').read_text(encoding='utf-8'))
+        policy['launch_patterns'] = [label]
+        policy_path = self.base / 'unicode-policy.json'
+        policy_path.write_text(json.dumps(policy, ensure_ascii=False), encoding='utf-8')
+        executed = self.invoke('conscience', '--policy', policy_path, 'run', '--',
+                               sys.executable, '-c', 'pass', '--preregistration', label)
+        self.assertEqual(executed.returncode, 0, executed.stderr)
+        self.assertEqual(executed.stdout, '')
+        self.assertTrue(executed.stderr.isascii())
+        self.assertEqual(json.loads(executed.stderr)['rules'][0]['pattern'], label)
 
     def test_optional_porcelain_missing_is_actionable(self):
         result = self.invoke('porcelain', 'run', '--help')
