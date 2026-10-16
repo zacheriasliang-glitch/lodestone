@@ -95,7 +95,7 @@
   "tests/machinery/test_origami.py": "bb9ee82785f627fbf39983395bfad133182d7920211d6a45f0d7ade5984e8b94",
   "tests/machinery/test_origami_ask.py": "555cea1e31f5165f80513e287e42631a63d3c981d097d8f19bca83ce07817448",
   "tests/machinery/test_origami_state_versions.py": "d0233afb6a2af6aeb1590d6d1a2dee676555dd57b4e4226224ded8ac1868f571",
-  "tests/machinery/test_provider_portability.py": "dcc37007bc5b2178ecbe32422f1e396f456f1b7bbf1fe2d426d173ced489d499",
+  "tests/machinery/test_provider_portability.py": "c233866c82976e0299484ff8d83c40c3189d489d8825af95b90528f4e8fad321",
   "tests/machinery/test_records.py": "b68b689f4d84607d18440a6c4b61c1d9c4896876694c2a0acac5053818b4fa06",
   "tests/machinery/test_runtime.py": "88b55211b017f62dffd528af49a171ae531965c23b8605196d48b4f52fe3f5eb",
   "tests/machinery/test_transformer.py": "38b13fc9d971d475aaeb1ae5752785823dc617d690159799c537ff7968bedbb3",

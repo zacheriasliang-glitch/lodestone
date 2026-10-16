@@ -13,6 +13,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -22,6 +23,39 @@ cli = importlib.import_module("lodestone_machinery.origami_cli")
 
 
 class ProviderPortabilityTests(unittest.TestCase):
+    @staticmethod
+    def _synthetic_crash_report(pid, started):
+        """Read only recent small macOS crash reports matching this test's PID."""
+        directory = Path.home() / "Library/Logs/DiagnosticReports"
+        for _ in range(10):
+            try:
+                candidates = sorted((p for p in directory.glob("*.ips")
+                                     if p.name.lower().startswith(("python", "sandbox-exec"))),
+                                    key=lambda p: p.stat().st_mtime,
+                                    reverse=True)[:20]
+                for path in candidates:
+                    if path.stat().st_mtime < started - 1 or path.stat().st_size > 2 * 1024 * 1024:
+                        continue
+                    # macOS .ips files have a JSON metadata line followed by a
+                    # separate JSON crash body. Never emit a whole crash report.
+                    try:
+                        with path.open("r", encoding="utf-8") as stream:
+                            raw = stream.read(2 * 1024 * 1024 + 1)
+                        if len(raw) > 2 * 1024 * 1024:
+                            continue
+                        header, end = json.JSONDecoder().raw_decode(raw)
+                        report = json.loads(raw[end:].strip()) if raw[end:].strip() else header
+                    except (OSError, ValueError):
+                        continue
+                    if report.get("pid") == pid:
+                        return {key: report[key] for key in
+                                ("pid", "procName", "osVersion", "exception", "termination", "asi")
+                                if key in report}
+            except (OSError, ValueError):
+                pass
+            time.sleep(0.3)
+        return {"status": "No matching bounded crash report available"}
+
     @unittest.skipUnless(sys.platform == "darwin", "macOS kernel sandbox startup")
     def test_sandboxed_python_startup_preserves_diagnostic_stderr(self):
         sandbox = origami._sandbox()
@@ -41,18 +75,36 @@ class ProviderPortabilityTests(unittest.TestCase):
             env = {key: os.environ[key] for key in ("PATH", "HOME", *origami.LOCALE_KEYS)
                    if key in os.environ}
             env.setdefault("PATH", "/usr/bin:/bin")
-            result = subprocess.run([sandbox, "-p", profile, *argv], cwd=workspace,
-                                    env=env, capture_output=True, text=True, timeout=20)
+            started = time.time()
+            with subprocess.Popen([sandbox, "-p", profile, *argv], cwd=workspace,
+                                  env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                  text=True) as process:
+                try:
+                    stdout, stderr = process.communicate(timeout=20)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    stdout, stderr = process.communicate()
+                    self.fail("Synthetic sandbox startup timed out: " + stderr[:8192])
+                pid, returncode = process.pid, process.returncode
             # Only the synthetic test program's stderr is exposed. Do not apply
             # this diagnostic to user-selected providers or print environment data.
-            diagnostic = json.dumps({"python": sys.executable,
-                                     "resolved_python": str(Path(sys.executable).resolve()),
-                                     "prefix": sys.prefix, "base_prefix": sys.base_prefix,
-                                     "readable": [str(path) for path in readable],
-                                     "returncode": result.returncode,
-                                     "stderr": result.stderr[:8192]}, indent=2)
-            self.assertEqual(result.returncode, 0, diagnostic)
-            self.assertEqual(json.loads(result.stdout), {"startup": "PASS"})
+            diagnostic = {"python": sys.executable,
+                          "resolved_python": str(Path(sys.executable).resolve()),
+                          "prefix": sys.prefix, "base_prefix": sys.base_prefix,
+                          "readable": [str(path) for path in readable],
+                          "pid": pid, "returncode": returncode, "stderr": stderr[:8192]}
+            if returncode:
+                diagnostic["crash"] = self._synthetic_crash_report(pid, started)
+                # Both controls are known test programs. The production sandbox
+                # is unchanged, and no user-selected provider is run unconfined.
+                for label, control in (("synthetic_python_without_sandbox", argv),
+                                       ("true_with_same_sandbox", [sandbox, "-p", profile, "/usr/bin/true"])):
+                    outcome = subprocess.run(control, cwd=workspace, env=env, capture_output=True,
+                                             text=True, timeout=20)
+                    diagnostic[label] = {"returncode": outcome.returncode,
+                                         "stdout": outcome.stdout[:1024], "stderr": outcome.stderr[:8192]}
+            self.assertEqual(returncode, 0, json.dumps(diagnostic, indent=2))
+            self.assertEqual(json.loads(stdout), {"startup": "PASS"})
 
     def test_unsandboxed_environment_scrubbing_does_not_claim_file_isolation(self):
         for endpoints in ((), ("model.example:443",)):
