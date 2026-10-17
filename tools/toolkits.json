@@ -1,6 +1,6 @@
 {
   "schema": "lodestone-toolkit-catalog/v1",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "scope": "All eight laboratory tools directory families, orchestration and optional simulator; reusable code with fresh-user configuration",
   "toolkits": [
     {
@@ -57,7 +57,7 @@
       "path": "tools/repository",
       "command": "repository --help",
       "purpose": "Explicit Git export allowlist, local history backup and isolated recovery verification",
-      "requirements": "Git; private bundle is not for publication; no historical manifest supplied"
+      "requirements": "Git; source archive requires committed UTF-8 text; private bundle is not for publication; no historical manifest supplied"
     },
     {
       "id": "orchestrator",
