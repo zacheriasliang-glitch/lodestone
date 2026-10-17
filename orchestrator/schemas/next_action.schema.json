@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OrchestratorNextAction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "observed_state",
+    "proposed_next_action",
+    "target_files",
+    "protected_files",
+    "approval_requirement",
+    "stop_condition"
+  ],
+  "properties": {
+    "observed_state": {
+      "type": "string",
+      "minLength": 10
+    },
+    "proposed_next_action": {
+      "type": "string",
+      "minLength": 12
+    },
+    "target_files": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "default": []
+    },
+    "protected_files": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "default": []
+    },
+    "approval_requirement": {
+      "type": "string",
+      "minLength": 5
+    },
+    "stop_condition": {
+      "type": "string",
+      "minLength": 6
+    },
+    "risk_notes": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    }
+  }
+}

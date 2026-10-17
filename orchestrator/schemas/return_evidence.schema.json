@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "return_evidence.schema.json",
+  "title": "Kernel 21 Return Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "organ",
+    "requested_root",
+    "observed_root",
+    "receipt_path",
+    "decision_id",
+    "attachment_contract_id",
+    "attachment_epoch",
+    "observed_outputs",
+    "output_hashes",
+    "host_approval_obtained"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "organ": {"const": "B_RETURN"},
+    "requested_root": {"type": "string", "minLength": 1},
+    "observed_root": {"type": "string", "minLength": 1},
+    "receipt_path": {"type": "string", "minLength": 1},
+    "decision_id": {"type": "string", "minLength": 1},
+    "attachment_contract_id": {"type": "string", "pattern": "ATT-[0-9a-f]{24}"},
+    "attachment_epoch": {"type": "string", "pattern": "[0-9]{8}T[0-9]{6}Z"},
+    "observed_outputs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "output_hashes": {"type": "object"},
+    "host_approval_obtained": {"type": "boolean"},
+    "audit_finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "producer_role",
+        "verdict",
+        "load_bearing_gap",
+        "source_path",
+        "source_byte_count",
+        "source_sha256"
+      ],
+      "properties": {
+        "schema_version": {"const": "1.0.0"},
+        "producer_role": {"const": "AUDITOR"},
+        "verdict": {"type": "string", "pattern": "^[A-Z][A-Z_]*$"},
+        "load_bearing_gap": {"type": "boolean"},
+        "source_path": {"type": "string", "minLength": 1},
+        "source_byte_count": {"type": "integer", "minimum": 0},
+        "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

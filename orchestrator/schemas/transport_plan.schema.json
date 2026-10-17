@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "transport_plan.schema.json",
+  "title": "Kernel 21 Transport Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "engine",
+    "engine_version",
+    "organ",
+    "authority",
+    "transport_plan_id",
+    "attachment_contract_id",
+    "transport_selected",
+    "delivery_root",
+    "return_root",
+    "authorized_roots",
+    "target_files",
+    "protected_files",
+    "protected_overlap",
+    "host_approval_required",
+    "host_approval_satisfied",
+    "receipt_requirement",
+    "stop_condition",
+    "rationale",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "engine": {"const": "K21_EMBODIED_TRANSPORT_BRIDGE"},
+    "engine_version": {"const": "1.0.0"},
+    "organ": {"const": "B_TRANSPORT"},
+    "authority": {"const": "PROPOSAL_ONLY"},
+    "transport_plan_id": {"type": "string", "pattern": "TRN-[0-9a-f]{24}"},
+    "attachment_contract_id": {"type": "string", "pattern": "ATT-[0-9a-f]{24}"},
+    "transport_selected": {
+      "enum": ["DIRECT_FILESYSTEM", "CODEX_WORKSPACE", "GIT", "MCP", "API", "PACKET_EXPORT", "HOST_MANUAL", "NONE"]
+    },
+    "delivery_root": {"type": "string", "minLength": 1},
+    "return_root": {"type": "string", "minLength": 1},
+    "authorized_roots": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "target_files": {"type": "array", "items": {"type": "string"}},
+    "protected_files": {"type": "array", "items": {"type": "string"}},
+    "protected_overlap": {"type": "boolean"},
+    "host_approval_required": {"type": "boolean"},
+    "host_approval_satisfied": {"type": "boolean"},
+    "receipt_requirement": {"type": "string", "minLength": 1},
+    "stop_condition": {"type": "string", "minLength": 1},
+    "rationale": {"type": "string", "minLength": 1},
+    "status": {"enum": ["PROPOSED", "HOST_APPROVAL_REQUIRED"]}
+  }
+}

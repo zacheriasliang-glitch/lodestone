@@ -1,0 +1,91 @@
+{
+  "schema": "lodestone-toolkit-catalog/v1",
+  "version": "0.2.0",
+  "scope": "All eight laboratory tools directory families, orchestration and optional simulator; reusable code with fresh-user configuration",
+  "toolkits": [
+    {
+      "id": "machinery",
+      "path": "tools/machinery",
+      "command": "machinery --help",
+      "purpose": "Core jobs, exact receipt preflight, brief/registry checks and lineage findings",
+      "requirements": "Core plus POSIX/Git for receipts; explicit project receipts and formats for advanced checks"
+    },
+    {
+      "id": "ecosystem",
+      "path": "tools/ecosystem",
+      "command": "doctor",
+      "purpose": "Launcher, context, Conscience and toolkit discovery",
+      "requirements": "Python 3.10+; Conscience is advisory"
+    },
+    {
+      "id": "corpus-fold",
+      "path": "tools/corpus-fold",
+      "command": "yggdrasil corpus-fold --help",
+      "purpose": "Source-bound reading maps and declared correction lineage",
+      "requirements": "POSIX; caller-selected corpus; maps do not replace sources"
+    },
+    {
+      "id": "local-memory",
+      "path": "tools/local-memory",
+      "command": "memory --help",
+      "purpose": "Explicit note records, typed links, lexical retrieval and bounded packets",
+      "requirements": "Single writer; caller-selected store; no private memory included"
+    },
+    {
+      "id": "origami-fold",
+      "path": "tools/origami-fold",
+      "command": "origami-fold --help",
+      "purpose": "Persistent source handles, freshness, expansion and explicit rebinding",
+      "requirements": "Caller-selected fold/root; invented example replaces historical workstream"
+    },
+    {
+      "id": "continuity",
+      "path": "tools/continuity",
+      "command": "continuity --help",
+      "purpose": "Task checkpoint creation, drift verification and compact-context skill",
+      "requirements": "Explicit regular files; no native context-window control or background service"
+    },
+    {
+      "id": "mailbox",
+      "path": "tools/mailbox",
+      "command": "mailbox --help",
+      "purpose": "Git-backed file transport, observation and explicitly admitted worker code",
+      "requirements": "POSIX and Git; own remote/branch/state; worker requires separate explicit job admission"
+    },
+    {
+      "id": "repository",
+      "path": "tools/repository",
+      "command": "repository --help",
+      "purpose": "Explicit Git export allowlist, local history backup and isolated recovery verification",
+      "requirements": "Git; private bundle is not for publication; no historical manifest supplied"
+    },
+    {
+      "id": "orchestrator",
+      "path": "orchestrator",
+      "command": "orchestrator --help",
+      "purpose": "Kernel20/legacy plans and Kernel21 custody/preflight tools",
+      "requirements": "Explicit project root and configuration; proposals do not execute changes"
+    },
+    {
+      "id": "porcelain",
+      "path": "experiments/porcelain-simulator",
+      "command": "porcelain run --help",
+      "purpose": "Optional synthetic teaching simulator",
+      "requirements": "Own numerical environment; no new physical validation or automatic run"
+    },
+    {
+      "id": "release",
+      "path": "tools/release",
+      "command": "python3 -B tools/release/package.py --help",
+      "purpose": "Deterministic ZIP/tar distribution builder and onboarding checks",
+      "requirements": "Git for build; no Git needed to use downloaded core"
+    }
+  ],
+  "excluded_state": [
+    "Private corpora, memory stores, transcripts, credentials and host grants",
+    "Historical workstream folds, mailbox jobs/admissions/cache and output records",
+    "Host-specific LaunchAgent/Codex service configuration and Notion account bindings",
+    "Laboratory migration map and historical canon; advanced Yggdrasil uses caller-supplied source/canon",
+    "Legacy Node orchestrator API prototype (not a verified runnable toolkit; see docs/orchestrator.md)"
+  ]
+}

@@ -39,6 +39,19 @@ jobs:
         run: python -B -m unittest discover -s tests/ecosystem -q
       - name: Download integrity regressions
         run: python -B -m unittest discover -s tests/release -q
+      - name: Continuity checks
+        run: python -B -m unittest discover -s tests/continuity -q
+      - name: Local memory checks
+        run: python -B -m unittest discover -s tools/local-memory/tests -q
+      - name: Python orchestration checks
+        if: runner.os != 'Windows'
+        run: python -B -m unittest discover -s orchestrator/tests -q
+      - name: Re-entry fold checks
+        if: runner.os != 'Windows'
+        run: python -B -m unittest discover -s tools/origami-fold/tests -q
+      - name: Mailbox local fixture checks
+        if: runner.os != 'Windows'
+        run: python -B -m unittest discover -s tools/mailbox -p 'test_*.py' -q
       - name: Core contract checks (POSIX)
         if: runner.os != 'Windows'
         env:

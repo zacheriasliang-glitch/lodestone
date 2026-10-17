@@ -1,0 +1,173 @@
+{
+  "schema": {
+    "name": "origami-fold",
+    "version": "1.0.0"
+  },
+  "work_item": {
+    "id": "tutorial",
+    "title": "Invented re-entry example",
+    "question": "What does this one sample establish?",
+    "epoch": {
+      "description": "Synthetic tutorial; no laboratory result"
+    },
+    "next_permitted_action": "Reopen the cited sample; no external work is authorized."
+  },
+  "construction": {
+    "built_at_utc": "2026-10-17T00:18:01Z",
+    "built_by": "build_example.py",
+    "operation_name": "invented-reentry-example",
+    "interpretation_author": "none",
+    "authorization": {
+      "title": "Invented fixture; authority none",
+      "directive_sha256": "174e4788ad3ff09424699c00a4c197a855d870c1c339b75ef1491159d500874d"
+    },
+    "not_this": [
+      "scientific measurement",
+      "authorization",
+      "automatic context compaction"
+    ],
+    "telemetry": {
+      "tokens": "UNKNOWN",
+      "cost": "UNKNOWN"
+    }
+  },
+  "recipe": {
+    "version": "1.0.0",
+    "files": [
+      {
+        "path": "tools/origami-fold/src/origami_fold.py",
+        "sha256": "f54c2cbac61dfd62653a604c8aecc02cacc866a9b6108427cefad6fde66e2e87"
+      },
+      {
+        "path": "tools/origami-fold/src/build_example.py",
+        "sha256": "d51e4206c5471a648504646b8d72d7783a11d80600964d12940da2a02ca5ca93"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "id": "C",
+      "path": "tools/origami-fold/examples/demo/CURRENT_STATE.md",
+      "record_kind": "invented tutorial fixture",
+      "authority": "none",
+      "bound": {
+        "sha256": "f03214505ea959f52184f37af43be3f4d0bacf83efdb46b8f64bd3f0f926e4f1",
+        "byte_count": 104,
+        "line_count": 4,
+        "bound_at_utc": "2026-10-17T00:18:01Z"
+      },
+      "tracked_in_git_at_binding": false
+    },
+    {
+      "id": "R",
+      "path": "tools/origami-fold/examples/demo/RESULT.md",
+      "record_kind": "invented tutorial fixture",
+      "authority": "none",
+      "bound": {
+        "sha256": "10cb8eb68cd6c42c747268503ffd6bc818c6790033c995c5e2ddfe42228a0382",
+        "byte_count": 114,
+        "line_count": 4,
+        "bound_at_utc": "2026-10-17T00:18:01Z"
+      },
+      "tracked_in_git_at_binding": false
+    },
+    {
+      "id": "HD",
+      "path": "tools/origami-fold/examples/demo/DIRECTIVE.md",
+      "record_kind": "invented tutorial fixture",
+      "authority": "none",
+      "bound": {
+        "sha256": "174e4788ad3ff09424699c00a4c197a855d870c1c339b75ef1491159d500874d",
+        "byte_count": 87,
+        "line_count": 1,
+        "bound_at_utc": "2026-10-17T00:18:02Z"
+      },
+      "tracked_in_git_at_binding": false
+    }
+  ],
+  "claims": [
+    {
+      "id": "sample.observation",
+      "status": "ESTABLISHED",
+      "layer": "EX",
+      "basis": "recorded",
+      "scope": {
+        "kind": "historical",
+        "epoch": "invented tutorial"
+      },
+      "text": "The invented sample contains three blue tiles.",
+      "support": [
+        {
+          "source": "R",
+          "lines": [
+            3,
+            3
+          ],
+          "start_byte": 24,
+          "end_byte": 62,
+          "slice_sha256": "bf999da7a0970538d5161ad1557656879fdd9a4a8b2683aac03f21284f4a329e",
+          "quote": "three blue tiles"
+        }
+      ],
+      "refresh_when": []
+    }
+  ],
+  "relations": [],
+  "open_items": [
+    {
+      "id": "review.next",
+      "kind": "RESTRICTION",
+      "basis": "recorded",
+      "text": "Reopen the bound source before using the result.",
+      "support": [
+        {
+          "source": "C",
+          "lines": [
+            4,
+            4
+          ],
+          "start_byte": 49,
+          "end_byte": 104,
+          "slice_sha256": "d38ff2df4ed35550b60c5ae6eb40fe0148ec15ce2af8b91267f42a19ea4fa008",
+          "quote": "review the bound source"
+        }
+      ],
+      "refresh_when": [
+        "state_index_changed"
+      ]
+    }
+  ],
+  "index_dependencies": {
+    "state_index": {
+      "source": "C"
+    },
+    "receipts": {
+      "directory": "receipts",
+      "cutoff_basic_utc": "20261017T001801Z",
+      "bound": {
+        "count": 0,
+        "newest": null,
+        "listing_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "host_dispositions": {
+      "patterns": [],
+      "bound": {
+        "names": [],
+        "listing_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "origami_records": {
+      "patterns": [],
+      "bound": {
+        "names": [],
+        "listing_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "head": {
+      "bound": "UNKNOWN",
+      "role": "provenance only"
+    }
+  },
+  "acknowledged_receipts": []
+}

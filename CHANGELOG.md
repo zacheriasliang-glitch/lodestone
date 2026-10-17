@@ -1,5 +1,14 @@
 # Release notes
 
+## 0.2.0 — portable toolkit expansion
+
+- Includes local memory, explicit checkpoint/resume, installable compact-context skill,
+  source re-entry folds, configurable mailbox, repository export/recovery and Python orchestration.
+- Exposes receipt preflight, brief/registry checks and source-root-bound Yggdrasil routes.
+- Adds an explicit toolkit catalogue with prerequisites and excluded host/private state.
+- Public download remains independent of the private laboratory. No services or scientific
+  runs start during installation. No native context-window control is claimed.
+
 ## 0.1.0 — first public release
 
 - Downloadable source ZIP and tar.gz; run directly with Python 3.10 or later.
