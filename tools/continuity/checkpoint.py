@@ -74,9 +74,18 @@ def fingerprint(root, name):
                 raise ValueError(f"Source exceeds the {MAX_SOURCE_BYTES}-byte read bound: {name}")
             digest.update(chunk)
         after = os.fstat(stream.fileno())
+    path_after = path.stat()
     identity = lambda value: (value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns)
-    if identity(opened) != identity(after) or count != after.st_size or identity(after) != identity(path.stat()):
-        raise ValueError(f"Source changed while hashing: {name}")
+    # Compare timestamp stability within the same API. On Windows, stat(path)
+    # and fstat(fd) can expose different timestamp values for the same file.
+    # Cross-API comparisons bind file identity and byte length instead.
+    opened_changed = identity(opened) != identity(after)
+    path_changed = identity(before) != identity(path_after)
+    replaced = (after.st_dev, after.st_ino, after.st_size) != (path_after.st_dev, path_after.st_ino, path_after.st_size)
+    if opened_changed or path_changed or replaced or count != after.st_size:
+        raise ValueError(f"Source changed while hashing: {name}; handle_changed={opened_changed}, "
+                         f"path_changed={path_changed}, replaced={replaced}, bytes_read={count}, "
+                         f"handle_size={after.st_size}")
     return {"path": name, "bytes": count, "sha256": digest.hexdigest()}
 
 

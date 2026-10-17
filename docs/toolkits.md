@@ -18,7 +18,7 @@ arguments; append `--help` to inspect them.
 | [Repository export](../tools/repository/README.md) | `repository manifest`, `repository export`, `repository verify` | Explicit committed-file selection, local private Git bundle and checked source archive. Git required. |
 | [Orchestrator](orchestrator.md) | `orchestrator --help` | Python Kernel20/legacy planning and Kernel21 custody helpers; explicit project root; no automatic execution. |
 | [Archives / Saṃsāra foundations](archives.md) | `origami archive --help` | Pack, verify and recover selected files. Cloud/account setup is user-owned. |
-| Crystal / numerical modules | `origami crystal --help` | Existing bounded storage and numerical contracts; inclusion does not establish learned compression benefit. |
+| Crystal / numerical modules | `origami crystal --help`, `origami transformer --help` | Existing bounded storage and numerical contracts; inclusion does not establish learned compression benefit. |
 | [Porcelain](porcelain.md) | `porcelain run --help` | Optional numerical environment and synthetic teaching examples; separate dependencies. |
 | Release packaging | `python3 -B tools/release/package.py --help` | Deterministic downloads built from committed public source. |
 

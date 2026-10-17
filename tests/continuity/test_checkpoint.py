@@ -8,7 +8,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 SCRIPT = Path(__file__).resolve().parents[2] / "tools/continuity/checkpoint.py"
 SPEC = importlib.util.spec_from_file_location("checkpoint", SCRIPT)
@@ -42,7 +44,7 @@ class CheckpointTests(unittest.TestCase):
         other = self.base / "moved"
         shutil.copytree(self.root, other)
         report = checkpoint.verify(self.output, other)
-        self.assertEqual(report["status"], "VERIFIED")
+        self.assertEqual(report["status"], "VERIFIED", report)
         self.assertEqual(report["recorded_status"], "IN_PROGRESS")
         self.assertEqual(self.output.read_bytes(), raw)
 
@@ -51,7 +53,7 @@ class CheckpointTests(unittest.TestCase):
         (self.root / "source.txt").write_bytes(b"other source\n")
         report = checkpoint.verify(self.output, self.root)
         self.assertEqual(report["status"], "DRIFT")
-        self.assertEqual(report["sources"][0]["status"], "CHANGED")
+        self.assertEqual(report["sources"][0]["status"], "CHANGED", report)
         self.assertEqual(report["failures"], 1)
 
     def test_missing_source_reported(self):
@@ -147,6 +149,39 @@ class CheckpointTests(unittest.TestCase):
         checkpoint.MAX_SOURCE_BYTES = 4
         with self.assertRaisesRegex(ValueError, "read bound"):
             self.create()
+        self.assertFalse(self.output.exists())
+
+    def test_stable_handle_and_path_timestamps_may_differ(self):
+        real_fstat = os.fstat
+
+        def shifted_fstat(fd):
+            value = real_fstat(fd)
+            return SimpleNamespace(st_mode=value.st_mode, st_dev=value.st_dev,
+                                   st_ino=value.st_ino, st_size=value.st_size,
+                                   st_mtime_ns=value.st_mtime_ns + 100,
+                                   st_ctime_ns=value.st_ctime_ns + 200)
+
+        with patch.object(checkpoint.os, "fstat", side_effect=shifted_fstat):
+            self.create()
+            report = checkpoint.verify(self.output, self.root)
+        self.assertEqual(report["status"], "VERIFIED", report)
+
+    def test_mutating_handle_during_hash_is_still_rejected(self):
+        real_fstat = os.fstat
+        calls = 0
+
+        def changed_fstat(fd):
+            nonlocal calls
+            calls += 1
+            value = real_fstat(fd)
+            return SimpleNamespace(st_mode=value.st_mode, st_dev=value.st_dev,
+                                   st_ino=value.st_ino, st_size=value.st_size,
+                                   st_mtime_ns=value.st_mtime_ns + calls,
+                                   st_ctime_ns=value.st_ctime_ns)
+
+        with patch.object(checkpoint.os, "fstat", side_effect=changed_fstat):
+            with self.assertRaisesRegex(ValueError, "handle_changed=True"):
+                self.create()
         self.assertFalse(self.output.exists())
 
     def test_cli_exit_codes_and_preserved_record(self):

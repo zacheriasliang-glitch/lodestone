@@ -64,7 +64,9 @@ fake-CLI tests. No credential, admitted job or live model test is shipped.
 `worker` status `ok` means a successful exit, a nonempty answer and matching Git
 observations. It is not proof of answer correctness, complete filesystem
 isolation or successful reads. The CLI sandbox and account permissions remain
-separate controls.
+separate controls. Capture has a deadline; detached descendants are not
+guaranteed to terminate. Cleanup signals a process group only while its direct
+child remains owned, avoiding signals to a reused numeric group after exit.
 
 ## Process observation and tests
 

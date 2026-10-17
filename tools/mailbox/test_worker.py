@@ -92,7 +92,7 @@ class WorkerTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.repo = self.root/'lab'
         self.repo.mkdir()
         self.remote = self.root/'remote.git'
@@ -231,8 +231,14 @@ class WorkerTests(unittest.TestCase):
         (self.root/'mode').write_text('timeout')
         self.queue('timeout'); self.runner(timeout=0.2).run()
         self.assertEqual(self.reply('timeout')[0]['status'], 'timeout')
-        self.runner(timeout=0.2).run()
-        self.assertEqual(len(self.calls()), 1)
+        # A slow interpreter can be stopped before its fixture logger runs.
+        # The saved timeout must prevent another launch in either case.
+        calls_before = self.calls()
+        with patch.object(worker, 'run_bounded', wraps=worker.run_bounded) as bounded:
+            self.runner(timeout=0.2).run()
+        self.assertEqual(self.calls(), calls_before)
+        self.assertLessEqual(len(calls_before), 1)
+        bounded.assert_not_called()
 
     def test_crash_after_invocation_never_invokes_again(self):
         self.queue('crash')
@@ -533,6 +539,20 @@ class WorkerTests(unittest.TestCase):
                     0.1, self.root/'detached.out', self.root/'detached.err')
         self.assertTrue(outcome['timed_out'])
         self.assertLess(time.monotonic()-started, 2.0)
+
+    def test_reaped_group_is_never_signalled(self):
+        from unittest.mock import Mock
+        process = Mock(pid=12345)
+        process.poll.return_value = 0
+        with patch.object(worker.os, 'killpg') as kill_group:
+            self.assertFalse(worker.signal_owned_group(process, worker.signal.SIGKILL))
+        kill_group.assert_not_called()
+
+    def test_group_permission_failure_is_reported(self):
+        with patch.object(worker.os, 'killpg', side_effect=PermissionError('denied fixture')):
+            with self.assertRaisesRegex(PermissionError, 'denied fixture'):
+                worker.run_bounded([sys.executable, '-c', 'import time; time.sleep(5)'],
+                    b'', self.root, 0.05, self.root/'denied.out', self.root/'denied.err')
 
     def test_transient_pickup_error_does_not_consume_job(self):
         self.queue('network')

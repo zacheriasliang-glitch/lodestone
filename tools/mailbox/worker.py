@@ -185,9 +185,30 @@ def build_command(codex, repo, answer_path, mcp_options=(), disable_code_mode_ho
             "--output-last-message", str(answer_path), "-"]
 
 
+def signal_owned_group(process, signal_number):
+    """Never signal a numeric process group after reaping its owned leader.
+
+    Popen created a new session. While its direct child is still running (or
+    has exited but has not been reaped), that child's PID cannot be reused.
+    Once poll reports an exit, a stale group ID is not an ownership handle.
+    Escaped descendants may retain pipes; the drain deadline handles those.
+    Actual permission errors remain errors, not successful cleanup.
+    """
+    if process.poll() is not None:
+        return False
+    try:
+        os.killpg(process.pid, signal_number)
+    except ProcessLookupError:
+        return False
+    return True
+
+
 def run_bounded(argv, input_bytes, cwd, timeout, stdout_path, stderr_path,
                 max_output=MAX_OUTPUT, watched_path=None):
-    """Capture bounded output and kill the process group on timeout/overflow."""
+    """Bound capture; signal the owned group while its leader remains owned.
+
+    Detached descendants can outlive capture. This is not process containment.
+    """
     if timeout <= 0 or max_output <= 0:
         raise WorkerError("Subprocess limits must be positive")
     paths = [Path(stdout_path), Path(stderr_path)]
@@ -217,15 +238,9 @@ def run_bounded(argv, input_bytes, cwd, timeout, stdout_path, stderr_path,
                         output_limited = output_limited or Path(watched_path).stat().st_size > max_output
                     if timed_out or output_limited:
                         stopped = now
-                        try:
-                            os.killpg(process.pid, signal.SIGTERM)
-                        except ProcessLookupError:
-                            pass
+                        signal_owned_group(process, signal.SIGTERM)
                 elif now - stopped >= 0.5:
-                    try:
-                        os.killpg(process.pid, signal.SIGKILL)
-                    except ProcessLookupError:
-                        pass
+                    signal_owned_group(process, signal.SIGKILL)
                     if now - stopped >= 1.0:
                         # An escaped descendant may still own inherited pipes.
                         # Bound draining independently of that descendant's life.
@@ -249,9 +264,15 @@ def run_bounded(argv, input_bytes, cwd, timeout, stdout_path, stderr_path,
             code = process.wait(timeout=1.0)
         except BaseException:
             try:
-                os.killpg(process.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
+                signal_owned_group(process, signal.SIGKILL)
+            except OSError:
+                # Preserve the original error. Best-effort cleanup addresses
+                # only the still-owned child, never a reaped numeric group.
+                if process.poll() is None:
+                    try:
+                        process.kill()
+                    except OSError:
+                        pass
             try:
                 process.wait(timeout=1.0)
             except subprocess.TimeoutExpired:
