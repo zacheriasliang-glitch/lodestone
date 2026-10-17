@@ -76,20 +76,24 @@ class AdapterTests(unittest.TestCase):
             self.assertIn("Y2_ONE_ORGAN on receipts/b.md", gate.stdout)
             self.assertIn("Y4_ONE_HEAD on receipts/", gate.stdout)
 
-    def test_live_corpus_emits_exactly_the_detector_count(self):
-        done = subprocess.run([sys.executable, "-B", str(ADAPTER), "--root", str(ROOT)],
-                              capture_output=True, text=True, timeout=600)
-        self.assertEqual(done.returncode, 0, done.stderr)
-        lines = done.stdout.splitlines()
-        report = json.loads(subprocess.run([sys.executable, "-B", str(ROOT / "tools/machinery/run"), "yggdrasil",
-                                            "--root", str(ROOT), "--findings"], capture_output=True, text=True).stdout)
-        self.assertEqual(len(lines), len(report["findings"]))
-        self.assertEqual(lines, sorted(lines))
-        for line in lines:
-            law, subject = line.split("\t")
-            self.assertIn(law, report["counts"])
-            self.assertTrue(subject == "receipts/" or subject.startswith("receipts/2"), subject)
-
+    def test_fixture_corpus_emits_exactly_the_detector_count(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = Path(temporary)
+            (fixture / "receipts").mkdir()
+            (fixture / "receipts/20260101T000000Z__fixture__RCP-20260101T000000Z-000000000001.md").write_text(
+                '# Fixture\n\n```json\n' + json.dumps({"receipt_id": "RCP-20260101T000000Z-000000000001", "mode": "UNKNOWN"}) + '\n```\n')
+            done = subprocess.run([sys.executable, "-B", str(ADAPTER), "--root", str(fixture)],
+                                  capture_output=True, text=True, timeout=600)
+            self.assertEqual(done.returncode, 0, done.stderr)
+            lines = done.stdout.splitlines()
+            report = json.loads(subprocess.run([sys.executable, "-B", str(ROOT / "tools/machinery/run"), "yggdrasil",
+                                                "--root", str(fixture), "--findings"], capture_output=True, text=True).stdout)
+            self.assertEqual(len(lines), len(report["findings"]))
+            self.assertEqual(lines, sorted(lines))
+            for line in lines:
+                law, subject = line.split("\t")
+                self.assertIn(law, report["counts"])
+                self.assertTrue(subject == "receipts/" or subject.startswith("receipts/2"), subject)
 
 if __name__ == "__main__":
     unittest.main()

@@ -37,7 +37,7 @@ def safe_path(value):
     if not isinstance(value, str) or not value or "\\" in value:
         raise ValueError("invalid export path")
     path = PurePosixPath(value)
-    if (path.is_absolute() or str(path) != value
+    if (not path.parts or path.is_absolute() or str(path) != value
             or ":" in value or path.parts[0] == "CONTENT_SHA256.json"
             or any(p in (".", "..", ".git") or p.startswith(".") for p in path.parts)):
         raise ValueError("unsafe export path: " + value)

@@ -64,6 +64,11 @@ class ToolkitTests(unittest.TestCase):
             git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.test", "commit", "-qm", "fixture")
             git("update-ref", "refs/custom/preserved", "HEAD")
             manifest, output = base / "manifest.json", base / "export"
+            for invalid in (".", "../outside", "CONTENT_SHA256.json", "CONTENT_SHA256.json/child"):
+                result = run("repository", "manifest", "--repository", source, "--file", invalid, "--output", manifest)
+                self.assertEqual(result.returncode, 2)
+                self.assertNotIn("Traceback", result.stderr)
+                self.assertFalse(manifest.exists())
             result = run("repository", "manifest", "--repository", source, "--file", "README.md", "--output", manifest)
             self.assertEqual(result.returncode, 0, result.stderr)
             original_manifest = manifest.read_text()
