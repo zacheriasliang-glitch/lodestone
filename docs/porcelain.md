@@ -5,8 +5,14 @@ forces, pressure, velocity and numerical diagnostics. It is an optional module
 with its own Python environment. The standard-library Lodestone tools work
 without its dependencies.
 
+The overview works without optional dependencies:
+
+```bash
+python3 lodestone.py porcelain --help
+```
+
 Follow the [installation and first-run guide](../experiments/porcelain-simulator/README.md).
-From the release root, command help is:
+After installing that environment, module-specific help is:
 
 ```bash
 python3 lodestone.py porcelain run --help

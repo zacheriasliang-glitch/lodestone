@@ -1,5 +1,12 @@
 # Release notes
 
+## 0.2.2 — peer review follow-up
+
+- Adds help for doctor, context and toolkit discovery, plus a Porcelain overview
+  that works before its optional environment is installed.
+- Adds a standalone corpus-fold guide and further portable Conscience regression
+  coverage for history, argument forwarding and command destinations.
+
 ## 0.2.1 — download and export documentation
 
 - Uses the extracted versioned folder in onboarding instructions, removing the

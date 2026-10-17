@@ -1,6 +1,6 @@
 {
   "schema": "lodestone-toolkit-catalog/v1",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "scope": "All eight laboratory tools directory families, orchestration and optional simulator; reusable code with fresh-user configuration",
   "toolkits": [
     {
@@ -69,9 +69,9 @@
     {
       "id": "porcelain",
       "path": "experiments/porcelain-simulator",
-      "command": "porcelain run --help",
+      "command": "porcelain --help",
       "purpose": "Optional synthetic teaching simulator",
-      "requirements": "Own numerical environment; no new physical validation or automatic run"
+      "requirements": "Overview help needs no optional packages; subcommand help and execution require the numerical environment; no automatic run"
     },
     {
       "id": "release",

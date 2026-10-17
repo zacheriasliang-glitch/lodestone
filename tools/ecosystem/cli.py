@@ -36,6 +36,14 @@ TOOL_SCRIPTS = {
     "registry-check": "tools/machinery/check_bezoar.py",
     "lineage-findings": "tools/machinery/yggdrasil_findings.py",
 }
+LOCAL_HELP = {
+    "doctor": "Inspect core readiness and workspace availability without initializing either.",
+    "context": "Read bounded local documentation; no external sources or private stores are read.",
+    "toolkits": "Print the toolkit catalogue, entry commands and prerequisites.",
+    "porcelain": "Optional simulator: run | report | verify | pair | verify_hands | report_pair.\n"
+                 "Subcommand help and execution require the optional numerical environment.\n"
+                 "See docs/porcelain.md for setup; this overview needs no optional packages.",
+}
 
 
 def default_workspace():
@@ -137,6 +145,13 @@ def main(argv=None):
         root = options.repo.expanduser().resolve()
         workspace = options.workspace.expanduser().resolve()
         command, args = options.command, options.args
+        if command in LOCAL_HELP and (args in (["--help"], ["-h"]) or
+                                       (command == "porcelain" and not args)):
+            print(f"usage: lodestone.py [--repo PACKAGE] [--workspace DIR] {command}" +
+                  (" SUBCOMMAND [ARGS]" if command == "porcelain" else ""))
+            print("\n" + LOCAL_HELP[command])
+            print("\nGlobal options go before the command.")
+            return 0
         if command == "toolkits":
             if args:
                 raise ValueError("toolkits takes no arguments")

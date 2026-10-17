@@ -10,7 +10,7 @@ arguments; append `--help` to inspect them.
 |---|---|---|
 | Machinery | `machinery --help` | Source-backed jobs and records in an explicit workspace; included demo works offline. |
 | Ecosystem / Conscience | `doctor`, `context`, `wake`, `conscience --help` | Local readiness, bounded documentation and advisory command checks. Waking does not start all tools. |
-| Corpus fold | `yggdrasil corpus-fold --help` | Select your corpus; reading maps preserve source identities and declared lineage. |
+| [Corpus fold](corpus-fold.md) | `yggdrasil corpus-fold --help` | Select your corpus; reading maps preserve source identities and declared lineage. |
 | [Local memory](../tools/local-memory/README.md) | `memory --help` | Initialize your own store; explicit notes, links and word-bounded retrieval. |
 | [Origami re-entry fold](origami-fold.md) | `origami-fold --help` | Explicit source root and fold, with an invented example; no historic workstream state. |
 | [Continuity / compact context](continuity.md) | `continuity --help` | Create immutable-by-contract checkpoints, verify source drift and reopen evidence. Optional agent skill installation. |
@@ -19,7 +19,7 @@ arguments; append `--help` to inspect them.
 | [Orchestrator](orchestrator.md) | `orchestrator --help` | Python Kernel20/legacy planning and Kernel21 custody helpers; explicit project root; no automatic execution. |
 | [Archives / Saṃsāra foundations](archives.md) | `origami archive --help` | Pack, verify and recover selected files. Cloud/account setup is user-owned. |
 | Crystal / numerical modules | `origami crystal --help`, `origami transformer --help` | Existing bounded storage and numerical contracts; inclusion does not establish learned compression benefit. |
-| [Porcelain](porcelain.md) | `porcelain run --help` | Optional numerical environment and synthetic teaching examples; separate dependencies. |
+| [Porcelain](porcelain.md) | `porcelain --help` | Overview needs no optional packages; subcommand help and runs require the numerical environment. Synthetic teaching examples. |
 | Release packaging | `python3 -B tools/release/package.py --help` | Deterministic downloads built from committed public source. |
 
 ## Evidence and project checks

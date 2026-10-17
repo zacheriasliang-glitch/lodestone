@@ -167,6 +167,29 @@ class PortableTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertIn('optional porcelain', result.stderr.lower())
 
+    def test_local_help_needs_no_optional_environment_or_project_files(self):
+        before = sorted(self.home.rglob('*'))
+        # The fixture contains no toolkit catalogue or porcelain environment.
+        for command in ('doctor', 'context', 'toolkits', 'porcelain'):
+            for flag in ('--help', '-h'):
+                with self.subTest(command=command, flag=flag):
+                    result = self.invoke('--repo', self.base / 'absent package', command, flag)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertIn('usage:', result.stdout)
+                    self.assertIn(command, result.stdout)
+        overview = self.invoke('porcelain')
+        self.assertEqual(overview.returncode, 0, overview.stderr)
+        self.assertIn('Subcommand help and execution require', overview.stdout)
+        self.assertEqual(sorted(self.home.rglob('*')), before)
+        self.assertFalse(self.workspace.exists())
+
+    def test_local_help_does_not_accept_unknown_arguments(self):
+        for command in ('doctor', 'context', 'toolkits'):
+            with self.subTest(command=command):
+                result = self.invoke(command, '--help', '--unexpected')
+                self.assertEqual(result.returncode, 2)
+        self.assertFalse(self.workspace.exists())
+
     def test_repository_canon_requires_separate_configuration(self):
         result = self.invoke('yggdrasil', 'canon')
         self.assertEqual(result.returncode, 2)
