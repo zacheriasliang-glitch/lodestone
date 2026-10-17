@@ -8,7 +8,7 @@ needed to try it.
 ## Download and run
 
 1. [Download Lodestone](https://github.com/zacheriasliang-glitch/lodestone/releases/latest)
-   and choose `lodestone-0.1.0.zip`. Extract it.
+   and choose `lodestone-0.2.0.zip`. Extract it.
 2. Open a terminal in the extracted `lodestone-0.1.0` folder.
 3. Run:
 
@@ -37,6 +37,11 @@ python3 -B lodestone.py --help
 ```
 
 ## What you can use
+
+All eight laboratory toolkit families are available in this distribution.
+Run `python3 -B lodestone.py toolkits` or read the [toolkit catalogue](docs/toolkits.md)
+for configuration requirements and the exact boundary between code and private state.
+The [compact-context skill](docs/continuity.md) can now be installed separately.
 
 | Component | Start here | Purpose |
 |---|---|---|
@@ -79,15 +84,15 @@ or start services. The `python3 lodestone.py` route always remains available.
 external SHA-256 checksums. These detect changed bytes; they are not a digital
 signature or proof of who published them.
 
-This is the first public release. It contains a selected, independently reviewed
+This is the expanded public toolkit release. It contains a selected, independently reviewed
 runtime, examples and tests with fresh repository history. Experimental learned
 compression has no demonstrated general advantage. Porcelain coefficients are
 illustrative and uncalibrated. Private research corpora, conversations, histories,
 credentials, live services and host-specific policies are not part of this release.
 
-Repository-specific Yggdrasil canon adoption and whole-laboratory snapshot
-commands require a separately configured corpus and are not provided by this
-public package. Use the documented archive, crystal and corpus-navigation routes.
+Yggdrasil canon, pack and reenter commands require your own explicitly selected
+root and canon configuration. No laboratory adoption, receipts or source corpus
+is inherited. See the toolkit catalogue for configuration-dependent commands.
 
 See [release notes](CHANGELOG.md) for the exact support and validation scope.
 Report reproducible problems through [GitHub issues](https://github.com/zacheriasliang-glitch/lodestone/issues).

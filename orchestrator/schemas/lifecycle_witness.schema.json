@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lifecycle_witness.schema.json",
+  "title": "Kernel 21 Lifecycle Witness",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "status",
+    "lifecycle_id",
+    "created_at_utc",
+    "repository_root",
+    "canonical_body",
+    "selected_organ",
+    "host_authorization_id",
+    "host_approval_id",
+    "access_point",
+    "host_approval_record",
+    "decision_id",
+    "decision_sha256",
+    "node_source_sha256",
+    "attachment_contract_id",
+    "attachment_epoch",
+    "attachment_expires_at_utc",
+    "transport_plan_id",
+    "envelope_id",
+    "governing_documents",
+    "artifacts",
+    "manifest_written_last"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "record_type": {"const": "lifecycle_witness"},
+    "status": {"const": "COMMITTED"},
+    "lifecycle_id": {"type": "string", "pattern": "LCW-[0-9a-f]{24}"},
+    "created_at_utc": {"type": "string", "minLength": 1},
+    "repository_root": {"type": "string", "minLength": 1},
+    "canonical_body": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "device", "inode"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "device": {"type": "integer"},
+        "inode": {"type": "integer"}
+      }
+    },
+    "selected_organ": {"const": "BUILDER"},
+    "host_authorization_id": {"type": "string", "minLength": 1},
+    "host_approval_id": {"type": "string", "minLength": 1},
+    "access_point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "byte_count", "sha256", "access_point_id"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "byte_count": {"type": "integer", "minimum": 1},
+        "sha256": {"type": "string", "pattern": "[0-9a-f]{64}"},
+        "access_point_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "host_approval_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "byte_count", "sha256", "approval_id"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "byte_count": {"type": "integer", "minimum": 1},
+        "sha256": {"type": "string", "pattern": "[0-9a-f]{64}"},
+        "approval_id": {"type": "string", "pattern": "APR-[0-9a-f]{24}"}
+      }
+    },
+    "decision_id": {"type": "string", "pattern": "[0-9a-f]{64}"},
+    "decision_sha256": {"type": "string", "pattern": "[0-9a-f]{64}"},
+    "node_source_sha256": {"type": "string", "pattern": "[0-9a-f]{64}"},
+    "attachment_contract_id": {"type": "string", "pattern": "ATT-[0-9a-f]{24}"},
+    "attachment_epoch": {"type": "string", "pattern": "[0-9]{8}T[0-9]{6}Z"},
+    "attachment_expires_at_utc": {"type": "string", "minLength": 1},
+    "transport_plan_id": {"type": "string", "pattern": "TRN-[0-9a-f]{24}"},
+    "envelope_id": {"type": "string", "pattern": "ENV-[0-9a-f]{24}"},
+    "governing_documents": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["LABORATORY_CONSTITUTION.md", "INTERACTION_PROTOCOL.md"],
+      "properties": {
+        "LABORATORY_CONSTITUTION.md": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "byte_count", "sha256"],
+          "properties": {
+            "path": {"const": "LABORATORY_CONSTITUTION.md"},
+            "byte_count": {"type": "integer", "minimum": 1},
+            "sha256": {"type": "string", "pattern": "[0-9a-f]{64}"}
+          }
+        },
+        "INTERACTION_PROTOCOL.md": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "byte_count", "sha256"],
+          "properties": {
+            "path": {"const": "INTERACTION_PROTOCOL.md"},
+            "byte_count": {"type": "integer", "minimum": 1},
+            "sha256": {"type": "string", "pattern": "[0-9a-f]{64}"}
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "path", "byte_count", "sha256", "write_order"],
+        "properties": {
+          "role": {"enum": ["decision", "node_source", "attachment", "transport", "handoff", "context"]},
+          "path": {"type": "string", "minLength": 1},
+          "byte_count": {"type": "integer", "minimum": 1},
+          "sha256": {"type": "string", "pattern": "[0-9a-f]{64}"},
+          "write_order": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "manifest_written_last": {"const": true}
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Kernel20OrchestrationDecision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "engine",
+    "engine_version",
+    "authority",
+    "decision_id",
+    "experiment",
+    "goal",
+    "observed",
+    "problem",
+    "marr",
+    "affordances",
+    "regime_contract",
+    "routing_layers",
+    "route_scores",
+    "route",
+    "route_rationale",
+    "rival_routes",
+    "rival_route_rejections",
+    "equivalence_ledger",
+    "bounds",
+    "target_files",
+    "protected_files",
+    "predicted_outputs",
+    "predicted_protected_file_impact",
+    "approval_required",
+    "stop_condition",
+    "prediction_error_proxy",
+    "uncertainty_proxy",
+    "surprise_proxy",
+    "confidence",
+    "status"
+  ],
+  "properties": {
+    "engine": {
+      "const": "K20_ORCHESTRATION_PHENOTYPE"
+    },
+    "engine_version": {
+      "const": "1.0.0"
+    },
+    "authority": {
+      "const": "PROPOSAL_ONLY"
+    },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "experiment": {
+      "type": "string",
+      "pattern": "^\\d{3}$"
+    },
+    "goal": {
+      "type": "string",
+      "minLength": 1
+    },
+    "audit_finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "producer_role",
+        "verdict",
+        "load_bearing_gap",
+        "source_path",
+        "source_byte_count",
+        "source_sha256"
+      ],
+      "properties": {
+        "schema_version": {"const": "1.0.0"},
+        "producer_role": {"const": "AUDITOR"},
+        "verdict": {"type": "string", "pattern": "^[A-Z][A-Z_]*$"},
+        "load_bearing_gap": {"type": "boolean"},
+        "source_path": {"type": "string", "minLength": 1},
+        "source_byte_count": {"type": "integer", "minimum": 0},
+        "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "observed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence", "missing", "contradictions"],
+      "properties": {
+        "evidence": {"type": "array", "items": {"type": "string"}},
+        "missing": {"type": "array", "items": {"type": "string"}},
+        "contradictions": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "rivals", "evidence_used", "minimal_falsifier"],
+      "properties": {
+        "primary": {
+          "type": "string",
+          "enum": ["IMPLEMENTATION", "AUDIT", "PROVENANCE", "RECOVERY", "ADMISSION", "PLANNING", "UNKNOWN"]
+        },
+        "rivals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["IMPLEMENTATION", "AUDIT", "PROVENANCE", "RECOVERY", "ADMISSION", "PLANNING", "UNKNOWN"]
+          }
+        },
+        "evidence_used": {"type": "array", "items": {"type": "string"}},
+        "minimal_falsifier": {"type": "string", "minLength": 1}
+      }
+    },
+    "marr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["computational", "algorithmic", "implementation"],
+      "properties": {
+        "computational": {"type": "string", "minLength": 1},
+        "algorithmic": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "implementation": {"type": "string", "minLength": 1}
+      }
+    },
+    "affordances": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "regime_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "regime",
+        "entry_conditions",
+        "observed_evidence",
+        "confidence",
+        "rival_regimes",
+        "minimal_falsifier",
+        "protected_variables",
+        "action_authority",
+        "exit_condition",
+        "handoff_target",
+        "receipt_requirement"
+      ],
+      "properties": {
+        "regime": {
+          "type": "string",
+          "enum": ["CONTACT", "INFERENCE", "REGULATION", "RECALIBRATION", "DEVELOPMENT", "AUDIT"]
+        },
+        "entry_conditions": {"type": "array", "items": {"type": "string"}},
+        "observed_evidence": {"type": "array", "items": {"type": "string"}},
+        "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "rival_regimes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["CONTACT", "INFERENCE", "REGULATION", "RECALIBRATION", "DEVELOPMENT", "AUDIT"]
+          }
+        },
+        "minimal_falsifier": {"type": "string", "minLength": 1},
+        "protected_variables": {"type": "array", "items": {"type": "string"}},
+        "action_authority": {"const": "proposal"},
+        "exit_condition": {"type": "string", "minLength": 1},
+        "handoff_target": {
+          "type": "string",
+          "enum": ["BUILDER", "AUDITOR", "HOST_APPROVAL", "STOP"]
+        },
+        "receipt_requirement": {"type": "boolean"}
+      }
+    },
+    "routing_layers": {"type": "array", "items": {"type": "string"}},
+    "route_scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["BUILDER", "AUDITOR", "HOST_APPROVAL", "STOP"],
+      "properties": {
+        "BUILDER": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "AUDITOR": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "HOST_APPROVAL": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "STOP": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+      }
+    },
+    "route": {
+      "type": "string",
+      "enum": ["BUILDER", "AUDITOR", "HOST_APPROVAL", "STOP"]
+    },
+    "route_rationale": {"type": "string", "minLength": 1},
+    "rival_routes": {
+      "type": "array",
+      "items": {"type": "string", "enum": ["BUILDER", "AUDITOR", "HOST_APPROVAL", "STOP"]}
+    },
+    "rival_route_rejections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["route", "reason"],
+        "properties": {
+          "route": {"type": "string", "enum": ["BUILDER", "AUDITOR", "HOST_APPROVAL", "STOP"]},
+          "reason": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "equivalence_ledger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["equivalent", "mismatches", "falsifier"],
+      "properties": {
+        "equivalent": {"type": "boolean"},
+        "mismatches": {"type": "array", "items": {"type": "string"}},
+        "falsifier": {"type": "string", "minLength": 1}
+      }
+    },
+    "bounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_files", "max_receipts", "max_steps", "satisficing_threshold"],
+      "properties": {
+        "max_files": {"type": "integer", "minimum": 1, "maximum": 200},
+        "max_receipts": {"type": "integer", "minimum": 1, "maximum": 50},
+        "max_steps": {"type": "integer", "minimum": 1, "maximum": 32},
+        "satisficing_threshold": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+      }
+    },
+    "target_files": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "protected_files": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "predicted_outputs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "predicted_protected_file_impact": {"type": "string", "minLength": 1},
+    "approval_required": {"type": "boolean"},
+    "stop_condition": {"type": "string", "minLength": 1},
+    "prediction_error_proxy": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+    "uncertainty_proxy": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+    "surprise_proxy": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+    "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+    "status": {"const": "PROPOSED"}
+  }
+}

@@ -23,7 +23,19 @@ CORE_FILES = (MACHINERY, "src/lodestone_machinery/__main__.py",
 WORKSPACE_OPS = {"submit", "run", "status", "maintain", "recover", "resume",
                  "demo", "inspect", "export-nodes", "catalog-records"}
 ORIGAMI_OPS = {"ask", "start", "request", "advance", "run", "status", "inspect"}
-PUBLIC_YGGDRASIL = {"inspect", "expand", "crystal", "archive", "corpus-fold"}
+PUBLIC_YGGDRASIL = {"inspect", "expand", "crystal", "archive", "corpus-fold", "canon", "pack", "reenter"}
+TOOL_SCRIPTS = {
+    "memory": "tools/local-memory/src/lodestone_memory.py",
+    "continuity": "tools/continuity/checkpoint.py",
+    "mailbox": "tools/mailbox/mailbox.py",
+    "origami-fold": "tools/origami-fold/src/origami_fold.py",
+    "orchestrator": "orchestrator/bootstrap.py",
+    "receipt": "tools/machinery/append_receipt.py",
+    "check": "tools/machinery/check_repository.py",
+    "brief-check": "tools/machinery/check_brief.py",
+    "registry-check": "tools/machinery/check_bezoar.py",
+    "lineage-findings": "tools/machinery/yggdrasil_findings.py",
+}
 
 
 def default_workspace():
@@ -103,8 +115,10 @@ def machinery_args(args, workspace, root):
         args[2:2] = ["--workspace", str(workspace)]
     if args and args[0] == "yggdrasil":
         operation = args[1] if len(args) > 1 else ""
-        if operation and operation not in PUBLIC_YGGDRASIL and operation not in {"-h", "--help"}:
-            raise ValueError("This public package supports yggdrasil archive, crystal, corpus-fold, inspect and expand. Repository canon/pack/reenter operations require a separately configured source corpus and adoption manifest.")
+        help_requested = "--help" in args or "-h" in args
+        has_root = "--root" in args or any(arg.startswith("--root=") for arg in args)
+        if operation in {"canon", "pack", "reenter"} and not help_requested and not has_root:
+            raise ValueError("Supply --root for your separately configured source corpus and canon; no laboratory adoption is inherited")
     return args
 
 
@@ -114,7 +128,7 @@ def main(argv=None):
     parser.add_argument("--workspace", type=Path, default=default_workspace(),
                         help="Local output and record directory (default: ~/.lodestone/workspace)")
     parser.add_argument("command", choices=("doctor", "context", "machinery", "origami", "yggdrasil",
-                                            "wake", "conscience", "porcelain"))
+                                            "wake", "conscience", "porcelain", "repository", "toolkits", *TOOL_SCRIPTS))
     parser.add_argument("args", nargs=argparse.REMAINDER)
     options = parser.parse_args(argv)
     try:
@@ -123,6 +137,26 @@ def main(argv=None):
         root = options.repo.expanduser().resolve()
         workspace = options.workspace.expanduser().resolve()
         command, args = options.command, options.args
+        if command == "toolkits":
+            if args:
+                raise ValueError("toolkits takes no arguments")
+            print(read_bounded(root / "tools/toolkits.json").decode("utf-8"))
+            return 0
+        if command in TOOL_SCRIPTS or command == "repository":
+            if command == "repository":
+                scripts = {"manifest": "manifest.py", "export": "export.py", "verify": "verify_pilot.py"}
+                if not args or args == ["--help"] or args == ["-h"]:
+                    print("repository manifest | export | verify; append --help for each operation")
+                    return 0
+                if args[0] not in scripts:
+                    raise ValueError("repository takes manifest | export | verify")
+                script = "tools/repository/" + scripts[args[0]]
+                args = args[1:]
+            else:
+                script = TOOL_SCRIPTS[command]
+            if command == "receipt" and os.name == "nt":
+                raise ValueError("receipt uses POSIX locks and hardlinks; use macOS/Linux or WSL")
+            return subprocess.run([sys.executable, "-B", str(root / script), *args], check=False).returncode
         if command in ("doctor", "context"):
             if args:
                 raise ValueError("doctor/context take global options before the command")

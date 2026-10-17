@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "attachment_contract.schema.json",
+  "title": "Kernel 21 Attachment Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "engine",
+    "engine_version",
+    "organ",
+    "authority",
+    "attachment_contract_id",
+    "requested_root",
+    "execution_root",
+    "environment",
+    "body_identity",
+    "attachment_state",
+    "readable_roots",
+    "writable_roots",
+    "capabilities",
+    "attachment_epoch",
+    "observed_at_utc",
+    "expires_at_utc",
+    "minimal_falsifier",
+    "expires_when"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "engine": {"const": "K21_EMBODIED_TRANSPORT_BRIDGE"},
+    "engine_version": {"const": "1.0.0"},
+    "organ": {"const": "B_ATTACH"},
+    "authority": {"const": "PROPOSAL_ONLY"},
+    "attachment_contract_id": {"type": "string", "pattern": "ATT-[0-9a-f]{24}"},
+    "requested_root": {"type": "string", "minLength": 1},
+    "execution_root": {"type": "string", "minLength": 1},
+    "environment": {
+      "enum": ["LOCAL_WORKSPACE", "SANDBOX", "TEMPORARY_COPY", "REMOTE_WORKSPACE", "GIT_WORKTREE", "UNKNOWN"]
+    },
+    "body_identity": {"enum": ["MATCH", "MIRROR", "MISMATCH", "UNVERIFIED", "STALE"]},
+    "attachment_state": {"enum": ["WRITE_READY", "READ_ONLY", "SANDBOXED", "DETACHED", "STALE", "UNKNOWN"]},
+    "readable_roots": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "writable_roots": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["read", "write", "execute", "network", "spawn_process", "request_approval", "git_read", "git_write", "mcp", "api"],
+      "properties": {
+        "read": {"enum": ["OBSERVED", "DENIED", "UNKNOWN"]},
+        "write": {"enum": ["OBSERVED", "DENIED", "UNKNOWN"]},
+        "execute": {"enum": ["OBSERVED", "DENIED", "UNKNOWN"]},
+        "network": {"enum": ["OBSERVED", "DENIED", "UNKNOWN"]},
+        "spawn_process": {"enum": ["OBSERVED", "DENIED", "UNKNOWN"]},
+        "request_approval": {"enum": ["OBSERVED", "DENIED", "UNKNOWN"]},
+        "git_read": {"enum": ["OBSERVED", "DENIED", "UNKNOWN"]},
+        "git_write": {"enum": ["OBSERVED", "DENIED", "UNKNOWN"]},
+        "mcp": {"enum": ["OBSERVED", "DENIED", "UNKNOWN"]},
+        "api": {"enum": ["OBSERVED", "DENIED", "UNKNOWN"]}
+      }
+    },
+    "attachment_epoch": {"type": "string", "pattern": "[0-9]{8}T[0-9]{6}Z"},
+    "observed_at_utc": {"type": "string", "minLength": 1},
+    "expires_at_utc": {"type": "string", "minLength": 1},
+    "minimal_falsifier": {"type": "string", "minLength": 1},
+    "expires_when": {"type": "string", "minLength": 1}
+  }
+}

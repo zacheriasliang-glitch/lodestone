@@ -1,0 +1,21 @@
+{
+  "requiredFiles": [
+    "CURRENT_STATE.md",
+    "experiments"
+  ],
+  "maxRecentReceipts": 10,
+  "protectedPaths": [
+    ".git",
+    "governance",
+    "protocol",
+    "runtime",
+    "receipts"
+  ],
+  "outputDir": "orchestrator/output",
+  "kernel20Bounds": {
+    "max_files": 40,
+    "max_receipts": 10,
+    "max_steps": 8,
+    "satisficing_threshold": 0.8
+  }
+}
