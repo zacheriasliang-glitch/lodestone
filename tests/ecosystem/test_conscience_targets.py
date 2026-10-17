@@ -138,14 +138,29 @@ class MutationTargetsTests(unittest.TestCase):
         result = self.inspect("rm", "nested/../target")
         self.assertEqual(result["targets"], [str(self.cwd / "target")])
 
-    def test_symlink_parent_segments_resolve_before_normalization(self):
+    def test_symlink_parent_segments_cover_observed_filesystem_destination(self):
         (self.cwd / "actual/nested").mkdir(parents=True)
         try:
             (self.cwd / "link").symlink_to("actual/nested", target_is_directory=True)
         except (OSError, NotImplementedError):
             self.skipTest("Directory symlinks unavailable on this platform")
-        result = self.inspect("rm", "link/../target")
-        self.assertEqual(result["targets"], [str(self.cwd / "target"), str(self.cwd / "actual/target")])
+        before = self.inspect("rm", "link/../target")
+        # Ask the filesystem, rather than Path.resolve or an OS-name branch,
+        # where symlink/../name writes land on this platform.
+        marker = b"observed symlink parent destination\n"
+        with (self.cwd / "link/../target").open("xb") as output:
+            output.write(marker)
+        lexical = self.cwd / "target"
+        observed = [path for path in (lexical, self.cwd / "actual/target") if path.is_file()]
+        self.assertEqual(len(observed), 1)
+        self.assertEqual(observed[0].read_bytes(), marker)
+        expected = list(dict.fromkeys((str(lexical), str(observed[0]))))
+        for state, result in (("absent", before), ("present", self.inspect("rm", "link/../target"))):
+            with self.subTest(destination=state):
+                self.assertTrue(result["writes"])
+                self.assertEqual(result["targets"], expected)
+                self.assertEqual(result["destructive_sources"], expected)
+                self.assertEqual(result["uncertain"], [])
 
     def test_direct_tilde_is_literal_and_quoted_shell_tilde_stays_literal(self):
         self.assertEqual(self.inspect("rm", "~/target")["targets"], [str(self.cwd / "~/target")])
