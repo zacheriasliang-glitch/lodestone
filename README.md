@@ -8,8 +8,8 @@ needed to try it.
 ## Download and run
 
 1. [Download Lodestone](https://github.com/zacheriasliang-glitch/lodestone/releases/latest)
-   and choose `lodestone-0.2.0.zip`. Extract it.
-2. Open a terminal in the extracted `lodestone-0.1.0` folder.
+   and choose the versioned `lodestone-*.zip` asset. Extract it.
+2. Open a terminal in the extracted versioned folder containing `lodestone.py`.
 3. Run:
 
 ```sh

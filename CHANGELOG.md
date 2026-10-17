@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.2.1 — download and export documentation
+
+- Uses the extracted versioned folder in onboarding instructions, removing the
+  stale 0.1.0 folder name from the 0.2.0 download route.
+- Documents UTF-8 text-only selection for the repository source export and
+  directs arbitrary binary preservation to the file archive toolkit.
+- Runtime code is unchanged from 0.2.0.
+
 ## 0.2.0 — portable toolkit expansion
 
 - Includes local memory, explicit checkpoint/resume, installable compact-context skill,

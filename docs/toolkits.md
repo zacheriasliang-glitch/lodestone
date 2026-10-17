@@ -15,7 +15,7 @@ arguments; append `--help` to inspect them.
 | [Origami re-entry fold](origami-fold.md) | `origami-fold --help` | Explicit source root and fold, with an invented example; no historic workstream state. |
 | [Continuity / compact context](continuity.md) | `continuity --help` | Create immutable-by-contract checkpoints, verify source drift and reopen evidence. Optional agent skill installation. |
 | [Mailbox](mailbox.md) | `mailbox --help` | POSIX/Git transport, your remote, branch and local state. Transport is separate from worker execution. |
-| [Repository export](../tools/repository/README.md) | `repository manifest`, `repository export`, `repository verify` | Explicit committed-file selection, local private Git bundle and checked source archive. Git required. |
+| [Repository export](../tools/repository/README.md) | `repository manifest`, `repository export`, `repository verify` | Explicit committed UTF-8 text selection, local private Git bundle and checked source archive. Git required. |
 | [Orchestrator](orchestrator.md) | `orchestrator --help` | Python Kernel20/legacy planning and Kernel21 custody helpers; explicit project root; no automatic execution. |
 | [Archives / Saṃsāra foundations](archives.md) | `origami archive --help` | Pack, verify and recover selected files. Cloud/account setup is user-owned. |
 | Crystal / numerical modules | `origami crystal --help`, `origami transformer --help` | Existing bounded storage and numerical contracts; inclusion does not establish learned compression benefit. |
