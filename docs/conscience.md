@@ -32,8 +32,12 @@ It pins local documentation, records readiness and local resource observations,
 and follows the unique predecessor chain of earlier wakes. It does not start any
 background process or execute a machinery job. By default an absent restart note
 is normal. You may put `RESTART-README-YYYYMMDD.md` in `WORKSPACE/continuity`, or pass
-`wake --runtime-dir PATH`. A matching `.md.sha256` sidecar is checked when present;
-a mismatch records a failed check and gives exit code 2.
+`wake --runtime-dir PATH`. A present note requires a matching `.md.sha256` sidecar.
+A missing or mismatched sidecar publishes a diagnostic waking record with a failed
+check and exit code 2, regardless of which checklist items were scheduled. An
+empty or whitespace-only sidecar returns an error before publication. Read the
+diagnostic before retrying; `WOKEN` means a record exists, not that all checks passed.
+The declared actor appears in both the record and the command result.
 
 ## Command assessment
 

@@ -2,6 +2,8 @@
 
 This is a file ledger, not a native context-window controller or a backup.
 It reads only named regular files and never follows source symlinks.
+Preservation compares caller-pinned records for one task and source epoch;
+it does not infer semantic resolution, authorization, or a new baseline.
 """
 from __future__ import annotations
 
@@ -141,7 +143,16 @@ def unique_object(pairs):
     return result
 
 
-def read_checkpoint(path):
+def expected_pin(value, field="Expected checkpoint SHA-256"):
+    if (not isinstance(value, str) or len(value) != 64
+            or any(char not in "0123456789abcdef" for char in value)):
+        raise ValueError(f"{field} must be 64 lowercase hexadecimal characters")
+    return value
+
+
+def _checkpoint_bytes(path, expected_sha256=None):
+    if expected_sha256 is not None:
+        expected_pin(expected_sha256)
     path = Path(os.path.abspath(Path(path).expanduser()))
     no_symlinks(path)
     if not path.is_file():
@@ -150,6 +161,13 @@ def read_checkpoint(path):
         raw = stream.read(MAX_CHECKPOINT_BYTES + 1)
     if len(raw) > MAX_CHECKPOINT_BYTES:
         raise ValueError("Checkpoint exceeds the 1 MiB size bound")
+    actual_sha256 = hashlib.sha256(raw).hexdigest()
+    if expected_sha256 is not None and actual_sha256 != expected_sha256:
+        raise ValueError("Checkpoint file differs from expected raw-file SHA-256")
+    return raw, actual_sha256
+
+
+def _parse_checkpoint(raw):
     value = json.loads(raw, object_pairs_hook=unique_object)
     fields = {"schema", "created_at", "task", "status", "next_action", "notes", "unresolved", "sources", "checkpoint_sha256"}
     if not isinstance(value, dict) or set(value) != fields or value["schema"] != SCHEMA:
@@ -180,8 +198,13 @@ def read_checkpoint(path):
     return value
 
 
-def verify(checkpoint, root):
-    value = read_checkpoint(checkpoint)
+def read_checkpoint(path, *, expected_sha256=None):
+    """Read a v1 record; check an optional external raw-file pin before parsing."""
+    raw, _ = _checkpoint_bytes(path, expected_sha256)
+    return _parse_checkpoint(raw)
+
+
+def _verify_sources(value, root):
     root = project_root(root)
     comparisons = []
     for expected in value["sources"]:
@@ -195,12 +218,74 @@ def verify(checkpoint, root):
             row.update(status="UNREADABLE", error=str(exc)[:1000])
         comparisons.append(row)
     failures = sum(row["status"] != "MATCH" for row in comparisons)
+    return comparisons, failures
+
+
+def verify(checkpoint, root, *, expected_sha256=None):
+    """Check listed bytes; an absent external pin means self-consistency only."""
+    raw, file_sha256 = _checkpoint_bytes(checkpoint, expected_sha256)
+    value = _parse_checkpoint(raw)
+    comparisons, failures = _verify_sources(value, root)
     return {"status": "VERIFIED" if not failures else "DRIFT", "failures": failures,
+            "file_sha256": file_sha256, "external_pin_checked": expected_sha256 is not None,
             "checkpoint_sha256": value["checkpoint_sha256"],
             "created_at": value["created_at"], "task": value["task"],
             "recorded_status": value["status"], "next_action": value["next_action"],
             "notes": value["notes"], "unresolved": value["unresolved"], "sources": comparisons,
             "scope": "Named file bytes only. Notes are recorded claims; no commands were replayed."}
+
+
+def _missing_text(previous, candidate):
+    """Keep exact text, including repeated records; order need not be retained."""
+    remaining = list(candidate)
+    missing = []
+    for text in previous:
+        if text in remaining:
+            remaining.remove(text)
+        else:
+            missing.append(text)
+    return missing
+
+
+def preserve(predecessor, candidate, root, *, predecessor_sha256, candidate_sha256):
+    """Check a same-task, fixed-source-epoch extension without writing anything.
+
+    Both raw-file pins must come from independent earlier observations. They
+    bind bytes, not trusted authorship or authorization. Every predecessor
+    source identity, note and unresolved item must survive. Additions and
+    reordered notes are allowed; rewording or resolving inherited text requires
+    a separately reviewed new baseline, never an automatic drop or rebind.
+    All candidate source files are reopened, including additions. A passing
+    report covers these finite observations, not semantic decision preservation.
+    """
+    expected_pin(predecessor_sha256, "Predecessor SHA-256")
+    expected_pin(candidate_sha256, "Candidate SHA-256")
+    # Check BOTH external identities before interpreting either record.
+    before_raw, before_sha = _checkpoint_bytes(predecessor, predecessor_sha256)
+    after_raw, after_sha = _checkpoint_bytes(candidate, candidate_sha256)
+    before, after = _parse_checkpoint(before_raw), _parse_checkpoint(after_raw)
+    losses = []
+    if after["task"] != before["task"]:
+        losses.append({"kind": "TASK_CHANGED", "expected": before["task"], "candidate": after["task"]})
+    candidate_sources = {item["path"]: item for item in after["sources"]}
+    for expected in before["sources"]:
+        actual = candidate_sources.get(expected["path"])
+        if actual != expected:
+            losses.append({"kind": "SOURCE_IDENTITY_NOT_RETAINED", "expected": expected,
+                           "candidate": actual})
+    for field in ("notes", "unresolved"):
+        for text in _missing_text(before[field], after[field]):
+            losses.append({"kind": "TEXT_NOT_RETAINED", "field": field, "text": text})
+    comparisons, source_failures = _verify_sources(after, root)
+    status = "LOSS" if losses else "DRIFT" if source_failures else "PRESERVED"
+    return {"status": status, "failures": len(losses) + source_failures,
+            "predecessor_sha256": before_sha, "candidate_sha256": after_sha,
+            "task": after["task"], "losses": losses,
+            "source_status": "DRIFT" if source_failures else "VERIFIED",
+            "source_failures": source_failures, "sources": comparisons,
+            "scope": "Same task and fixed source identities; exact recorded notes and unresolved text. "
+                     "All candidate files reopened. No semantic resolution, authentication, authorization, "
+                     "native compaction, backup or command replay is established."}
 
 
 def main(argv=None):
@@ -218,15 +303,26 @@ def main(argv=None):
     check = commands.add_parser("verify", help="Read a checkpoint and detect changed or missing source bytes")
     check.add_argument("checkpoint", type=Path)
     check.add_argument("--root", required=True, type=Path, help="Current root; may differ from the original machine")
+    check.add_argument("--expected-sha256", help="Independent raw-file SHA-256; omit for self-consistency only")
+    keep = commands.add_parser("preserve", help="Check a pinned same-task checkpoint transition and reopen candidate sources")
+    keep.add_argument("predecessor", type=Path)
+    keep.add_argument("candidate", type=Path)
+    keep.add_argument("--root", required=True, type=Path)
+    keep.add_argument("--predecessor-sha256", required=True, help="Independently supplied predecessor raw-file SHA-256")
+    keep.add_argument("--candidate-sha256", required=True, help="Independently supplied candidate raw-file SHA-256")
     options = parser.parse_args(argv)
     try:
         if options.command == "create":
             result = create(options.root, options.output, options.task, options.status,
                             options.next_action, options.source, options.note, options.unresolved)
+        elif options.command == "verify":
+            result = verify(options.checkpoint, options.root, expected_sha256=options.expected_sha256)
         else:
-            result = verify(options.checkpoint, options.root)
+            result = preserve(options.predecessor, options.candidate, options.root,
+                              predecessor_sha256=options.predecessor_sha256,
+                              candidate_sha256=options.candidate_sha256)
         print(json.dumps(result, indent=2, ensure_ascii=True))
-        return 1 if result["status"] == "DRIFT" else 0
+        return 1 if result["status"] in ("DRIFT", "LOSS") else 0
     except (OSError, ValueError, TypeError) as exc:
         print(json.dumps({"status": "ERROR", "error": str(exc)[:1000]}, ensure_ascii=True), file=sys.stderr)
         return 2

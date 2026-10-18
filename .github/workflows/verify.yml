@@ -77,3 +77,6 @@ jobs:
       - name: Optional simulator help only
         working-directory: experiments/porcelain-simulator
         run: python -B -m porcelain.run --help
+      - name: Synthetic numerical guard checks
+        working-directory: experiments/porcelain-simulator
+        run: python -B -m unittest discover -s tests -p 'test_guardrails.py' -q

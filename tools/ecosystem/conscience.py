@@ -453,8 +453,8 @@ def wake(*, root: Path, workspace: Path, runtime_dir: Path, policy: dict,
     cursor = len(chain) * policy["schedule"]["budget_per_wake"] % max(len(names), 1)
     chosen, next_cursor = golden_schedule(names, cursor, policy["schedule"]["budget_per_wake"])
     checks = {name: _check(name, root, workspace, runtime_dir, policy) for name in chosen}
-    if readme.get("verified") is False:
-        checks["restart_readme_checksum"] = {"ok": False, "detail": "Restart note differs from its checksum"}
+    if readme.get("status") == "PRESENT" and readme.get("verified") is not True:
+        checks["restart_readme_checksum"] = {"ok": False, "detail": "Restart note checksum is missing or does not match"}
     shape = {"doctor_status": readiness["status"],
              "restart_readme.sha256": readme.get("sha256"),
              "context_pins": [d.get("sha256") for d in documents], "temperature": temp["state"]}
@@ -478,7 +478,7 @@ def wake(*, root: Path, workspace: Path, runtime_dir: Path, policy: dict,
     handle = store.publish(OWNER, "waking", payload, links=chain[-1:] if chain else ())
     accounting = four_part({"literal": literal, "argv": ["wake"]}, {"policy": policy["_pin"]},
                           {"documents": documents, "restart_readme": readme}, {"handle": handle})
-    return {"schema": SCHEMA, "status": "WOKEN", "handle": handle, "shape": shape,
+    return {"schema": SCHEMA, "status": "WOKEN", "actor": payload["actor"], "handle": handle, "shape": shape,
             "temperature": temp["state"], "checks": {name: result["ok"] for name, result in checks.items()},
             "failed_checks": [name for name, result in checks.items() if not result["ok"]],
             "history": payload["history"], "restart_readme": readme.get("status"),

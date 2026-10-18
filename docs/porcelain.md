@@ -29,6 +29,18 @@ changing compliance, stopping the wheel, and splitting equivalent contact
 support. Renderers read saved states; verification commands run numerical
 problems and can take many minutes.
 
+The geometry guard rejects nonfinite sampled Jacobians and integrated mesh
+volume, as well as sampled nonpositive Jacobians. `max_volume_drift` must be a
+finite nonnegative real value; booleans are rejected. Setting it to **zero**
+is strict: every step with nonzero computed relative volume drift is refused.
+The volume check measures global numerical drift. Finite sampling does not
+exclude folds between samples, boundary self-intersection or local thinning;
+it is not a topology or global injectivity certificate. Thickness, asymmetry,
+offset and slip remain reported diagnostics rather than rejection gates.
+
+Changes to the numerical source change the solver source digest for future
+episodes. Existing saved results retain the source provenance of their own run.
+
 The supplied material is synthetic and uncalibrated. Numerical verification
 does not establish physical porcelain fidelity, a teaching outcome, or learned
 abstraction. Release packaging checked source preservation and lightweight

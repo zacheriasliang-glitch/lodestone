@@ -199,6 +199,202 @@ class CheckpointTests(unittest.TestCase):
         self.output.write_text("not json", encoding="utf-8")
         self.assertEqual(subprocess.run(args, capture_output=True).returncode, 2)
 
+    def transition(self, candidate, before_pin=None, after_pin=None):
+        return checkpoint.preserve(
+            self.output, candidate, self.root,
+            predecessor_sha256=before_pin or hashlib.sha256(self.output.read_bytes()).hexdigest(),
+            candidate_sha256=after_pin or hashlib.sha256(candidate.read_bytes()).hexdigest())
+
+    def test_external_raw_pin_rejects_self_consistent_replacement_before_sources(self):
+        original = self.create()
+        value = checkpoint.read_checkpoint(self.output, expected_sha256=original["sha256"])
+        value["next_action"] = "A different recorded action"
+        del value["checkpoint_sha256"]
+        value["checkpoint_sha256"] = hashlib.sha256(checkpoint.canonical(value)).hexdigest()
+        self.output.write_text(json.dumps(value), encoding="utf-8")
+        self.assertEqual(checkpoint.verify(self.output, self.root)["status"], "VERIFIED")
+        with patch.object(checkpoint, "_verify_sources") as sources:
+            with self.assertRaisesRegex(ValueError, "expected raw-file SHA-256"):
+                checkpoint.verify(self.output, self.root, expected_sha256=original["sha256"])
+            sources.assert_not_called()
+        with self.assertRaisesRegex(ValueError, "expected raw-file SHA-256"):
+            checkpoint.read_checkpoint(self.output, expected_sha256=original["sha256"])
+
+    def test_external_pin_binds_wire_bytes_not_only_canonical_payload(self):
+        result = self.create()
+        value = checkpoint.read_checkpoint(self.output)
+        self.output.write_text(json.dumps(value, separators=(",", ":")), encoding="utf-8")
+        self.assertEqual(checkpoint.read_checkpoint(self.output), value)
+        with self.assertRaisesRegex(ValueError, "expected raw-file SHA-256"):
+            checkpoint.read_checkpoint(self.output, expected_sha256=result["sha256"])
+
+    def test_ordinary_verify_reports_whether_an_external_pin_was_checked(self):
+        result = self.create()
+        for pin, checked in ((None, False), (result["sha256"], True)):
+            report = checkpoint.verify(self.output, self.root, expected_sha256=pin)
+            self.assertEqual(report["status"], "VERIFIED")
+            self.assertEqual(report["external_pin_checked"], checked)
+            self.assertEqual(report["file_sha256"], result["sha256"])
+
+    def test_preserve_additions_and_relocated_root_without_writing(self):
+        original = self.create(notes=["First observation", "Second observation"])
+        (self.root / "addition.txt").write_bytes(b"New evidence\n")
+        candidate = self.base / "candidate.json"
+        addition = self.create(output=candidate, sources=["source.txt", "addition.txt"],
+                               notes=["Second observation", "New observation", "First observation"],
+                               unresolved=["No scientific validation", "Further review"],
+                               status="RECORDED_UPDATE", next_action="Read addition")
+        before_bytes, after_bytes = self.output.read_bytes(), candidate.read_bytes()
+        moved = self.base / "moved"
+        shutil.copytree(self.root, moved)
+        report = checkpoint.preserve(self.output, candidate, moved,
+                                     predecessor_sha256=original["sha256"],
+                                     candidate_sha256=addition["sha256"])
+        self.assertEqual(report["status"], "PRESERVED", report)
+        self.assertEqual(report["failures"], 0)
+        self.assertEqual({row["path"] for row in report["sources"]}, {"source.txt", "addition.txt"})
+        self.assertEqual(self.output.read_bytes(), before_bytes)
+        self.assertEqual(candidate.read_bytes(), after_bytes)
+
+    def test_standalone_valid_same_count_source_substitution_is_loss(self):
+        self.create()
+        (self.root / "other.txt").write_bytes(b"different source\n")
+        candidate = self.base / "substitution.json"
+        self.create(output=candidate, sources=["other.txt"])
+        self.assertEqual(checkpoint.verify(candidate, self.root)["status"], "VERIFIED")
+        report = self.transition(candidate)
+        self.assertEqual(report["status"], "LOSS", report)
+        self.assertEqual(report["source_status"], "VERIFIED")
+        self.assertEqual(report["losses"], [{"kind": "SOURCE_IDENTITY_NOT_RETAINED",
+                         "expected": checkpoint.read_checkpoint(self.output)["sources"][0], "candidate": None}])
+
+    def test_rebound_source_epoch_requires_a_separate_reviewed_baseline(self):
+        self.create()
+        (self.root / "source.txt").write_bytes(b"other source\n")
+        candidate = self.base / "rebound.json"
+        self.create(output=candidate)
+        # A newly recorded epoch can verify independently, but cannot silently
+        # replace the earlier source identity in a preservation transition.
+        self.assertEqual(checkpoint.verify(candidate, self.root)["status"], "VERIFIED")
+        report = self.transition(candidate)
+        self.assertEqual(report["status"], "LOSS", report)
+        self.assertEqual(report["losses"][0]["expected"]["bytes"], report["losses"][0]["candidate"]["bytes"])
+        self.assertNotEqual(report["losses"][0]["expected"]["sha256"], report["losses"][0]["candidate"]["sha256"])
+
+    def test_notes_and_unresolved_items_cannot_be_dropped_or_reworded(self):
+        self.create()
+        for field in ("notes", "unresolved"):
+            for mode, replacement in (("drop", []), ("reword", ["Apparently resolved now"])):
+                with self.subTest(field=field, mode=mode):
+                    candidate = self.base / f"{field}-{mode}.json"
+                    self.create(output=candidate, **{field: replacement})
+                    self.assertEqual(checkpoint.verify(candidate, self.root)["status"], "VERIFIED")
+                    report = self.transition(candidate)
+                    self.assertEqual(report["status"], "LOSS", report)
+                    self.assertTrue(any(row["kind"] == "TEXT_NOT_RETAINED" and row["field"] == field
+                                        for row in report["losses"]))
+
+    def test_repeated_recorded_text_is_preserved_with_its_multiplicity(self):
+        self.create(notes=["Same text", "Same text"])
+        candidate = self.base / "one-copy.json"
+        self.create(output=candidate, notes=["Same text"])
+        report = self.transition(candidate)
+        self.assertEqual(report["status"], "LOSS")
+        self.assertEqual(report["losses"], [{"kind": "TEXT_NOT_RETAINED", "field": "notes", "text": "Same text"}])
+
+    def test_task_change_is_loss_even_when_sources_and_text_match(self):
+        self.create()
+        candidate = self.base / "other-task.json"
+        self.create(output=candidate, task="Another task")
+        report = self.transition(candidate)
+        self.assertEqual(report["status"], "LOSS")
+        self.assertEqual(report["losses"][0]["kind"], "TASK_CHANGED")
+
+    def test_preserve_reopens_sources_and_reports_missing_changed_and_unreadable(self):
+        self.create()
+        candidate = self.base / "candidate.json"
+        self.create(output=candidate)
+        source = self.root / "source.txt"
+        source.unlink()
+        report = self.transition(candidate)
+        self.assertEqual(report["status"], "DRIFT", report)
+        self.assertEqual(report["sources"][0]["status"], "MISSING")
+        source.write_bytes(b"other source\n")
+        report = self.transition(candidate)
+        self.assertEqual(report["status"], "DRIFT", report)
+        self.assertEqual(report["sources"][0]["status"], "CHANGED")
+        with patch.object(checkpoint, "fingerprint", side_effect=PermissionError("Synthetic refusal")):
+            report = self.transition(candidate)
+        self.assertEqual(report["status"], "DRIFT", report)
+        self.assertEqual(report["sources"][0]["status"], "UNREADABLE")
+
+    def test_added_source_is_checked_and_loss_does_not_hide_drift(self):
+        self.create()
+        extra = self.root / "extra.txt"
+        extra.write_bytes(b"additional evidence")
+        candidate = self.base / "candidate.json"
+        self.create(output=candidate, sources=["source.txt", "extra.txt"], unresolved=[])
+        extra.unlink()
+        report = self.transition(candidate)
+        self.assertEqual(report["status"], "LOSS", report)
+        self.assertEqual(report["source_status"], "DRIFT")
+        self.assertEqual(report["source_failures"], 1)
+        self.assertEqual(report["failures"], 2)
+
+    def test_both_raw_pins_checked_before_any_record_is_parsed(self):
+        original = self.create()
+        candidate = self.base / "candidate.json"
+        result = self.create(output=candidate)
+        for before_pin, after_pin in (("0" * 64, result["sha256"]), (original["sha256"], "0" * 64)):
+            with self.subTest(before=before_pin), patch.object(checkpoint, "_parse_checkpoint") as parse:
+                with self.assertRaisesRegex(ValueError, "expected raw-file SHA-256"):
+                    self.transition(candidate, before_pin, after_pin)
+                parse.assert_not_called()
+
+    def test_preserve_requires_valid_explicit_pins_and_valid_schema(self):
+        original = self.create()
+        candidate = self.base / "candidate.json"
+        result = self.create(output=candidate)
+        for bad in (None, "", "A" * 64, "x" * 64, 12, [], "0" * 63):
+            with self.subTest(pin=bad), patch.object(checkpoint, "_checkpoint_bytes") as read:
+                with self.assertRaisesRegex(ValueError, "lowercase hexadecimal"):
+                    checkpoint.preserve(self.output, candidate, self.root,
+                                        predecessor_sha256=bad, candidate_sha256=result["sha256"])
+                read.assert_not_called()
+        with self.assertRaises(TypeError):
+            checkpoint.preserve(self.output, candidate, self.root)
+        candidate.write_text('{"schema":"wrong"}', encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Unsupported checkpoint schema"):
+            self.transition(candidate, original["sha256"])
+
+    def test_preserve_cli_status_and_error_exit_codes(self):
+        original = self.create()
+        candidate = self.base / "candidate.json"
+        result = self.create(output=candidate)
+        prefix = [sys.executable, "-B", str(SCRIPT)]
+        args = prefix + ["preserve", str(self.output), str(candidate), "--root", str(self.root),
+                         "--predecessor-sha256", original["sha256"], "--candidate-sha256", result["sha256"]]
+        passed = subprocess.run(args, text=True, capture_output=True)
+        self.assertEqual(passed.returncode, 0, passed.stderr)
+        self.assertEqual(json.loads(passed.stdout)["status"], "PRESERVED")
+        missing_pin = subprocess.run(args[:-2], text=True, capture_output=True)
+        self.assertEqual(missing_pin.returncode, 2)
+        bad_pin = subprocess.run(args[:-1] + ["invalid"], text=True, capture_output=True)
+        self.assertEqual(bad_pin.returncode, 2)
+        self.assertEqual(json.loads(bad_pin.stderr)["status"], "ERROR")
+        (self.root / "source.txt").unlink()
+        drift = subprocess.run(args, text=True, capture_output=True)
+        self.assertEqual(drift.returncode, 1)
+        self.assertEqual(json.loads(drift.stdout)["status"], "DRIFT")
+        (self.root / "source.txt").write_bytes(b"exact source\n")
+        loss = self.base / "loss.json"
+        lost = self.create(output=loss, unresolved=[])
+        loss_args = prefix + ["preserve", str(self.output), str(loss), "--root", str(self.root),
+                              "--predecessor-sha256", original["sha256"], "--candidate-sha256", lost["sha256"]]
+        failed = subprocess.run(loss_args, text=True, capture_output=True)
+        self.assertEqual(failed.returncode, 1)
+        self.assertEqual(json.loads(failed.stdout)["status"], "LOSS")
+
 
 if __name__ == "__main__":
     unittest.main()
