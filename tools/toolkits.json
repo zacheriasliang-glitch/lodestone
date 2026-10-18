@@ -1,6 +1,6 @@
 {
   "schema": "lodestone-toolkit-catalog/v1",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "scope": "All eight laboratory tools directory families, orchestration and optional simulator; reusable code with fresh-user configuration",
   "toolkits": [
     {
@@ -42,7 +42,7 @@
       "id": "continuity",
       "path": "tools/continuity",
       "command": "continuity --help",
-      "purpose": "Task checkpoint creation, drift verification and compact-context skill",
+      "purpose": "Task checkpoints, pinned verification, evidence preservation and compact-context skill",
       "requirements": "Explicit regular files; no native context-window control or background service"
     },
     {

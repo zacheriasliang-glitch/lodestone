@@ -15,7 +15,7 @@
   "docs/orchestrator.md": "06b4180fcd35622d4a58b5abc919ce902e114e52ea46132697aa597f7a3d919c",
   "docs/origami-fold.md": "2720d3903b9b710d366048260313b476b7deeccbc128bbdb47bf70b358e5fe87",
   "docs/porcelain.md": "c4b05501ba252b334df1f43128918c61a7cb80b76b76a82e453d10feaa5336bf",
-  "docs/toolkits.md": "708f00e5a7771f146cfc8d79912a7792447cfad024d177724090d16cd1bca6e3",
+  "docs/toolkits.md": "c6df3aba56fb4d632ad5c131fc01ee6c74a04713d46f7bec961a5ba7879faf28",
   "examples/machinery/custom_worker.py": "d3e278bc77c6018629ced37145226132fe711eb4e1efa9dea1c8ee747b8d3748",
   "examples/machinery/organ_records.py": "465fedf0fd4b2f6b396b1e08ddbb04aa03fa5b9d23098465d629c49b43f0b123",
   "examples/machinery/review_handoff.py": "e8803e136118168ec37700328c3c516e53681984ea854616fe09dc876067f647",
@@ -196,11 +196,11 @@
   "tools/origami-fold/tests/test_origami_fold.py": "beed423f3672a25d6c126fd0fda083a9024bd4d35cf99ff28c1af2bbf1ab7355",
   "tools/origami-fold/tests/test_public_example.py": "a9dce3d5288bc61907c637628beaf28f0e6d6ce4d4ba238b372224e6bbde73ab",
   "tools/release/package.py": "599b4c42abae58f807553591b7836d61114efacd5dbce4bb7121e975744484ab",
-  "tools/release/smoke.py": "dd15791ab18d9da06a39fe16961928e676d8f3dc219adfaf9835f87bcb4b5cf7",
+  "tools/release/smoke.py": "88efca064cc1e3fae484d39c7ed57a07231f03c90715020a193de0e7637809ab",
   "tools/repository/README.md": "f1932eb29351990fdc7c5954dfd852a91b4dc3cd587bdba18c695689155aebf9",
   "tools/repository/export.py": "1193a11dc380afe81ff429bd0ffd097db09b9ed29ce99969d81f206c4b17ee6b",
   "tools/repository/manifest.py": "f8f07279cd3757d0a5d55d06c53c565f4988e3785b2cf754e20316411f1b44fc",
   "tools/repository/verify_pilot.py": "2c9a4ae0aedca15214a0c72ba138e6ce7d643a3b4edbb81428eac61562cc7ddd",
-  "tools/toolkits.json": "008481490b3218d2caed373413cb814f0a03844bf12753ac2b91c85079ef141f",
+  "tools/toolkits.json": "87dc657f9b4ed71fc94a72a0830f873f2aaa967480701abf868f4668af78303f",
   "verify_download.py": "65aa5b5d148e1ae1717a3412b0b6bcb6163e22e66001cd9886a5f01f68977502"
 }

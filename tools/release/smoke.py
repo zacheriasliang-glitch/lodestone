@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise public entry points with temporary user state, without a model."""
 import hashlib
+import argparse
 import json
 import os
 from pathlib import Path
@@ -13,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def main():
+    argparse.ArgumentParser(description=__doc__).parse_args()
     checks = []
     with tempfile.TemporaryDirectory(prefix="lodestone-new-user-") as temp:
         base = Path(temp).resolve()

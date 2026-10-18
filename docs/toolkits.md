@@ -13,7 +13,7 @@ arguments; append `--help` to inspect them.
 | [Corpus fold](corpus-fold.md) | `yggdrasil corpus-fold --help` | Select your corpus; reading maps preserve source identities and declared lineage. |
 | [Local memory](../tools/local-memory/README.md) | `memory --help` | Initialize your own store; explicit notes, links and word-bounded retrieval. |
 | [Origami re-entry fold](origami-fold.md) | `origami-fold --help` | Explicit source root and fold, with an invented example; no historic workstream state. |
-| [Continuity / compact context](continuity.md) | `continuity --help` | Create immutable-by-contract checkpoints, verify source drift and reopen evidence. Optional agent skill installation. |
+| [Continuity / compact context](continuity.md) | `continuity --help` | Create checkpoints, verify pinned sources and compare retained evidence with `preserve`. Optional agent skill installation. |
 | [Mailbox](mailbox.md) | `mailbox --help` | POSIX/Git transport, your remote, branch and local state. Transport is separate from worker execution. |
 | [Repository export](../tools/repository/README.md) | `repository manifest`, `repository export`, `repository verify` | Explicit committed UTF-8 text selection, local private Git bundle and checked source archive. Git required. |
 | [Orchestrator](orchestrator.md) | `orchestrator --help` | Python Kernel20/legacy planning and Kernel21 custody helpers; explicit project root; no automatic execution. |
