@@ -1,5 +1,18 @@
 # Release notes
 
+## 0.2.3 — declared evidence preservation
+
+- Adds independently pinned checkpoint verification and an explicit `preserve`
+  comparison for required sources, notes and unresolved items, including duplicates.
+  Every candidate source is reopened; equal counts do not conceal substitution.
+- Updates the compact-context skill and guides to explain this workflow and its
+  limits: selected evidence checks do not guarantee semantic or automatic memory.
+- Rejects unverified present restart notes in portable Conscience wake, and returns
+  the declared actor alongside the record handle. Absent notes remain normal.
+- Rejects nonfinite sampled mesh Jacobians, integrated volume and invalid drift
+  limits in Porcelain. Adds synthetic numerical and macro-voxel contract regressions.
+  No new scientific result or geometric completeness claim is made.
+
 ## 0.2.2 — peer review follow-up
 
 - Adds help for doctor, context and toolkit discovery, plus a Porcelain overview

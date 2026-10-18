@@ -53,9 +53,12 @@ def graph_fixture():
 class CodecTests(unittest.TestCase):
     def test_lossless_projection_and_binary_provenance(self):
         graph = graph_fixture()
+        graph["nodes"][0]["state"]["scalars"] = [True, 1, 1.0, 0.0, -0.0]
+        original_bytes = mv.canonical(graph)
         voxel = mv.encode(graph)
         decoded = mv.decode(voxel, expected_sha256=voxel["sha256"])
-        self.assertEqual(decoded, graph)
+        # Python value equality alone conflates bool/int, int/float and signed zero.
+        self.assertEqual(mv.canonical(decoded), original_bytes)
         self.assertEqual(mv.projection(decoded), mv.projection(graph))
         self.assertEqual(mv.source_bytes(decoded["sources"]["a"]), b"Source A\x00\xff")
         self.assertEqual(decoded["nodes"][1]["debt"], [{"kind": "unpaid", "quantity": 3}])
@@ -153,6 +156,36 @@ class CodecTests(unittest.TestCase):
         self.assertEqual(tiny["external_node_ids"], ["b"])
         self.assertEqual(tiny["residue"]["debt"], [{"amount": 3}])
         self.assertEqual(len(mv.expand(voxel, "a", depth=16)["nodes"]), 2)
+
+    def test_directional_expansion_keeps_exact_boundary_edges_and_evidence(self):
+        graph = graph_fixture()
+        for identifier in ("c", "d", "edge-proof"):
+            path = identifier + ".txt"
+            graph["sources"][identifier] = mv.source("fixture", path, identifier.encode() + b"\x00\xff")
+            graph["scopes"]["fixture"]["paths"].append(path)
+        for identifier in ("c", "d"):
+            graph["nodes"].append(yr.node(identifier, "fixture:lab", "epoch-1", identifier,
+                                          "observer", {"layer": "EX"}))
+        graph["edges"].extend([yr.edge("c", "a", "depends_on", ["edge-proof"]),
+                               yr.edge("b", "d", "supports", ["edge-proof"])])
+        graph["edges"][-1]["residue"]["debt"] = [{"kind": "boundary review"}]
+        voxel = mv.encode(graph)
+        cases = (("descendants", 1, {"a", "b"}, ["c", "d"], graph["edges"], {"a", "b", "edge-proof"}),
+                 ("ancestors", 1, {"a", "c"}, ["b"], graph["edges"][:2], {"a", "b", "c", "edge-proof"}),
+                 ("both", 0, {"a"}, ["b", "c"], graph["edges"][:2], {"a", "b", "edge-proof"}))
+        for direction, depth, node_ids, external, edges, sources in cases:
+            with self.subTest(direction=direction, depth=depth):
+                view = mv.expand(voxel, "a", direction=direction, depth=depth)
+                self.assertEqual({node["id"] for node in view["nodes"]}, node_ids)
+                self.assertEqual(view["external_node_ids"], external)
+                self.assertEqual(mv.canonical(view["edges"]), mv.canonical(edges))
+                self.assertEqual(set(view["sources"]), sources)
+                for identifier in sources:
+                    self.assertEqual(mv.source_bytes(view["sources"][identifier]),
+                                     mv.source_bytes(graph["sources"][identifier]))
+                self.assertEqual(view["authority"], "NONE")
+        with self.assertRaises(ValueError):
+            mv.expand(voxel, "a", depth=17)
 
 
 class RuntimeTests(unittest.TestCase):

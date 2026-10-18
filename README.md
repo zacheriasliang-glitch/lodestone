@@ -41,12 +41,15 @@ python3 -B lodestone.py --help
 All eight laboratory toolkit families are available in this distribution.
 Run `python3 -B lodestone.py toolkits` or read the [toolkit catalogue](docs/toolkits.md)
 for configuration requirements and the exact boundary between code and private state.
-The [compact-context skill](docs/continuity.md) can now be installed separately.
+The [compact-context guide and skill](docs/continuity.md) cover saving task
+checkpoints, verifying their sources and comparing what survives a handoff.
+The skill can be installed separately.
 
 | Component | Start here | Purpose |
 |---|---|---|
 | Machinery | `python3 lodestone.py machinery --help` | Source-backed jobs, records, inspection and explicit workspaces |
 | Conscience | [Command checks and waking](docs/conscience.md) | Advisory command assessment and linked local wake records |
+| Continuity | [Checkpoint, verify and preserve](docs/continuity.md) | Compare declared evidence across checkpoints within one source revision |
 | Archives / Saṃsāra foundations | [Pack, verify and restore](docs/archives.md) | Deduplicated file preservation with verified recovery |
 | Origami | `python3 lodestone.py origami --help` | Prepare source-bound questions; connect your own provider explicitly |
 | Corpus navigation | `python3 lodestone.py yggdrasil corpus-fold --help` | Build and inspect bounded source maps |
@@ -61,6 +64,10 @@ personal Saṃsāra snapshots and does not configure cloud storage or transfer k
 Origami can prepare requests without an AI account; an actual model-backed run
 requires your own explicit provider command and any credentials that provider
 needs. Nothing contacts a model automatically.
+
+Checkpoint preservation checks required source identities, notes and unresolved
+questions. It does not guarantee that a summary contains everything a future
+question needs, or run automatically when an agent compacts its context.
 
 Provider commands are trusted code. The launcher filters environment variables;
 filesystem and network restrictions require an available kernel sandbox and are

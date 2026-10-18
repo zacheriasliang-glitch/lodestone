@@ -5,6 +5,7 @@ inertial acceleration is a material time difference, without an ALE advection
 term.  This is a first-order method on the geometry at the beginning of a step.
 """
 from dataclasses import dataclass, replace
+from numbers import Real
 import warnings
 
 import numpy as np
@@ -174,10 +175,15 @@ def mesh_quality(mesh, reference_signs, quadrature):
                        for j in np.linspace(0, 1, 5) for k in np.linspace(0, 1, 5)
                        if i+j+k <= 1+1e-12]).T
     probe = vb.mapping.detDF(points)*reference_signs[:, None]
+    if not np.isfinite(signed).all() or not np.isfinite(probe).all():
+        raise RuntimeError("Nonfinite sampled mesh Jacobian.")
     minimum = min(float(signed.min()), float(probe.min()))
     if minimum <= 0:
         raise RuntimeError(f"Inverted or degenerate mesh: sampled Jacobian {minimum:g}")
-    return float(vb.dx.sum()), minimum
+    volume = float(vb.dx.sum())
+    if not np.isfinite(volume):
+        raise RuntimeError("Nonfinite integrated mesh volume.")
+    return volume, minimum
 
 
 class Solver:
@@ -194,6 +200,9 @@ class Solver:
     def __init__(self, mesh, material=None, gravity=9.81, slip_beta=2000.,
                  nonlinear_tol=1e-8, max_nonlinear=80, max_volume_drift=0.005,
                  hands=(), inner_radius=None, outer_radius=None):
+        if (isinstance(max_volume_drift, bool) or not isinstance(max_volume_drift, Real)
+                or not 0 <= max_volume_drift < float("inf")):
+            raise ValueError("Maximum volume drift must be a finite nonnegative real scalar.")
         self.mesh = mesh
         # v0.2: hand patches on a hollow wall (see hands.py). Empty tuple keeps v0.1 behaviour.
         self.hands = tuple(hands)
