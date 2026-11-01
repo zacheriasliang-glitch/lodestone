@@ -735,7 +735,7 @@ class Controller:
             stage = None
             child = None
             metrics = {"rss_enforcement": "Sampled process RSS; may overshoot between samples; not an allocator hard cap",
-                       "rss_observer": "Darwin proc_pidinfo task RSS" if sys.platform == "darwin" else "ps RSS in KiB",
+                       "rss_observer": "Darwin proc_pidinfo task RSS" if sys.platform == "darwin" else "Linux procfs statm RSS in bytes",
                        "peak_sampled_rss_bytes": 0, "wall_seconds": 0.0, "stage_bytes": 0,
                        "preflight_wall_seconds": time.monotonic() - started,
                        "worker_wall_limit_seconds": worker_budget, "supervisor_wall_limit_seconds": supervisor_budget,

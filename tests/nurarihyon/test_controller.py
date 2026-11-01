@@ -62,6 +62,9 @@ class ControllerTests(unittest.TestCase):
         t = self.queued()
         result = self.c.run_once()
         self.assertEqual(result["state"], "COMPLETED", result)
+        self.assertEqual(result["result"]["metrics"]["rss_observer"],
+                         "Darwin proc_pidinfo task RSS" if sys.platform == "darwin"
+                         else "Linux procfs statm RSS in bytes")
         restarted = Controller(self.home)
         self.assertEqual(restarted.verify()["generations"], 2)
         board = Board(restarted.active_directory() / "pando")

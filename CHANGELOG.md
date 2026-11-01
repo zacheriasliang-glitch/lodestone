@@ -10,6 +10,10 @@
   stay unresolved; source text and correction claims cannot authorize repair.
 - Adds user-owned policy preparation, a specific Conscience worker-admission
   binding, synthetic examples, explicit profile-outcome retention and retrieval.
+- Validates Conscience operational policy fields before pinning or dispatch.
+  Invalid custom field shapes/types now refuse early. Valid neutral v1 policies,
+  optional `interpreter.pinned` and descriptive metadata remain compatible; see
+  the [policy migration note](docs/conscience.md#policy-compatibility-in-030).
 - Includes selected-state export/inert restoration and opt-in macOS login-service
   preparation. Extracting/installing the package never starts a daemon, approves
   a task, clears STOP, contacts a model or configures cloud access.

@@ -70,6 +70,25 @@ actor; it does not authenticate that identity. The supplied training-launch rule
 requires a `--preregistration` argument, but does not verify that argument's
 scientific adequacy or authorize a study.
 
+## Policy compatibility in 0.3.0
+
+Operational fields are now validated before a policy is pinned or a command is
+dispatched. Malformed shapes and incorrect types are rejected, including scalar
+record/write roots, incomplete writer rules, non-list interpreter flags and a
+boolean, negative or fractional wake budget. Duplicate keys and nonfinite numbers
+are rejected too. This can expose an invalid custom policy that older versions
+accepted until a later operation.
+
+Valid neutral `lodestone-conscience-policy/v1` policies remain supported.
+`interpreter.pinned` stays optional; when supplied it must be nonempty text.
+Optional descriptive metadata is retained. A pin field alone is not interpreter
+authentication; Nurarihyon's deployment identity checks are separate.
+If your custom policy is rejected, start from the included
+`tools/ecosystem/conscience-policy.json`, carry over your intended writer/root
+rules with the documented types, and inspect the error before dispatch. Do not
+remove validation or change an initialized controller's sealed policy to bypass
+it; prepare a separate valid configuration when that boundary requires one.
+
 ## Records and limits
 
 Records live in `WORKSPACE/organs/conscience/records`. Canonical content hashes

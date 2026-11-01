@@ -15,9 +15,23 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class PublicPackageTests(unittest.TestCase):
-    def checked(self, *args, env=None):
-        result = subprocess.run([sys.executable, "-B", *map(str, args)], cwd=ROOT,
-                                env=env, capture_output=True, text=True, timeout=720)
+    def checked(self, *args, env=None, evidence=None):
+        command = [sys.executable, "-B", *map(str, args)]
+        if evidence is None:
+            result = subprocess.run(command, cwd=ROOT, env=env,
+                                    capture_output=True, text=True, timeout=720)
+        else:
+            evidence.mkdir()
+            stdout, stderr = evidence / "stdout.log", evidence / "stderr.log"
+            # Files survive failure or timeout; never erase failed fixture evidence.
+            with stdout.open("x") as out, stderr.open("x") as err:
+                result = subprocess.run(command, cwd=ROOT, env=env,
+                                        stdout=out, stderr=err, text=True, timeout=720)
+            def tail(path):
+                with path.open("rb") as stream:
+                    stream.seek(max(0, path.stat().st_size - 12000))
+                    return stream.read().decode("utf-8", errors="replace")
+            result.stdout, result.stderr = tail(stdout), tail(stderr)
         self.assertEqual(result.returncode, 0, result.stdout[-12000:] + result.stderr[-12000:])
         return result
 
@@ -35,10 +49,18 @@ class PublicPackageTests(unittest.TestCase):
 
     @unittest.skipUnless(sys.platform in ("darwin", "linux"), "New runtimes are macOS/Linux only")
     def test_new_runtime_contracts_in_isolation(self):
-        env = {**os.environ, "PYTHONPATH": str(ROOT / "src"), "PYTHONDONTWRITEBYTECODE": "1"}
+        # mkdtemp deliberately retains evidence after both success and failure.
+        # Resolve macOS's /var alias before handing the strict fixture reader a path.
+        base = Path(tempfile.mkdtemp(prefix="lodestone-runtime-ci-")).resolve()
+        documents = base / "documents"
+        documents.mkdir()
+        env = {**os.environ, "PYTHONPATH": str(ROOT / "src"), "PYTHONDONTWRITEBYTECODE": "1",
+               "NURARIHYON_DOCUMENT_TEST_OUTPUT": str(documents)}
+        print("Synthetic runtime test evidence retained at " + str(base), flush=True)
         for suite in ("nurarihyon", "pando"):
             with self.subTest(suite=suite):
-                self.checked("-m", "unittest", "discover", "-s", ROOT / "tests" / suite, "-q", env=env)
+                self.checked("-m", "unittest", "discover", "-s", ROOT / "tests" / suite, "-q",
+                             env=env, evidence=base / suite)
 
 
 if __name__ == "__main__":

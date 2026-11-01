@@ -4,9 +4,11 @@ This map separates code availability, public verification and historical laborat
 evidence. It does not declare whole-programme completion or inherit private state.
 Proposed version: **0.3.0**, following **0.2.3**.
 
-Laboratory source is pinned to [`9b78193aecec`](https://github.com/zacheriasliang-glitch/lodestone-lab/tree/9b78193aecec663e58116a7a4b576a8356a1cf0b).
-The [published scope record](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/docs/publication-20261101/COVERAGE.json)
-preserves the original 31 components. Its underlying scope record SHA-256 is
+Access-restricted historical laboratory source is pinned to [`9b78193aecec`](https://github.com/zacheriasliang-glitch/lodestone-lab/tree/9b78193aecec663e58116a7a4b576a8356a1cf0b).
+The [restricted historical scope record](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/docs/publication-20261101/COVERAGE.json)
+preserves the original 31 components. Public readers do not need access to that
+repository: all 31 acceptance meanings/statuses are retained in the JSON below.
+The underlying historical scope record SHA-256 is
 `af579d036aa9a44acb08032b30238a5decd52326600533e5f36f951a409eca73`.
 
 The [machine-readable map](capability-map.json) contains **every original row’s
@@ -22,32 +24,37 @@ are generalized; no criterion is removed to make the release appear complete.
 - **`NOT_RUN_FOR_0.3.0`**: no new 0.3.0 check is attached to that particular row. Other local results are recorded separately below.
 - **`NOT_EXPORTED_NO_EXECUTION`**: visible laboratory provenance, unavailable as a supported public route.
 
-The source links below locate the implementation at the pinned laboratory revision.
-The JSON lists the complete file-level mapping, planned check scope and actual local
-results. Final archive installation, applicable CI and final independent review
-remain pending; local development-tree success does not replace them.
+Implementation links below open the actual adapted source in this public package.
+Laboratory revision/path references remain access-restricted historical provenance;
+no private access is required to run or inspect the public implementation. The JSON
+separates public files from historical files that were not exported.
+
+Fresh installation from the first built archive passed locally on the Mac. Check
+[PR5](https://github.com/zacheriasliang-glitch/lodestone/pull/5) for the current reviewed head,
+applicable CI results and final release decision. This map does not claim that
+current-head CI has passed.
 
 ## Implemented additions and public adaptation
 
 | ID | Capability | Programme rows | Interface and source | Public evidence |
 |---|---|---|---|---|
-| A01 | Durable approved task execution | H01, H02, H11 | nurarihyon submit/approve/run/serve/status/verify ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_nurarihyon/controller.py)) | LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING |
-| A02 | Pando board and literal profile operation | H11, H12 | pando --home BOARD ...; toolkit pando.profile/v1 ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_pando/store.py)) | LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING |
-| A03 | Inert document preparation and ingestion | H01, H11, H12 | nurarihyon capture-document; submit --toolkit bezoar.document/v1 ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_nurarihyon/documents.py)) | LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING |
-| A04 | Bezoar proposals and bounded observation | H12, H14 | bezoar ingest/eat-request/eat/mutate/hold/show/export-profile; watcher observe ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_machinery/bezoar.py)) | LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING |
-| A05 | Complete inline reconciliation | H01, H12, H15 | submit --toolkit bezoar.reconciliation/v1; Plumber.reconcile_captured ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_machinery/bezoar_reconciliation.py)) | LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING |
-| A06 | Record-backed complete capture | H01, H12, H15 | bezoar_capture.prepare/publish/read; submit --toolkit bezoar.reconciliation-capture/v1 ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_machinery/bezoar_capture.py)) | LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING |
-| A07 | Historical observation without invented predecessors | H01, H12, H15 | bezoar_capture.prepare_observation; submit --toolkit bezoar.reconciliation-observation/v1 ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_machinery/bezoar_observation.py)) | LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING |
-| A08 | Conscience-bound worker admission | H01, H22 | User-owned sealed policy binding; assess_worker before worker spawn ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_nurarihyon/conscience_binding.py)) | LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING |
-| A09 | Verified terminal outcome retention | H01, H23 | nurarihyon remember TASK --memory STORE ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_nurarihyon/outcome_memory.py)) | LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING |
-| A10 | Source-backed context and inert offline preparation | H01, H23 | nurarihyon context; submit --memory; prepare --package --descriptor ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_nurarihyon/context.py)) | LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING |
-| A11 | Pinned reconciliation-history reuse | H01, H12, H15, H23 | submit --reuse-reconciliation for inline reconciliation ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_machinery/bezoar_routing.py)) | LOCAL_COMPONENT_CHECKS_NO_COST_BENEFIT_CLAIM |
-| A12 | Selected-state consistent export and stopped restore | H01, H16, H27 | nurarihyon export --output; restore --package --descriptor --output ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_nurarihyon/portable.py)) | LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING |
-| A13 | Bounded service execution and opt-in startup configuration | H01, H26 | nurarihyon daemon; startup.render_agent/validate_agent; explicit service setup only ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_nurarihyon/service.py)) | LOCAL_SERVICE_CONTRACT_TESTS_NO_LOGIN_TEST |
-| A14 | Explicit candidate-only latent storage | H17, H19 | origami crystal latent put; yggdrasil crystal latent get; explicit store_source/restore_source and supplied-candidate catalog API ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_machinery/latent/cli.py)) | LOCAL_SYNTHETIC_EXACT_STORAGE_PASS_FINAL_BUILD_PENDING |
-| A15 | Reversible lifting and physical artifact encoding | H19, H20 | Imported library dependencies: encode/decode, compact-layout/checkpoint helpers and raw/zlib artifact encoding; no new top-level training/proposer command ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_machinery/latent/lifting.py)) | SYNTHETIC_STORAGE_DEPENDENCIES_ONLY_NOT_NUMERICAL_FIT |
-| A16 | Lab-only custody automation and source-preservation history | H21, H27, H28 | Existing public repository export remains available; lab workflow helpers are provenance ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/tools/repository/artifact_custody.py)) | NOT_RUN_FOR_0.3.0 |
-| A17 | Experimental skill library and selector | H01, H23 | Research source only; no supported task toolkit or adoption ([source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_nurarihyon/skill_library.py)) | NOT_EXPORTED_NO_EXECUTION |
+| A01 | Durable approved task execution | H01, H02, H11 | nurarihyon submit/approve/run/serve/status/verify ([public implementation](../src/lodestone_nurarihyon/controller.py)) | LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD |
+| A02 | Pando board and literal profile operation | H11, H12 | pando --home BOARD ...; toolkit pando.profile/v1 ([public implementation](../src/lodestone_pando/store.py)) | LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD |
+| A03 | Inert document preparation and ingestion | H01, H11, H12 | nurarihyon capture-document; submit --toolkit bezoar.document/v1 ([public implementation](../src/lodestone_nurarihyon/documents.py)) | LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD |
+| A04 | Bezoar proposals and bounded observation | H12, H14 | bezoar ingest/eat-request/eat/mutate/hold/show/export-profile; watcher observe ([public implementation](../src/lodestone_machinery/bezoar.py)) | LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD |
+| A05 | Complete inline reconciliation | H01, H12, H15 | submit --toolkit bezoar.reconciliation/v1; Plumber.reconcile_captured ([public implementation](../src/lodestone_machinery/bezoar_reconciliation.py)) | LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD |
+| A06 | Record-backed complete capture | H01, H12, H15 | bezoar_capture.prepare/publish/read; submit --toolkit bezoar.reconciliation-capture/v1 ([public implementation](../src/lodestone_machinery/bezoar_capture.py)) | LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD |
+| A07 | Historical observation without invented predecessors | H01, H12, H15 | bezoar_capture.prepare_observation; submit --toolkit bezoar.reconciliation-observation/v1 ([public implementation](../src/lodestone_machinery/bezoar_observation.py)) | LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD |
+| A08 | Conscience-bound worker admission | H01, H22 | User-owned sealed policy binding; assess_worker before worker spawn ([public implementation](../src/lodestone_nurarihyon/conscience_binding.py)) | LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD |
+| A09 | Verified terminal outcome retention | H01, H23 | nurarihyon remember TASK --memory STORE ([public implementation](../src/lodestone_nurarihyon/outcome_memory.py)) | LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD |
+| A10 | Source-backed context and inert offline preparation | H01, H23 | nurarihyon context; submit --memory; prepare --package --descriptor ([public implementation](../src/lodestone_nurarihyon/context.py)) | LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD |
+| A11 | Pinned reconciliation-history reuse | H01, H12, H15, H23 | submit --reuse-reconciliation for inline reconciliation ([public implementation](../src/lodestone_machinery/bezoar_routing.py)) | LOCAL_COMPONENT_CHECKS_NO_COST_BENEFIT_CLAIM |
+| A12 | Selected-state consistent export and stopped restore | H01, H16, H27 | nurarihyon export --output; restore --package --descriptor --output ([public implementation](../src/lodestone_nurarihyon/portable.py)) | LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD |
+| A13 | Bounded service execution and opt-in startup configuration | H01, H26 | nurarihyon daemon; startup.render_agent/validate_agent; explicit service setup only ([public implementation](../src/lodestone_nurarihyon/service.py)) | LOCAL_SERVICE_CONTRACT_TESTS_NO_LOGIN_TEST |
+| A14 | Explicit candidate-only latent storage | H17, H19 | origami crystal latent put; yggdrasil crystal latent get; explicit store_source/restore_source and supplied-candidate catalog API ([public implementation](../src/lodestone_machinery/latent/cli.py)) | LOCAL_SYNTHETIC_EXACT_STORAGE_PASS_SEE_PR_FOR_CURRENT_HEAD |
+| A15 | Reversible lifting and physical artifact encoding | H19, H20 | Imported library dependencies: encode/decode, compact-layout/checkpoint helpers and raw/zlib artifact encoding; no new top-level training/proposer command ([public implementation](../src/lodestone_machinery/latent/lifting.py)) | SYNTHETIC_STORAGE_DEPENDENCIES_ONLY_NOT_NUMERICAL_FIT |
+| A16 | Lab-only custody automation and source-preservation history | H21, H27, H28 | Existing public repository export remains available; lab workflow helpers are provenance ([public implementation](../tools/repository/export.py)) | NOT_RUN_FOR_0.3.0 |
+| A17 | Experimental skill library and selector | H01, H23 | Research source only; no supported task toolkit or adoption ([restricted historical source](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/src/lodestone_nurarihyon/skill_library.py); not exported) | NOT_EXPORTED_NO_EXECUTION |
 
 The three implementation boundaries that determine how these routes can be used:
 
@@ -72,7 +79,7 @@ The three implementation boundaries that determine how these routes can be used:
 | A11 | Existing verified reconciliation record and matching corpus/source/implementation identities | Same-corpus comparison; stale/mismatched source refused; findings preserved; no automatic dispatch. No cost-saving claim without measured evidence. |
 | A12 | POSIX paths, SQLite backup, archive code; relocated dependency/binding configuration remains explicit | Fresh-archive selected-state export/restore; source/manifest tamper; required files; STOP and no execution; identity of recovered task/generation history. |
 | A13 | Supported process identity/RSS sampler; macOS launchd for graphical-login registration | Fresh isolated foreground service evidence and startup-render checks. This does not constitute a real reboot/login test on another machine. |
-| A14 | Caller-supplied pinned non-private candidate plan/model provenance/table bytes; existing CrystalStore; standard library | 55 synthetic tests,9 existing CLI regressions and guarded fresh-directory exact-recovery example passed; final built-archive coverage remains pending. |
+| A14 | Caller-supplied pinned non-private candidate plan/model provenance/table bytes; existing CrystalStore; standard library | 55 synthetic tests, 9 existing CLI regressions and guarded fresh-directory exact-recovery example passed; This local record does not claim every archive/platform check; see PR5 for current evidence. |
 | A15 | Exact code dependencies of supplied-candidate/catalog storage; explicit arithmetic/model contracts for optional library calls | Codec/wire compatibility, literal catalog paths and supplied candidates tested. Optional lifting fit/neural functions and physical packed-transport research are not rerun or adopted. |
 | A16 | Git and user-owned remote/custody policy for hosted paths; no credentials shipped | Public selected-source export checks; no private artifact upload or replay of historical experiments. |
 | A17 | Closed experimental work and separately retained evidence | No closed acceptance rerun, no rejected selector activation and no useful-learning claim. |
@@ -99,8 +106,14 @@ The last group used 18.302371 child CPU seconds and 21.396733 wall seconds inclu
 child startup. Its code pins were unchanged during execution. Tests used invented
 bytes and guarded/stubbed model operations; no model training, frozen study or
 new scientific benchmark ran. References and limits are in the JSON evidence
-records E01–E10. **Final built-archive installation, supported-platform CI and final
-independent candidate review remain pending.**
+records E01–E11.
+
+Fresh installation from the first built archive passed **53 workflow checks** on
+the Mac: all five synthetic toolkit operations, STOP, isolated recovery and the
+public launcher. The tested archive was built from `74ea6538271d`; its runtime
+files matched candidate `e262e551f2f9`. This is a local archive result, not proof
+of every platform or a real reboot/login. **Consult [PR5](https://github.com/zacheriasliang-glitch/lodestone/pull/5)
+for current-head CI and independent review; no passing CI claim is made here.**
 
 ## Whole-programme coverage: all 31 rows
 

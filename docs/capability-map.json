@@ -18,9 +18,10 @@
       "PARTIAL": 3,
       "STATIC_PINS": 2
     },
-    "note": "Historical laboratory classifications are preserved independently of new public packaging evidence. No row is promoted by source publication. Private artifacts and identities are not copied."
+    "note": "Historical laboratory classifications are preserved independently of new public packaging evidence. No row is promoted by source publication. Private artifacts and identities are not copied.",
+    "access": "ACCESS_RESTRICTED_PROVENANCE; original31 criteria/status meanings are reproduced in the public components array."
   },
-  "verification_policy": "Local public results are recorded separately from original lab classifications. PASS is limited to the stated source/route/check. Final built archive, supported-platform CI and final independent review remain pending.",
+  "verification_policy": "Local public results and the fresh-Mac built-archive result have explicit scopes, separate from original laboratory classifications. Check public PR5 for current reviewed head, CI and final release status. No CI pass or whole-programme completion is inferred.",
   "classification_meanings": {
     "ASSERTIONS_PASSED_GUARD_FAILED": "Original assertions passed inside a guard-failed group; not accepted and not a product-failure diagnosis. G5 remains unresolved.",
     "CLOSED_GUARD": "H16 guard allowance failed and closed. Preserve older and newer narrow recovery successes without silently passing the unrun guarded symlink tests.",
@@ -50,13 +51,28 @@
       "implemented_contract": "Explicit policy plus source/code/base-generation/plan identity; duplicate-key reconciliation; isolated staged worker; independent result acceptance; immutable generation publication.",
       "dependencies": "Python/SQLite/POSIX resource/process support; local machinery/Pando",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic successful exact-plan task, duplicate key, wrong plan/source pins, worker rejection, STOP, interrupted state and preserved history.",
         "evidence": [
           "E01",
           "E07"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_nurarihyon/controller.py",
+        "src/lodestone_nurarihyon/worker.py",
+        "src/lodestone_nurarihyon/plans.py",
+        "src/lodestone_nurarihyon/policy.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_nurarihyon/controller.py",
+        "../src/lodestone_nurarihyon/worker.py",
+        "../src/lodestone_nurarihyon/plans.py",
+        "../src/lodestone_nurarihyon/policy.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A02",
@@ -74,13 +90,26 @@
       "implemented_contract": "User-owned source/post/artifact store; versioned EAT/DIGEST/MUTATE and a declared board-profile transformation.",
       "dependencies": "SQLite and immutable organ records; explicit chosen workspace",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic fresh board and profile task; unchanged unrelated shelves/posts; exact lineage and INTACT outcome.",
         "evidence": [
           "E02",
           "E07"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_pando/store.py",
+        "src/lodestone_pando/__main__.py",
+        "src/lodestone_nurarihyon/plans.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_pando/store.py",
+        "../src/lodestone_pando/__main__.py",
+        "../src/lodestone_nurarihyon/plans.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A03",
@@ -100,13 +129,28 @@
       "implemented_contract": "Bounded UTF-8 document becomes a pinned source, literal parts and source-backed candidate with activation NONE. Imported text is never execution authority.",
       "dependencies": "Explicit policy opt-in; trusted local code; no model/provider",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic document with command-like text; exact-byte quotes; bad UTF-8/bounds refusal; daemon-owned task publication.",
         "evidence": [
           "E01",
           "E07"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_nurarihyon/documents.py",
+        "src/lodestone_machinery/bezoar.py",
+        "src/lodestone_machinery/organs/ingest.py",
+        "src/lodestone_machinery/organs/eat.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_nurarihyon/documents.py",
+        "../src/lodestone_machinery/bezoar.py",
+        "../src/lodestone_machinery/organs/ingest.py",
+        "../src/lodestone_machinery/organs/eat.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A04",
@@ -125,13 +169,28 @@
       "implemented_contract": "Literal evidence validation, one-operator candidate mutation and retained discrepancies; no automatic activation or repair.",
       "dependencies": "RecordStore, source anchors, structured proposal contracts",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic tampered-quote rejection, versioned mutation, observed drift and retained hold.",
         "evidence": [
           "E04",
           "E07"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/bezoar.py",
+        "src/lodestone_machinery/bezoar_cli.py",
+        "src/lodestone_machinery/organs/mutate.py",
+        "src/lodestone_machinery/organs/watcher.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/bezoar.py",
+        "../src/lodestone_machinery/bezoar_cli.py",
+        "../src/lodestone_machinery/organs/mutate.py",
+        "../src/lodestone_machinery/organs/watcher.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A05",
@@ -150,13 +209,26 @@
       "implemented_contract": "Recompute lineage findings and registry coverage from all declared captured bytes; retain original outcomes and discrepancies.",
       "dependencies": "Bounded declared corpus; explicit Conscience binding; Pando/RecordStore/Yggdrasil",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic complete corpus, changed pin, incomplete closure, disagreement retention and independent stage validation.",
         "evidence": [
           "E04",
           "E07"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/bezoar_reconciliation.py",
+        "src/lodestone_machinery/bezoar_registry.py",
+        "src/lodestone_nurarihyon/reconciliation.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/bezoar_reconciliation.py",
+        "../src/lodestone_machinery/bezoar_registry.py",
+        "../src/lodestone_nurarihyon/reconciliation.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A06",
@@ -174,13 +246,24 @@
       "implemented_contract": "Prepare and verify an explicitly declared corpus with captured records and source bindings before reconciliation.",
       "dependencies": "User-owned capture root/spec; fresh destination; exact manifest and record pins",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic complete physical capture, missing member, record tamper, bounds and matched recomputation.",
         "evidence": [
           "E04",
           "E07"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/bezoar_capture.py",
+        "src/lodestone_nurarihyon/complete_capture.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/bezoar_capture.py",
+        "../src/lodestone_nurarihyon/complete_capture.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A07",
@@ -199,13 +282,26 @@
       "implemented_contract": "Checks physical capture and declared Origami bindings while retaining historical absences as unresolved; corrections remain unapplied.",
       "dependencies": "Explicit observation contract, source/correction evidence declarations and Conscience binding",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic missing historical reference remains unresolved; declared correction not applied; byte tamper refused; observation result independently checked.",
         "evidence": [
           "E04",
           "E07"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/bezoar_observation.py",
+        "src/lodestone_machinery/bezoar_capture.py",
+        "src/lodestone_nurarihyon/historical_observation.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/bezoar_observation.py",
+        "../src/lodestone_machinery/bezoar_capture.py",
+        "../src/lodestone_nurarihyon/historical_observation.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A08",
@@ -224,15 +320,30 @@
       "implemented_contract": "Rechecks module/policy pins, exact worker argv and typed file effects. Non-ALLOW holds the task. Approval/STOP/publication remain controller responsibilities.",
       "dependencies": "Explicit local actor/policy/workspace; no account permission or universal sandbox",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic allow/refuse/hold, changed code/policy, wrong argv/effect scope and no publication on hold.",
         "evidence": [
           "E01",
           "E05",
           "E06",
           "E07"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_nurarihyon/conscience_binding.py",
+        "src/lodestone_nurarihyon/reconciliation_intent.py",
+        "tools/ecosystem/conscience.py",
+        "tools/ecosystem/conscience_targets.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_nurarihyon/conscience_binding.py",
+        "../src/lodestone_nurarihyon/reconciliation_intent.py",
+        "../tools/ecosystem/conscience.py",
+        "../tools/ecosystem/conscience_targets.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A09",
@@ -249,14 +360,25 @@
       "implemented_contract": "Retains source-verified terminal observations with task/event/source provenance; duplicate-safe local records, not automatic utility learning.",
       "dependencies": "Dedicated caller-owned memory directory; controller lock; trusted local-memory module",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic idempotent retention, tamper/supersession/bounds cases and unchanged source state.",
         "evidence": [
           "E01",
           "E07",
           "E10"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_nurarihyon/outcome_memory.py",
+        "tools/local-memory/src/lodestone_memory.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_nurarihyon/outcome_memory.py",
+        "../tools/local-memory/src/lodestone_memory.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A10",
@@ -274,14 +396,27 @@
       "implemented_contract": "Explicit bounded context retrieval; offline profile-plan preparation from verified export; no live state access by prepare. A retrieved record cannot confer approval.",
       "dependencies": "Exact source/export descriptors; bounded verified history; optional explicit memory catalogue",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Fresh-process retrieval; unrelated changed-condition context not asserted applicable; prepare preserves STOP and matches subsequent profile plan.",
         "evidence": [
           "E01",
           "E07",
           "E10"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_nurarihyon/context.py",
+        "src/lodestone_nurarihyon/preparation.py",
+        "src/lodestone_nurarihyon/outcome_memory.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_nurarihyon/context.py",
+        "../src/lodestone_nurarihyon/preparation.py",
+        "../src/lodestone_nurarihyon/outcome_memory.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A11",
@@ -305,8 +440,19 @@
         "evidence": [
           "E01",
           "E04"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/bezoar_routing.py",
+        "src/lodestone_nurarihyon/reconciliation.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/bezoar_routing.py",
+        "../src/lodestone_nurarihyon/reconciliation.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A12",
@@ -326,13 +472,28 @@
       "implemented_contract": "Locks controller state; snapshots SQLite consistently; verifies external descriptor, complete manifest/files and required runtime closure; restores to a new inert directory with STOP retained.",
       "dependencies": "POSIX paths, SQLite backup, archive code; relocated dependency/binding configuration remains explicit",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Fresh-archive selected-state export/restore; source/manifest tamper; required files; STOP and no execution; identity of recovered task/generation history.",
         "evidence": [
           "E03",
           "E07"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_nurarihyon/portable.py",
+        "src/lodestone_nurarihyon/inspection.py",
+        "src/lodestone_machinery/archive_pack.py",
+        "src/lodestone_machinery/archive_restore.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_nurarihyon/portable.py",
+        "../src/lodestone_nurarihyon/inspection.py",
+        "../src/lodestone_machinery/archive_pack.py",
+        "../src/lodestone_machinery/archive_restore.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A13",
@@ -357,8 +518,23 @@
           "E01",
           "E06",
           "E09"
-        ]
-      }
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_nurarihyon/service.py",
+        "src/lodestone_nurarihyon/startup.py",
+        "src/lodestone_nurarihyon/deployment.py",
+        "src/lodestone_nurarihyon/process_rss.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_nurarihyon/service.py",
+        "../src/lodestone_nurarihyon/startup.py",
+        "../src/lodestone_nurarihyon/deployment.py",
+        "../src/lodestone_nurarihyon/process_rss.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A14",
@@ -377,12 +553,27 @@
       "implemented_contract": "Explicit experimental exact storage selects only among caller-supplied candidates with a literal fallback, retains dependencies and recovers exact bytes. No automatic candidate proposer, model call or Nurarihyon task toolkit is installed.",
       "dependencies": "Caller-supplied pinned non-private candidate plan/model provenance/table bytes; existing CrystalStore; standard library",
       "public_verification": {
-        "status": "LOCAL_SYNTHETIC_EXACT_STORAGE_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_SYNTHETIC_EXACT_STORAGE_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "evidence": [
           "E08"
         ],
-        "candidate_checks": "55 synthetic tests,9 existing CLI regressions and guarded fresh-directory exact-recovery example passed; final built-archive coverage remains pending."
-      }
+        "candidate_checks": "55 synthetic tests, 9 existing CLI regressions and guarded fresh-directory exact-recovery example passed; This local test record is not a blanket archive/platform claim; consult PR5 for current-head evidence.",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/latent/cli.py",
+        "src/lodestone_machinery/latent/store_adapter.py",
+        "src/lodestone_machinery/latent/candidate_inputs.py",
+        "src/lodestone_machinery/latent/compact_layout.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/latent/cli.py",
+        "../src/lodestone_machinery/latent/store_adapter.py",
+        "../src/lodestone_machinery/latent/candidate_inputs.py",
+        "../src/lodestone_machinery/latent/compact_layout.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A15",
@@ -404,8 +595,21 @@
         "evidence": [
           "E08"
         ],
-        "candidate_checks": "Codec/wire compatibility, literal catalog paths and supplied candidates tested. Optional lifting fit/neural functions and physical packed-transport research are not rerun or adopted."
-      }
+        "candidate_checks": "Codec/wire compatibility, literal catalog paths and supplied candidates tested. Optional lifting fit/neural functions and physical packed-transport research are not rerun or adopted.",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/latent/lifting.py",
+        "src/lodestone_machinery/latent/artifact_storage.py",
+        "src/lodestone_machinery/latent/compact_checkpoint.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/latent/lifting.py",
+        "../src/lodestone_machinery/latent/artifact_storage.py",
+        "../src/lodestone_machinery/latent/compact_checkpoint.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A16",
@@ -426,8 +630,17 @@
       "dependencies": "Git and user-owned remote/custody policy for hosted paths; no credentials shipped",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Public selected-source export checks; no private artifact upload or replay of historical experiments."
-      }
+        "candidate_checks": "Public selected-source export checks; no private artifact upload or replay of historical experiments.",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "tools/repository/export.py"
+      ],
+      "public_source_links": [
+        "../tools/repository/export.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "A17",
@@ -445,8 +658,13 @@
       "dependencies": "Closed experimental work and separately retained evidence",
       "public_verification": {
         "status": "NOT_EXPORTED_NO_EXECUTION",
-        "candidate_checks": "No closed acceptance rerun, no rejected selector activation and no useful-learning claim."
-      }
+        "candidate_checks": "No closed acceptance rerun, no rejected selector activation and no useful-learning claim.",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+      },
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [],
+      "public_source_links": [],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     }
   ],
   "components": [
@@ -470,15 +688,28 @@
       "public_interface": "nurarihyon --home STATE init|submit|approve|status|run|serve|stop|recover|verify|export; restore and prepare take explicit packages",
       "dependencies": "Python 3.10+, SQLite, supported POSIX process/resource APIs, trusted local runtime",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_ROUTE_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_ROUTE_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic queue/idempotency/exact approval/STOP/interruption/generation/restore tests; fresh-archive smoke",
         "evidence": [
           "E01",
           "E06",
           "E07"
-        ]
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Whole-organ coordination and useful retained learning remain unfinished; no source document can approve or register code."
+      "remaining_limit": "Whole-organ coordination and useful retained learning remain unfinished; no source document can approve or register code.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_nurarihyon/controller.py",
+        "src/lodestone_nurarihyon/policy.py",
+        "src/lodestone_nurarihyon/portable.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_nurarihyon/controller.py",
+        "../src/lodestone_nurarihyon/policy.py",
+        "../src/lodestone_nurarihyon/portable.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H02",
@@ -500,9 +731,18 @@
       "dependencies": "Python standard library; explicit local workspace",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Existing engine tests plus new toolkit integration regressions"
+        "candidate_checks": "Existing engine tests plus new toolkit integration regressions",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Durable job execution is not autonomous general reasoning."
+      "remaining_limit": "Durable job execution is not autonomous general reasoning.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/engine.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/engine.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H03",
@@ -524,9 +764,18 @@
       "dependencies": "Caller-owned UTF-8 source root",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Source and quotation tamper regressions reused where unchanged"
+        "candidate_checks": "Source and quotation tamper regressions reused where unchanged",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Handles authenticate retained source bytes, not the truth of source claims."
+      "remaining_limit": "Handles authenticate retained source bytes, not the truth of source claims.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/organs/sources.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/organs/sources.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H04",
@@ -548,9 +797,18 @@
       "dependencies": "Source anchors; fixed lexical ranking",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Deterministic selection and omission regressions"
+        "candidate_checks": "Deterministic selection and omission regressions",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Fixed ranking is not a learned selector; failed adaptive selection is not promoted."
+      "remaining_limit": "Fixed ranking is not a learned selector; failed adaptive selection is not promoted.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/organs/selection.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/organs/selection.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H05",
@@ -572,9 +830,18 @@
       "dependencies": "Exact source handles and declared brief format",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Literal tamper and identity mismatch regressions"
+        "candidate_checks": "Literal tamper and identity mismatch regressions",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Mechanical source agreement does not establish semantic truth."
+      "remaining_limit": "Mechanical source agreement does not establish semantic truth.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/organs/brief.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/organs/brief.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H06",
@@ -597,9 +864,18 @@
       "dependencies": "Explicit typed values, units and thresholds",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Typed equality, boolean comparison and UNKNOWN regressions"
+        "candidate_checks": "Typed equality, boolean comparison and UNKNOWN regressions",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Measurement criteria are caller-declared, not inferred scientific validation."
+      "remaining_limit": "Measurement criteria are caller-declared, not inferred scientific validation.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/organs/measurement.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/organs/measurement.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H07",
@@ -621,9 +897,20 @@
       "dependencies": "Derived copies and explicit prediction/observation records",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Existing pressure/residual regressions"
+        "candidate_checks": "Existing pressure/residual regressions",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "No production fault injection or automatic correction."
+      "remaining_limit": "No production fault injection or automatic correction.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/organs/pressure.py",
+        "src/lodestone_machinery/organs/residuals.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/organs/pressure.py",
+        "../src/lodestone_machinery/organs/residuals.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H08",
@@ -647,9 +934,20 @@
       "dependencies": "Caller-owned local store",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Append-only and transitive-dependency regressions"
+        "candidate_checks": "Append-only and transitive-dependency regressions",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Freshness invalidation requires the explicit caller operation; put alone does not propagate it."
+      "remaining_limit": "Freshness invalidation requires the explicit caller operation; put alone does not propagate it.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/records.py",
+        "src/lodestone_machinery/nodes.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/records.py",
+        "../src/lodestone_machinery/nodes.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H09",
@@ -670,9 +968,18 @@
       "dependencies": "Explicit providers or synthetic stubs; bounded isolated stores",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Stub-provider pair tests only"
+        "candidate_checks": "Stub-provider pair tests only",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "No paired-model result is inherited and no provider is called automatically."
+      "remaining_limit": "No paired-model result is inherited and no provider is called automatically.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/pressure_pair.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/pressure_pair.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H10",
@@ -693,9 +1000,20 @@
       "dependencies": "Explicit source roots; user-supplied provider only when selected",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Host-file exchange and re-entry regressions; no live model required"
+        "candidate_checks": "Host-file exchange and re-entry regressions; no live model required",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "The historical criterion is file exchange only. Semantic folding in the daemon and mechanistic model interpretability remain unproved."
+      "remaining_limit": "The historical criterion is file exchange only. Semantic folding in the daemon and mechanistic model interpretability remain unproved.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/origami.py",
+        "src/lodestone_machinery/origami_cli.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/origami.py",
+        "../src/lodestone_machinery/origami_cli.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H11",
@@ -719,14 +1037,27 @@
       "public_interface": "pando --home BOARD init|ingest|post|eat|digest|mutate|apply-profile|verify|export|serve",
       "dependencies": "Python/SQLite; user-owned board; explicit opt-in loopback UI",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_ROUTE_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_ROUTE_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic board/lineage/profile tests; loopback UI must have its own evidence",
         "evidence": [
           "E02",
           "E07"
-        ]
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Historical HTTP UI remains UNCHECKED; installed lab board, posts and identities are excluded."
+      "remaining_limit": "Historical HTTP UI remains UNCHECKED; installed lab board, posts and identities are excluded.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_pando/store.py",
+        "src/lodestone_pando/__main__.py",
+        "src/lodestone_pando/server.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_pando/store.py",
+        "../src/lodestone_pando/__main__.py",
+        "../src/lodestone_pando/server.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H12",
@@ -750,14 +1081,29 @@
       "public_interface": "bezoar ingest|eat-request|eat|mutate|hold|show|export-profile; Plumber",
       "dependencies": "RecordStore, source anchors, inert kernel-profile contract",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_ROUTE_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_ROUTE_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic quotation/proposal/mutation tests and daemon document path",
         "evidence": [
           "E04",
           "E07"
-        ]
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "DIGEST validates a supplied structural proposal; no automatic semantic understanding or candidate activation is implied."
+      "remaining_limit": "DIGEST validates a supplied structural proposal; no automatic semantic understanding or candidate activation is implied.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/bezoar.py",
+        "src/lodestone_machinery/organs/ingest.py",
+        "src/lodestone_machinery/organs/eat.py",
+        "src/lodestone_machinery/organs/mutate.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/bezoar.py",
+        "../src/lodestone_machinery/organs/ingest.py",
+        "../src/lodestone_machinery/organs/eat.py",
+        "../src/lodestone_machinery/organs/mutate.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H13",
@@ -778,13 +1124,24 @@
       "public_interface": "registry-check; parse_registry/check",
       "dependencies": "User-owned explicit registry and finding data",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_ROUTE_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_ROUTE_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Six-law synthetic violation cases; new reconciliation integration",
         "evidence": [
           "E04"
-        ]
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "No lab registry or its historical resolutions are copied."
+      "remaining_limit": "No lab registry or its historical resolutions are copied.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "tools/machinery/check_bezoar.py",
+        "src/lodestone_machinery/bezoar_registry.py"
+      ],
+      "public_source_links": [
+        "../tools/machinery/check_bezoar.py",
+        "../src/lodestone_machinery/bezoar_registry.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H14",
@@ -806,13 +1163,24 @@
       "public_interface": "watcher observe; Plumber.watch/hold",
       "dependencies": "Explicit record handles; bounded foreground polling",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_ROUTE_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_ROUTE_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic drift/finding retention tests",
         "evidence": [
           "E04"
-        ]
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Observation does not repair or approve. Relocated historical source paths may need explicit remapping."
+      "remaining_limit": "Observation does not repair or approve. Relocated historical source paths may need explicit remapping.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/organs/watcher.py",
+        "src/lodestone_machinery/bezoar_cli.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/organs/watcher.py",
+        "../src/lodestone_machinery/bezoar_cli.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H15",
@@ -836,14 +1204,29 @@
       "public_interface": "yggdrasil findings/canon/pack/reenter; reconciliation reads exact captured reports",
       "dependencies": "User-owned canon for advanced routes; retained source bytes for reconciliation",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_ROUTE_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_ROUTE_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Existing synthetic macro-voxel tests plus captured-lineage reconciliation",
         "evidence": [
           "E04",
           "E07"
-        ]
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Reconciliation connects structural findings to Bezoar. It does not supply semantic Origami integration or erase disagreement."
+      "remaining_limit": "Reconciliation connects structural findings to Bezoar. It does not supply semantic Origami integration or erase disagreement.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/yggdrasil.py",
+        "src/lodestone_machinery/yggdrasil_runtime.py",
+        "src/lodestone_machinery/macro_voxel.py",
+        "src/lodestone_machinery/bezoar_reconciliation.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/yggdrasil.py",
+        "../src/lodestone_machinery/yggdrasil_runtime.py",
+        "../src/lodestone_machinery/macro_voxel.py",
+        "../src/lodestone_machinery/bezoar_reconciliation.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H16",
@@ -866,14 +1249,27 @@
       "public_interface": "origami archive pack|verify|restore; nurarihyon export|restore",
       "dependencies": "POSIX path semantics; explicit new destination; external descriptor pin",
       "public_verification": {
-        "status": "LOCAL_SELECTED_STATE_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_SELECTED_STATE_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Fresh public synthetic archive/selected-state restore; preserve closed historical guard result",
         "evidence": [
           "E03",
           "E07"
-        ]
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Generic file archives permit validated relative symlink members; Nurarihyon selected-state restore forbids all code/state symlinks. A new narrow pass cannot erase the closed historical guard."
+      "remaining_limit": "Generic file archives permit validated relative symlink members; Nurarihyon selected-state restore forbids all code/state symlinks. A new narrow pass cannot erase the closed historical guard.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/archive_pack.py",
+        "src/lodestone_machinery/archive_restore.py",
+        "src/lodestone_nurarihyon/portable.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/archive_pack.py",
+        "../src/lodestone_machinery/archive_restore.py",
+        "../src/lodestone_nurarihyon/portable.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H17",
@@ -895,14 +1291,27 @@
       "public_interface": "origami crystal; CrystalStore",
       "dependencies": "SQLite, zlib and exact user-owned payloads",
       "public_verification": {
-        "status": "LOCAL_CRYSTAL_CLI_REGRESSION_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_CRYSTAL_CLI_REGRESSION_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Existing roundtrip/tamper/freshness regressions",
         "evidence": [
           "E08"
         ],
-        "boundary": "Nine existing CLI regressions; newcandidate-only storage is separately H19. No new claim/mutation scientific evaluation."
+        "boundary": "Nine existing CLI regressions; newcandidate-only storage is separately H19. No new claim/mutation scientific evaluation.",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Exact storage and claim bookkeeping do not demonstrate useful learned compression."
+      "remaining_limit": "Exact storage and claim bookkeeping do not demonstrate useful learned compression.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/crystals.py",
+        "src/lodestone_machinery/crystal_claims.py",
+        "src/lodestone_machinery/crystal_mutations.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/crystals.py",
+        "../src/lodestone_machinery/crystal_claims.py",
+        "../src/lodestone_machinery/crystal_mutations.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H18",
@@ -923,9 +1332,20 @@
       "dependencies": "Closed research dependencies; no imported model artifacts",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "No frozen experiment run or inherited pass"
+        "candidate_checks": "No frozen experiment run or inherited pass",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Tests that import closed experiment machinery remain outside this release evaluation; raw-storage/no-full-proposer decision is retained."
+      "remaining_limit": "Tests that import closed experiment machinery remain outside this release evaluation; raw-storage/no-full-proposer decision is retained.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/crystal_policy.py",
+        "src/lodestone_machinery/crystal_routing.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/crystal_policy.py",
+        "../src/lodestone_machinery/crystal_routing.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H19",
@@ -950,13 +1370,30 @@
       "public_interface": "origami crystal latent put; yggdrasil crystal latent get; explicit store_source/restore_source and supplied-candidate catalog API",
       "dependencies": "Explicit caller-supplied pinned model/table/candidate bytes; CrystalStore; no model execution",
       "public_verification": {
-        "status": "LOCAL_SYNTHETIC_EXACT_STORAGE_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_SYNTHETIC_EXACT_STORAGE_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "evidence": [
           "E08"
         ],
-        "candidate_checks": "55 synthetic latent tests,9 existing crystal CLI regressions and guarded exact-recovery example passed; code identity unchanged during this check."
+        "candidate_checks": "55 synthetic latent tests,9 existing crystal CLI regressions and guarded exact-recovery example passed; code identity unchanged during this check.",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Candidate rows, model provenance bytes and table are supplied and pinned by the caller. No automatic proposer/model invocation, useful learned-transfer claim, frozen-study reopening or Nurarihyon toolkit registration."
+      "remaining_limit": "Candidate rows, model provenance bytes and table are supplied and pinned by the caller. No automatic proposer/model invocation, useful learned-transfer claim, frozen-study reopening or Nurarihyon toolkit registration.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/latent/cli.py",
+        "src/lodestone_machinery/latent/store_adapter.py",
+        "src/lodestone_machinery/latent/candidate_inputs.py",
+        "src/lodestone_machinery/latent/compact_layout.py",
+        "src/lodestone_machinery/latent/artifact_storage.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/latent/cli.py",
+        "../src/lodestone_machinery/latent/store_adapter.py",
+        "../src/lodestone_machinery/latent/candidate_inputs.py",
+        "../src/lodestone_machinery/latent/compact_layout.py",
+        "../src/lodestone_machinery/latent/artifact_storage.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H20",
@@ -984,9 +1421,20 @@
         "candidate_checks": "Public 0.2.3 crystal/transformer/training backend bytes match pinned laboratory source. E08 verifies the supplied-candidate path without real neural work; it is not a neural training result.",
         "evidence": [
           "E08"
-        ]
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Existing transformer numerical APIs remain available; the imported latent dependency includes explicit optional numerical functions, but supplied-candidate storage does not invoke them. No new neural training/inference or useful-learning result is claimed."
+      "remaining_limit": "Existing transformer numerical APIs remain available; the imported latent dependency includes explicit optional numerical functions, but supplied-candidate storage does not invoke them. No new neural training/inference or useful-learning result is claimed.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "src/lodestone_machinery/transformer.py",
+        "src/lodestone_machinery/transformer_training.py"
+      ],
+      "public_source_links": [
+        "../src/lodestone_machinery/transformer.py",
+        "../src/lodestone_machinery/transformer_training.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H21",
@@ -1006,9 +1454,14 @@
       "dependencies": "Historical remnant source pins",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Static provenance only; no execution"
+        "candidate_checks": "Static provenance only; no execution",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Genepool remnants do not establish an integrated evolution loop."
+      "remaining_limit": "Genepool remnants do not establish an integrated evolution loop.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [],
+      "public_source_links": [],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H22",
@@ -1033,16 +1486,31 @@
       "public_interface": "conscience; user-owned sealed binding; worker_intent/assess_worker",
       "dependencies": "Explicit user policy/actor/workspace and pinned trusted code",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_ROUTE_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_ROUTE_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic allow/hold/refuse/pin-drift and typed-effects tests; no host policy reuse",
         "evidence": [
           "E01",
           "E05",
           "E06",
           "E07"
-        ]
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Advisory assessment can hold this fixed worker route. It is not authority or a universal sandbox; controller queue/publication effects are outside the mapped worker assessment."
+      "remaining_limit": "Advisory assessment can hold this fixed worker route. It is not authority or a universal sandbox; controller queue/publication effects are outside the mapped worker assessment.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "tools/ecosystem/conscience.py",
+        "tools/ecosystem/conscience_targets.py",
+        "src/lodestone_nurarihyon/conscience_binding.py",
+        "src/lodestone_nurarihyon/reconciliation_intent.py"
+      ],
+      "public_source_links": [
+        "../tools/ecosystem/conscience.py",
+        "../tools/ecosystem/conscience_targets.py",
+        "../src/lodestone_nurarihyon/conscience_binding.py",
+        "../src/lodestone_nurarihyon/reconciliation_intent.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H23",
@@ -1067,15 +1535,28 @@
       "public_interface": "memory; nurarihyon remember/context; submit --memory",
       "dependencies": "Explicit dedicated memory directory outside code/controller state; verified outcome provenance",
       "public_verification": {
-        "status": "LOCAL_PUBLIC_ROUTE_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_PUBLIC_ROUTE_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Synthetic retention/reopening/tamper/bounds checks plus fresh-process reuse",
         "evidence": [
           "E01",
           "E07",
           "E10"
-        ]
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Context/remember bridge is bounded, explicit and profile-oriented. Retention/retrieval is not learned utility or proof of avoided work."
+      "remaining_limit": "Context/remember bridge is bounded, explicit and profile-oriented. Retention/retrieval is not learned utility or proof of avoided work.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "tools/local-memory/src/lodestone_memory.py",
+        "src/lodestone_nurarihyon/outcome_memory.py",
+        "src/lodestone_nurarihyon/context.py"
+      ],
+      "public_source_links": [
+        "../tools/local-memory/src/lodestone_memory.py",
+        "../src/lodestone_nurarihyon/outcome_memory.py",
+        "../src/lodestone_nurarihyon/context.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H24",
@@ -1098,9 +1579,20 @@
       "dependencies": "Explicit user corpus/fold; exact identity checks",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Existing synthetic drift/re-entry checks; historical group remains unaccepted"
+        "candidate_checks": "Existing synthetic drift/re-entry checks; historical group remains unaccepted",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "No private frozen fold or corpus is copied; semantic abstraction guarantees are not inferred from a map."
+      "remaining_limit": "No private frozen fold or corpus is copied; semantic abstraction guarantees are not inferred from a map.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "tools/corpus-fold/src/corpus_fold.py",
+        "tools/origami-fold/src/origami_fold.py"
+      ],
+      "public_source_links": [
+        "../tools/corpus-fold/src/corpus_fold.py",
+        "../tools/origami-fold/src/origami_fold.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H25",
@@ -1123,9 +1615,20 @@
       "dependencies": "Explicit source/checkpoint pins; Git/POSIX for receipt publication",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Existing public checkpoint/receipt regressions; no promotion of failed historical group"
+        "candidate_checks": "Existing public checkpoint/receipt regressions; no promotion of failed historical group",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Does not automatically compact model context or guarantee all future-relevant information survives."
+      "remaining_limit": "Does not automatically compact model context or guarantee all future-relevant information survives.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "tools/continuity/checkpoint.py",
+        "tools/machinery/append_receipt.py"
+      ],
+      "public_source_links": [
+        "../tools/continuity/checkpoint.py",
+        "../tools/machinery/append_receipt.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H26",
@@ -1146,9 +1649,20 @@
       "dependencies": "Git/POSIX and user-configured remote; macOS launchd only for optional login startup",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Fixture-only transport; startup rendering validation separated from actual login test"
+        "candidate_checks": "Fixture-only transport; startup rendering validation separated from actual login test",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "No private mailbox, credential, receive/watch daemon or inherited login proof is shipped."
+      "remaining_limit": "No private mailbox, credential, receive/watch daemon or inherited login proof is shipped.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "tools/mailbox/mailbox.py",
+        "src/lodestone_nurarihyon/startup.py"
+      ],
+      "public_source_links": [
+        "../tools/mailbox/mailbox.py",
+        "../src/lodestone_nurarihyon/startup.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H27",
@@ -1170,14 +1684,25 @@
       "public_interface": "repository manifest/export/verify; selected-state export/restore; hosted publication remains lab provenance",
       "dependencies": "Git for source custody; no cloud dependency for local recovery",
       "public_verification": {
-        "status": "LOCAL_SELECTED_STATE_PASS_FINAL_BUILD_PENDING",
+        "status": "LOCAL_SELECTED_STATE_PASS_SEE_PR_FOR_CURRENT_HEAD",
         "candidate_checks": "Public export/recovery regressions with synthetic state; no cloud upload",
         "evidence": [
           "E03",
           "E07"
-        ]
+        ],
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Git source publication is not a complete backup. Private workflow/account custody helpers and recovery archives are not public user state."
+      "remaining_limit": "Git source publication is not a complete backup. Private workflow/account custody helpers and recovery archives are not public user state.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "tools/repository/export.py",
+        "src/lodestone_nurarihyon/portable.py"
+      ],
+      "public_source_links": [
+        "../tools/repository/export.py",
+        "../src/lodestone_nurarihyon/portable.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H28",
@@ -1199,9 +1724,14 @@
       "dependencies": "The original separately held six-file packet",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Historical static pins only; no new execution"
+        "candidate_checks": "Historical static pins only; no new execution",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Bindle is the correct component name. The private packet and its contents are not bundled; no Bindu component is invented."
+      "remaining_limit": "Bindle is the correct component name. The private packet and its contents are not bundled; no Bindu component is invented.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [],
+      "public_source_links": [],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H29",
@@ -1225,9 +1755,22 @@
       "dependencies": "Explicit user project/root/contracts; Python; no dispatch",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Existing portable synthetic planner/contract tests"
+        "candidate_checks": "Existing portable synthetic planner/contract tests",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Legacy Node prototype and historical workstreams are excluded; planning does not automatically execute a task."
+      "remaining_limit": "Legacy Node prototype and historical workstreams are excluded; planning does not automatically execute a task.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "orchestrator/engine/kernel20_phenotype.py",
+        "orchestrator/bridge/contracts.py",
+        "orchestrator/bridge/transport.py"
+      ],
+      "public_source_links": [
+        "../orchestrator/engine/kernel20_phenotype.py",
+        "../orchestrator/bridge/contracts.py",
+        "../orchestrator/bridge/transport.py"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H30",
@@ -1249,9 +1792,14 @@
       "dependencies": "Caller-owned contract bytes and expected hash",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Historical synthetic accept/reject evidence only unless separately adapted"
+        "candidate_checks": "Historical synthetic accept/reject evidence only unless separately adapted",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "The Blackstone runtime is not present in the v0.2.3 public tree; this row is not silently counted as a public feature."
+      "remaining_limit": "The Blackstone runtime is not present in the v0.2.3 public tree; this row is not silently counted as a public feature.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [],
+      "public_source_links": [],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     },
     {
       "id": "H31",
@@ -1271,9 +1819,18 @@
       "dependencies": "Optional numerical environment and separately licensed dependencies",
       "public_verification": {
         "status": "NOT_RUN_FOR_0.3.0",
-        "candidate_checks": "Packaging/input validation evidence only; no new numerical scene"
+        "candidate_checks": "Packaging/input validation evidence only; no new numerical scene",
+        "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
       },
-      "remaining_limit": "Historical absent checked environment is not a claim of absence on every machine. Illustrative coefficients are not calibrated science."
+      "remaining_limit": "Historical absent checked environment is not a claim of absence on every machine. Illustrative coefficients are not calibrated science.",
+      "source_paths_role": "ACCESS_RESTRICTED_LABORATORY_PROVENANCE_AT_SOURCE_REVISION",
+      "public_source_paths": [
+        "experiments/porcelain-simulator/porcelain"
+      ],
+      "public_source_links": [
+        "../experiments/porcelain-simulator/porcelain"
+      ],
+      "public_source_scope": "Actual exported adaptation only; historical source paths can also name omitted laboratory machinery."
     }
   ],
   "programme_status": "OPEN: integration, applicability-aware retained learning with measured avoided work, and the full original acceptance scope are unfinished.",
@@ -1324,7 +1881,7 @@
         "result": "PASS",
         "tests": 20,
         "reference": "runtime-port-evidence/portable-final-dependencies.log",
-        "boundary": "Final required-runtime-file closure recheck passed; final built-archive installation remains separate."
+        "boundary": "Final required-runtime-file closure recheck passed; fresh-Mac built-archive evidence is recorded separately as E11; current-head CI/review is at PR5."
       },
       "E04": {
         "scope": "Bezoar captured-source/organs integration",
@@ -1358,7 +1915,7 @@
         "wall_seconds": 203.0935964809978,
         "reference": "smoke-dev-01.log",
         "model_calls": 0,
-        "boundary": "Synthetic development-tree workflow on macOS 12.7.6/Python 3.12.7; final built-archive installation still pending."
+        "boundary": "Synthetic development-tree workflow on macOS 12.7.6/Python 3.12.7; fresh-Mac built-archive evidence is recorded separately as E11; current-head CI/review is at PR5."
       },
       "E08": {
         "scope": "Explicit supplied-candidate storage",
@@ -1397,12 +1954,35 @@
         "wall_seconds": 0.234,
         "reference": "memory-regression.log",
         "boundary": "Focused tests after the six-line max-words compatibility guard; no automatic useful-learning claim."
+      },
+      "E11": {
+        "scope": "Fresh local Mac installation from the first built release archive",
+        "result": "PASS",
+        "workflow_checks": 53,
+        "archive_source_commit": "74ea6538271d09a7a45dc9b58005fbb689353ab5",
+        "matched_runtime_commit": "e262e551f2f941d59f0b151f1d360a005e5b1c90",
+        "runtime_identity": "Exact runtime files matched between the tested archive and public candidate",
+        "verified": [
+          "five synthetic toolkit operations",
+          "STOP behavior",
+          "isolated selected-state export/restore",
+          "public launcher installation"
+        ],
+        "reference": "https://github.com/zacheriasliang-glitch/lodestone/pull/5",
+        "boundary": "Local fresh-Mac archive result only. No actual reboot/login test, whole-programme acceptance, useful-learning claim or current-head CI pass is implied."
       }
     },
-    "final_build": "PENDING",
-    "clean_built_archive_installation": "PENDING",
-    "applicable_ci": "PENDING",
-    "independent_final_candidate_review": "PENDING",
-    "note": "References name retained local release records; raw logs/private state are not published here. The final release receipt must tie reviewed source, built artifacts and CI together."
+    "final_build": "FIRST_LOCAL_ARCHIVE_BUILT; CURRENT_HEAD_STATUS_AT_PR",
+    "clean_built_archive_installation": "PASS_LOCAL_MAC_FIRST_ARCHIVE_WITH_MATCHED_RUNTIME",
+    "applicable_ci": "CHECK_CURRENT_HEAD_AT_PR_NOT_CLAIMED_PASS",
+    "independent_final_candidate_review": "CHECK_CURRENT_HEAD_AT_PR_NOT_CLAIMED_FINAL",
+    "note": "Local evidence is retained with its source scope. The current reviewed head, CI result and final release decision are recorded in public PR5; do not infer them from an earlier archive result.",
+    "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+  },
+  "source_access": {
+    "source_repository": "ACCESS_RESTRICTED_HISTORICAL_PROVENANCE",
+    "public_repository": "https://github.com/zacheriasliang-glitch/lodestone",
+    "public_implementation": "The relative public_source_paths/public_source_links on each row locate the actual adapted files in this distribution. Historical laboratory access is not required to use or inspect the public package.",
+    "nonexported": "An empty public_source_paths list means this item is not exported; no replacement file is implied."
   }
 }
