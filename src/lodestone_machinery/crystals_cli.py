@@ -136,7 +136,12 @@ def consolidate(directory, database, *, strategy="recursive", consume=False, ind
 
 
 def main(argv=None):
+    supplied = sys.argv[1:] if argv is None else argv
+    if supplied and supplied[0] == "latent":
+        from .latent.cli import main as latent_main
+        return latent_main(supplied[1:])
     parser = argparse.ArgumentParser(description="Exact Yggdrasil crystals and bounded context views")
+    parser.epilog = "Use 'crystal latent' for explicit, hash-bound supplied-candidate storage."
     commands = parser.add_subparsers(dest="operation", required=True)
     staging = commands.add_parser("stage", help="Copy explicit sources into a new disposable stage")
     staging.add_argument("--file", action="append", required=True, dest="files")

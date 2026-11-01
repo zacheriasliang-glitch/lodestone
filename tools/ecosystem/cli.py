@@ -115,12 +115,15 @@ def context(root):
 
 def machinery_args(args, workspace, root):
     args = list(args)
-    if args and args[0] in {"origami", "yggdrasil"} and platform.system() == "Windows":
+    if args and args[0] in {"origami", "yggdrasil", "bezoar", "watcher"} and platform.system() == "Windows":
         raise ValueError("Origami and Yggdrasil routes require POSIX file-locking and directory APIs. Use Linux or macOS for these commands; native Windows preview supports doctor, machinery demo and Conscience.")
     if args and args[0] in WORKSPACE_OPS:
         args[1:1] = ["--workspace", str(workspace)]
     elif len(args) > 1 and args[0] == "origami" and args[1] in ORIGAMI_OPS:
         args[2:2] = ["--workspace", str(workspace)]
+    if len(args) > 1 and args[0] in ("bezoar", "watcher") and args[1] not in ("--help", "-h"):
+        if not any(arg == "--workspace" or arg.startswith("--workspace=") for arg in args):
+            args[2:2] = ["--workspace", str(workspace)]
     if args and args[0] == "yggdrasil":
         operation = args[1] if len(args) > 1 else ""
         help_requested = "--help" in args or "-h" in args
@@ -136,7 +139,7 @@ def main(argv=None):
     parser.add_argument("--workspace", type=Path, default=default_workspace(),
                         help="Local output and record directory (default: ~/.lodestone/workspace)")
     parser.add_argument("command", choices=("doctor", "context", "machinery", "origami", "yggdrasil",
-                                            "wake", "conscience", "porcelain", "repository", "toolkits", *TOOL_SCRIPTS))
+                                            "wake", "conscience", "porcelain", "repository", "toolkits", "nurarihyon", "pando", "bezoar", "watcher", *TOOL_SCRIPTS))
     parser.add_argument("args", nargs=argparse.REMAINDER)
     options = parser.parse_args(argv)
     try:
@@ -152,6 +155,13 @@ def main(argv=None):
             print("\n" + LOCAL_HELP[command])
             print("\nGlobal options go before the command.")
             return 0
+        if command in ("nurarihyon", "pando"):
+            if platform.system() not in ("Darwin", "Linux"):
+                raise ValueError(command + " requires Linux or macOS POSIX process/resource controls; native Windows is not supported")
+            script = "tools/" + command + "/run"
+            # Keep explicit state selection; never attach to an installed board.
+            # --workspace is not an implicit task or service authorization.
+            return subprocess.run([sys.executable, "-B", str(root / script), *args], check=False).returncode
         if command == "toolkits":
             if args:
                 raise ValueError("toolkits takes no arguments")

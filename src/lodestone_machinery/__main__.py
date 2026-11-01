@@ -31,6 +31,9 @@ def _lineage(argv):
 
 def main(argv=None):
     supplied = sys.argv[1:] if argv is None else argv
+    if supplied and supplied[0] in ("bezoar", "watcher"):
+        from .bezoar_cli import main as bezoar_main
+        return bezoar_main(supplied[1:], watcher_only=supplied[0] == "watcher")
     if supplied and supplied[0] == "origami":
         from .origami_cli import main as origami_main
         return origami_main(supplied[1:])

@@ -279,7 +279,8 @@ def render_entry(record: dict, score: float | None = None) -> str:
 
 
 def build_packet(root: Path, query: str, max_words: int) -> str:
-    results = search(root, query, limit=100)
+    if type(max_words) is not int or max_words < 1:
+        raise ValueError("max_words must be a positive integer")
     chunks = [
         "LODESTONE LOCAL CONTEXT PACKET",
         f"query: {normalize(query)}",
@@ -287,6 +288,9 @@ def build_packet(root: Path, query: str, max_words: int) -> str:
         "",
     ]
     used = sum(len(x.split()) for x in chunks)
+    if used > max_words:
+        raise ValueError("max_words cannot fit the complete context header")
+    results = search(root, query, limit=100)
     for result in results:
         entry = render_entry(result.record, result.score)
         words = len(entry.split())

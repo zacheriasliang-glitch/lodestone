@@ -1,9 +1,12 @@
 # Lodestone
 
 A local toolkit for working with source-backed records, exact file archives,
-and explicit command checks. The core runs with **Python 3.10+**, using only the
+explicit command checks, and approved toolkit tasks. The core runs with **Python 3.10+**, using only the
 standard library. No account, API key, Git installation or background service is
 needed to try it.
+
+> This branch prepares **0.3.0**. It is a review candidate, not a published release;
+> the latest-release link below continues to serve the last approved version.
 
 ## Download and run
 
@@ -38,7 +41,11 @@ python3 -B lodestone.py --help
 
 ## What you can use
 
-All eight laboratory toolkit families are available in this distribution.
+The public toolkit families are available in this distribution, with new
+Nurarihyon and Pando interfaces for user-owned state. The
+[quickstart](docs/quickstart.md) walks through an approved board change and document
+ingestion. The [31-component coverage map](docs/capability-map.md) keeps supported,
+experimental and unfinished programme capabilities visible.
 Run `python3 -B lodestone.py toolkits` or read the [toolkit catalogue](docs/toolkits.md)
 for configuration requirements and the exact boundary between code and private state.
 The [compact-context guide and skill](docs/continuity.md) cover saving task
@@ -47,16 +54,21 @@ The skill can be installed separately.
 
 | Component | Start here | Purpose |
 |---|---|---|
+| Nurarihyon | [Approved tasks](docs/nurarihyon.md) | Durable queue, bounded workers, independent result acceptance, STOP and selected-state recovery |
+| Pando | [Local board](docs/pando.md) | Sources, posts and EAT → DIGEST → MUTATE artifacts with user-owned attribution |
+| Bezoar / Yggdrasil reconciliation | [Captured evidence](docs/nurarihyon.md#supported-contracts) | Preserve discrepancies, lineage and historical observations without automatic repair |
 | Machinery | `python3 lodestone.py machinery --help` | Source-backed jobs, records, inspection and explicit workspaces |
 | Conscience | [Command checks and waking](docs/conscience.md) | Advisory command assessment and linked local wake records |
 | Continuity | [Checkpoint, verify and preserve](docs/continuity.md) | Compare declared evidence across checkpoints within one source revision |
 | Archives / Saṃsāra foundations | [Pack, verify and restore](docs/archives.md) | Deduplicated file preservation with verified recovery |
 | Origami | `python3 lodestone.py origami --help` | Prepare source-bound questions; connect your own provider explicitly |
 | Corpus navigation | `python3 lodestone.py yggdrasil corpus-fold --help` | Build and inspect bounded source maps |
+| Supplied-candidate storage (experimental) | [Exact candidate-table storage](docs/supplied-candidates.md) | Explicit caller-pinned put/get; no candidate generation or learned-benefit claim |
 | Porcelain simulator (optional) | [Install and use](docs/porcelain.md) | Synthetic numerical teaching examples; separate scientific dependencies |
 
-Conscience is advisory, not a security sandbox. It does not confer permission or
-start services. The public policy belongs to the local user and can be reviewed
+Standalone Conscience is advisory. Nurarihyon can bind its assessment as an
+additional worker-admission condition; neither mode is an OS security sandbox or
+a permission source. It does not start services. The public policy belongs to the local user and can be reviewed
 before use. There are no inherited host grants or private mailbox connections.
 
 The archive tools are the local preservation layer. This download includes no
@@ -64,6 +76,12 @@ personal Saṃsāra snapshots and does not configure cloud storage or transfer k
 Origami can prepare requests without an AI account; an actual model-backed run
 requires your own explicit provider command and any credentials that provider
 needs. Nothing contacts a model automatically.
+
+Nurarihyon supports five fixed toolkit contracts and explicit profile-outcome
+retention. It does not infer new operations or prove useful retained learning.
+Reconciliation checks source-bound records rather than supplying semantic Origami
+interpretation or mechanistic model explanations. The rejected passage-budget skill selector and frozen
+studies remain excluded from runtime features.
 
 Checkpoint preservation checks required source identities, notes and unresolved
 questions. It does not guarantee that a summary contains everything a future
@@ -84,6 +102,8 @@ python3 -B tools/ecosystem/install.py
 This installs only a launcher tied to this extracted folder and its Python.
 Keep that folder in place. It does not edit your shell profile, install packages
 or start services. The `python3 lodestone.py` route always remains available.
+Nurarihyon [graphical-login startup](docs/nurarihyon-service.md) is a separate,
+explicit macOS opt-in. Installation never approves a task or clears STOP.
 
 ## Verification and limitations
 
@@ -91,8 +111,10 @@ or start services. The `python3 lodestone.py` route always remains available.
 external SHA-256 checksums. These detect changed bytes; they are not a digital
 signature or proof of who published them.
 
-This is the expanded public toolkit release. It contains a selected, independently reviewed
-runtime, examples and tests with fresh repository history. Experimental learned
+This distribution adapts selected implemented laboratory capabilities for fresh
+user configuration. The proposed 0.3.0 candidate preserves public history and
+keeps laboratory provenance separate from release validation. See the candidate
+PR and CI for the exact reviewed commit and executed checks. Experimental learned
 compression has no demonstrated general advantage. Porcelain coefficients are
 illustrative and uncalibrated. Private research corpora, conversations, histories,
 credentials, live services and host-specific policies are not part of this release.
@@ -100,6 +122,10 @@ credentials, live services and host-specific policies are not part of this relea
 Yggdrasil canon, pack and reenter commands require your own explicitly selected
 root and canon configuration. No laboratory adoption, receipts or source corpus
 is inherited. See the toolkit catalogue for configuration-dependent commands.
+
+Selected private state can be exported and restored using the
+[recovery guide](docs/nurarihyon-recovery.md). Runtime source publication is not
+a backup of your board, captures, outcomes or external configuration.
 
 See [release notes](CHANGELOG.md) for the exact support and validation scope.
 Report reproducible problems through [GitHub issues](https://github.com/zacheriasliang-glitch/lodestone/issues).

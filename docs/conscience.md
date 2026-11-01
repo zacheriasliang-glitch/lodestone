@@ -70,6 +70,25 @@ actor; it does not authenticate that identity. The supplied training-launch rule
 requires a `--preregistration` argument, but does not verify that argument's
 scientific adequacy or authorize a study.
 
+## Policy compatibility in 0.3.0
+
+Operational fields are now validated before a policy is pinned or a command is
+dispatched. Malformed shapes and incorrect types are rejected, including scalar
+record/write roots, incomplete writer rules, non-list interpreter flags and a
+boolean, negative or fractional wake budget. Duplicate keys and nonfinite numbers
+are rejected too. This can expose an invalid custom policy that older versions
+accepted until a later operation.
+
+Valid neutral `lodestone-conscience-policy/v1` policies remain supported.
+`interpreter.pinned` stays optional; when supplied it must be nonempty text.
+Optional descriptive metadata is retained. A pin field alone is not interpreter
+authentication; Nurarihyon's deployment identity checks are separate.
+If your custom policy is rejected, start from the included
+`tools/ecosystem/conscience-policy.json`, carry over your intended writer/root
+rules with the documented types, and inspect the error before dispatch. Do not
+remove validation or change an initialized controller's sealed policy to bypass
+it; prepare a separate valid configuration when that boundary requires one.
+
 ## Records and limits
 
 Records live in `WORKSPACE/organs/conscience/records`. Canonical content hashes
@@ -95,3 +114,30 @@ The optional macOS/Linux launcher can be installed with
 `python3 tools/ecosystem/install.py`; it pins this interpreter and package path,
 adds no packages or services, does not edit PATH, and refuses to overwrite a
 different launcher. `python3 lodestone.py` remains the portable entry point.
+
+
+## Nurarihyon binding
+
+The optional reconciliation profiles prepared by `nurarihyon configure` seal
+an explicit actor, assessment workspace and hashes of the selected Conscience
+policy/modules into the controller policy. This preserves the existing public
+standalone interface while adding a specific runtime admission condition.
+
+Before a reconciliation worker starts, the controller derives its exact argv,
+private stage and write effects from the fixed toolkit implementation. Conscience
+assesses both the command and those effects. `DEFER`, `NEEDS_HOST` and `REFUSE`
+prevent that worker from starting and retain the custody outcome. An `ALLOW`
+verdict still cannot approve a task: exact host plan approval, code/policy/source
+identity, STOP, locks, budgets and independent result acceptance all remain.
+
+This assessment covers the mapped reconciliation worker's effects, not every
+controller action or arbitrary native code. It is not a universal security
+sandbox. The process-local audit restrictions and POSIX controls have their
+stated limits; the trusted local account can change code/files. Participant or
+actor labels are attribution, not authentication. Imported documents and retained
+candidates cannot supply authority, replacement modules or new policies.
+
+Bindings use user-owned absolute paths and pinned bytes. A moved installation
+must account for those external dependencies; recovery never rewrites sealed
+policy or starts a service to make a binding appear valid. See the
+[Nurarihyon recovery guide](nurarihyon-recovery.md).
