@@ -67,6 +67,15 @@ Do not clear STOP, retry a task or install a login service as part of verifying 
 backup. A passing restore demonstrates this selected archive's recovery on the
 tested environment, not a full disaster-recovery or reboot test.
 
+## Version compatibility
+
+Recovery is verified for exports produced by this 0.3.0 runtime. Older laboratory
+controller exports are not supported migration inputs: the required runtime-file
+closure has changed, and Pando may add roster metadata when opening an older board.
+Keep such state with its original runtime and recovery instructions. Do not point
+this package at an existing private installation to test compatibility. Preserve
+old history inert; use fresh configuration and state for new public work.
+
 ## Dependencies outside this snapshot
 
 Python 3.10+ and its standard library/POSIX facilities are required. Model weights

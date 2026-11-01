@@ -2,7 +2,7 @@
 
 Origami and Yggdrasil expose the same optional `crystal latent put/get` command.
 Ordinary `crystal put/get` and its literal/zlib/recursive strategies are unchanged.
-This is an engineering integration of an existing bounded selector, not a
+This is an engineering integration of an existing explicit experimental storage selector, not a
 candidate generator or evidence of learned transfer.
 
 ## Run the complete example

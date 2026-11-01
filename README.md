@@ -80,7 +80,7 @@ needs. Nothing contacts a model automatically.
 Nurarihyon supports five fixed toolkit contracts and explicit profile-outcome
 retention. It does not infer new operations or prove useful retained learning.
 Reconciliation checks source-bound records rather than supplying semantic Origami
-interpretation or mechanistic model explanations. Rejected selectors and frozen
+interpretation or mechanistic model explanations. The rejected passage-budget skill selector and frozen
 studies remain excluded from runtime features.
 
 Checkpoint preservation checks required source identities, notes and unresolved

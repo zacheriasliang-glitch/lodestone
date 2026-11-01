@@ -23,7 +23,7 @@
   controller policies and pinned services are not automatically migrated.
 - Keeps all 31 programme rows and the original negative/frozen findings visible.
   No useful-learning, semantic Origami integration, automatic-repair or
-  whole-programme completion claim is added. Rejected selectors and frozen
+  whole-programme completion claim is added. The rejected passage-budget skill selector and frozen
   experiments 025/026 are not enabled as public runtime features.
 
 This is a proposed release, pending the host's merge and publication decision.
