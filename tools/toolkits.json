@@ -1,8 +1,29 @@
 {
   "schema": "lodestone-toolkit-catalog/v1",
-  "version": "0.2.3",
-  "scope": "All eight laboratory tools directory families, orchestration and optional simulator; reusable code with fresh-user configuration",
+  "version": "0.3.0",
+  "scope": "Portable toolkit families, Nurarihyon/Pando, orchestration and optional simulator; actual interface coverage is separate from the 31-component programme goal",
   "toolkits": [
+    {
+      "id": "nurarihyon",
+      "path": "tools/nurarihyon",
+      "command": "nurarihyon registry",
+      "purpose": "Five approved task contracts, durable queue, bounded workers, independent acceptance, STOP, history and selected-state recovery",
+      "requirements": "Python 3.10+ on macOS/Linux; explicit state and user-owned policy; exact task approval; login startup is a separate opt-in"
+    },
+    {
+      "id": "pando",
+      "path": "tools/pando",
+      "command": "pando --home PATH --help",
+      "purpose": "User-owned local board, sources and EAT/DIGEST/MUTATE lineage; optional explicit loopback UI",
+      "requirements": "Python 3.10+ on macOS/Linux; explicit board directory and attribution; no accounts or model calls"
+    },
+    {
+      "id": "bezoar-reconciliation",
+      "path": "src/lodestone_machinery",
+      "command": "nurarihyon capture-corpus --help",
+      "purpose": "Recompute captured lineage and finding coverage while retaining discrepancies and unresolved historical declarations",
+      "requirements": "Explicit source bytes/manifests and Conscience-bound controller policy; no automatic repair or learning"
+    },
     {
       "id": "machinery",
       "path": "tools/machinery",
@@ -79,6 +100,13 @@
       "command": "python3 -B tools/release/package.py --help",
       "purpose": "Deterministic ZIP/tar distribution builder and onboarding checks",
       "requirements": "Git for build; no Git needed to use downloaded core"
+    },
+    {
+      "id": "supplied-candidates",
+      "path": "src/lodestone_machinery/latent",
+      "command": "origami crystal latent --help",
+      "purpose": "Experimental exact storage with opaque caller-supplied candidate tables and literal fallback",
+      "requirements": "POSIX; explicit candidate pins and contracts; no candidate generation, model call or demonstrated learning advantage"
     }
   ],
   "excluded_state": [
@@ -86,6 +114,8 @@
     "Historical workstream folds, mailbox jobs/admissions/cache and output records",
     "Host-specific LaunchAgent/Codex service configuration and Notion account bindings",
     "Laboratory migration map and historical canon; advanced Yggdrasil uses caller-supplied source/canon",
-    "Legacy Node orchestrator API prototype (not a verified runnable toolkit; see docs/orchestrator.md)"
+    "Legacy Node orchestrator API prototype (not a verified runnable toolkit; see docs/orchestrator.md)",
+    "Rejected skill selectors and frozen studies 025/026 are provenance, not activated runtime capabilities",
+    "Separate outcome-memory catalogues and external Conscience configuration must be retained by their owner"
   ]
 }

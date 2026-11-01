@@ -95,3 +95,30 @@ The optional macOS/Linux launcher can be installed with
 `python3 tools/ecosystem/install.py`; it pins this interpreter and package path,
 adds no packages or services, does not edit PATH, and refuses to overwrite a
 different launcher. `python3 lodestone.py` remains the portable entry point.
+
+
+## Nurarihyon binding
+
+The optional reconciliation profiles prepared by `nurarihyon configure` seal
+an explicit actor, assessment workspace and hashes of the selected Conscience
+policy/modules into the controller policy. This preserves the existing public
+standalone interface while adding a specific runtime admission condition.
+
+Before a reconciliation worker starts, the controller derives its exact argv,
+private stage and write effects from the fixed toolkit implementation. Conscience
+assesses both the command and those effects. `DEFER`, `NEEDS_HOST` and `REFUSE`
+prevent that worker from starting and retain the custody outcome. An `ALLOW`
+verdict still cannot approve a task: exact host plan approval, code/policy/source
+identity, STOP, locks, budgets and independent result acceptance all remain.
+
+This assessment covers the mapped reconciliation worker's effects, not every
+controller action or arbitrary native code. It is not a universal security
+sandbox. The process-local audit restrictions and POSIX controls have their
+stated limits; the trusted local account can change code/files. Participant or
+actor labels are attribution, not authentication. Imported documents and retained
+candidates cannot supply authority, replacement modules or new policies.
+
+Bindings use user-owned absolute paths and pinned bytes. A moved installation
+must account for those external dependencies; recovery never rewrites sealed
+policy or starts a service to make a binding appear valid. See the
+[Nurarihyon recovery guide](nurarihyon-recovery.md).

@@ -1,13 +1,19 @@
 # Toolkit catalogue
 
-Lodestone includes the reusable tools from all eight laboratory `tools/` families.
-Private records and this lab's running services are not part of the package.
+Lodestone includes the public toolkit families plus the portable Nurarihyon/Pando
+interfaces. The [31-component map](capability-map.md) distinguishes implemented
+interfaces from experimental and unfinished work; inclusion is not whole-programme
+completion.
+Private records and laboratory service registrations are not part of the package.
 `python3 -B lodestone.py toolkits` prints a machine-readable catalogue.
 All CLI global options go before the command. Commands otherwise keep their own
 arguments; append `--help` to inspect them.
 
 | Toolkit | Entry | Configuration and contract |
 |---|---|---|
+| [Nurarihyon](nurarihyon.md) | `nurarihyon registry`, `nurarihyon --help` | Explicit state/policy, five fixed task contracts, separate exact approval and bounded execution; macOS/Linux. |
+| [Pando](pando.md) | `pando --home PATH --help` | Standalone user-owned board, source captures, immutable artifact lineage and optional foreground loopback UI. |
+| Bezoar / Yggdrasil reconciliation | `nurarihyon capture-corpus --help` | Explicit inline or captured source corpus; retained discrepancies and unresolved historical observations. No automatic repair. |
 | Machinery | `machinery --help` | Source-backed jobs and records in an explicit workspace; included demo works offline. |
 | Ecosystem / Conscience | `doctor`, `context`, `wake`, `conscience --help` | Local readiness, bounded documentation and advisory command checks. Waking does not start all tools. |
 | [Corpus fold](corpus-fold.md) | `yggdrasil corpus-fold --help` | Select your corpus; reading maps preserve source identities and declared lineage. |
@@ -19,6 +25,7 @@ arguments; append `--help` to inspect them.
 | [Orchestrator](orchestrator.md) | `orchestrator --help` | Python Kernel20/legacy planning and Kernel21 custody helpers; explicit project root; no automatic execution. |
 | [Archives / Saṃsāra foundations](archives.md) | `origami archive --help` | Pack, verify and recover selected files. Cloud/account setup is user-owned. |
 | Crystal / numerical modules | `origami crystal --help`, `origami transformer --help` | Existing bounded storage and numerical contracts; inclusion does not establish learned compression benefit. |
+| [Supplied-candidate storage](supplied-candidates.md) (experimental) | `origami crystal latent --help` | Exact put/get using caller-supplied pinned candidate tables; no model run or learned-compression claim. |
 | [Porcelain](porcelain.md) | `porcelain --help` | Overview needs no optional packages; subcommand help and runs require the numerical environment. Synthetic teaching examples. |
 | Release packaging | `python3 -B tools/release/package.py --help` | Deterministic downloads built from committed public source. |
 
@@ -42,12 +49,30 @@ arguments; append `--help` to inspect them.
   a fresh project has no automatic canon adoption. Macro-voxel library tests
   use synthetic fixtures; no private corpus is needed for the basic tools.
 
+## New task and retention interfaces
+
+`nurarihyon configure` prepares a user-owned policy; `init` creates a separate
+state. Neither starts a service. `submit`, exact `approve` and `run` remain distinct
+steps. `stop`, `status`, `verify`, `recover` and explicit `retry` preserve the task
+history. [Service startup](nurarihyon-service.md) is an additional manual opt-in.
+
+`nurarihyon remember` and `context` verify profile outcomes and attach bounded
+context; they do not choose skills, change priority or waive checks. Inline
+reconciliation's optional reuse pins earlier same-corpus evidence for inert
+routing. Existing retained records do not establish a measured cost reduction.
+[Selected-state recovery](nurarihyon-recovery.md) preserves the chosen state and
+runtime, with external configuration and separate memory exclusions disclosed.
+
+`machinery bezoar --help` exposes explicit ingest/EAT/MUTATE/hold/export-profile
+contracts. `machinery watcher --help` inspects declared record handles in bounded
+polls. These use real source/record APIs; plain text cannot activate a candidate.
+
 ## What stays outside the download
 
 Your own project must supply its sources, records, policy and credentials where
 needed. The download contains no private memory, scientific corpus, transcript,
 mailbox cache or historical worker admission. Old experiments and results remain
-in their original custody. Host-specific LaunchAgents, desktop sessions, Notion
+in their original custody. Preinstalled LaunchAgents, desktop sessions, Notion
 bindings and cloud accounts are not portable tool configuration.
 
 The original lab-only repository migration checker depends on its historical

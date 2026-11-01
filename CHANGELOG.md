@@ -1,5 +1,34 @@
 # Release notes
 
+## 0.3.0 — candidate: approved local toolkit workflows
+
+- Adds portable Nurarihyon and Pando interfaces with explicit user state and
+  attribution: durable task queue, exact-plan approval, bounded worker execution,
+  independent acceptance, idempotency, STOP and preserved history.
+- Exposes implemented profile changes, literal document ingestion, captured
+  Bezoar/Yggdrasil reconciliation and historical observation. Unresolved findings
+  stay unresolved; source text and correction claims cannot authorize repair.
+- Adds user-owned policy preparation, a specific Conscience worker-admission
+  binding, synthetic examples, explicit profile-outcome retention and retrieval.
+- Includes selected-state export/inert restoration and opt-in macOS login-service
+  preparation. Extracting/installing the package never starts a daemon, approves
+  a task, clears STOP, contacts a model or configures cloud access.
+- Includes the existing experimental supplied-candidate exact storage interface
+  with caller-owned pins and literal fallback; no model-generation or benefit claim.
+- Preserves existing public commands/workspaces. New state is separate; sealed
+  controller policies and pinned services are not automatically migrated.
+- Keeps all 31 programme rows and the original negative/frozen findings visible.
+  No useful-learning, semantic Origami integration, automatic-repair or
+  whole-programme completion claim is added. Rejected selectors and frozen
+  experiments 025/026 are not enabled as public runtime features.
+
+This is a proposed release, pending the host's merge and publication decision.
+The candidate PR and its CI record identify the exact reviewed source and tested
+platforms. Laboratory receipts are provenance, not proof of public-package checks.
+Fresh archive installation, commands, refusal/STOP and isolated recovery must be
+verified on the final candidate. No private runtime, corpus, credentials, recovery
+archive, model artifact or laboratory service configuration is distributed.
+
 ## 0.2.3 — declared evidence preservation
 
 - Adds independently pinned checkpoint verification and an explicit `preserve`

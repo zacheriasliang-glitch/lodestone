@@ -104,12 +104,87 @@ def record_store(workspace: Path):
     return records.RecordStore(workspace)
 
 
-def load_policy(path: Path | None = None) -> dict:
-    path = path or HERE / "conscience-policy.json"
-    policy = json.loads(read_bounded(path))
-    if policy.get("schema") != "lodestone-conscience-policy/v1":
+def _unique_policy_keys(pairs: list) -> dict:
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"Duplicate policy key: {key}")
+        result[key] = value
+    return result
+
+
+def _finite_policy_number(value: str) -> float:
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError(f"Non-finite policy number: {value}")
+    return number
+
+
+def _validate_policy(policy: dict) -> None:
+    """Validate operational fields before dispatch; retain optional v1 metadata."""
+    if not isinstance(policy, dict) or policy.get("schema") != "lodestone-conscience-policy/v1":
         raise ValueError("Unsupported conscience policy schema")
-    policy["_pin"] = pin(path)
+
+    def require(valid, field, expected):
+        if not valid:
+            raise ValueError(f"Policy {field} must be {expected}")
+
+    def text(value):
+        return isinstance(value, str) and bool(value.strip())
+
+    def texts(value):
+        return isinstance(value, list) and all(text(item) for item in value)
+
+    def mapping(value):
+        return isinstance(value, dict) and all(text(key) for key in value)
+
+    require(text(policy.get("actor_default")), "actor_default", "nonempty text")
+    for key in ("record_roots", "sealed_patterns", "git_read_only", "launch_patterns", "checks", "context_documents"):
+        require(texts(policy.get(key)), key, "a list of nonempty strings")
+    for key in ("writable_roots_by_actor", "git_write_flags_by_subcommand"):
+        value = policy.get(key)
+        require(mapping(value) and all(texts(items) for items in value.values()), key,
+                "an object mapping nonempty names to lists of nonempty strings")
+    if "git_branch_list_flags" in policy:
+        require(texts(policy["git_branch_list_flags"]), "git_branch_list_flags", "a list of nonempty strings")
+    writers = policy.get("writers")
+    require(isinstance(writers, list), "writers", "a list")
+    for writer in writers:
+        require(isinstance(writer, dict) and text(writer.get("owner"))
+                and any(key in writer for key in ("prefix", "glob"))
+                and all(text(writer[key]) for key in ("prefix", "glob") if key in writer),
+                "writers[]", "an object with an owner and a nonempty prefix or glob")
+    heavy = policy.get("heavy_patterns")
+    require(isinstance(heavy, list), "heavy_patterns", "a list")
+    for pattern in heavy:
+        require(isinstance(pattern, dict) and texts(pattern.get("all")), "heavy_patterns[]",
+                "an object with an all list of nonempty strings")
+    interpreter = policy.get("interpreter")
+    require(isinstance(interpreter, dict), "interpreter", "an object")
+    if "pinned" in interpreter:
+        require(text(interpreter["pinned"]), "interpreter.pinned", "nonempty text")
+    require(texts(interpreter.get("isolation_flags")), "interpreter.isolation_flags", "a list of nonempty strings")
+    limits = policy.get("enotherm")
+    require(isinstance(limits, dict), "enotherm", "an object")
+    for key in ("hot_load_per_core", "hot_free_bytes"):
+        value = limits.get(key)
+        require(type(value) in (int, float) and (not isinstance(value, float) or math.isfinite(value)),
+                "enotherm." + key, "a finite number")
+    schedule = policy.get("schedule")
+    require(isinstance(schedule, dict) and type(schedule.get("budget_per_wake")) is int
+            and schedule["budget_per_wake"] >= 0, "schedule.budget_per_wake", "a nonnegative integer")
+    phase_two = policy.get("phase_two")
+    require(isinstance(phase_two, dict) and texts(phase_two.get("action_relevant_fields")),
+            "phase_two.action_relevant_fields", "a list of nonempty strings")
+
+
+def load_policy(path: Path | None = None) -> dict:
+    path = Path(path or HERE / "conscience-policy.json")
+    raw = read_bounded(path)
+    policy = json.loads(raw, object_pairs_hook=_unique_policy_keys,
+                        parse_float=_finite_policy_number, parse_constant=_finite_policy_number)
+    _validate_policy(policy)
+    policy["_pin"] = {"path": str(path), "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
     return policy
 
 
