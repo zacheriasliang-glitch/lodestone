@@ -5,8 +5,8 @@ explicit command checks, and approved toolkit tasks. The core runs with **Python
 standard library. No account, API key, Git installation or background service is
 needed to try it.
 
-> This branch prepares **0.3.0**. It is a review candidate, not a published release;
-> the latest-release link below continues to serve the last approved version.
+> **[Lodestone v0.3.0 is published](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.0).**
+> Download the named release assets below; the approved archives remain unchanged.
 
 ## Download and run
 
@@ -112,9 +112,11 @@ external SHA-256 checksums. These detect changed bytes; they are not a digital
 signature or proof of who published them.
 
 This distribution adapts selected implemented laboratory capabilities for fresh
-user configuration. The proposed 0.3.0 candidate preserves public history and
-keeps laboratory provenance separate from release validation. See the candidate
-PR and CI for the exact reviewed commit and executed checks. Experimental learned
+user configuration. The published 0.3.0 release preserves public history and
+keeps laboratory provenance separate from release validation. See [PR #5](https://github.com/zacheriasliang-glitch/lodestone/pull/5),
+[reviewed-build CI](https://github.com/zacheriasliang-glitch/lodestone/actions/runs/41334839775)
+and the [published verification record](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.0)
+for the exact reviewed commit, executed checks and asset hashes. Experimental learned
 compression has no demonstrated general advantage. Porcelain coefficients are
 illustrative and uncalibrated. Private research corpora, conversations, histories,
 credentials, live services and host-specific policies are not part of this release.
