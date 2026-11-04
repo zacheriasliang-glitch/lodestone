@@ -6,7 +6,7 @@ local toolkit tasks with a record of what happened.**
 [Download v0.3.0](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.0)
 · [Quickstart](docs/quickstart.md) · [All tools](docs/toolkits.md)
 
-The release is available now. Python3.10+ is all you need for the core; your
+The release is available now. Python 3.10+ is all you need for the core; your
 notes and files stay on your computer. Use macOS or Linux for all workflows
 below. Local memory also works on native Windows, using `py -3` for `python3`.
 
