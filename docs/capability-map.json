@@ -2,7 +2,7 @@
   "schema": "lodestone-public-capability-map/v1",
   "proposed_release": "0.3.0",
   "previous_public_release": "0.2.3",
-  "publication_status": "CANDIDATE_NOT_RELEASED",
+  "publication_status": "PUBLISHED",
   "source_repository": "https://github.com/zacheriasliang-glitch/lodestone-lab",
   "source_revision": "9b78193aecec663e58116a7a4b576a8356a1cf0b",
   "historical_scope": {
@@ -21,7 +21,7 @@
     "note": "Historical laboratory classifications are preserved independently of new public packaging evidence. No row is promoted by source publication. Private artifacts and identities are not copied.",
     "access": "ACCESS_RESTRICTED_PROVENANCE; original31 criteria/status meanings are reproduced in the public components array."
   },
-  "verification_policy": "Local public results and the fresh-Mac built-archive result have explicit scopes, separate from original laboratory classifications. Check public PR5 for current reviewed head, CI and final release status. No CI pass or whole-programme completion is inferred.",
+  "verification_policy": "Published v0.3.0 has exact build, merge, artifact and CI evidence below. Historical laboratory classifications and the earlier local E01-E11 records remain unchanged. Publication does not imply whole-programme completion or acceptance of later source changes. The legacy proposed_release field is retained for schema-v1 compatibility; release_version and publication_status identify the current publication state.",
   "classification_meanings": {
     "ASSERTIONS_PASSED_GUARD_FAILED": "Original assertions passed inside a guard-failed group; not accepted and not a product-failure diagnosis. G5 remains unresolved.",
     "CLOSED_GUARD": "H16 guard allowance failed and closed. Preserve older and newer narrow recovery successes without silently passing the unrun guarded symlink tests.",
@@ -1972,17 +1972,35 @@
         "boundary": "Local fresh-Mac archive result only. No actual reboot/login test, whole-programme acceptance, useful-learning claim or current-head CI pass is implied."
       }
     },
-    "final_build": "FIRST_LOCAL_ARCHIVE_BUILT; CURRENT_HEAD_STATUS_AT_PR",
-    "clean_built_archive_installation": "PASS_LOCAL_MAC_FIRST_ARCHIVE_WITH_MATCHED_RUNTIME",
-    "applicable_ci": "CHECK_CURRENT_HEAD_AT_PR_NOT_CLAIMED_PASS",
-    "independent_final_candidate_review": "CHECK_CURRENT_HEAD_AT_PR_NOT_CLAIMED_FINAL",
-    "note": "Local evidence is retained with its source scope. The current reviewed head, CI result and final release decision are recorded in public PR5; do not infer them from an earlier archive result.",
-    "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/pull/5"
+    "final_build": "PUBLISHED_EXACT_REVIEWED_ARTIFACTS",
+    "clean_built_archive_installation": "PASS_EXACT_PUBLISHED_ZIP_FRESH_MAC_53_CHECKS",
+    "applicable_ci": "PASS_REVIEWED_BUILD_RUN_41334839775",
+    "independent_final_candidate_review": "ACCEPT_FINAL_SCOPED_CLAUDE",
+    "note": "E01-E11 preserve earlier development evidence. Final published build, same-tree merge, exact ZIP and final review are recorded separately; no historical criterion is promoted.",
+    "current_release_evidence": "https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.0",
+    "published_build": {
+      "version": "0.3.0",
+      "reviewed_commit": "c378e44dc5dc7b7234f258e46f14f8235a448f26",
+      "merge_tag_commit": "6871c3f37fc59afbe05ba57b2c815ddef109aa90",
+      "source_tree": "6acb9f540e7980425f1f4ed7cceec469e6d24d65",
+      "ci": "https://github.com/zacheriasliang-glitch/lodestone/actions/runs/41334839775",
+      "ci_result": "SUCCESS",
+      "ci_jobs_passed": 5,
+      "zip": {
+        "bytes": 917659,
+        "sha256": "7eb2c88e46ff293705d12e81f503ad96f5a6e08fce8d094f33caa5cbda7dc1e4"
+      },
+      "fresh_mac_workflow_checks": 53,
+      "completed_toolkit_tasks": 5,
+      "independent_review": "Claude: ACCEPT (final, scoped).",
+      "boundary": "Published v0.3.0 only. No actual reboot/login verification, autonomous learning, whole-programme completion or later-branch pass is inferred."
+    }
   },
   "source_access": {
     "source_repository": "ACCESS_RESTRICTED_HISTORICAL_PROVENANCE",
     "public_repository": "https://github.com/zacheriasliang-glitch/lodestone",
     "public_implementation": "The relative public_source_paths/public_source_links on each row locate the actual adapted files in this distribution. Historical laboratory access is not required to use or inspect the public package.",
     "nonexported": "An empty public_source_paths list means this item is not exported; no replacement file is implied."
-  }
+  },
+  "release_version": "0.3.0"
 }

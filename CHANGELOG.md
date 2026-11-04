@@ -35,12 +35,16 @@
   whole-programme completion claim is added. The rejected passage-budget skill selector and frozen
   experiments 025/026 are not enabled as public runtime features.
 
-This is a proposed release, pending the host's merge and publication decision.
-The candidate PR and its CI record identify the exact reviewed source and tested
-platforms. Laboratory receipts are provenance, not proof of public-package checks.
-Fresh archive installation, commands, refusal/STOP and isolated recovery must be
-verified on the final candidate. No private runtime, corpus, credentials, recovery
-archive, model artifact or laboratory service configuration is distributed.
+Published as [v0.3.0](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.0)
+after [PR #5](https://github.com/zacheriasliang-glitch/lodestone/pull/5) merged.
+The reviewed build is `c378e44dc5dc7b7234f258e46f14f8235a448f26`; the merge/tag
+target is `6871c3f37fc59afbe05ba57b2c815ddef109aa90`, with the same source tree.
+[All five reviewed CI jobs passed](https://github.com/zacheriasliang-glitch/lodestone/actions/runs/41334839775).
+The exact published ZIP also passed fresh installation on the Mac, including
+53 synthetic workflow checks, five completed toolkit tasks, refusal/STOP behavior
+and isolated recovery. The release page records archive identities, platform
+boundaries and Claude's final scoped acceptance. No private runtime, corpus,
+credentials, recovery archive, model artifact or service configuration is distributed.
 
 ## 0.2.3 — declared evidence preservation
 
