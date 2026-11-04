@@ -1,8 +1,14 @@
-# Public capability map — 0.3.0 candidate
+# Public capability map — 0.3.1
 
 This map separates code availability, public verification and historical laboratory
 evidence. It does not declare whole-programme completion or inherit private state.
-Proposed version: **0.3.0**, following **0.2.3**.
+Release: **[0.3.1](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.1)**,
+following **0.3.0**. This patch fixes worker-exit monitoring, exercises the public
+notebook CLI on every CI platform and leads with a usable handoff/recovery workflow.
+The original 31 component criteria and classifications remain unchanged.
+[Patch source and CI](https://github.com/zacheriasliang-glitch/lodestone/pull/6) ·
+[Changes](../CHANGELOG.md). Build identity and archive hashes are in the release’s
+`BUILD.json` and `SHA256SUMS.txt`.
 
 Access-restricted historical laboratory source is pinned to [`9b78193aecec`](https://github.com/zacheriasliang-glitch/lodestone-lab/tree/9b78193aecec663e58116a7a4b576a8356a1cf0b).
 The [restricted historical scope record](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/docs/publication-20261101/COVERAGE.json)
@@ -19,7 +25,7 @@ are generalized; no criterion is removed to make the release appear complete.
 ## Evidence status
 
 - **Existing public**: already available in 0.2.3 within its documented limits.
-- **New adaptation**: laboratory implementation being made portable; source inspection is not a clean-machine pass.
+- **New adaptation**: implementation adapted from the laboratory for this public release; its verification is recorded separately from the historical laboratory classification.
 - **Historical lab classification**: preserved, never promoted by packaging or publication.
 - **`NOT_RUN_FOR_0.3.0`**: no new 0.3.0 check is attached to that particular row. Other local results are recorded separately below.
 - **`NOT_EXPORTED_NO_EXECUTION`**: visible laboratory provenance, unavailable as a supported public route.
@@ -29,10 +35,15 @@ Laboratory revision/path references remain access-restricted historical provenan
 no private access is required to run or inspect the public implementation. The JSON
 separates public files from historical files that were not exported.
 
-Fresh installation from the first built archive passed locally on the Mac. Check
-[PR5](https://github.com/zacheriasliang-glitch/lodestone/pull/5) for the current reviewed head,
-applicable CI results and final release decision. This map does not claim that
-current-head CI has passed.
+The published **0.3.0 baseline** archive was built from `c378e44dc5dc7b7234f258e46f14f8235a448f26`;
+[PR #5](https://github.com/zacheriasliang-glitch/lodestone/pull/5) merged at
+`6871c3f37fc59afbe05ba57b2c815ddef109aa90` with the same source tree.
+[All five reviewed CI jobs passed](https://github.com/zacheriasliang-glitch/lodestone/actions/runs/41334839775).
+The exact released ZIP passed fresh Mac installation, 53 synthetic workflow
+checks, five completed toolkit tasks, STOP-preserving recovery and independent
+Claude review. [Release provenance and platform boundaries](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.0)
+identify the actual artifacts. These release results do not promote the original
+31 research criteria or establish every later branch's CI status.
 
 ## Implemented additions and public adaptation
 
@@ -91,7 +102,7 @@ Optional numerical dependencies retain their own licenses. No private policy,
 Mac path, existing board, credential, historical corpus or research model is a
 required public example.
 
-## Current local public evidence
+## Preserved development evidence before publication
 
 On macOS 12.7.6 (Intel), Python 3.12.7:
 
@@ -112,8 +123,8 @@ Fresh installation from the first built archive passed **53 workflow checks** on
 the Mac: all five synthetic toolkit operations, STOP, isolated recovery and the
 public launcher. The tested archive was built from `74ea6538271d`; its runtime
 files matched candidate `e262e551f2f9`. This is a local archive result, not proof
-of every platform or a real reboot/login. **Consult [PR5](https://github.com/zacheriasliang-glitch/lodestone/pull/5)
-for current-head CI and independent review; no passing CI claim is made here.**
+of every platform or a real reboot/login. This first-archive record remains
+historical evidence; the final published-build verification is recorded above.
 
 ## Whole-programme coverage: all 31 rows
 

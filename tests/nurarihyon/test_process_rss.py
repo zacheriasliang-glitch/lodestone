@@ -1,6 +1,7 @@
 """Focused native-reader contracts using fakes; no processes or libraries loaded."""
 import ctypes
 import errno
+import subprocess
 import sys
 from types import SimpleNamespace
 import unittest
@@ -86,10 +87,34 @@ class ProcessRSSTests(unittest.TestCase):
     def test_esrch_requires_confirmed_owned_child_exit(self):
         child = mock.Mock(pid=120)
         child.poll.return_value = None
+        child.wait.side_effect = subprocess.TimeoutExpired("owned-worker", 0.1)
         reader = self.reader(FakePidInfo(result=0, error=errno.ESRCH))
-        with self.assertRaises(ProcessLookupError):
+        with self.assertRaises(WorkerGone):
             sample_owned_worker(child, reader)
         child.poll.assert_called_once_with()
+        child.wait.assert_called_once_with(timeout=0.1)
+
+    def test_esrch_during_exit_waits_for_owned_child_without_fabricating_rss(self):
+        for code in (0, 1, -9):
+            with self.subTest(returncode=code):
+                child = mock.Mock(pid=120, returncode=None)
+                child.poll.return_value = None
+                def reap(*, timeout):
+                    child.returncode = code
+                    return code
+                child.wait.side_effect = reap
+                reader = self.reader(FakePidInfo(result=0, error=errno.ESRCH))
+                self.assertIsNone(sample_owned_worker(child, reader))
+                self.assertEqual(child.returncode, code)
+                child.wait.assert_called_once_with(timeout=0.1)
+
+    def test_wait_failure_is_not_mistaken_for_confirmed_exit(self):
+        child = mock.Mock(pid=120)
+        child.poll.return_value = None
+        child.wait.side_effect = PermissionError(errno.EPERM, "wait failed")
+        reader = self.reader(FakePidInfo(result=0, error=errno.ESRCH))
+        with self.assertRaises(PermissionError):
+            sample_owned_worker(child, reader)
 
     def test_esrch_with_reaped_child_returns_no_sample(self):
         child = mock.Mock(pid=120)
@@ -97,6 +122,7 @@ class ProcessRSSTests(unittest.TestCase):
         reader = self.reader(FakePidInfo(result=0, error=errno.ESRCH))
         self.assertIsNone(sample_owned_worker(child, reader))
         child.poll.assert_called_once_with()
+        child.wait.assert_not_called()
 
     def test_partial_result_with_esrch_is_not_excused_as_disappearance(self):
         child = mock.Mock(pid=120)
@@ -136,6 +162,7 @@ class LinuxProcessRSSTests(unittest.TestCase):
         child = mock.Mock(pid=120)
         with mock.patch("builtins.open", side_effect=FileNotFoundError):
             child.poll.return_value = None
+            child.wait.side_effect = subprocess.TimeoutExpired("owned-worker", 0.1)
             with self.assertRaises(WorkerGone):
                 sample_owned_worker(child, self.reader())
             child.poll.return_value = 0

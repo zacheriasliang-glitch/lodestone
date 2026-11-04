@@ -7,6 +7,7 @@ the controller separately checks the worker's final getrusage maximum.
 import ctypes
 import errno
 import os
+import subprocess
 import sys
 
 
@@ -90,11 +91,21 @@ def owned_worker_observer():
 def sample_owned_worker(child, observer):
     """No sample for Linux zero RSS, or ESRCH plus this owned child's confirmed exit.
 
-    Permission failures and malformed native records are never suppressed.
+    A native process record can disappear during exit before waitpid reports
+    termination. Allow at most 100 ms for that owned child to be reaped; a child
+    still running after this interval remains an observer failure. This wait is
+    part of the controller's elapsed-time accounting. Permission failures and
+    malformed native records are never suppressed.
     """
     try:
         return observer.rss(child.pid)
     except WorkerGone:
         if child.poll() is not None:
+            return None
+        try:
+            child.wait(timeout=0.1)
+        except subprocess.TimeoutExpired:
+            pass
+        else:
             return None
         raise

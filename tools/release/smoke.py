@@ -13,8 +13,35 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def memory_workflow(command, base):
+    """Exercise the actual public CLI, including its fresh-process handoff."""
+    notebook = base / "notebook"
+    body = "Use a static website. The launch date is still undecided."
+    source = "Project planning note"
+    args = ("memory", "add", notebook, "--title", "Website launch decision",
+            "--body", body, "--source", source, "--tags", "website,decision")
+    added = json.loads(command("memory add", *args))
+    assert added["created"] is True, added
+    repeated = json.loads(command("memory identical add reuses record", *args))
+    assert repeated["created"] is False and repeated["id"] == added["id"], repeated
+    found = command("memory fresh-process search", "memory", "search", notebook, "website")
+    assert body in found and source in found and added["id"] in found, found
+    packet = base / "website-handoff.md"
+    command("memory handoff", "memory", "packet", notebook, "website",
+            "--max-words", "300", "--output", packet)
+    text = packet.read_text(encoding="utf-8")
+    assert body in text and source in text and len(text.split()) <= 300, text
+    command("memory verify", "memory", "verify", notebook)
+    missing = command("memory unrelated query", "memory", "search", notebook,
+                      "zxqvunmatchedtoken")
+    assert "No matching records." in missing, missing
+
+
 def main():
-    argparse.ArgumentParser(description=__doc__).parse_args()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--memory-only", action="store_true",
+                        help="Run only the notebook CLI workflow")
+    options = parser.parse_args()
     checks = []
     with tempfile.TemporaryDirectory(prefix="lodestone-new-user-") as temp:
         base = Path(temp).resolve()
@@ -32,6 +59,12 @@ def main():
                 raise RuntimeError(label + ": " + result.stdout + result.stderr)
             checks.append({"check": label, "exit": result.returncode})
             return result.stdout
+
+        memory_workflow(command, base)
+        if options.memory_only:
+            print(json.dumps({"status": "PASS", "checks": checks,
+                              "scope": "Public memory CLI with temporary user state"}, indent=2))
+            return
 
         command("help", "--help")
         doctor = json.loads(command("doctor", "doctor"))
