@@ -1,14 +1,15 @@
-# Public capability map — 0.3.1
+# Public capability map — 0.3.2
 
 This map separates code availability, public verification and historical laboratory
 evidence. It does not declare whole-programme completion or inherit private state.
-Release: **[0.3.1](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.1)**,
-following **0.3.0**. This patch fixes worker-exit monitoring, exercises the public
-notebook CLI on every CI platform and leads with a usable handoff/recovery workflow.
+Release: **[0.3.2](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.2)**,
+following **0.3.1**. This patch makes the cleanup-error persistence test deterministic;
+product runtime and user interfaces remain identical to 0.3.1. The worker-exit
+monitoring fix and notebook/handoff/recovery workflow from 0.3.1 are retained.
 The original 31 component criteria and classifications remain unchanged.
-[Patch source and CI](https://github.com/zacheriasliang-glitch/lodestone/pull/6) ·
-[Changes](../CHANGELOG.md). Build identity and archive hashes are in the release’s
-`BUILD.json` and `SHA256SUMS.txt`.
+[Patch source](https://github.com/zacheriasliang-glitch/lodestone/tree/fix/deterministic-reap-timeout-v032) ·
+[Changes and preserved failure](../CHANGELOG.md). Build identity and archive hashes
+are in the release’s `BUILD.json` and `SHA256SUMS.txt`.
 
 Access-restricted historical laboratory source is pinned to [`9b78193aecec`](https://github.com/zacheriasliang-glitch/lodestone-lab/tree/9b78193aecec663e58116a7a4b576a8356a1cf0b).
 The [restricted historical scope record](https://github.com/zacheriasliang-glitch/lodestone-lab/blob/9b78193aecec663e58116a7a4b576a8356a1cf0b/docs/publication-20261101/COVERAGE.json)
