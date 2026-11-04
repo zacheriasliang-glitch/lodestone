@@ -1,6 +1,15 @@
 # Release notes
 
-## 0.3.0 — candidate: approved local toolkit workflows
+## Unreleased
+
+- Leads the README with a working local notebook, AI handoff and archive/restore
+  workflow; exercises the public notebook commands on every CI platform.
+- Fixes a worker-exit race in RSS monitoring: after a process-disappearance
+  response, allow up to 100 ms for the owned child to finish. An unconfirmed exit,
+  permission error or malformed sample still fails; nonzero worker exits and
+  independent result validation keep their existing handling.
+
+## 0.3.0 — approved local toolkit workflows
 
 - Adds portable Nurarihyon and Pando interfaces with explicit user state and
   attribution: durable task queue, exact-plan approval, bounded worker execution,
