@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.3.2 — deterministic cleanup-error regression
+
+- Fixes a timing-dependent test that raced the worker’s alarm against the
+  controller’s wall deadline. A controlled child and explicit RSS breach now
+  exercise both cleanup timeouts and verify the durable failure, single attempt,
+  unchanged generation and absence of a source lesson.
+- Preserves real-worker limit, STOP and completion integration checks. Product
+  runtime and user interfaces are unchanged from 0.3.1.
+- Preserves the failed 0.3.1 tag run [41880424061](https://github.com/zacheriasliang-glitch/lodestone/actions/runs/41880424061)
+  alongside its passing candidate and main runs; no published assets are replaced.
+
 ## 0.3.1 — usable notebooks and reliable worker monitoring
 
 - Leads the README with a working local notebook, AI handoff and archive/restore

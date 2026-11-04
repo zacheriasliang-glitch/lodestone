@@ -271,23 +271,27 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(self.c.status()["lessons"], [])
 
     def test_reap_timeout_is_retained_instead_of_losing_failure_record(self):
-        limited = self.base / "limited"
-        self.c = Controller.initialize(limited, {**DEFAULT_POLICY, "worker_wall_seconds": 1})
-        self.home = limited
-        self.queued()
-        from lodestone_nurarihyon.controller import _stop_child
-        calls = []
-        def delayed_stop(child):
-            calls.append(child)
-            if len(calls) > 1:
-                _stop_child(child)  # Do not leak a worker from this fixture.
-            raise subprocess.TimeoutExpired("injected child reap", 3)
-        with mock.patch("lodestone_nurarihyon.controller._stop_child", side_effect=delayed_stop):
+        task = self.queued()
+        generation = self.c.active_directory().name
+        # Exercise cleanup-error persistence without racing the real worker's
+        # SIGALRM against the controller's wall deadline. Real worker limits and
+        # STOP handling remain covered by their separate integration tests.
+        child = mock.Mock(spec=subprocess.Popen)
+        child.poll.return_value = None
+        with mock.patch("lodestone_nurarihyon.controller.subprocess.Popen", return_value=child) as spawn, \
+                mock.patch("lodestone_nurarihyon.process_rss.sample_owned_worker",
+                           return_value=DEFAULT_POLICY["worker_rss_bytes"] + 1), \
+                mock.patch("lodestone_nurarihyon.controller._stop_child",
+                           side_effect=subprocess.TimeoutExpired("injected child reap", 3)) as stop:
             result = self.c.run_once(fault="wait")
-        self.assertEqual(len(calls), 2)
+        spawn.assert_called_once()
+        self.assertEqual(stop.call_args_list, [mock.call(child), mock.call(child)])
         self.assertEqual(result["state"], "INTERRUPTED", result)
         self.assertEqual(result["result"]["outcome"], "EXECUTOR_ERROR")
-        self.assertIn("child_reap_error", result["result"]["metrics"])
+        self.assertIn("injected child reap", result["result"]["metrics"]["child_reap_error"])
+        self.assertEqual(result["attempts"], 1)
+        self.assertEqual(self.c.active_directory().name, generation)
+        self.assertEqual(Controller(self.home).status(task["id"])["result"], result["result"])
         self.assertEqual(self.c.status()["lessons"], [])
 
     def test_late_publication_sync_cannot_cross_deadline_and_commit(self):
