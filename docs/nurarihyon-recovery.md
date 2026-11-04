@@ -69,7 +69,7 @@ tested environment, not a full disaster-recovery or reboot test.
 
 ## Version compatibility
 
-Recovery is verified for exports produced by this 0.3.0 runtime. Older laboratory
+Recovery is verified for exports produced by this release’s runtime. Older laboratory
 controller exports are not supported migration inputs: the required runtime-file
 closure has changed, and Pando may add roster metadata when opening an older board.
 Keep such state with its original runtime and recovery instructions. Do not point

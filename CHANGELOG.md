@@ -1,6 +1,6 @@
 # Release notes
 
-## Unreleased
+## 0.3.1 — usable notebooks and reliable worker monitoring
 
 - Leads the README with a working local notebook, AI handoff and archive/restore
   workflow; exercises the public notebook commands on every CI platform.
@@ -8,6 +8,8 @@
   response, allow up to 100 ms for the owned child to finish. An unconfirmed exit,
   permission error or malformed sample still fails; nonzero worker exits and
   independent result validation keep their existing handling.
+- Corrects publication status in the changelog and capability maps while
+  preserving all 31 original component criteria and historical evidence.
 
 ## 0.3.0 — approved local toolkit workflows
 

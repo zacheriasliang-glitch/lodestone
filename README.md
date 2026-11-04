@@ -3,7 +3,7 @@
 **Keep useful project knowledge between AI sessions, recover your files, and run
 local toolkit tasks with a record of what happened.**
 
-[Download v0.3.0](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.0)
+[Download v0.3.1](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.1)
 · [Quickstart](docs/quickstart.md) · [All tools](docs/toolkits.md)
 
 The release is available now. Python 3.10+ is all you need for the core; your
@@ -12,7 +12,7 @@ below. Local memory also works on native Windows, using `py -3` for `python3`.
 
 ## Save a decision and hand it to your next AI session
 
-Download the named `lodestone-0.3.0.zip` asset, extract it, and open a terminal
+Download the named `lodestone-0.3.1.zip` asset, extract it, and open a terminal
 inside its versioned folder. Verify the download:
 
 ```sh
@@ -100,11 +100,10 @@ guide. You can always use `python3 lodestone.py` directly.
 
 ## Release details
 
-v0.3.0 is [published](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.0).
+v0.3.1 is [published](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.1).
 The release page provides the exact ZIP/tar.gz, checksums, build provenance and
-passed verification. Its immutable archives preserve the reviewed source
-snapshot, including older candidate labels; publication status is recorded on
-the release page. [Release history](CHANGELOG.md) ·
+passed verification. The downloads contain this release’s reviewed code and documentation, with
+per-file checksums and build provenance. [Release history](CHANGELOG.md) ·
 [31-component programme map](docs/capability-map.md) ·
 [Report a problem](https://github.com/zacheriasliang-glitch/lodestone/issues).
 
@@ -172,10 +171,10 @@ external SHA-256 checksums. These detect changed bytes; they are not a digital
 signature or proof of who published them.
 
 This distribution adapts selected implemented laboratory capabilities for fresh
-user configuration. The published 0.3.0 release preserves public history and
+user configuration. The published 0.3.1 release preserves public history and
 keeps laboratory provenance separate from release validation. See [PR #5](https://github.com/zacheriasliang-glitch/lodestone/pull/5),
 [reviewed-build CI](https://github.com/zacheriasliang-glitch/lodestone/actions/runs/41334839775)
-and the [published verification record](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.0)
+and the [published verification record](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.1)
 for the exact reviewed commit, executed checks and asset hashes. Experimental learned
 compression has no demonstrated general advantage. Porcelain coefficients are
 illustrative and uncalibrated. Private research corpora, conversations, histories,

@@ -3,8 +3,8 @@
 Use the extracted package containing `lodestone.py`, with Python 3.10+ on
 macOS or Linux. These commands create only the state you name. They do not
 install a service, configure cloud access or contact a model. Native Windows
-supports the older doctor/demo/Conscience preview; use Linux in WSL for
-Nurarihyon and Pando.
+supports local notebook commands and the doctor/demo/Conscience preview; use
+`py -3` in place of `python3`. Nurarihyon and Pando require macOS or Linux.
 
 ```sh
 python3 -B verify_download.py
@@ -83,7 +83,7 @@ For captured discrepancies and historical observations, continue with the
 
 ## Upgrading from 0.2.3
 
-Extract 0.3.0 into a new package directory. Keep existing workspaces, sources,
+Extract 0.3.1 into a new package directory. Keep existing workspaces, sources,
 archives and the older package. Existing public commands keep their interfaces;
 Nurarihyon and Pando use separately named state rather than adopting an older
 workspace automatically. Do not edit an existing controller's sealed policy to
