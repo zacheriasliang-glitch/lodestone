@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.3.3 — local delivery candidate
+
+- Adds `memory source-bind` and `memory source-address` to retain and reopen
+  exact source passages behind notebook records, with explicit stale, missing
+  and ambiguous results. The D1 implementation passed its 42 component tests.
+- Documents selected notebook/source recovery using the existing archive format
+  and a separately pinned reader. Adds focused Conscience criterion tests.
+  Recovery and these new checks have separate execution receipts when run.
+- This source version identifies the private candidate; no public 0.3.3 release
+  or installed-service promotion is claimed. Published 0.3.2 remains unchanged.
+
 ## 0.3.2 — deterministic cleanup-error regression
 
 - Fixes a timing-dependent test that raced the worker’s alarm against the
