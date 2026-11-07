@@ -11,6 +11,9 @@ import tempfile
 from . import macro_voxel as mv
 from . import yggdrasil as lineage
 from .records import HANDLE, NAME, canonical as record_canonical
+from .yggdrasil_sources import binding_payload, read_bound_sources, BoundSourceError
+from .support_review import REQUEST_SCHEMA, ATTRIBUTION, _validate_review
+from .origami import _validate_response
 
 ORIGAMI_RESULT_VERSIONS = ("0.1.0", "0.2.0")
 CANON = "docs/yggdrasil/canon.json"
@@ -18,6 +21,9 @@ ADOPTION = "docs/dispositions/HOST_DISPOSITION__YGGDRASIL_ACTIVE_v0.3.0.md"
 REQUIRED = {"node.md", "LABORATORY_CONSTITUTION.md", "INTERACTION_PROTOCOL.md",
             "UNIVERSAL_RECEIPT_POLICY_v1.0.0.md", ADOPTION,
             "docs/yggdrasil/macro-voxel-v0.2.0.md"}
+MAX_CAPTURE_BYTES = 8 * 1024 * 1024
+MAX_CAPTURE_ROOTS = 64
+MAX_SNAPSHOT_SOURCE_BYTES = mv.MAX_BYTES * 3 // 4  # base64 alone cannot fit above this
 
 
 def read(root, relative, limit=mv.MAX_SOURCE_BYTES):
@@ -105,24 +111,167 @@ def edge(source, target, kind, refs):
                        "evidence_refs": refs}, "residue": mv.residue()}
 
 
-def snapshot(root, *, records_workspace=None, origami_results=()):
+def _record(raw, path):
+    record = mv.parse_json(raw)
+    mv._keys(record, {"schema", "owner", "kind", "payload", "links"}, "organ record")
+    for field in ("owner", "kind"):
+        if type(record[field]) is not str or NAME.fullmatch(record[field]) is None:
+            raise ValueError("Invalid record " + field)
+    if record["schema"] != "organ-record/v1" or type(record["payload"]) is not dict:
+        raise ValueError("Invalid organ record schema")
+    mv._strings(record["links"], "record links")
+    if len(record["links"]) > 32 or any(HANDLE.fullmatch(h) is None for h in record["links"]):
+        raise ValueError("Invalid bounded record links")
+    canonical = record_canonical(record)
+    identity = mv.digest(canonical)
+    if path != "organs/" + record["owner"] + "/records/" + identity + ".json" or canonical != raw:
+        raise ValueError("Organ record differs from its producer-owned address")
+    return record["owner"] + ":" + identity, record
+
+
+def _selected_paths(workspace, handles):
+    if type(handles) not in (tuple, list) or not 1 <= len(handles) <= 256:
+        raise ValueError("Select 1 to 256 exact record handles")
+    if any(type(h) is not str or HANDLE.fullmatch(h) is None for h in handles) or len(set(handles)) != len(handles):
+        raise ValueError("Invalid or duplicate selected record handle")
+    pending, seen, paths = list(handles), set(), []
+    while pending:
+        handle = pending.pop()
+        if handle in seen:
+            continue
+        if len(seen) >= 256:
+            raise ValueError("Selected record closure exceeds 256 records")
+        owner, digest = handle.split(":")
+        path = "organs/" + owner + "/records/" + digest + ".json"
+        actual, record = _record(read(workspace, path), path)
+        if actual != handle:
+            raise ValueError("Selected record identity differs")
+        seen.add(handle)
+        paths.append(path)
+        pending.extend(record["links"])
+    return sorted(paths)
+
+
+def _records(sources):
+    result = {}
+    for source_id, item in sources.items():
+        if item["scope"] == "records" and "/records/" in item["path"] and item["path"].endswith(".json"):
+            handle, record = _record(mv.source_bytes(item), item["path"])
+            result[handle] = (source_id, record)
+    return result
+
+
+def _capture_roots(value):
+    value = {} if value is None else value
+    if type(value) is not dict or len(value) > MAX_CAPTURE_ROOTS:
+        raise ValueError("Supply at most 64 explicit capture roots")
+    for handle, root in value.items():
+        if (type(handle) is not str or HANDLE.fullmatch(handle) is None
+                or not handle.startswith("origami:") or not isinstance(root, (str, Path)) or not str(root)):
+            raise ValueError("Capture roots require exact Origami binding handles and paths")
+    return value
+
+
+def _support_packets(records):
+    try:
+        return _support_packets_checked(records)
+    except (KeyError, TypeError, AttributeError, IndexError, RecursionError) as exc:
+        raise ValueError("Malformed retained support packet") from exc
+
+
+def _support_packets_checked(records):
+    bindings, answers, reviews = {}, {}, {}
+    for handle, (_, record) in records.items():
+        if record["owner"] == "origami" and record["kind"] == "source_bindings":
+            bindings[handle] = binding_payload(record)
+    for handle, (_, record) in records.items():
+        if record["owner"] != "origami" or record["kind"] != "answer_evidence":
+            continue
+        if len(record["links"]) != 1 or record["links"][0] not in bindings:
+            raise ValueError("Answer evidence requires its exact source binding")
+        packet, bound = record["payload"], bindings[record["links"][0]]
+        required = {"schema", "run_id", "question", "epoch", "reviewer", "provider", "files", "source_root",
+                    "scope", "fold", "evidence", "prior_knowledge", "instructions", "response_schema",
+                    "attribution", "authority", "request_sha256"}
+        mv._keys(packet, required, "answer evidence packet")
+        for field in ("question", "epoch", "reviewer", "provider", "instructions"):
+            mv._text(packet[field], field)
+        if (packet["schema"] != REQUEST_SCHEMA or packet["authority"] != "NONE"
+                or packet["attribution"] != ATTRIBUTION
+                or any(record_canonical(packet[k]) != record_canonical(bound[k])
+                       for k in ("run_id", "source_root", "scope", "evidence"))
+                or mv.digest(record_canonical({k: v for k, v in packet.items() if k != "request_sha256"})) != packet["request_sha256"]):
+            raise ValueError("Answer evidence identity or source binding differs")
+        fold = packet["fold"]
+        if type(fold) is not dict:
+            raise ValueError("Answer evidence requires its exact fold")
+        _validate_response(fold, {"request_id": fold.get("request_id"), "evidence": packet["evidence"], "scope": packet["scope"]})
+        if fold["decision"] != "ANSWER":
+            raise ValueError("Answer evidence must retain an ANSWER fold")
+        answers[handle] = (record["links"][0], packet)
+    for handle, (_, record) in records.items():
+        if record["owner"] != "checker" or record["kind"] != "support_review":
+            continue
+        if len(record["links"]) != 1 or record["links"][0] not in answers:
+            raise ValueError("Support review requires its exact answer record")
+        payload, packet = record["payload"], answers[record["links"][0]][1]
+        mv._keys(payload, {"request_sha256", "run_id", "review", "attribution", "authority"}, "support review record")
+        if (payload["run_id"] != packet["run_id"] or payload["request_sha256"] != packet["request_sha256"]
+                or payload["attribution"] != ATTRIBUTION or payload["authority"] != "NONE"):
+            raise ValueError("Support review differs from its answer")
+        _validate_review(payload["review"], packet)
+        reviews[handle] = (record["links"][0], payload["review"])
+    return bindings, answers, reviews
+
+
+def snapshot(root, *, records_workspace=None, origami_results=(), capture_roots=None, record_handles=()):
     root = Path(root).resolve()
     canon = check_canon(root)
     scopes, sources, roots = {}, {}, {"repo": root}
+    raw_total = 0
 
     def capture(name, kind, directory, paths):
+        nonlocal raw_total
         scopes[name] = {"kind": kind, "paths": sorted(paths)}
         roots[name] = Path(directory).resolve()
         for path in sorted(paths):
-            sources[name + ":" + path] = mv.source(name, path, read(directory, path))
+            if raw_total + (Path(directory) / path).stat().st_size > MAX_SNAPSHOT_SOURCE_BYTES:
+                raise ValueError("Snapshot sources cannot fit the macro-voxel byte bound")
+            raw = read(directory, path)
+            raw_total += len(raw)
+            if raw_total > MAX_SNAPSHOT_SOURCE_BYTES:
+                raise ValueError("Snapshot sources exceed the macro-voxel byte bound")
+            sources[name + ":" + path] = mv.source(name, path, raw)
 
     capture("repo", "repository", root, repo_paths(root, canon))
+    if record_handles and records_workspace is None:
+        raise ValueError("Selected records require their workspace")
     if records_workspace is not None:
-        capture("records", "organ-records", records_workspace,
-                inventory(records_workspace, "organs"))
+        capture("records", "organ-records-selected" if record_handles else "organ-records", records_workspace,
+                _selected_paths(records_workspace, record_handles) if record_handles else inventory(records_workspace, "organs"))
     for index, filename in enumerate(origami_results):
         path = Path(filename).absolute()
         capture("origami-" + str(index), "origami-result", path.parent, [path.name])
+    records = _records(sources)
+    bindings, answers, reviews = _support_packets(records)
+    capture_roots = _capture_roots(capture_roots)
+    if set(capture_roots) != set(bindings):
+        raise ValueError("Supply exactly one explicit capture root for each source_bindings record")
+    declared_bytes = sum(entry["bytes"] for bound in bindings.values() for entry in bound["scope"]["sources"])
+    if declared_bytes > MAX_CAPTURE_BYTES or raw_total + declared_bytes > MAX_SNAPSHOT_SOURCE_BYTES:
+        raise ValueError("Declared captured sources exceed the aggregate snapshot byte bound")
+    used, captured = 0, {}
+    for handle, bound in bindings.items():
+        checked = read_bound_sources(records[handle][1], capture_roots[handle], max_bytes=MAX_CAPTURE_BYTES - used)
+        used += checked["read_bytes"]
+        raw_total += checked["read_bytes"]
+        if raw_total > MAX_SNAPSHOT_SOURCE_BYTES:
+            raise ValueError("Snapshot sources exceed the macro-voxel byte bound")
+        name = "capture:" + handle
+        scopes[name] = {"kind": "origami-capture", "paths": sorted(checked["sources"])}
+        for path, source in checked["sources"].items():
+            sources[name + ":" + path] = mv.source(name, path, source["text"].encode("utf-8"))
+        captured[handle] = checked
     epoch = mv.digest(mv.canonical({k: v["sha256"] for k, v in sources.items()}))
     body = canon["body_id"]
     nodes = [node(k, body, epoch, k, "source_account", {"source_sha256": v["sha256"]})
@@ -153,23 +302,8 @@ def snapshot(root, *, records_workspace=None, origami_results=()):
             else:
                 unresolved.append({"source": source_id, "missing_predecessor": predecessor})
 
-    handles = {}
-    for source_id, item in sources.items():
-        if item["scope"] != "records" or "/records/" not in item["path"] or not item["path"].endswith(".json"):
-            continue
-        record = mv.parse_json(mv.source_bytes(item))
-        mv._keys(record, {"schema", "owner", "kind", "payload", "links"}, "organ record")
-        for field in ("owner", "kind"):
-            if type(record[field]) is not str or NAME.fullmatch(record[field]) is None:
-                raise ValueError("Invalid record " + field)
-        if record["schema"] != "organ-record/v1" or type(record["payload"]) is not dict:
-            raise ValueError("Invalid organ record schema")
-        mv._strings(record["links"], "record links")
-        identity = mv.digest(record_canonical(record))
-        if item["path"] != "organs/" + record["owner"] + "/records/" + identity + ".json":
-            raise ValueError("Organ record differs from its producer-owned address")
-        handle = record["owner"] + ":" + identity
-        handles[handle] = source_id
+    handles = {handle: source_id for handle, (source_id, _) in records.items()}
+    for handle, (source_id, record) in records.items():
         by_id[source_id]["role"] = "organ_record:" + record["owner"]
         by_id[source_id]["state"] = record
     for handle, source_id in handles.items():
@@ -180,6 +314,33 @@ def snapshot(root, *, records_workspace=None, origami_results=()):
                 edges.append(edge(handles[dependency], source_id, "record_dependency", [source_id]))
             else:
                 unresolved.append({"source": source_id, "missing_record": dependency})
+
+    passages, answer_claims = {}, {}
+    for handle, checked in captured.items():
+        binding_id = handles[handle]
+        for passage in checked["evidence"]:
+            identifier = binding_id + "#passage:" + passage["id"]
+            source_id = "capture:" + handle + ":" + passage["source"]
+            nodes.append(node(identifier, body, epoch, source_id, "origami_passage", passage))
+            passages[(handle, passage["id"])] = identifier
+            edges.append(edge(source_id, identifier, "contains_passage", [source_id]))
+            edges.append(edge(identifier, binding_id, "bound_passage", [binding_id]))
+    for handle, (binding, packet) in answers.items():
+        answer_id, claims = handles[handle], {}
+        for claim in packet["fold"]["claims"]:
+            identifier = answer_id + "#claim:" + claim["id"]
+            nodes.append(node(identifier, body, epoch, answer_id, "origami_claim", claim))
+            claims[claim["id"]] = identifier
+            edges.append(edge(answer_id, identifier, "contains_claim", [answer_id]))
+            for evidence in claim["support"]:
+                edges.append(edge(passages[(binding, evidence)], identifier, "claim_support", [answer_id]))
+        for relation in packet["fold"]["relations"]:
+            edges.append(edge(claims[relation["from"]], claims[relation["to"]], "origami:" + relation["type"], [answer_id]))
+        answer_claims[handle] = claims
+    for handle, (answer, review) in reviews.items():
+        review_id = handles[handle]
+        for row in review["claim_verdicts"]:
+            edges.append(edge(answer_claims[answer][row["id"]], review_id, "claim_review:" + row["verdict"], [review_id]))
 
     for source_id, item in sources.items():
         if not item["scope"].startswith("origami-"):
@@ -203,11 +364,16 @@ def snapshot(root, *, records_workspace=None, origami_results=()):
         for binding in scope.get("sources", []):
             if type(binding) is not dict or type(binding.get("path")) is not str:
                 raise ValueError("Invalid Origami evidence source")
-            bound = sources.get("repo:" + binding["path"])
+            support = [handle for handle, payload in bindings.items()
+                       if payload["run_id"] == result.get("run_id") and payload["scope"] == scope]
+            if len(support) > 1:
+                raise ValueError("Ambiguous Origami result source bindings")
+            prefix = "capture:" + support[0] if support else "repo"
+            bound = sources.get(prefix + ":" + binding["path"])
             if bound is None or bound["sha256"] != binding.get("sha256"):
                 unresolved.append({"source": source_id, "unverified_fold_source": binding})
             else:
-                edges.append(edge("repo:" + binding["path"], source_id, "origami_source", [source_id]))
+                edges.append(edge(prefix + ":" + binding["path"], source_id, "origami_source", [source_id]))
         claims = {}
         for claim in fold.get("claims", []):
             if type(claim) is not dict:
@@ -237,14 +403,60 @@ def snapshot(root, *, records_workspace=None, origami_results=()):
     # Detect a source or inventory change during capture. No stable-snapshot claim if it moved.
     voxel = mv.encode(graph)
     if reenter(voxel, root, records_workspace=records_workspace,
-               origami_results=origami_results)["freshness"] != "CURRENT":
+               origami_results=origami_results, capture_roots=capture_roots,
+               record_handles=record_handles)["freshness"] != "CURRENT":
         raise ValueError("Sources changed while capturing macro-voxel")
     return voxel
 
 
-def reenter(voxel, root, *, records_workspace=None, origami_results=()):
+def reenter(voxel, root, *, records_workspace=None, origami_results=(), capture_roots=None, record_handles=()):
     graph = mv.decode(voxel)
     differences, unavailable = [], []
+    capture_roots = _capture_roots(capture_roots)
+    source_checks, used, records = [], 0, {}
+    try:
+        records = _records(graph["sources"])
+        bindings, _, _ = _support_packets(records)
+    except (ValueError, KeyError, TypeError) as exc:
+        unavailable.append("Invalid retained support record: " + str(exc))
+        bindings = {}
+    for extra in set(capture_roots) - set(bindings):
+        unavailable.append("Capture root does not match a retained source binding: " + extra)
+    for handle, bound in bindings.items():
+        scope_name = "capture:" + handle
+        status = {"binding": handle, "status": "UNAVAILABLE", "read_bytes": 0}
+        if scope_name not in graph["scopes"]:
+            status["reason"] = "External source bytes were not captured; rebuild this legacy snapshot"
+            unavailable.append(status["reason"] + ": " + handle)
+        elif handle not in capture_roots:
+            status["reason"] = "Explicit capture root not supplied"
+            unavailable.append(status["reason"] + ": " + handle)
+        else:
+            try:
+                checked = read_bound_sources(records[handle][1], capture_roots[handle], max_bytes=MAX_CAPTURE_BYTES - used)
+                used += checked["read_bytes"]
+                status["read_bytes"] = checked["read_bytes"]
+                expected_paths = sorted(checked["sources"])
+                if graph["scopes"][scope_name] != {"kind": "origami-capture", "paths": expected_paths}:
+                    raise ValueError("Captured source inventory differs from the binding")
+                for path, source in checked["sources"].items():
+                    item = graph["sources"].get(scope_name + ":" + path)
+                    if (item is None or item["scope"] != scope_name or item["path"] != path
+                            or item["sha256"] != source["sha256"]):
+                        raise ValueError("Captured source differs from bound evidence: " + path)
+                status.update(status="CURRENT", sources_checked=len(checked["sources"]), passages_checked=len(checked["evidence"]))
+            except BoundSourceError as exc:
+                used += exc.read_bytes
+                status.update(status="STALE" if exc.code == "SOURCE_DRIFT" else "UNAVAILABLE",
+                              reason=str(exc), code=exc.code, source=exc.source,
+                              expected_sha256=exc.expected_sha256, observed_sha256=exc.observed_sha256,
+                              read_bytes=exc.read_bytes)
+                (differences if status["status"] == "STALE" else unavailable).append(str(exc) + ": " + handle)
+            except (OSError, ValueError) as exc:
+                used += getattr(exc, "read_bytes", 0)
+                status.update(reason=str(exc), read_bytes=getattr(exc, "read_bytes", status["read_bytes"]))
+                unavailable.append(str(exc) + ": " + handle)
+        source_checks.append(status)
     try:
         canon = check_canon(root)
         if canon["body_id"] != graph["body_id"]:
@@ -258,7 +470,14 @@ def reenter(voxel, root, *, records_workspace=None, origami_results=()):
     if records_workspace is not None:
         roots["records"] = Path(records_workspace)
         try:
-            current["records"] = inventory(records_workspace, "organs")
+            selected = graph["scopes"].get("records", {}).get("kind") == "organ-records-selected"
+            if selected:
+                selected_handles = record_handles or [h for h in records]
+                current["records"] = _selected_paths(records_workspace, selected_handles)
+            else:
+                if record_handles:
+                    raise ValueError("Record selection differs from the full-inventory snapshot")
+                current["records"] = inventory(records_workspace, "organs")
         except (ValueError, OSError) as exc:
             unavailable.append(str(exc))
     for index, filename in enumerate(origami_results):
@@ -266,9 +485,14 @@ def reenter(voxel, root, *, records_workspace=None, origami_results=()):
         name = "origami-" + str(index)
         roots[name], current[name] = path.parent, [path.name]
     for name, scope in graph["scopes"].items():
+        if name.startswith("capture:"):
+            if scope["kind"] != "origami-capture" or name[8:] not in bindings:
+                unavailable.append("Unknown external capture scope: " + name)
+            # The binding-specific checks above reopen every declared file and passage.
+            continue
         expected_kind = ("repository" if name == "repo" else "organ-records" if name == "records"
                          else "origami-result" if name.startswith("origami-") else None)
-        if scope["kind"] != expected_kind:
+        if scope["kind"] != expected_kind and not (name == "records" and scope["kind"] == "organ-records-selected"):
             unavailable.append("Unsupported scope: " + name)
         if name not in roots:
             unavailable.append("Required scope not supplied: " + name)
@@ -278,6 +502,8 @@ def reenter(voxel, root, *, records_workspace=None, origami_results=()):
     if "repo" not in graph["scopes"]:
         unavailable.append("No repository binding in this graph")
     for item in graph["sources"].values():
+        if item["scope"].startswith("capture:"):
+            continue
         if item["scope"] not in roots:
             continue
         try:
@@ -296,8 +522,34 @@ def reenter(voxel, root, *, records_workspace=None, origami_results=()):
             "freshness": freshness, "next_action": action, "authority": "NONE",
             "differences": differences, "unavailable": unavailable,
             "lineage": graph["lineage"], "residue": graph["residue"],
+            "source_checks": source_checks,
+            "freshness_scope": "Captured inputs and explicit external source bindings; not semantic support or reviewer authentication",
             "unresolved_nodes": [n["id"] for n in graph["nodes"]
                                  if any(n[k] for k in ("unknowns", "contradictions", "debt"))]}
+
+
+def record_anchors(graph):
+    """Resolve exact producer handles to nodes whose captured bytes bind them."""
+    records = _records(graph["sources"])
+    nodes = {item["id"]: item for item in graph["nodes"]}
+    result = {}
+    for handle, (source_id, record) in records.items():
+        current = nodes.get(source_id)
+        if (current is None or record_canonical(current["state"]) != record_canonical(record)
+                or current["role"] != "organ_record:" + record["owner"]):
+            raise ValueError("Captured record node differs from its producer")
+        result[handle] = source_id
+    return result
+
+
+def parse_capture_roots(values):
+    result = {}
+    for value in values:
+        handle, separator, path = value.partition("=")
+        if not separator or handle in result:
+            raise ValueError("Use one --capture-root HANDLE=PATH per source binding")
+        result[handle] = path
+    return _capture_roots(result)
 
 
 def main(argv=None):
@@ -310,6 +562,8 @@ def main(argv=None):
         if name in ("pack", "reenter"):
             p.add_argument("--records-workspace")
             p.add_argument("--origami-result", action="append", default=[])
+            p.add_argument("--capture-root", action="append", default=[], metavar="HANDLE=PATH")
+            p.add_argument("--record", action="append", default=[], help="Exact organ handle and its dependency closure")
         if name == "pack":
             p.add_argument("--output", required=True)
         if name in ("inspect", "expand", "reenter"):
@@ -324,7 +578,8 @@ def main(argv=None):
         if args.command == "canon":
             result = check_canon(args.root)
         elif args.command == "pack":
-            voxel = snapshot(args.root, records_workspace=args.records_workspace, origami_results=args.origami_result)
+            voxel = snapshot(args.root, records_workspace=args.records_workspace, origami_results=args.origami_result,
+                             capture_roots=parse_capture_roots(args.capture_root), record_handles=args.record)
             output = Path(args.output).absolute()
             if output.resolve().is_relative_to(Path(args.root).resolve()):
                 raise ValueError("Write generated macro-voxels outside the repository")
@@ -341,12 +596,14 @@ def main(argv=None):
                 result = {"sha256": voxel["sha256"], "body_id": graph["body_id"],
                           "nodes": len(graph["nodes"]), "edges": len(graph["edges"]),
                           "scopes": graph["scopes"], "lineage": graph["lineage"],
-                          "residue": graph["residue"], "authority": "NONE"}
+                          "residue": graph["residue"], "record_anchors": record_anchors(graph), "authority": "NONE"}
             elif args.command == "expand":
-                result = mv.expand(voxel, args.anchor, direction=args.direction, depth=args.depth)
+                anchor = record_anchors(graph).get(args.anchor, args.anchor)
+                result = mv.expand(voxel, anchor, direction=args.direction, depth=args.depth)
             else:
                 result = reenter(voxel, args.root, records_workspace=args.records_workspace,
-                                 origami_results=args.origami_result)
+                                 origami_results=args.origami_result, capture_roots=parse_capture_roots(args.capture_root),
+                                 record_handles=args.record)
         print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
         return 2 if result.get("freshness") in ("STALE", "UNAVAILABLE") else 0
     except (ValueError, OSError) as exc:

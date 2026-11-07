@@ -38,6 +38,9 @@ def main(argv=None):
         from .origami_cli import main as origami_main
         return origami_main(supplied[1:])
     if supplied and supplied[0] == "yggdrasil":
+        if len(supplied) > 1 and supplied[1] == "reuse":
+            from .yggdrasil_reuse import main as reuse_main
+            return reuse_main(supplied[2:])
         if len(supplied) > 1 and supplied[1] == "corpus-fold":
             from .corpus_fold_cli import main as corpus_fold_main
             return corpus_fold_main(supplied[2:])

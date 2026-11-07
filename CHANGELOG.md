@@ -16,6 +16,11 @@
 - Enforces a 64-container JSON nesting limit before decoding support evidence,
   independent of interpreter recursion limits. The initial Python 3.14 CI
   exposed the missing guard; boundary and escaped-string regressions retain it.
+- Connects reviewed Origami sources and passages to Yggdrasil's selected record
+  graph and explicit freshness checks. `yggdrasil reuse` prepares a new question
+  from those passages while requiring its own answer and review. Watcher retains
+  source discrepancies; Bezoar links separately reviewed NACRE lessons to dated
+  HELD observations without clearing the original seeds.
 - These additions are available from the source checkout. Published v0.3.2
   downloads and installed services remain unchanged; no v0.3.3 asset release
   or service promotion is included.

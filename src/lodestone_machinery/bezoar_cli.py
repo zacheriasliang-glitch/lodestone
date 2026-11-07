@@ -7,12 +7,24 @@ from pathlib import Path
 import hashlib
 from .bezoar import Plumber
 from .organs._kernel import strict_load
+from .support_review import read_review_file
+
+
+def _capture_roots(items):
+    result = {}
+    for value in items:
+        handle, separator, path = value.partition('=')
+        if not separator or not handle or not path or handle in result:
+            raise ValueError('Use one distinct --capture-root HANDLE=PATH per source binding')
+        result[handle] = path
+    return result
 
 
 def main(argv=None, *, watcher_only=False):
     parser = argparse.ArgumentParser(prog='lodestone watcher' if watcher_only else 'lodestone bezoar')
     commands = parser.add_subparsers(dest='command', required=True)
-    names = ['observe'] if watcher_only else ['ingest', 'eat-request', 'eat', 'mutate', 'watch', 'hold', 'show', 'export-profile']
+    names = ['observe'] if watcher_only else ['ingest', 'eat-request', 'eat', 'mutate', 'watch', 'hold', 'show', 'export-profile',
+                                             'lesson-request', 'lesson', 'lesson-show']
     for name in names:
         p = commands.add_parser(name)
         p.add_argument('--workspace', required=True)
@@ -32,6 +44,16 @@ def main(argv=None, *, watcher_only=False):
             p.add_argument('--handle', action='append', required=True)
             p.add_argument('--polls', type=int, choices=range(1, 11), default=1)
             p.add_argument('--interval', type=int, choices=range(1, 61), default=5)
+            p.add_argument('--capture-root', action='append', default=[], metavar='HANDLE=PATH')
+        elif name == 'lesson-request':
+            p.add_argument('--held', action='append', required=True)
+            p.add_argument('--lesson', required=True)
+            p.add_argument('--producer', required=True)
+            p.add_argument('--checker', required=True)
+            p.add_argument('--finding-key')
+        elif name == 'lesson':
+            p.add_argument('--request', required=True)
+            p.add_argument('--review', required=True)
         else:
             p.add_argument('--handle', required=True)
             if name == 'export-profile':
@@ -40,11 +62,12 @@ def main(argv=None, *, watcher_only=False):
     try:
         plumber = Plumber(args.workspace)
         if args.command in ('watch', 'observe'):
+            capture_roots = _capture_roots(args.capture_root)
             observations, attention = [], False
             for i in range(args.polls):
                 if i:
                     time.sleep(args.interval)
-                handle = plumber.watch(args.handle)
+                handle = plumber.watch(args.handle, capture_roots=capture_roots)
                 report = plumber.records.read(handle)['payload']
                 observations.append({'handle': handle, 'report': report})
                 attention |= report['status'] == 'ATTENTION'
@@ -60,6 +83,15 @@ def main(argv=None, *, watcher_only=False):
             handle = plumber.mutate(args.parent, strict_load(args.mutagen))
         elif args.command == 'hold':
             handle = plumber.hold(args.handle)
+        elif args.command == 'lesson-request':
+            handle = plumber.lesson_request(args.held, lesson=args.lesson, producer=args.producer,
+                                            checker=args.checker, finding_key=args.finding_key)
+        elif args.command == 'lesson':
+            handle = plumber.lesson(args.request, read_review_file(args.review, max_bytes=262144))
+        elif args.command == 'lesson-show':
+            payload = plumber.read_lesson(args.handle)
+            print(json.dumps({'handle': args.handle, 'lesson': payload}, indent=2, ensure_ascii=False))
+            return 0
         else:
             handle = args.handle
         record = plumber.records.read(handle)
@@ -77,7 +109,7 @@ def main(argv=None, *, watcher_only=False):
                               'sha256': hashlib.sha256(raw).hexdigest(), 'activation': 'NONE'}))
             return 0
         print(json.dumps({'handle': handle, 'record': record}, indent=2, ensure_ascii=False))
-        return 2 if record['payload'].get('status') == 'HELD' else 0
+        return 2 if record['payload'].get('status') in ('HELD', 'REVIEWED_FAIL', 'REVIEWED_UNKNOWN') else 0
     except (ValueError, OSError) as exc:
         print(json.dumps({'error': type(exc).__name__, 'message': str(exc)[:1500]}), file=sys.stderr)
         return 2

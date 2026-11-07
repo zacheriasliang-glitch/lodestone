@@ -75,6 +75,11 @@ class SupportReviewTests(unittest.TestCase):
         again = publish_support_review(self.organ, run_id, review)
         self.assertEqual(result["handle"], again["handle"])
         store = RecordStore(self.organ.workspace)
+        self.assertEqual(store.read(result["handle"])["links"], [result["answer_handle"]])
+        self.assertEqual(store.read(result["answer_handle"])["links"], [result["source_handle"]])
+        self.assertEqual(store.read(result["source_handle"])["kind"], "source_bindings")
+        self.assertEqual((result["source_handle"], result["answer_handle"]),
+                         (again["source_handle"], again["answer_handle"]))
         self.assertEqual(store.verify_links([result["handle"]])["records_checked"], 3)
         rendered = reviewed_answer(self.organ, run_id, result["handle"])
         self.assertEqual(rendered["status"], "REVIEWED_PASS")
