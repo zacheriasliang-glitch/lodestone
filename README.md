@@ -83,6 +83,7 @@ project checkpoints.
 | I want to… | Use |
 |---|---|
 | Remember decisions and prepare an AI handoff | [Local memory](tools/local-memory/README.md) |
+| Answer from bound passages and retain a separate support review | [Reviewed answers (source checkout)](docs/reviewed-answers.md) |
 | Check that a saved task's source files still match | [Continuity checkpoints](docs/continuity.md) |
 | Archive and recover selected files | [Archives](docs/archives.md) |
 | Queue and execute a supported local task | [Nurarihyon](docs/nurarihyon.md) |
@@ -99,6 +100,10 @@ keep the folder in place. Background startup is a separate opt-in in the service
 guide. You can always use `python3 lodestone.py` directly.
 
 ## Release details
+
+The source checkout includes the 0.3.3 source-binding, selected-recovery and
+reviewed-answer interfaces. These additions are not in the v0.3.2 downloads;
+use a current source checkout and the linked guides to use them.
 
 v0.3.2 is [published](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.2).
 The release page provides the exact ZIP/tar.gz, checksums, build provenance and

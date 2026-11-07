@@ -193,8 +193,14 @@ class Scored:
 def search(root: Path, query: str, limit: int = 10, include_superseded: bool = False) -> list[Scored]:
     if not query.strip():
         return []
-    records = load_records(root)
-    links = load_links(root)
+    return search_records(load_records(root), load_links(root), query, limit, include_superseded)
+
+
+def search_records(records: list[dict], links: list[dict], query: str,
+                   limit: int = 10, include_superseded: bool = False) -> list[Scored]:
+    """Rank an already captured catalogue with the ordinary search rules."""
+    if not query.strip():
+        return []
     q_tokens = tokenize(query)
     explicit_ids = set()
     query_lower = query.lower()
@@ -383,6 +389,28 @@ def make_parser() -> argparse.ArgumentParser:
     p_search.add_argument("--limit", type=int, default=10)
     p_search.add_argument("--include-superseded", action="store_true")
 
+    p_bind = sub.add_parser(
+        "source-bind", help="Bind a saved note to an exact captured source passage")
+    p_bind.add_argument("root", type=Path)
+    p_bind.add_argument("record_id")
+    p_bind.add_argument("--bindings", type=Path, required=True)
+    p_bind.add_argument("--scope", type=Path, required=True)
+    p_bind.add_argument("--source", required=True)
+    p_bind.add_argument("--start-line", type=int, required=True)
+    p_bind.add_argument("--end-line", type=int, required=True)
+    p_bind.add_argument("--capture", required=True)
+    p_bind.add_argument("--attribution", required=True)
+    p_bind.add_argument("--source-url")
+
+    p_address = sub.add_parser(
+        "source-address", help="Search saved notes and verify their captured source passages")
+    p_address.add_argument("root", type=Path)
+    p_address.add_argument("query")
+    p_address.add_argument("--bindings", type=Path, required=True)
+    p_address.add_argument("--scope", type=Path, required=True)
+    p_address.add_argument("--limit", type=int, choices=range(1, 11), default=10)
+    p_address.add_argument("--include-superseded", action="store_true")
+
     p_related = sub.add_parser("related")
     p_related.add_argument("root", type=Path)
     p_related.add_argument("record_id")
@@ -421,6 +449,21 @@ def main(argv: list[str] | None = None) -> int:
             print("Supersession stored.")
         elif args.command == "search":
             print_results(search(args.root, args.query, args.limit, args.include_superseded))
+        elif args.command == "source-bind":
+            from source_addresses import add_binding
+            result = add_binding(
+                args.root, args.bindings, args.scope, args.record_id,
+                args.source, args.start_line, args.end_line, args.capture,
+                args.attribution, source_url=args.source_url)
+            sys.stdout.buffer.write((json.dumps(result, ensure_ascii=False, sort_keys=True, allow_nan=False, separators=(",", ":")) + "\n").encode("utf-8"))
+            sys.stdout.buffer.flush()
+        elif args.command == "source-address":
+            from source_addresses import resolve
+            result = resolve(
+                args.root, args.bindings, args.scope, args.query,
+                limit=args.limit, include_superseded=args.include_superseded)
+            sys.stdout.buffer.write((json.dumps(result, ensure_ascii=False, sort_keys=True, allow_nan=False, separators=(",", ":")) + "\n").encode("utf-8"))
+            sys.stdout.buffer.flush()
         elif args.command == "related":
             print_results(related(args.root, args.record_id, args.limit))
         elif args.command == "packet":

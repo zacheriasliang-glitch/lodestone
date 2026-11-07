@@ -27,6 +27,7 @@ from .engine import canonical, now
 from .nodes import _json_copy
 from .organs.sources import anchor, MAX_SOURCES
 from .usage import normalize_usage, usage_totals
+from .source_seeds import MAX_SEEDS, SEED_FIELDS, validate_seed
 
 VERSION = "0.2.0"
 STATE_VERSIONS = ("0.1.0", "0.2.0")
@@ -449,6 +450,34 @@ def _initial_evidence(sources, question, count, byte_budget):
     return selected, len(ranked) - len(selected), used
 
 
+def _seed_evidence(sources, seeds, byte_budget):
+    """Reopen every caller-selected handle; refuse drift before run state exists."""
+    seeds = _json_copy(seeds, MAX_JSON)
+    if type(seeds) is not list or not 1 <= len(seeds) <= MAX_SEEDS:
+        raise ValueError("Supply 1 to 64 exact seed passages")
+    evidence, seen, used = [], set(), 0
+    for seed in seeds:
+        validate_seed(seed)
+        path = seed["source"]
+        if path not in sources:
+            raise ValueError("Seed source is outside the declared scope")
+        source = sources[path]
+        if seed.get("line_convention") == "python-splitlines-keepends-v1":
+            if _lines(source["text"]) != source["text"].splitlines(keepends=True):
+                raise ValueError("Resolver and Origami line conventions differ; rebind an LF-compatible capture")
+        passage = _passage(source, seed["start_line"], seed["end_line"])
+        if any(passage[key] != seed[key] for key in SEED_FIELDS):
+            raise ValueError("Exact seed source or passage hash changed")
+        if passage["id"] in seen:
+            raise ValueError("Duplicate exact seed passage")
+        seen.add(passage["id"])
+        used += len(passage["text"].encode("utf-8"))
+        if used > byte_budget:
+            raise ValueError("Exact seed passages exceed initial evidence byte budget")
+        evidence.append(passage)
+    return evidence, used, seeds
+
+
 def _validate_response(response, request):
     data = _json_copy(response, MAX_JSON)
     _keys(data, RESPONSE_SCHEMA, "response")
@@ -586,7 +615,8 @@ class Origami:
                 fcntl.flock(stream, fcntl.LOCK_UN)
 
     def start(self, root, paths, question, epoch, authority_ref, *, max_calls=4,
-              max_read_bytes=65536, initial_passages=6, previous=None, roles=None):
+              max_read_bytes=65536, initial_passages=6, previous=None, roles=None,
+              seed_passages=None):
         roles = _roles(roles)
         root = Path(root).expanduser().resolve(strict=True)
         if self.workspace.is_relative_to(root):
@@ -604,8 +634,17 @@ class Origami:
             raise ValueError("initial_passages must be 0 to 64")
         began = perf_counter()
         sources, manifest, hashed_bytes = _snapshot(root, sorted(paths))
-        evidence, omitted, selected_bytes = _initial_evidence(
-            sources, question, initial_passages, min(max_read_bytes, 16384))
+        if seed_passages is None:
+            evidence, omitted, selected_bytes = _initial_evidence(
+                sources, question, initial_passages, min(max_read_bytes, 16384))
+            selection = {"initial_selection": "lexical hints with source diversity; not semantic sufficiency"}
+        else:
+            evidence, selected_bytes, seeds = _seed_evidence(
+                sources, seed_passages, min(max_read_bytes, 16384))
+            omitted = 0
+            selection = {"initial_selection": "explicit exact passages; not semantic sufficiency",
+                         "seed_passages": seeds,
+                         "seed_provenance": "Caller-supplied addresses; source and passage bytes reopened. No resolver execution or semantic support authenticated."}
         prior = None
         if previous is not None:
             prior = self._prior(previous, root, epoch, manifest)
@@ -622,7 +661,7 @@ class Origami:
                   "preparation": {"seconds": perf_counter() - began,
                                   "source_bytes_read_and_hashed": hashed_bytes,
                                   "initial_evidence_bytes": selected_bytes,
-                                  "initial_selection": "lexical hints with source diversity; not semantic sufficiency",
+                                  **selection,
                                   "omitted_initial_passages": omitted},
                   "previous": previous, "prior_knowledge": prior}
         _write_new(directory / "intent.json", intent)

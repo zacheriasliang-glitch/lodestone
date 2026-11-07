@@ -60,12 +60,16 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=f"Origami source-linked reasoning loop v{VERSION}")
     parser.epilog = "Use 'origami archive' for exact file archives, 'origami corpus-fold' for source-linked reading maps, 'origami transformer' for the bounded decoder, or 'origami crystal' for the Yggdrasil crystal store."
     commands = parser.add_subparsers(dest="operation", required=True)
-    for name in ("ask", "start", "request", "advance", "run", "status", "inspect"):
+    for name in ("ask", "start", "request", "advance", "run", "status", "inspect",
+                 "review-request", "review", "answer"):
         sub = commands.add_parser(name)
         sub.add_argument("--workspace", required=True)
         if name in ("ask", "start"):
-            sub.add_argument("--root", required=True)
-            sub.add_argument("--source", action="append", required=True, dest="sources")
+            sub.add_argument("--root")
+            sub.add_argument("--source", action="append", dest="sources")
+            sub.add_argument("--source-address-report", help="Saved source-address JSON; reopens exact bound bytes")
+            sub.add_argument("--source-address-selection", action="append", dest="address_selections",
+                             help="Explicit record_id:binding_index selection; repeat to resolve an ambiguous report")
             sub.add_argument("--question", required=True)
             sub.add_argument("--epoch", required=True, help="Caller-declared target epoch; not an inferred live Git HEAD")
             sub.add_argument("--authority-ref", required=True, help="Reference to caller's authorization for bounded source reads")
@@ -78,8 +82,10 @@ def main(argv=None):
                                  "constructor, consumer and checker distinct; provider never the checker")
         else:
             sub.add_argument("run_id")
-        if name == "advance":
+        if name in ("advance", "review"):
             sub.add_argument("--response", required=True, help="JSON provider envelope responding to the current request")
+        if name == "answer":
+            sub.add_argument("--review", help="Exact checker record handle returned by review")
         if name in ("ask", "run"):
             sub.add_argument("--provider-command", required=name == "run", help='Explicit trusted argv as JSON, e.g. ["python3", "/path/provider.py"]; ask without it prepares a request')
             sub.add_argument("--timeout", type=int, default=120)
@@ -90,6 +96,18 @@ def main(argv=None):
     try:
         organ = Origami(args.workspace)
         if args.operation in ("ask", "start"):
+            if args.source_address_report is not None:
+                if args.root is not None or args.sources is not None:
+                    raise ValueError("Use --source-address-report OR --root/--source")
+                from .source_seeds import source_address_seeds
+                from .support_review import read_review_file
+                source_args = source_address_seeds(
+                    read_review_file(args.source_address_report, max_bytes=1048576),
+                    selections=args.address_selections)
+            else:
+                if args.root is None or not args.sources or args.address_selections:
+                    raise ValueError("Supply --root and --source, or --source-address-report")
+                source_args = {"root": args.root, "paths": args.sources}
             provider = None
             if args.operation == "ask":
                 if args.provider_command is not None:
@@ -101,7 +119,8 @@ def main(argv=None):
                     raise ValueError("Provider endpoint/auth options require --provider-command")
             supplied = {role: getattr(args, role) for role in ROLES}
             roles = supplied if any(value is not None for value in supplied.values()) else None
-            result = organ.start(args.root, args.sources, args.question, args.epoch, args.authority_ref,
+            result = organ.start(**source_args, question=args.question, epoch=args.epoch,
+                                 authority_ref=args.authority_ref,
                                  max_calls=args.max_calls, max_read_bytes=args.max_read_bytes,
                                  initial_passages=args.initial_passages, previous=args.previous, roles=roles)
             if args.operation == "ask":
@@ -116,10 +135,20 @@ def main(argv=None):
         elif args.operation == "run":
             result = organ.run(args.run_id, CommandProvider(json.loads(args.provider_command), args.timeout),
                                allowed_endpoints=args.allowed_endpoints, provider_auth_path=args.provider_auth_path)
+        elif args.operation == "review-request":
+            from .support_review import support_request
+            result = support_request(organ, args.run_id)
+        elif args.operation == "review":
+            from .support_review import publish_support_review, read_review_file
+            result = publish_support_review(organ, args.run_id, read_review_file(args.response))
+        elif args.operation == "answer":
+            from .support_review import reviewed_answer
+            result = reviewed_answer(organ, args.run_id, args.review)
         else:
             result = getattr(organ, args.operation)(args.run_id)
         print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
-        return 0 if args.operation == "request" or result.get("status") in ("NEEDS_PROVIDER", "ANSWER") else 2
+        return 0 if args.operation in ("request", "review-request") or result.get("status") in (
+            "NEEDS_PROVIDER", "ANSWER", "REVIEW_RECORDED", "REVIEWED_PASS") else 2
     except (ValueError, OSError, RuntimeError, KeyError, TypeError) as exc:
         print(json.dumps({"error": type(exc).__name__, "message": str(exc)[:1000]}), file=sys.stderr)
         return 2

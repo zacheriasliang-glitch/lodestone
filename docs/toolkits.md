@@ -17,7 +17,8 @@ arguments; append `--help` to inspect them.
 | Machinery | `machinery --help` | Source-backed jobs and records in an explicit workspace; included demo works offline. |
 | Ecosystem / Conscience | `doctor`, `context`, `wake`, `conscience --help` | Local readiness, bounded documentation and advisory command checks. Waking does not start all tools. |
 | [Corpus fold](corpus-fold.md) | `yggdrasil corpus-fold --help` | Select your corpus; reading maps preserve source identities and declared lineage. |
-| [Local memory](../tools/local-memory/README.md) | `memory --help` | Initialize your own store; explicit notes, links and word-bounded retrieval. |
+| [Local memory](../tools/local-memory/README.md) | `memory --help`, `memory source-bind`, `memory source-address` | Explicit notes, links, word-bounded retrieval and exact captured source passages; [selected recovery](source-memory-recovery.md). |
+| [Reviewed answers](reviewed-answers.md) | `origami ask --source-address-report`, `origami review-request`, `origami review`, `origami answer` | Source-checkout addition: verified passage seeds, caller-supplied answer and separate support review; current evidence is rechecked on consumption. |
 | [Origami re-entry fold](origami-fold.md) | `origami-fold --help` | Explicit source root and fold, with an invented example; no historic workstream state. |
 | [Continuity / compact context](continuity.md) | `continuity --help` | Create checkpoints, verify pinned sources and compare retained evidence with `preserve`. Optional agent skill installation. |
 | [Mailbox](mailbox.md) | `mailbox --help` | POSIX/Git transport, your remote, branch and local state. Transport is separate from worker execution. |
