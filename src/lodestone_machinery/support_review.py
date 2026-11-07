@@ -292,6 +292,7 @@ def publish_support_review(organ, run_id, envelope):
         "request_sha256": request["request_sha256"], "run_id": run_id,
         "review": review, "attribution": ATTRIBUTION, "authority": "NONE"}, links=[answer])
     return {"status": "REVIEW_RECORDED", "run_id": run_id, "handle": handle,
+            "source_handle": source, "answer_handle": answer,
             "answer_verdict": review["answer_verdict"], "applicability": review["applicability"],
             "attribution": ATTRIBUTION, "authority": "NONE"}
 

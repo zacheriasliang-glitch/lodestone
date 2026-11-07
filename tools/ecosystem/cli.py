@@ -24,7 +24,7 @@ WORKSPACE_OPS = {"submit", "run", "status", "maintain", "recover", "resume",
                  "demo", "inspect", "export-nodes", "catalog-records"}
 ORIGAMI_OPS = {"ask", "start", "request", "advance", "run", "status", "inspect",
                "review-request", "review", "answer"}
-PUBLIC_YGGDRASIL = {"inspect", "expand", "crystal", "archive", "corpus-fold", "canon", "pack", "reenter"}
+PUBLIC_YGGDRASIL = {"inspect", "expand", "crystal", "archive", "corpus-fold", "canon", "pack", "reenter", "reuse"}
 TOOL_SCRIPTS = {
     "memory": "tools/local-memory/src/lodestone_memory.py",
     "continuity": "tools/continuity/checkpoint.py",
@@ -129,7 +129,7 @@ def machinery_args(args, workspace, root):
         operation = args[1] if len(args) > 1 else ""
         help_requested = "--help" in args or "-h" in args
         has_root = "--root" in args or any(arg.startswith("--root=") for arg in args)
-        if operation in {"canon", "pack", "reenter"} and not help_requested and not has_root:
+        if operation in {"canon", "pack", "reenter", "reuse"} and not help_requested and not has_root:
             raise ValueError("Supply --root for your separately configured source corpus and canon; no laboratory adoption is inherited")
     return args
 
