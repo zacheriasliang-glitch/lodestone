@@ -4,11 +4,12 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from lodestone_machinery.origami import Origami
 from lodestone_machinery.records import RecordStore
 from lodestone_machinery.support_review import (
-    publish_support_review, read_review_file, reviewed_answer, support_request,
+    MAX_JSON_DEPTH, publish_support_review, read_review_file, reviewed_answer, support_request,
 )
 
 
@@ -252,6 +253,32 @@ class SupportReviewTests(unittest.TestCase):
             path.write_bytes(raw)
             with self.assertRaisesRegex(ValueError, "strict UTF-8 JSON"):
                 read_review_file(path)
+
+    def test_json_depth_boundary_counts_containers_not_string_content(self):
+        path = self.base / "depth.json"
+        # Escaped quotes and odd/even backslash runs cannot end a string early.
+        text = '[]{}\\"' * (MAX_JSON_DEPTH + 10)
+        for opening, closing in (("[", "]"), ('{"value":', "}")):
+            with self.subTest(opening=opening):
+                raw = opening * MAX_JSON_DEPTH + json.dumps(text) + closing * MAX_JSON_DEPTH
+                path.write_text(raw, encoding="utf-8")
+                value = read_review_file(path)
+                for _ in range(MAX_JSON_DEPTH):
+                    value = value[0] if opening == "[" else value["value"]
+                self.assertEqual(value, text)
+        path.write_text(r'{"text":"\u0022[]{}", "trailing":"\\"}', encoding="utf-8")
+        self.assertEqual(read_review_file(path), {"text": '"[]{}', "trailing": "\\"})
+
+    def test_excessive_json_depth_refuses_before_decoder(self):
+        path = self.base / "too-deep.json"
+        for opening, closing in (("[", "]"), ('{"value":', "}"), ('[{"value":', "}]")):
+            with self.subTest(opening=opening):
+                path.write_text(opening * (MAX_JSON_DEPTH + 1) + "0" + closing * (MAX_JSON_DEPTH + 1),
+                                encoding="utf-8")
+                with patch("lodestone_machinery.support_review.json.loads",
+                           side_effect=AssertionError("decoder must not receive excessive nesting")):
+                    with self.assertRaisesRegex(ValueError, "strict UTF-8 JSON"):
+                        read_review_file(path)
 
     def test_pending_run_has_no_reviewable_answer(self):
         run = self.organ.start(self.root, ["decision.md"], "Which label?", "fixture-current",

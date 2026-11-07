@@ -19,6 +19,7 @@ from .records import RecordStore, canonical
 
 SCHEMA = "origami-support-review/v1"
 REQUEST_SCHEMA = "origami-support-request/v1"
+MAX_JSON_DEPTH = 64
 ATTRIBUTION = "DECLARED_EXTERNAL_REVIEW: identity strings do not authenticate a reviewer or prove independence"
 VERDICTS = {"SUPPORTED", "UNSUPPORTED", "UNKNOWN"}
 ANSWER_VERDICTS = {"PASS", "FAIL", "UNKNOWN"}
@@ -55,6 +56,32 @@ def _pairs(items):
     return result
 
 
+def _check_json_depth(text):
+    # Decoder recursion limits vary by Python version. Bound containers before
+    # decoding/canonicalizing; delimiters inside strings are ordinary content.
+    stack, in_string, escaped = [], False, False
+    error = "Support evidence must be bounded strict UTF-8 JSON (maximum nesting 64)"
+    for char in text:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+        elif char == '"':
+            in_string = True
+        elif char in "[{":
+            stack.append("]" if char == "[" else "}")
+            if len(stack) > MAX_JSON_DEPTH:
+                raise ValueError(error)
+        elif char in "]}":
+            if not stack or stack.pop() != char:
+                raise ValueError(error)
+    if stack or in_string:
+        raise ValueError(error)
+
+
 def _no_links(path, root):
     # root is an already resolved workspace/source scope. Reject links within it,
     # including links that happen to point to another file inside the same scope.
@@ -82,6 +109,7 @@ def _read_file(path, root, total, *, json_file=True, max_bytes=MAX_JSON):
         raise ValueError("Nonfinite JSON constant: " + value)
     try:
         text = raw.decode("utf-8", errors="strict")
+        _check_json_depth(text)
         value = json.loads(text, object_pairs_hook=_pairs, parse_constant=reject_constant)
         # Also rejects nonfinite values produced by oversized JSON numeric exponents.
         canonical(value)

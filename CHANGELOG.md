@@ -13,6 +13,9 @@
   A later question can use the previous fold but requires its own answer review.
   The focused validation passed 58 tests and a six-command scripted CLI example;
   this validates the interface, not useful learning or independent semantic skill.
+- Enforces a 64-container JSON nesting limit before decoding support evidence,
+  independent of interpreter recursion limits. The initial Python 3.14 CI
+  exposed the missing guard; boundary and escaped-string regressions retain it.
 - These additions are available from the source checkout. Published v0.3.2
   downloads and installed services remain unchanged; no v0.3.3 asset release
   or service promotion is included.

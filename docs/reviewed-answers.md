@@ -74,6 +74,8 @@ changed encounter files and another run's review refuse. Claims marked
 unsupported or unknown, material omissions/contradictions, and unrelated
 applicability cannot accompany PASS. Role names record attribution; they do
 not authenticate reviewers or prove that two independent people/models acted.
+JSON evidence and review inputs permit at most 64 nested containers, checked
+before decoding; punctuation inside strings does not count toward that limit.
 
 Records are linked source → answer → review in the existing RecordStore. Keep
 the workspace and its declared source capture. The record hash binds bytes,
