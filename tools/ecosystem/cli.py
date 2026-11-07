@@ -22,7 +22,8 @@ CORE_FILES = (MACHINERY, "src/lodestone_machinery/__main__.py",
               "tools/ecosystem/conscience-policy.json")
 WORKSPACE_OPS = {"submit", "run", "status", "maintain", "recover", "resume",
                  "demo", "inspect", "export-nodes", "catalog-records"}
-ORIGAMI_OPS = {"ask", "start", "request", "advance", "run", "status", "inspect"}
+ORIGAMI_OPS = {"ask", "start", "request", "advance", "run", "status", "inspect",
+               "review-request", "review", "answer"}
 PUBLIC_YGGDRASIL = {"inspect", "expand", "crystal", "archive", "corpus-fold", "canon", "pack", "reenter"}
 TOOL_SCRIPTS = {
     "memory": "tools/local-memory/src/lodestone_memory.py",

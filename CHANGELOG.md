@@ -1,5 +1,22 @@
 # Release notes
 
+## 0.3.3 — source checkout
+
+- Adds `memory source-bind` and `memory source-address` to retain and reopen
+  exact source passages behind notebook records, with explicit stale, missing
+  and ambiguous results. The D1 implementation passed its 42 component tests.
+- Documents selected notebook/source recovery using the existing archive format
+  and a separately pinned reader. Adds focused Conscience criterion tests.
+  Recovery and these new checks have separate execution receipts when run.
+- Connects verified source passages to Origami, with attributed support-review
+  requests, immutable source/answer/review records and a checked answer consumer.
+  A later question can use the previous fold but requires its own answer review.
+  The focused validation passed 58 tests and a six-command scripted CLI example;
+  this validates the interface, not useful learning or independent semantic skill.
+- These additions are available from the source checkout. Published v0.3.2
+  downloads and installed services remain unchanged; no v0.3.3 asset release
+  or service promotion is included.
+
 ## 0.3.2 — deterministic cleanup-error regression
 
 - Fixes a timing-dependent test that raced the worker’s alarm against the
