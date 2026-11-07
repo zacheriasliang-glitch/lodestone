@@ -6,6 +6,8 @@ import time
 from pathlib import Path
 import hashlib
 from .bezoar import Plumber
+from .bezoar_lessons import prepare_lesson, publish_lesson, read_lesson
+from .organs.watcher import observe
 from .organs._kernel import strict_load
 from .support_review import read_review_file
 
@@ -67,7 +69,7 @@ def main(argv=None, *, watcher_only=False):
             for i in range(args.polls):
                 if i:
                     time.sleep(args.interval)
-                handle = plumber.watch(args.handle, capture_roots=capture_roots)
+                handle = observe(plumber.records, args.handle, capture_roots=capture_roots)
                 report = plumber.records.read(handle)['payload']
                 observations.append({'handle': handle, 'report': report})
                 attention |= report['status'] == 'ATTENTION'
@@ -84,12 +86,12 @@ def main(argv=None, *, watcher_only=False):
         elif args.command == 'hold':
             handle = plumber.hold(args.handle)
         elif args.command == 'lesson-request':
-            handle = plumber.lesson_request(args.held, lesson=args.lesson, producer=args.producer,
+            handle = prepare_lesson(plumber.records, args.held, lesson=args.lesson, producer=args.producer,
                                             checker=args.checker, finding_key=args.finding_key)
         elif args.command == 'lesson':
-            handle = plumber.lesson(args.request, read_review_file(args.review, max_bytes=262144))
+            handle = publish_lesson(plumber.records, args.request, read_review_file(args.review, max_bytes=262144))
         elif args.command == 'lesson-show':
-            payload = plumber.read_lesson(args.handle)
+            payload = read_lesson(plumber.records, args.handle)
             print(json.dumps({'handle': args.handle, 'lesson': payload}, indent=2, ensure_ascii=False))
             return 0
         else:

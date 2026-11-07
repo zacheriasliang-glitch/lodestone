@@ -62,15 +62,43 @@ def finding_identity(finding):
     return family
 
 
+def _held_payload(report, observation):
+    """Reconstruct the historical Plumber.hold contract without publishing.
+
+    The original wrapper is pinned by retained reconciliation evidence and
+    remains byte-identical. Lessons independently validate its routing output.
+    """
+    require(report.get('schema') == 'watcher-observation/v1'
+            and type(report.get('issues')) is list and len(report['issues']) <= 1024
+            and type(report.get('targets')) is list
+            and report.get('repair_performed') is False and report.get('authority') == 'NONE',
+            'Invalid Watcher observation')
+    require(report.get('status') == ('ATTENTION' if report['issues'] else 'INTACT'),
+            'Watcher observation status mismatch')
+    findings = []
+    for index, issue in enumerate(report['issues']):
+        require(type(issue) is dict and issue.get('code') in (
+            'COVERAGE_LIMIT', 'RECORD_UNAVAILABLE', 'CAPTURE_INVALID', 'SOURCE_UNAVAILABLE', 'SOURCE_DRIFT'),
+            'Unknown Watcher finding')
+        findings.append({'id': 'runtime-' + digest([observation, index]), 'state': 'HELD',
+                         'finding': issue, 'clears_when': 'New evidence and explicit Auditor review; '
+                         'a later clean observation never changes this record'})
+    return {'schema': 'bezoar-routing/v1', 'observation': observation,
+            'held_findings': findings, 'targets': report['targets'],
+            'next_role': 'AUDITOR' if findings else 'ORCHESTRATOR',
+            'action': 'REVIEW_DISCREPANCIES' if findings else 'REVIEW_CANDIDATE',
+            'status': 'HELD' if findings else 'OBSERVED', 'authority': 'NONE',
+            'dispatch': 'PROPOSAL_ONLY', 'registry': 'runtime; separate from historical docs/bezoar.md'}
+
+
 def _layer(store, handle):
-    from .bezoar import held_payload
     record = _read(store, handle, "bezoar", "routing")
     payload = record["payload"]
     observation = payload.get("observation")
     observed = _read(store, observation, "watcher", "observation")
     require(record["links"] == [observation] and observed["links"] == [],
             "Held observation link differs")
-    require(typed_equal(payload, held_payload(observed["payload"], observation))
+    require(typed_equal(payload, _held_payload(observed["payload"], observation))
             and payload["status"] == "HELD", "Layer requires exact HELD routing evidence")
     date = _date(observed["payload"].get("observed_at"))
     findings = {}
