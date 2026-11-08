@@ -825,6 +825,8 @@ class Origami:
         state = self.status(run_id)
         if state["status"] not in ("NEEDS_PROVIDER", "UNCERTAIN"):
             raise ValueError("Run is already terminal")
+        if "request_path" not in state:
+            raise ValueError("Run has no pending request")
         intent = _read_state(directory / "intent.json")
         # A provider may already have returned. Preserve its response and usage
         # before post-call freshness checks; run() checks advice before dispatch.

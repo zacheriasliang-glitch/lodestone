@@ -139,6 +139,18 @@ class SavedStateVersionTests(unittest.TestCase):
             self.organ.status(run_id)
         self.assertEqual(self.snapshot(), before)
 
+    def test_interrupted_preparation_keeps_the_public_missing_request_error(self):
+        run_id = self.start()
+        envelope = reply(self.organ.request(run_id))
+        directory = self.directory(run_id)
+        (directory / "request-000.json").unlink()  # Fixture: interruption after intent.
+        self.assertEqual(self.organ.status(run_id)["status"], "UNCERTAIN")
+        with self.assertRaisesRegex(ValueError, "Run has no pending request"):
+            self.organ.advance(run_id, envelope)
+        self.assertFalse(list(directory.glob("response-*.json")))
+        self.assertFalse(list(directory.glob("call-*.json")))
+        self.assertEqual(self.organ.status(run_id)["status"], "UNCERTAIN")
+
 
 if __name__ == "__main__":
     unittest.main()
