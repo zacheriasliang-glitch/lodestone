@@ -85,6 +85,7 @@ project checkpoints.
 | Remember decisions and prepare an AI handoff | [Local memory](tools/local-memory/README.md) |
 | Answer from bound passages and retain a separate support review | [Reviewed answers (source checkout)](docs/reviewed-answers.md) |
 | Follow a reviewed answer to current sources, reuse its passages and retain boundary lessons | [Yggdrasil and Bezoar integration (source checkout)](docs/reviewed-source-graph.md) |
+| Supply a reviewed boundary lesson to a fresh question and expose it to the answer checker | [Reviewed lesson consumer](docs/reviewed-lessons.md) |
 | Check that a saved task's source files still match | [Continuity checkpoints](docs/continuity.md) |
 | Archive and recover selected files | [Archives](docs/archives.md) |
 | Queue and execute a supported local task | [Nurarihyon](docs/nurarihyon.md) |
