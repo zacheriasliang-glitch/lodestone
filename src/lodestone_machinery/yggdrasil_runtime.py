@@ -7,9 +7,11 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+from types import SimpleNamespace
 
 from . import macro_voxel as mv
 from . import yggdrasil as lineage
+from .lesson_context import build_lesson_context
 from .records import HANDLE, NAME, canonical as record_canonical
 from .yggdrasil_sources import binding_payload, read_bound_sources, BoundSourceError
 from .support_review import REQUEST_SCHEMA, ATTRIBUTION, _validate_review
@@ -149,7 +151,65 @@ def _selected_paths(workspace, handles):
         seen.add(handle)
         paths.append(path)
         pending.extend(record["links"])
+        pending.extend(handle for _, handle in _lesson_refs(record))
     return sorted(paths)
+
+
+def _lesson_refs(record):
+    """Typed advice provenance, separate from factual source/support links."""
+    if (record["owner"] != "origami" or record["kind"] != "answer_evidence"
+            or "lesson_context" not in record["payload"]):
+        return []
+    context = record["payload"]["lesson_context"]
+    if type(context) is not dict:
+        raise ValueError("Retained lesson context must be an object")
+    refs = [("lesson_advice", context.get("lesson_handle")),
+            ("lesson_source_binding", context.get("source_handle"))]
+    if any(type(handle) is not str or HANDLE.fullmatch(handle) is None for _, handle in refs):
+        raise ValueError("Retained lesson requires exact provenance handles")
+    return refs
+
+
+class _CapturedRecords:
+    """Read-only record interface over already identity-checked graph bytes.
+
+    The size facade satisfies the lesson reader's input bound without writing a
+    temporary store or following a filesystem path attributed inside a record.
+    """
+    def __init__(self, records):
+        self.records = records
+
+    def read(self, handle):
+        if handle not in self.records:
+            raise ValueError("Retained lesson dependency is missing from graph: " + str(handle))
+        return self.records[handle][1]
+
+    def path(self, handle):
+        size = len(record_canonical(self.read(handle)))
+        return SimpleNamespace(stat=lambda: SimpleNamespace(st_size=size))
+
+    def relay(self, requester, handle, *, owner, kind):
+        record = self.read(handle)
+        if record["owner"] != owner or record["kind"] != kind:
+            raise ValueError("Retained lesson producer or output contract mismatch")
+        return record
+
+
+def _check_packet_lesson(packet, records):
+    context = packet["lesson_context"]
+    if type(context) is not dict:
+        raise ValueError("Retained lesson context must be an object")
+    rebuilt = build_lesson_context(
+        _CapturedRecords(records), context["lesson_handle"], source_handle=context["source_handle"],
+        question=packet["question"], checker=packet["reviewer"], applicability=context["applicability"])
+    binding = binding_payload(records[context["source_handle"]][1])
+    prior = packet["prior_knowledge"]
+    if (record_canonical(context) != record_canonical(rebuilt)
+            or packet["source_root"] != binding["source_root"]
+            or record_canonical(packet["scope"]["sources"]) != record_canonical(binding["scope"]["sources"])
+            or type(prior) is not dict or prior.get("run_id") != binding["run_id"]
+            or packet["reviewer"].strip() == packet["provider"].strip()):
+        raise ValueError("Retained lesson context differs from its question, source scope or declared checker")
 
 
 def _records(sources):
@@ -193,6 +253,8 @@ def _support_packets_checked(records):
         required = {"schema", "run_id", "question", "epoch", "reviewer", "provider", "files", "source_root",
                     "scope", "fold", "evidence", "prior_knowledge", "instructions", "response_schema",
                     "attribution", "authority", "request_sha256"}
+        if "lesson_context" in packet:
+            required.add("lesson_context")
         mv._keys(packet, required, "answer evidence packet")
         for field in ("question", "epoch", "reviewer", "provider", "instructions"):
             mv._text(packet[field], field)
@@ -202,6 +264,8 @@ def _support_packets_checked(records):
                        for k in ("run_id", "source_root", "scope", "evidence"))
                 or mv.digest(record_canonical({k: v for k, v in packet.items() if k != "request_sha256"})) != packet["request_sha256"]):
             raise ValueError("Answer evidence identity or source binding differs")
+        if "lesson_context" in packet:
+            _check_packet_lesson(packet, records)
         fold = packet["fold"]
         if type(fold) is not dict:
             raise ValueError("Answer evidence requires its exact fold")
@@ -314,6 +378,10 @@ def snapshot(root, *, records_workspace=None, origami_results=(), capture_roots=
                 edges.append(edge(handles[dependency], source_id, "record_dependency", [source_id]))
             else:
                 unresolved.append({"source": source_id, "missing_record": dependency})
+        for relation, dependency in _lesson_refs(by_id[source_id]["state"]):
+            # _support_packets has already revalidated the complete advice
+            # chain. These edges never become source evidence or claim support.
+            edges.append(edge(handles[dependency], source_id, relation, [source_id]))
 
     passages, answer_claims = {}, {}
     for handle, checked in captured.items():

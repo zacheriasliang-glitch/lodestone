@@ -70,6 +70,10 @@ passages and previous fold. It reopens the original encounter and requires its
 PASS review. Supply an actual answer through `origami advance` or the existing
 provider interface, then obtain a separate review for that new question. The
 prior review never certifies the new answer. No provider is invoked by `reuse`.
+To also supply an explicitly selected NACRE lesson, use the
+[reviewed lesson consumer](reviewed-lessons.md). It requires a separate
+applicability judgment for the exact new question and source binding; the
+lesson remains advice and the new answer still requires its own review.
 The existing exact-seed limit is 64 passages and at most 16 KiB of passage text
 (or a smaller supplied read budget); larger selections refuse before a new run.
 
