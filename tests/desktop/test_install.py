@@ -65,7 +65,7 @@ class InstallationTests(unittest.TestCase):
         again = self.setup_install()
         self.assertEqual(again["status"], "ALREADY_INSTALLED")
         self.assertEqual(conf.read_text(), "user's edited profile\n")
-        self.assertEqual(install.doctor(self.root, verify_dependencies=lambda *args: {"fixture": True})["status"], "READY")
+        self.assertEqual(install.doctor(self.root, verify_dependencies=lambda *args: {"fixture": True}, verify_learning=lambda *args: {"fixture": True})["status"], "READY")
         self.assertEqual(first["release_id"], again["release_id"])
 
     def test_upgrade_then_rollback_preserves_new_records(self):
@@ -145,7 +145,7 @@ class InstallationTests(unittest.TestCase):
         self.assertEqual(record.read_text(), "keep this")
         self.setup_install()
         self.assertEqual(record.read_text(), "keep this")
-        self.assertEqual(install.doctor(self.root, verify_dependencies=lambda *args: {"fixture": True})["status"], "READY")
+        self.assertEqual(install.doctor(self.root, verify_dependencies=lambda *args: {"fixture": True}, verify_learning=lambda *args: {"fixture": True})["status"], "READY")
 
     def test_first_install_rollback_leaves_records(self):
         self.setup_install()
@@ -213,6 +213,22 @@ class InstallationTests(unittest.TestCase):
         self.assertEqual(install.snapshot(install.managed_paths(self.root, self.app)), before)
         self.assertTrue((self.root / "learning/retained-failure.json").is_file())
         self.assertEqual(install.read(transaction)["state"], "RECOVERED_INTERRUPTED_ACTIVATION")
+
+    def test_learning_readiness_refuses_stopped_or_mismatched_selection(self):
+        memory = self.root / "learning/memory"
+        memory.mkdir(parents=True)
+        selection = {"memory_workspace": str(memory), "seed_handles": ["fixture-seed"]}
+        install.save(self.root / "learning/ACTIVE.json", selection)
+        install.save(self.root / "runtime/learning-policy.json", selection)
+        self.assertEqual(install.learning_readiness(self.root)["status"], "READY")
+        stop = memory.parent / "STOP"
+        stop.write_text("Interrupted selection; preserve for recovery")
+        with self.assertRaisesRegex(ValueError, "stopped"):
+            install.learning_readiness(self.root)
+        stop.unlink()
+        install.save(self.root / "runtime/learning-policy.json", {**selection, "seed_handles": []})
+        with self.assertRaisesRegex(ValueError, "selections differ"):
+            install.learning_readiness(self.root)
 
 
 if __name__ == "__main__":

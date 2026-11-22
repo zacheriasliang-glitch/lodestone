@@ -360,7 +360,21 @@ def install(root, payload, *, app=None, cache=None, provision=None, bootstrap=No
         return dict(active, status="INSTALLED", learning=learning, user_data_preserved=True)
 
 
-def doctor(root, *, verify_dependencies=None):
+def learning_readiness(root):
+    selected = read(root / "learning/ACTIVE.json")
+    policy = read(root / "runtime/learning-policy.json")
+    for field in ("memory_workspace", "seed_handles"):
+        if selected.get(field) != policy.get(field):
+            raise ValueError("Learning and Origami selections differ; inspect selection recovery records")
+    memory = Path(selected["memory_workspace"]).resolve()
+    if not memory.is_relative_to(root) or not memory.is_dir():
+        raise ValueError("Selected learning memory is outside this preview or missing")
+    if (memory.parent / "STOP").exists():
+        raise ValueError("Learning is stopped; inspect the retained STOP and recovery records")
+    return {"status": "READY", "memory_workspace": str(memory), "origami_selection_matches": True}
+
+
+def doctor(root, *, verify_dependencies=None, verify_learning=None):
     root = checked_root(root)
     active = active_install(root)
     _, release_id = verify_payload(Path(active["release"]))
@@ -374,9 +388,10 @@ def doctor(root, *, verify_dependencies=None):
     if verify_dependencies is None:
         verify_dependencies = release_module(active["release"], "dependencies").verify
     dependencies = verify_dependencies(root, Path(active["release"]))
+    learning = (verify_learning or learning_readiness)(root)
     return {"status": "READY", "version": active["version"], "release_id": release_id,
             "app": active["app"], "local_reader": "qwen3:0.6b", "model_called": False,
-            "dependencies": dependencies}
+            "dependencies": dependencies, "learning": learning}
 
 
 def rollback(root):
@@ -469,6 +484,7 @@ def main():
                                                  Path(active["worker_python"]))
         else:
             root = checked_root(args.root)
+            recover(root)
             active = active_install(root)
             argv = [active["gui_python"], "-B", str(Path(active["release"]) / "run_loom.py"),
                     "--root", str(root)]
