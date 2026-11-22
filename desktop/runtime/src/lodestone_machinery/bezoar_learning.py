@@ -490,8 +490,60 @@ class LearningMemory:
                 result.append(current)
         return result
 
+    @_operation
+    def practice_candidates(self, handles):
+        """Inspect retained candidates and pairing availability without practice.
+
+        Readiness means only that a candidate has a valid retained NACRE. It
+        does not assess current conditions, admit a request, or establish that
+        the advice has been learned. Malformed native records fail the entire
+        read instead of disappearing from the catalogue.
+        """
+        _handles(handles, "configured seeds")
+        configured = list(handles)
+        resolved = self.resolve_seeds(configured)
+        candidates = []
+        for handle in self._catalog("seed"):
+            seed = self.read_seed(handle)
+            current = self.resolve_seeds([handle])[0]
+            error = None
+            try:
+                self._pairs([current], None)
+            except ValueError as exc:
+                if str(exc) != "Every practice SEED must use a matching retained NACRE":
+                    raise
+                error = str(exc)
+            if current != handle:
+                error = "Superseded by " + current + "; select that current candidate to inspect its advice."
+            candidates.append({"handle": handle, "id": seed["id"], "state": seed["state"],
+                               "resolved_handle": current,
+                               "conditions": _copy(seed["conditions"]),
+                               "frame_limits": _copy(seed["frame_limits"]),
+                               "correction": seed["correction"],
+                               "ready": error is None, "error": error})
+        return {"schema": "loom-practice-candidates/v1",
+                "configured_seed_handles": configured,
+                "resolved_seed_handles": resolved, "candidates": candidates,
+                "scope": "Pairing availability only; current applicability, admission and learned benefit are not established.",
+                "authority": "NONE", "provider_called": False,
+                "semantic_learning": "NOT_ESTABLISHED"}
+
     def _pairs(self, seeds, applicability):
-        nacres = {h: self.read_nacre(h) for h in self._catalog("nacre")}
+        if applicability is None:
+            nacre_handles = self._catalog("nacre")
+        else:
+            _require(type(applicability) is list and 1 <= len(applicability) <= 16,
+                     "Bounded applicability list required")
+            for supplied in applicability:
+                _fields(supplied, ("seed_handle", "nacre_handle", "reason", "conditions"))
+                _handles([supplied["seed_handle"]], "applicability seed")
+                _handles([supplied["nacre_handle"]], "applicability pattern")
+            # Saved practice binds exact patterns. A later pattern may refer to
+            # a lesson derived from that very practice; validating unrelated
+            # catalogue entries here would recurse through its source review.
+            # Fresh discovery still examines every retained pattern above.
+            nacre_handles = sorted({row["nacre_handle"] for row in applicability})
+        nacres = {h: self.read_nacre(h) for h in nacre_handles}
         matched = {(s, n) for s in seeds for n, row in nacres.items()
                    if set(self._lineage(s)) & set(row["seed_handles"])}
         _require(matched and all(any(s == seed for s, _ in matched) for seed in seeds),
@@ -502,10 +554,8 @@ class LearningMemory:
                       "conditions": self.read_seed(s)["conditions"], "status": "DECLARED_FOR_THIS_PRACTICE"}
                      for s, n in sorted(matched)]
         else:
-            _require(type(applicability) is list and 1 <= len(applicability) <= 16, "Bounded applicability list required")
             pairs = []
             for supplied in applicability:
-                _fields(supplied, ("seed_handle", "nacre_handle", "reason", "conditions"))
                 pair = (supplied["seed_handle"], supplied["nacre_handle"])
                 _require(pair in matched, "Applicability must bind the selected SEED to its actual NACRE")
                 _text(supplied["reason"], "applicability reason", 8192)

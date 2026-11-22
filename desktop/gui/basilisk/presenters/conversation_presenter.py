@@ -8,6 +8,7 @@ recording thread, error-recovery state, and conversation model.
 from __future__ import annotations
 
 import logging
+from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
 from basilisk import config
@@ -83,6 +84,7 @@ class ConversationPresenter(DestroyGuardMixin):
 		# Error recovery state
 		self._stored_prompt_text: str | None = None
 		self._stored_attachments: list[AttachmentFile | ImageFile] | None = None
+		self._stored_practice_options = None
 
 		self.completion_handler = CompletionHandler(
 			on_completion_start=self._on_completion_start,
@@ -123,6 +125,11 @@ class ConversationPresenter(DestroyGuardMixin):
 		completion_kwargs = {}
 		if view.current_account.provider.id == "loom":
 			completion_kwargs["loom_purpose"] = view.loom_purpose.GetValue()
+			if new_block.loom_practice_options is not None:
+				completion_kwargs["loom_practice_options"] = deepcopy(new_block.loom_practice_options)
+			# Settings are consumed for this encounter, never inherited silently by the next message.
+			view.loom_practice_options = None
+			view.refresh_loom_practice_summary()
 			new_block.stream = False
 		if (
 			ProviderCapability.WEB_SEARCH
@@ -158,6 +165,14 @@ class ConversationPresenter(DestroyGuardMixin):
 		model = view.prompt_panel.ensure_model_compatibility(view.current_model)
 		if not model:
 			return None
+		options = deepcopy(getattr(view, "loom_practice_options", None)) if view.current_account.provider.id == "loom" else None
+		if options is not None:
+			from basilisk.services.loom_practice import bridge_options
+			try:
+				bridge_options(options, view.prompt_panel.prompt_text, view.loom_purpose.GetValue())
+			except ValueError as exc:
+				view.show_error(str(exc), "Review practice options")
+				return None
 		view.prompt_panel.resize_all_attachments()
 		return MessageBlock(
 			request=Message(
@@ -173,6 +188,7 @@ class ConversationPresenter(DestroyGuardMixin):
 			max_tokens=view.max_tokens_spin_ctrl.GetValue(),
 			stream=view.stream_mode.GetValue(),
 			loom_purpose=view.loom_purpose.GetValue() if view.current_account.provider.id == "loom" else None,
+			loom_practice_options=options,
 		)
 
 	def get_completion_args(self) -> dict[str, Any] | None:
@@ -184,6 +200,8 @@ class ConversationPresenter(DestroyGuardMixin):
 		completion_args = {}
 		if view.current_account.provider.id == "loom":
 			completion_args["loom_purpose"] = view.loom_purpose.GetValue()
+			if new_block.loom_practice_options is not None:
+				completion_args["loom_practice_options"] = deepcopy(new_block.loom_practice_options)
 			new_block.stream = False
 		if (
 			ProviderCapability.WEB_SEARCH
@@ -223,6 +241,7 @@ class ConversationPresenter(DestroyGuardMixin):
 		self.view.submit_btn.Disable()
 		self.view.stop_completion_btn.Show()
 		self.view.loom_correction_btn.Disable()
+		self.view.loom_practice_btn.Disable()
 		if config.conf().conversation.focus_history_after_send:
 			self.view.messages.SetFocus()
 
@@ -276,6 +295,7 @@ class ConversationPresenter(DestroyGuardMixin):
 	def _store_prompt_content(self):
 		"""Store current prompt content for error recovery."""
 		self._stored_prompt_text = self.view.prompt_panel.prompt_text
+		self._stored_practice_options = deepcopy(getattr(self.view, "loom_practice_options", None))
 		self._stored_attachments = (
 			self.view.prompt_panel.attachment_files.copy()
 		)
@@ -289,11 +309,15 @@ class ConversationPresenter(DestroyGuardMixin):
 			self.view.prompt_panel.prompt_text = self._stored_prompt_text
 			self.view.prompt_panel.attachment_files = self._stored_attachments
 			self.view.prompt_panel.refresh_attachments_list()
+			self.view.loom_practice_options = deepcopy(self._stored_practice_options)
+			if hasattr(self.view, "refresh_loom_practice_summary"):
+				self.view.refresh_loom_practice_summary()
 
 	def _clear_stored_content(self):
 		"""Clear stored prompt content."""
 		self._stored_prompt_text = None
 		self._stored_attachments = None
+		self._stored_practice_options = None
 
 	@_guard_destroying
 	def _on_completion_error(self, error_message: str):
@@ -544,7 +568,8 @@ class ConversationPresenter(DestroyGuardMixin):
 		last = latest_receipt(self.conversation) if purpose is not None else None
 		prior_purpose = last["purpose"] if last else DEFAULT_LOOM_PURPOSE
 		purpose_changed = purpose is not None and purpose != prior_purpose
-		if not prompt_text and not attachments and not purpose_changed:
+		options = deepcopy(getattr(view, "loom_practice_options", None)) if purpose is not None else None
+		if not prompt_text and not attachments and not purpose_changed and options is None:
 			return None
 		block = MessageBlock(
 			request=Message(
@@ -561,6 +586,7 @@ class ConversationPresenter(DestroyGuardMixin):
 			top_p=view.top_p_spinner.GetValue(),
 			stream=view.stream_mode.GetValue(),
 			loom_purpose=purpose,
+			loom_practice_options=options,
 		)
 		system_msg = self.get_system_message()
 		if system_msg and system_msg in self.conversation.systems:

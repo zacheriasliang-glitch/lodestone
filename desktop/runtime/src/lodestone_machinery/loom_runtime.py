@@ -59,6 +59,8 @@ def _config(path):
         raise ValueError("Decision format is a per-encounter opt-in, not persistent configuration")
     if "history_window" in value:
         raise ValueError("Reader history window is a per-encounter opt-in, not persistent configuration")
+    if "seed_handles" in value or "decision_strategy" in value:
+        raise ValueError("Practice lesson selection and decision strategy are per-encounter options")
     for field in ("learning_config", "python", "assets_dir", "runs_dir"):
         if type(value.get(field)) is not str or not Path(value[field]).is_absolute():
             raise ValueError(field + " must be an absolute local path")
@@ -155,6 +157,15 @@ def _profiles(path):
     return profiles
 
 
+def _selected_seeds(handles):
+    if (type(handles) is not list or not 1 <= len(handles) <= 16
+            or any(type(handle) is not str or re.fullmatch(r"bezoar:[0-9a-f]{64}", handle) is None
+                   for handle in handles)
+            or len(set(handles)) != len(handles)):
+        raise ValueError("Practice requires 1..16 distinct retained SEED handles")
+    return list(handles)
+
+
 def _native(config):
     active = _json(config["learning_config"], 65536)
     if (type(active) is not dict or active.get("schema") != "lodestone-learning-active/v1"
@@ -163,7 +174,9 @@ def _native(config):
     workspace = active.get("memory_workspace")
     if type(workspace) is not str or not Path(workspace).is_absolute():
         raise ValueError("Native learning workspace must be an absolute path")
-    return UnifiedLoom(workspace, active.get("seed_handles"))
+    handles = (_selected_seeds(config["seed_handles"]) if "seed_handles" in config
+               else active.get("seed_handles"))
+    return UnifiedLoom(workspace, handles)
 
 
 def _retain_local_failure(learning_config, *, operation, source_event, observation):
@@ -201,6 +214,8 @@ def _execution_binding(config, identity, *, encounter, purpose, context):
     if config.get("history_window") is not None:
         from .learning_context import history_window_policy
         inputs["reader_history_window"] = history_window_policy(config["history_window"])
+    if "seed_handles" in config:
+        inputs["selected_seed_handles"] = _selected_seeds(config["seed_handles"])
     return {"schema": "loom-execution-binding/v1", "operation": "loom.local-inference",
             "source_sha256": hashlib.sha256(canonical(source)).hexdigest(),
             "input_sha256": hashlib.sha256(canonical(inputs)).hexdigest(),
@@ -362,6 +377,13 @@ class LoomBridge:
     def reader_identities(self):
         return {route: runtime_identity(config) for route, config in _profiles(self.config_path).items()}
 
+    def practice_candidates(self):
+        """Read retained candidate advice and pairing availability without preparing a run."""
+        from lodestone_nurarihyon import learning
+        native = _native(_config(self.config_path))
+        with learning.locked(native.memory):
+            return native.memory.practice_candidates(native.seed_handles)
+
     def cancel_all(self):
         """Request cancellation; each run returns only after its stop is checked."""
         with self._lock:
@@ -422,7 +444,8 @@ class LoomBridge:
             workspace=Path(config["runs_dir"]) / "origami-handoffs")
 
     def run(self, *, encounter, purpose, context="", route=None, max_tokens=None,
-            temperature=0, top_p=1, cancel_event=None, decision_case_json=None, history_window=None):
+            temperature=0, top_p=1, cancel_event=None, decision_case_json=None, history_window=None,
+            seed_handles=None, decision_strategy="flat"):
         # Keep a failed reread of configuration inside the durable local error
         # boundary. The constructor's validated config supplies only the ledger.
         profile_error = None
@@ -460,12 +483,18 @@ class LoomBridge:
                                              "temperature": 0, "top_p": 1},
                           requested_generation={"max_tokens": max_tokens,
                                                 "temperature": temperature, "top_p": top_p})
+            if type(decision_strategy) is not str or decision_strategy not in ("flat", "evidence_first"):
+                raise ValueError("Decision strategy must be flat or evidence_first")
+            if decision_strategy != "flat" and decision_case_json is None:
+                raise ValueError("Evidence-first practice requires an exact decision case")
+            if seed_handles is not None:
+                config["seed_handles"] = _selected_seeds(seed_handles)
             if decision_case_json is not None:
                 if config["backend"] != "ollama_qwen3_base":
                     raise ValueError("Structured decision decoding requires the local Ollama backend")
                 from .decision_format import bind_decision_format
                 config["decision_format"] = bind_decision_format(
-                    encounter, case_json=decision_case_json)
+                    encounter, case_json=decision_case_json, strategy=decision_strategy)
             if history_window is not None:
                 from .learning_context import history_window_policy
                 history_window_policy(history_window)

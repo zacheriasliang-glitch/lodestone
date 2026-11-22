@@ -281,15 +281,30 @@ def _derive(case, contract, latest):
     return decision, derivation, None
 
 
-def _answer(response):
-    answer = _parse_json(response, MAX_RESPONSE_BYTES)
+def _answer(response, case):
+    original = _parse_json(response, MAX_RESPONSE_BYTES)
+    answer = original
+    nested = type(original) is dict and "basis" in original
+    if nested:
+        _keys(original, ("basis", "case_id", "decision"), "Evidence-first response")
+        basis = original["basis"]
+        _keys(basis, ("id", "order", "target", "verified", "text"), "Response basis")
+        _keys(original["decision"], ("action", "transition"), "Response decision")
+        # Compare complete canonical row bytes, not dict equality: True/1 and
+        # integer/float substitutions must not impersonate an exact source row.
+        _require(any(_canonical(basis) == _canonical(row) for row in case["observations"]),
+                 "Response basis differs from every exact source observation")
+        answer = {"case_id": original["case_id"],
+                  "action": original["decision"]["action"],
+                  "transition": original["decision"]["transition"],
+                  "evidence_ids": [basis["id"]]}
     _keys(answer, ("case_id", "action", "transition", "evidence_ids"), "Response")
     for name in ("case_id", "action", "transition"):
         _text(answer[name], "Response " + name, 256)
     ids = answer["evidence_ids"]
     _require(type(ids) is list and len(ids) == 1, "Exactly one evidence ID is required")
     _text(ids[0], "Response evidence ID", 256)
-    return answer
+    return answer, original, nested
 
 
 def review_decision(encounter, response, contract, *, completed=True):
@@ -301,6 +316,9 @@ def review_decision(encounter, response, contract, *, completed=True):
     response inconsistencies are still recorded in the checks and reason codes.
     PASS requires a unique explicitly declared condition/action derivation as
     well as structural consistency; it is only relative to that interpretation.
+    An evidence-first response must copy one complete original observation. Its
+    decision projection only selects supplied fields; it never derives an answer
+    or treats an exact row copy as condition/action understanding.
     """
     _require(type(completed) is bool, "completed must be Boolean")
     contract, case = _checked_contract(encounter, contract)
@@ -333,9 +351,10 @@ def review_decision(encounter, response, contract, *, completed=True):
         except ValueError:
             raw, saved_response, retention = None, None, "INVALID_NON_TEXT_NOT_EMBEDDED"
     try:
-        answer = _answer(response)
+        answer, parsed_response, nested = _answer(response, case)
     except ValueError:
         answer = None
+        parsed_response, nested = None, False
         reasons.append("INVALID_RESPONSE_FORMAT")
 
     checks = {}
@@ -378,7 +397,7 @@ def review_decision(encounter, response, contract, *, completed=True):
         status = "PASS"
     else:
         status = "UNRESOLVED"
-    return {
+    result = {
         "schema": REVIEW_SCHEMA, "status": status, "reason_codes": reasons,
         "contract_sha256": contract["contract_sha256"],
         "encounter_sha256": contract["encounter_sha256"], "case_span": contract["case_span"],
@@ -386,7 +405,7 @@ def review_decision(encounter, response, contract, *, completed=True):
         "response_sha256": _sha(raw) if raw is not None else None,
         "response_bytes": len(raw) if raw is not None else None,
         "response_digest_encoding": capture_encoding, "response_retention": retention,
-        "raw_response": saved_response, "parsed_response": answer,
+        "raw_response": saved_response, "parsed_response": parsed_response,
         "response_format_valid": answer is not None,
         "structural_consistency": structural, "structural_checks": checks,
         "condition_action_support": support, "policy_attribution": contract["policy_attribution"],
@@ -395,3 +414,7 @@ def review_decision(encounter, response, contract, *, completed=True):
         "authority": "NONE", "semantic_learning": "NOT_ESTABLISHED",
         "scope": "Contract consistency under an attributed declared interpretation; not verified world truth, authenticated authorship, model learning or permission.",
     }
+    if nested:
+        result["response_format"] = "evidence-first/v1"
+        result["decision_response"] = answer
+    return result

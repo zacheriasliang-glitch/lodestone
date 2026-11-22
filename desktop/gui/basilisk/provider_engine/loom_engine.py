@@ -74,10 +74,20 @@ class LoomEngine(BaseEngine):
 		self.last_receipt = None
 
 	def completion(self, new_block, conversation, system_message, stop_block_index=None,
-				   *, loom_purpose=None, **kwargs):
+				   *, loom_purpose=None, loom_practice_options=None, **kwargs):
 		self.last_receipt = None
 		if not isinstance(loom_purpose, str) or not loom_purpose.strip():
 			raise ValueError("Set the purpose for this Loom encounter before sending")
+		from basilisk.services.loom_practice import bridge_options
+		if loom_practice_options != new_block.loom_practice_options:
+			raise ValueError("Practice options differ from the saved message block")
+		options = bridge_options(loom_practice_options, new_block.request.content, loom_purpose)
+		if "seed_handles" in options:
+			available = {row["handle"]: row for row in self.practice_candidates()["candidates"]}
+			for handle in options["seed_handles"]:
+				row = available.get(handle)
+				if not row or not row["ready"] or row.get("resolved_handle", handle) != handle:
+					raise ValueError("A saved lesson is unavailable or superseded. Review Practice options and choose its current replacement.")
 		if new_block.request.attachments:
 			raise ValueError("Loom currently accepts text encounters; describe the attachment in the message")
 		if not self._run_lock.acquire(blocking=False):
@@ -99,6 +109,7 @@ class LoomEngine(BaseEngine):
 				context=context, route=new_block.model.model_id,
 				max_tokens=new_block.max_tokens or None, temperature=new_block.temperature,
 				top_p=new_block.top_p, cancel_event=self._cancel_event,
+			**options,
 			)
 			if result.get("outcome_handle"):
 				self.last_receipt = save_receipt(new_block, result, loom_purpose.strip())
@@ -130,6 +141,9 @@ class LoomEngine(BaseEngine):
 
 	def completion_response_with_stream(self, stream):
 		raise ValueError("Loom returns a complete retained outcome; streaming is unavailable")
+
+	def practice_candidates(self):
+		return self.client.practice_candidates()
 
 	def correct(self, receipt, *, correction, author, observation=""):
 		return self.client.correct(receipt["outcome_handle"], correction=correction,

@@ -124,10 +124,14 @@ jobs:
           set -euo pipefail
           /bin/launchctl print "gui/$(id -u)" > "$EVIDENCE_ROOT/logs/gui-session.txt"
           old_reader="$RUNNER_TEMP/lodestone-previous-gui"
-          mkdir -p "$old_reader"
+          previous_reader="$RUNNER_TEMP/lodestone-preview3-gui"
+          mkdir -p "$old_reader" "$previous_reader"
           git fetch --no-tags --depth=1 origin b82b78ddba3b8067a7c09df6c4c0a18084a7e59f
           git archive b82b78ddba3b8067a7c09df6c4c0a18084a7e59f desktop/gui | tar -x -C "$old_reader"
+          git fetch --no-tags --depth=1 origin 655fa55672a4c3ae2d0284da881921b7bed97c78
+          git archive 655fa55672a4c3ae2d0284da881921b7bed97c78 desktop/gui | tar -x -C "$previous_reader"
           LODESTONE_OLD_GUI_SOURCE="$old_reader/desktop/gui" \
+            LODESTONE_PREVIOUS_GUI_SOURCE="$previous_reader/desktop/gui" \
             "$GUI_PYTHON" -B tools/desktop_mechanical_check.py gui \
               --tests tests/desktop_gui --payload "$ACTIVE_RELEASE" --evidence "$EVIDENCE_ROOT" \
             2>&1 | tee "$EVIDENCE_ROOT/logs/gui-persistence-tests.log"

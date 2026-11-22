@@ -23,6 +23,20 @@ Older projects remain readable. The optional purpose metadata leaves the databas
 migration revision unchanged so the preceding preview can still read its records;
 that older application does not gain the new draft-purpose behavior.
 
+**Practice options** can select named retained lessons for one encounter and set
+an explicit window of recent practice. A lesson must have a valid linked Bezoar
+pattern before it can be used; pairing does not establish that its advice applies
+to the current task. Options are saved with the draft and project. Changing the
+message or purpose requires reviewing or clearing those options before sending.
+Ordinary submissions continue to use the configured selection.
+
+For an explicitly structured decision case, the optional **evidence-first**
+response asks the reader to select a complete source observation before choosing
+its action and whether to hold or change. Every supplied observation and action
+remains available. This can still produce a wrong decision. A separate decision
+review checks the original response against the attributed case policy; it never
+replaces that response with a computed answer.
+
 A `.bskc` project contains the conversation and its saved settings. Native learning
 history and correction receipts remain in the installation's data directory;
 copying the project file alone to another installation does not transfer them.

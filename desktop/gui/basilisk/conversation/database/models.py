@@ -126,6 +126,16 @@ class DBLoomBlockPurpose(Base):
 	purpose: Mapped[str]
 
 
+class DBLoomBlockPracticeOptions(Base):
+	"""Optional per-encounter metadata; old readers ignore this additive table."""
+
+	__tablename__ = "loom_block_practice_options"
+	block_id: Mapped[int] = mapped_column(
+		ForeignKey("message_blocks.id", ondelete="CASCADE"), primary_key=True
+	)
+	options_json: Mapped[str]
+
+
 class DBMessage(Base):
 	"""Represents a single message (user or assistant) within a block."""
 
