@@ -387,6 +387,11 @@ class LoomBridge:
             outcome_handle, correction=correction, author=author, observation=observation,
             event_id=event_id, observed_at=observed_at)
 
+    def review_decision(self, outcome_handle, *, contract, author):
+        """Retain a separate source-bound check; never rewrite the reader's answer."""
+        return _native(_config(self.config_path)).review_decision(
+            outcome_handle, contract=contract, author=author)
+
     def preview_origami(self, outcome_handle, *, root, paths):
         config = _config(self.config_path)
         return _native(config).preview_origami(outcome_handle,

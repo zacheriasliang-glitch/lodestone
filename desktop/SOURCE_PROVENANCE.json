@@ -1458,6 +1458,12 @@
       "sha256": "c4eed7f06ddebe41e5cd33c3fa3f82ad2498baf1872b224bd7211ca12cebb451",
       "source_sha256": "c4eed7f06ddebe41e5cd33c3fa3f82ad2498baf1872b224bd7211ca12cebb451"
     },
+    "runtime/src/lodestone_machinery/decision_contract.py": {
+      "origin": "desktop-decision-extension",
+      "path": "src/lodestone_machinery/decision_contract.py",
+      "sha256": "9838abb819e5c10c594d51313d6c4ffe1e594e008f5c3af015d62ea0c183dc48",
+      "source_sha256": "9838abb819e5c10c594d51313d6c4ffe1e594e008f5c3af015d62ea0c183dc48"
+    },
     "runtime/src/lodestone_machinery/engine.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/engine.py",
@@ -1545,7 +1551,7 @@
     "runtime/src/lodestone_machinery/learning_cli.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/learning_cli.py",
-      "sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315",
+      "sha256": "ea3a98987f8640770f6e62794959b7761640139f54f7286f8e4b31d3d01b5ca6",
       "source_sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315"
     },
     "runtime/src/lodestone_machinery/learning_context.py": {
@@ -1659,7 +1665,7 @@
     "runtime/src/lodestone_machinery/loom_runtime.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_runtime.py",
-      "sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878",
+      "sha256": "4fcd2134303a29e753532a4600653ecfdb41953b23feffbe6d022f750ad018ff",
       "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
     },
     "runtime/src/lodestone_machinery/loom_runtime_worker.py": {
@@ -1719,7 +1725,7 @@
     "runtime/src/lodestone_machinery/loom_unified.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_unified.py",
-      "sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e",
+      "sha256": "fb5a2fa0372ce0ae484b841625d15d1ed27a32915c37370fe2a6503fd40544c1",
       "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
     },
     "runtime/src/lodestone_machinery/loom_voxels.py": {
@@ -2418,6 +2424,7 @@
   "schema": "lodestone-desktop-source-provenance/v1",
   "source_scopes": {
     "basilisk-derived-gui": "Modified Basilisk GUI source and resources, including its GPL-2.0-only licence.",
+    "desktop-decision-extension": "New public source-bound decision checker; no private records, model calls or semantic-learning claim.",
     "public-core": "Previously public runtime, documentation and examples.",
     "unified-runtime": "Callable runtime code and generic integration catalogues from Unified Loom; no private records or experiment histories."
   },
@@ -2517,6 +2524,24 @@
       "reason": "Represent repeated current encounter/purpose through exact structural section references and select complete reader renders by actual tokenizer cost, with legacy rendering retained on ties.",
       "sha256": "44a03ef2bd05e1b54bd0d2828efe357461d0e84f47af177aadd4b16001b2270a",
       "source_sha256": "c661ab4aaafa8961341d8ee0aa8301118e8e6679b5eefadb34983f3518921486"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/learning_cli.py",
+      "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome.",
+      "sha256": "ea3a98987f8640770f6e62794959b7761640139f54f7286f8e4b31d3d01b5ca6",
+      "source_sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_unified.py",
+      "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome.",
+      "sha256": "fb5a2fa0372ce0ae484b841625d15d1ed27a32915c37370fe2a6503fd40544c1",
+      "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_runtime.py",
+      "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome.",
+      "sha256": "4fcd2134303a29e753532a4600653ecfdb41953b23feffbe6d022f750ad018ff",
+      "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"

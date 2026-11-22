@@ -8,7 +8,9 @@ Nurarihyon owns dispatch, actual outcome capture and interruption reconciliation
 """
 from contextlib import ExitStack
 from datetime import datetime, timezone
+import hashlib
 import json
+from pathlib import Path
 import time
 import uuid
 
@@ -191,6 +193,50 @@ class UnifiedLoom:
                     "evidence_handle": evidence, "state": "RETAINED_UNRESOLVED",
                     "weight_update": False, "semantic_learning": "NOT_ESTABLISHED",
                     "authority": "NONE"}
+
+    def review_decision(self, outcome_handle, *, contract, author):
+        """Check a retained structured decision and retain the separate review.
+
+        This is opt-in, requires an exact source-bound contract, and never calls
+        a provider or replaces its answer/status. A declared policy may derive
+        an action; that interpretation remains attributed, not independently
+        established. Even a passing check is retained as an UNRESOLVED learning
+        review. Oversized feedback is refused before any write, not truncated.
+        """
+        from . import decision_contract
+        _text(author, "author", 384)
+        # Assess and retain the same bounded snapshot, even if a caller later
+        # mutates its dictionary while the native feedback is being written.
+        contract = decision_contract._copy_json(contract, decision_contract.MAX_CONTRACT_BYTES)
+        with learning.locked(self.memory, timeout=30):
+            outcome = self.memory.read_outcome(outcome_handle)
+            prepared = self.memory.read_prepared(outcome["run_handle"])
+        assessment = decision_contract.review_decision(
+            prepared["binding"]["encounter"], outcome["response"], contract,
+            completed=outcome["status"] == "COMPLETED")
+        checker_sha = hashlib.sha256(Path(decision_contract.__file__).read_bytes()).hexdigest()
+        # The raw response is already retained verbatim in the bound outcome.
+        # Keep the complete contract here so hashes never replace inspectable
+        # evidence or hide the policy author's declared interpretation.
+        retained = {key: value for key, value in assessment.items()
+                    if key not in ("raw_response", "parsed_response")}
+        correction = canonical({"schema": "loom-decision-feedback/v1",
+            "contract": contract, "assessment": retained,
+            "checker_sha256": checker_sha, "outcome_handle": outcome_handle,
+            "native_status": outcome["status"], "reviewer": author,
+            "instruction": "Review the cited condition, target and transition before reusing this answer. "
+                           "The derived decision follows a declared interpretation; it is not a new model answer "
+                           "or proof of semantic learning."}).decode()
+        _text(correction, "decision feedback", 8192)
+        event_id = "decision-review-" + hashlib.sha256(correction.encode()).hexdigest()
+        receipt = self.correct(outcome_handle, correction=correction,
+            author=author + "; deterministic decision-contract check",
+            observation="Source-bound code check; declared interpretation is not an independent semantic review.",
+            event_id=event_id)
+        return {"schema": "loom-retained-decision-review/v1", "assessment": assessment,
+                "retention": receipt, "checker_sha256": checker_sha,
+                "native_status": outcome["status"], "provider_called": False,
+                "weight_update": False, "semantic_learning": "NOT_ESTABLISHED", "authority": "NONE"}
 
     def status(self):
         """Read native pending runs and terminal receipts without a model call."""
