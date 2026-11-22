@@ -430,7 +430,7 @@ def expand_learning_projection(projected):
     return expanded
 
 
-def render_practice_data(request):
+def practice_data_candidates(request):
     """Render only the versioned practice input without double-escaping its fold.
 
     Native evidence validation occurs in the builder and Conscience admission.
@@ -473,7 +473,7 @@ def render_practice_data(request):
                     or type(row["record"].get("correction" if key == "seeds" else "pattern")) is not str
                     or (key == "seeds" and (type(row["record"].get("frame_limits")) is not list or not row["record"]["frame_limits"]))):
                 raise ValueError("Practice rendering lost usable teaching or pattern conditions")
-    rendered = projected
+    views = [projected]
     if projected["schema"] in (COMPACT_CONTEXT_SCHEMA, INTERNED_CONTEXT_SCHEMA):
         from .learning_reader import model_view
         try:
@@ -482,14 +482,33 @@ def render_practice_data(request):
             # This optional optimisation may not fit a valid projection.
             # Its transport was checked above; keep all original bytes.
             candidate = projected
-        if len(canonical(candidate)) < len(canonical(projected)):
-            rendered = candidate
-    sections = [("LITERAL_CONTEXT", value["literal_context"]),
-                ("LEARNING_CONTEXT_JSON", canonical(rendered).decode()),
-                ("ENCOUNTER", request["encounter"]), ("PURPOSE", request["purpose"])]
-    return (PRACTICE_SCHEMA + " | " + EXPOSURE + " | authority=NONE\n" + PRACTICE_USE + "\n"
+        if candidate != projected:
+            # Preserve the previous byte-selected representation on token ties.
+            # The provider changes its view only for a strict token reduction.
+            views = ([candidate, projected] if len(canonical(candidate)) < len(canonical(projected))
+                     else [projected, candidate])
+    from .learning_reader import section_view
+    views += [section_view(view, encounter=request["encounter"], purpose=request["purpose"])
+              for view in list(views)]
+    candidates = []
+    for rendered in views:
+        sections = [("LITERAL_CONTEXT", value["literal_context"]),
+                    ("LEARNING_CONTEXT_JSON", canonical(rendered).decode()),
+                    ("ENCOUNTER", request["encounter"]), ("PURPOSE", request["purpose"])]
+        candidates.append(PRACTICE_SCHEMA + " | " + EXPOSURE + " | authority=NONE\n" + PRACTICE_USE + "\n"
             + "\n".join(name + " (UTF-8 bytes=" + str(len(text.encode())) + "):\n" + text
                         for name, text in sections))
+    return candidates
+
+
+def render_practice_data(request):
+    """Standalone display without a tokenizer; inference compares full token cost.
+
+    Every candidate preserves the same selected teaching/history. The adapter
+    chooses by the actual tokenizer after applying the complete chat template.
+    """
+    candidates = practice_data_candidates(request)
+    return None if candidates is None else min(candidates, key=lambda text: len(text.encode()))
 
 
 def prepare_origami_learning(workspace, prepared, *, question, reader):

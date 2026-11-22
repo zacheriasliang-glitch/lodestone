@@ -99,7 +99,7 @@
     "gui/basilisk/conversation/conversation_model.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/conversation/conversation_model.py",
-      "sha256": "ce6c50345e6180ec65686d0bf817beb0cc1a91d9b963ddd85fc1c03cf4f9bf62",
+      "sha256": "4b2961af0aa2afbab11bd11b856e8473417963e9cbf174c7efddf336c9fa1c30",
       "source_sha256": "ce6c50345e6180ec65686d0bf817beb0cc1a91d9b963ddd85fc1c03cf4f9bf62"
     },
     "gui/basilisk/conversation/database/__init__.py": {
@@ -111,13 +111,13 @@
     "gui/basilisk/conversation/database/manager.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/conversation/database/manager.py",
-      "sha256": "91bb952a86513006c78e6379ad6c40f5d698e30691a92c350ed564ed3c765d97",
+      "sha256": "d670b179fbd8e278f37fd116073a15afd1036998b73a6ca088f6f1126a0b0b13",
       "source_sha256": "91bb952a86513006c78e6379ad6c40f5d698e30691a92c350ed564ed3c765d97"
     },
     "gui/basilisk/conversation/database/models.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/conversation/database/models.py",
-      "sha256": "ac456c47ccb675d0f1eba0447b37ba6e5d9c66da7f1c9e920bcc5f5c89c40547",
+      "sha256": "df0d9367902be5033be7b426fe8995c06edd6b642856ca085b399d10df28c0c6",
       "source_sha256": "ac456c47ccb675d0f1eba0447b37ba6e5d9c66da7f1c9e920bcc5f5c89c40547"
     },
     "gui/basilisk/custom_types.py": {
@@ -249,7 +249,7 @@
     "gui/basilisk/presenters/conversation_presenter.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/presenters/conversation_presenter.py",
-      "sha256": "a1a78bc8842c4b2844d2ae5b506c3cc88bd08864d56725b194789e040a39da37",
+      "sha256": "8b74f8b6cd48edcb91175c983f24a6e9ab15456e2495d7d41de5412d21823912",
       "source_sha256": "a1a78bc8842c4b2844d2ae5b506c3cc88bd08864d56725b194789e040a39da37"
     },
     "gui/basilisk/presenters/conversation_profile_presenter.py": {
@@ -579,13 +579,13 @@
     "gui/basilisk/services/conversation_service.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/services/conversation_service.py",
-      "sha256": "c1fcb6649855983005ac6defc4fda29b83335152740caa8c968729ec821ebc93",
+      "sha256": "b1dee3b324089d096ccba4eab2437b7651472c8ee053f89c64a7b4bb6ffd904f",
       "source_sha256": "c1fcb6649855983005ac6defc4fda29b83335152740caa8c968729ec821ebc93"
     },
     "gui/basilisk/services/loom_records.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/services/loom_records.py",
-      "sha256": "9eb93b52fcb9dfa9de196db6b94362229da6e37af9f054eb80b28f9edd0a99b7",
+      "sha256": "70c518b1ffdabe3dfc5e1055882b762197c05f5133d02916b892327777d2a9b9",
       "source_sha256": "9eb93b52fcb9dfa9de196db6b94362229da6e37af9f054eb80b28f9edd0a99b7"
     },
     "gui/basilisk/services/search_service.py": {
@@ -645,7 +645,7 @@
     "gui/basilisk/views/base_conversation.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/views/base_conversation.py",
-      "sha256": "61a79fdc7287a8bed8cd679bd35f94c4e2921e7b60aceeb00ece739b703a850b",
+      "sha256": "2ad939f81214b352ad6d4d16d2e866de4ec946edd89d2b4a3bd9f15f8030c785",
       "source_sha256": "61a79fdc7287a8bed8cd679bd35f94c4e2921e7b60aceeb00ece739b703a850b"
     },
     "gui/basilisk/views/conversation_history_dialog.py": {
@@ -663,7 +663,7 @@
     "gui/basilisk/views/conversation_tab.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/views/conversation_tab.py",
-      "sha256": "5d8dfb817cfacd9ae7602ada1531f4f8159f8b90a82b52cd0a56706c19de3ae1",
+      "sha256": "98c6bf918917cf25ee1b875cae68d231df2303f82ee6d3608a22851a566a35b6",
       "source_sha256": "5d8dfb817cfacd9ae7602ada1531f4f8159f8b90a82b52cd0a56706c19de3ae1"
     },
     "gui/basilisk/views/edit_block_dialog.py": {
@@ -1551,13 +1551,13 @@
     "runtime/src/lodestone_machinery/learning_context.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/learning_context.py",
-      "sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24",
+      "sha256": "de5043d546b785e1ac00bccf67e7c5518ea089ac35390bbbbe629f2f1a9b3060",
       "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
     },
     "runtime/src/lodestone_machinery/learning_reader.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/learning_reader.py",
-      "sha256": "140ec434cc47a3b4a8b40842562197fb0ddb6de9c648b123545ba34b35fa90a4",
+      "sha256": "2f1e5059b7b1bfa7472ac5ccc8c2e1d6e0e08f2d36c47e569cc36c2126a6d01c",
       "source_sha256": "140ec434cc47a3b4a8b40842562197fb0ddb6de9c648b123545ba34b35fa90a4"
     },
     "runtime/src/lodestone_machinery/lesson_context.py": {
@@ -1575,7 +1575,7 @@
     "runtime/src/lodestone_machinery/loom_adapter.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_adapter.py",
-      "sha256": "c661ab4aaafa8961341d8ee0aa8301118e8e6679b5eefadb34983f3518921486",
+      "sha256": "44a03ef2bd05e1b54bd0d2828efe357461d0e84f47af177aadd4b16001b2270a",
       "source_sha256": "c661ab4aaafa8961341d8ee0aa8301118e8e6679b5eefadb34983f3518921486"
     },
     "runtime/src/lodestone_machinery/loom_adapter_local.py": {
@@ -2413,7 +2413,7 @@
       "source_sha256": "65aa5b5d148e1ae1717a3412b0b6bcb6163e22e66001cd9886a5f01f68977502"
     }
   },
-  "public_base_commit": "e597844bd6b0a7427b63db0fcedf4a52d7107934",
+  "public_base_commit": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
   "public_repository": "https://github.com/zacheriasliang-glitch/lodestone",
   "schema": "lodestone-desktop-source-provenance/v1",
   "source_scopes": {
@@ -2451,6 +2451,72 @@
       "reason": "Permit version display from the distributed source payload without Git metadata.",
       "sha256": "c0b1fabce94d4f6abbacf165cb35089ed5cb98c4702bd27188f088a64c710c40",
       "source_sha256": "8db661e065945423a42dc1ffba25f15dc56e41a54a502c9301b95dd55293316d"
+    },
+    {
+      "path": "gui/basilisk/conversation/conversation_model.py",
+      "reason": "Preserve first drafts and per-encounter purpose, restore configured routes, and reject stale model-list callbacks across normal project reopening.",
+      "sha256": "4b2961af0aa2afbab11bd11b856e8473417963e9cbf174c7efddf336c9fa1c30",
+      "source_sha256": "ce6c50345e6180ec65686d0bf817beb0cc1a91d9b963ddd85fc1c03cf4f9bf62"
+    },
+    {
+      "path": "gui/basilisk/conversation/database/manager.py",
+      "reason": "Preserve first drafts and per-encounter purpose, restore configured routes, and reject stale model-list callbacks across normal project reopening.",
+      "sha256": "d670b179fbd8e278f37fd116073a15afd1036998b73a6ca088f6f1126a0b0b13",
+      "source_sha256": "91bb952a86513006c78e6379ad6c40f5d698e30691a92c350ed564ed3c765d97"
+    },
+    {
+      "path": "gui/basilisk/conversation/database/models.py",
+      "reason": "Preserve first drafts and per-encounter purpose, restore configured routes, and reject stale model-list callbacks across normal project reopening.",
+      "sha256": "df0d9367902be5033be7b426fe8995c06edd6b642856ca085b399d10df28c0c6",
+      "source_sha256": "ac456c47ccb675d0f1eba0447b37ba6e5d9c66da7f1c9e920bcc5f5c89c40547"
+    },
+    {
+      "path": "gui/basilisk/presenters/conversation_presenter.py",
+      "reason": "Preserve per-encounter purpose and first drafts; retain purpose-only drafts while the configured model is unavailable.",
+      "sha256": "8b74f8b6cd48edcb91175c983f24a6e9ab15456e2495d7d41de5412d21823912",
+      "source_sha256": "a1a78bc8842c4b2844d2ae5b506c3cc88bd08864d56725b194789e040a39da37"
+    },
+    {
+      "path": "gui/basilisk/services/conversation_service.py",
+      "reason": "Preserve first drafts and per-encounter purpose, restore configured routes, and reject stale model-list callbacks across normal project reopening.",
+      "sha256": "b1dee3b324089d096ccba4eab2437b7651472c8ee053f89c64a7b4bb6ffd904f",
+      "source_sha256": "c1fcb6649855983005ac6defc4fda29b83335152740caa8c968729ec821ebc93"
+    },
+    {
+      "path": "gui/basilisk/services/loom_records.py",
+      "reason": "Preserve first drafts and per-encounter purpose, restore configured routes, and reject stale model-list callbacks across normal project reopening.",
+      "sha256": "70c518b1ffdabe3dfc5e1055882b762197c05f5133d02916b892327777d2a9b9",
+      "source_sha256": "9eb93b52fcb9dfa9de196db6b94362229da6e37af9f054eb80b28f9edd0a99b7"
+    },
+    {
+      "path": "gui/basilisk/views/base_conversation.py",
+      "reason": "Preserve first drafts and per-encounter purpose, restore configured routes, and reject stale model-list callbacks across normal project reopening.",
+      "sha256": "2ad939f81214b352ad6d4d16d2e866de4ec946edd89d2b4a3bd9f15f8030c785",
+      "source_sha256": "61a79fdc7287a8bed8cd679bd35f94c4e2921e7b60aceeb00ece739b703a850b"
+    },
+    {
+      "path": "gui/basilisk/views/conversation_tab.py",
+      "reason": "Preserve first drafts and per-encounter purpose, restore configured routes, and reject stale model-list callbacks across normal project reopening.",
+      "sha256": "98c6bf918917cf25ee1b875cae68d231df2303f82ee6d3608a22851a566a35b6",
+      "source_sha256": "5d8dfb817cfacd9ae7602ada1531f4f8159f8b90a82b52cd0a56706c19de3ae1"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/learning_context.py",
+      "reason": "Represent repeated current encounter/purpose through exact structural section references and select complete reader renders by actual tokenizer cost, with legacy rendering retained on ties.",
+      "sha256": "de5043d546b785e1ac00bccf67e7c5518ea089ac35390bbbbe629f2f1a9b3060",
+      "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/learning_reader.py",
+      "reason": "Represent repeated current encounter/purpose through exact structural section references and select complete reader renders by actual tokenizer cost, with legacy rendering retained on ties.",
+      "sha256": "2f1e5059b7b1bfa7472ac5ccc8c2e1d6e0e08f2d36c47e569cc36c2126a6d01c",
+      "source_sha256": "140ec434cc47a3b4a8b40842562197fb0ddb6de9c648b123545ba34b35fa90a4"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_adapter.py",
+      "reason": "Represent repeated current encounter/purpose through exact structural section references and select complete reader renders by actual tokenizer cost, with legacy rendering retained on ties.",
+      "sha256": "44a03ef2bd05e1b54bd0d2828efe357461d0e84f47af177aadd4b16001b2270a",
+      "source_sha256": "c661ab4aaafa8961341d8ee0aa8301118e8e6679b5eefadb34983f3518921486"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"

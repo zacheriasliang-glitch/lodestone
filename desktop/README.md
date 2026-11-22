@@ -17,6 +17,18 @@ unfinished research; installing the application does not complete that research.
    and its purpose, then send it to the local reader. Use the feedback controls to
    retain a correction, and try a later encounter.
 
+Unsent drafts, their purpose and the selected configured model survive normal
+quit and reopen. Saving a project as a `.bskc` file also preserves its purpose.
+Older projects remain readable. The optional purpose metadata leaves the database
+migration revision unchanged so the preceding preview can still read its records;
+that older application does not gain the new draft-purpose behavior.
+
+A `.bskc` project contains the conversation and its saved settings. Native learning
+history and correction receipts remain in the installation's data directory;
+copying the project file alone to another installation does not transfer them.
+Keep that data directory when backing up your practice, and use the explicit
+memory-import tools below when moving retained learning into another workspace.
+
 The first setup needs an internet connection and several gigabytes of free space.
 Inference thereafter uses local files and a private loopback model process; no
 model account, API key or subscription is required. Existing Python, Git and an

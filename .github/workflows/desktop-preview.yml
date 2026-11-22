@@ -2,10 +2,24 @@ name: Desktop preview fresh Mac
 
 on:
   workflow_dispatch:
+    inputs:
+      verify_prior_local_evidence:
+        description: 'Verify prior local study and installed identity; perform zero fresh model calls'
+        type: boolean
+        default: false
+        required: false
+      expected_head:
+        description: 'Exact commit SHA required when verifying prior local evidence'
+        type: string
+        default: ''
+        required: false
   pull_request:
     paths:
       - 'desktop/**'
       - 'tests/desktop/**'
+      - 'tests/desktop_gui/**'
+      - 'tools/desktop_prior_evidence.py'
+      - 'docs/desktop-validation/**'
       - '.github/workflows/desktop-preview.yml'
 
 permissions:
@@ -27,6 +41,17 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
       - uses: actions/checkout@v4
+
+      - name: Bind manual zero-inference verification to its exact source commit
+        if: github.event_name == 'workflow_dispatch' && inputs.verify_prior_local_evidence
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ inputs.expected_head }}
+        run: |
+          set -euo pipefail
+          test -n "$EXPECTED_HEAD"
+          test "$EXPECTED_HEAD" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
 
       - name: Verify source and installer regressions
         shell: bash
@@ -74,6 +99,18 @@ jobs:
           (Path(os.environ['EVIDENCE_ROOT']) / 'installed-active.json').write_text(json.dumps(active, indent=2))
           PY
 
+      - name: Verify conversation persistence and previous-reader compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          old_reader="$RUNNER_TEMP/lodestone-previous-gui"
+          mkdir -p "$old_reader"
+          git fetch --no-tags --depth=1 origin b82b78ddba3b8067a7c09df6c4c0a18084a7e59f
+          git archive b82b78ddba3b8067a7c09df6c4c0a18084a7e59f desktop/gui | tar -x -C "$old_reader"
+          LODESTONE_OLD_GUI_SOURCE="$old_reader/desktop/gui" \
+            "$GUI_PYTHON" -B -m unittest discover -s tests/desktop_gui -v \
+            2>&1 | tee "$EVIDENCE_ROOT/logs/gui-persistence-tests.log"
+
       - name: Verify the normal GUI starts, closes and reopens
         timeout-minutes: 5
         shell: bash
@@ -104,7 +141,19 @@ jobs:
               (evidence / ('gui-startup-' + str(number) + '.json')).write_text(json.dumps(result, indent=2))
           PY
 
+      - name: Verify prior local evidence and the fresh installed identity without generation
+        if: github.event_name == 'workflow_dispatch' && inputs.verify_prior_local_evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$WORKER_PYTHON" -B tools/desktop_prior_evidence.py verify \
+            --preview "$PREVIEW_ROOT" --source "$GITHUB_WORKSPACE" \
+            --evidence docs/desktop-validation/prior-local-study.json \
+            --output "$EVIDENCE_ROOT/prior-local-evidence-check.json" \
+            2>&1 | tee "$EVIDENCE_ROOT/logs/prior-local-evidence-check.log"
+
       - name: Generate locally and deliver a retained correction to the next encounter
+        if: github.event_name != 'workflow_dispatch' || !inputs.verify_prior_local_evidence
         timeout-minutes: 45
         shell: bash
         run: |
@@ -198,8 +247,19 @@ jobs:
             done
           fi
 
+      # Standard public runners are free. Logs and job summaries do not consume
+      # artifact storage: https://docs.github.com/en/billing/concepts/product-billing/github-actions
+      # This explicit mode keeps recoverable bytes in logs and allocates no artifact/cache storage.
+      - name: Preserve bounded fresh CI evidence in a recoverable log envelope
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.verify_prior_local_evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B tools/desktop_prior_evidence.py emit \
+            --root "${EVIDENCE_ROOT:-$RUNNER_TEMP/lodestone-desktop-evidence}"
+
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && (github.event_name != 'workflow_dispatch' || !inputs.verify_prior_local_evidence)
         with:
           name: desktop-preview-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/lodestone-desktop-evidence

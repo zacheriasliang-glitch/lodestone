@@ -22,7 +22,7 @@ from basilisk.presenters.conversation_presenter import ConversationPresenter
 from basilisk.provider_capability import ProviderCapability
 from basilisk.services.account_model_service import AccountModelService
 from basilisk.services.conversation_service import ConversationService
-from basilisk.services.loom_records import latest_receipt
+from basilisk.services.loom_records import DEFAULT_LOOM_PURPOSE, latest_receipt
 
 from .base_conversation import BaseConversation
 from .history_msg_text_ctrl import HistoryMsgTextCtrl
@@ -159,6 +159,8 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 
 		if draft_block is not None:
 			tab._restore_draft_block(draft_block)
+		elif conversation.messages:
+			tab._restore_block_settings(conversation.messages[-1])
 
 		return tab
 
@@ -194,6 +196,8 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 
 		if draft_block is not None:
 			tab._restore_draft_block(draft_block)
+		elif conversation.messages:
+			tab._restore_block_settings(conversation.messages[-1])
 
 		return tab
 
@@ -261,7 +265,8 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 
 		self.loom_purpose_label = wx.StaticText(self, label="Purpose for this encounter:")
 		self.loom_purpose = wx.TextCtrl(self,
-			value="Find a useful next contribution to this encounter.")
+			value=DEFAULT_LOOM_PURPOSE)
+		self.loom_purpose.Bind(wx.EVT_TEXT, self._on_prompt_text_changed)
 		sizer.Add(self.loom_purpose_label, proportion=0, flag=wx.EXPAND)
 		sizer.Add(self.loom_purpose, proportion=0, flag=wx.EXPAND)
 
@@ -398,6 +403,19 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 			event.Skip()
 
 	# -- Widget update handlers --
+
+	def on_model_change(self, event):
+		super().on_model_change(event)
+		block = getattr(self, "_pending_restored_settings", None)
+		model = self.current_model
+		account = self.current_account
+		if block and model and account and model.id == block.model.model_id and account.provider.id == block.model.provider_id:
+			self.temperature_spinner.SetValue(block.temperature)
+			self.max_tokens_spin_ctrl.SetValue(block.max_tokens)
+			self.top_p_spinner.SetValue(block.top_p)
+			self.stream_mode.SetValue(block.stream)
+			self._pending_restored_settings = None
+			self.update_loom_controls()
 
 	def on_account_change(self, event: wx.CommandEvent | None):
 		"""Handle account selection changes.
@@ -611,24 +629,31 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 		Args:
 			draft_block: The draft MessageBlock to restore.
 		"""
+		self._restore_block_settings(draft_block)
 		self.prompt_panel.prompt_text = draft_block.request.content
 		if draft_block.request.attachments:
 			self.prompt_panel.attachment_files = draft_block.request.attachments
 			self.prompt_panel.refresh_attachments_list()
 
-		self.temperature_spinner.SetValue(draft_block.temperature)
-		self.max_tokens_spin_ctrl.SetValue(draft_block.max_tokens)
-		self.top_p_spinner.SetValue(draft_block.top_p)
-		self.stream_mode.SetValue(draft_block.stream)
+	def _restore_block_settings(self, block: MessageBlock):
+		"""Restore saved settings only for a still-configured account and route."""
+		self._pending_restored_settings = block
+		if block.loom_purpose is not None:
+			self.loom_purpose.SetValue(block.loom_purpose)
+		if block.system_index is not None:
+			self.system_prompt_txt.SetValue(self.conversation.systems[block.system_index].content)
 
 		try:
-			provider_id = draft_block.model.provider_id
-			model_id = draft_block.model.model_id
+			provider_id = block.model.provider_id
+			model_id = block.model.model_id
 			matched_account = next(
 				config.accounts().get_accounts_by_provider_id(provider_id), None
 			)
 			if matched_account:
 				self.set_account_combo(matched_account)
+			else:
+				self.set_model_list(None)
+				return
 			current_account = self.current_account
 			if (
 				current_account
@@ -639,8 +664,9 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 				self.base_conv_presenter.set_pending_model(
 					model_id, matched_account.id
 				)
+				self._try_select_pending_model()
 		except Exception:
-			log.debug("Could not restore draft model selection", exc_info=True)
+			log.warning("Could not restore saved model selection", exc_info=True)
 
 	def get_conversation_block_index(self, block: MessageBlock) -> int | None:
 		"""Get the index of a message block in the conversation.
