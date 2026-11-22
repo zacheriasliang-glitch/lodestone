@@ -45,10 +45,14 @@ schema; the adapter does not implement a YAML parser or prove that its jobs are
 safe or free. Read the workflow before authorizing execution. Public visibility
 alone does not establish runner, storage or external-service costs.
 
-The existing Desktop workflow supports `verify_prior_local_evidence: true` and
-`expected_head: EXACT_SHA` for its declared zero-inference verification path. The
-adapter does not silently select those inputs or change any workflow. No workflow
-was dispatched while implementing or testing this adapter.
+The Desktop workflow supports `mechanical_only: true` with `expected_head:
+EXACT_SHA` to verify the current installation and GUI without inference. Its
+separate `verify_prior_local_evidence: true` mode remains bound to the historical
+study's exact runtime. These two modes are mutually exclusive. See the
+[mechanical verification guide](desktop-validation/mechanical-preview.md) for
+the complete inputs and checks. The adapter does not silently select either
+mode; a manual run with both flags false uses the workflow's inference smoke
+mode. No workflow was dispatched by the offline adapter tests.
 
 ## What the receipt establishes
 

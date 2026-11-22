@@ -93,11 +93,15 @@ class DecisionReviewEventTests(unittest.TestCase):
         if evidence:
             directory = Path(evidence).resolve()
             directory.mkdir(parents=True, exist_ok=True)
-            self.root = Path(tempfile.mkdtemp(prefix=self._testMethodName + "-", dir=directory))
+            # Keep native record paths within the existing USTAR evidence
+            # envelope's bounds; preserve the complete test ID as data below.
+            prefix = "wx-" + hashlib.sha256(self.id().encode()).hexdigest()[:12] + "-"
+            self.root = Path(tempfile.mkdtemp(prefix=prefix, dir=directory))
         else:
             temporary = tempfile.TemporaryDirectory(prefix="lodestone-native-gui-review-")
             self.addCleanup(temporary.cleanup)
             self.root = Path(temporary.name).resolve()
+        self.dump("test-identity.json", {"test_id": self.id(), "scope": "Authored GUI fixture; no model."})
         global_vars.user_data_path = self.root / "gui-data"
         self.frame = wx.Frame(None, title="Isolated Lodestone review verification")
         self.frame.Show()

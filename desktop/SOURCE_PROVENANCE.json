@@ -1731,7 +1731,7 @@
     "runtime/src/lodestone_machinery/loom_unified.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_unified.py",
-      "sha256": "bd0e2a6bd302cce0132a5d424cf8243b6787b047e26ba2daf8f394d98a8fad06",
+      "sha256": "90cd301393d4349e3ef52be3c6c86b37f6fa91930cee4a37b516dc17bd2ef6cf",
       "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
     },
     "runtime/src/lodestone_machinery/loom_voxels.py": {
@@ -2539,8 +2539,8 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_unified.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
-      "sha256": "bd0e2a6bd302cce0132a5d424cf8243b6787b047e26ba2daf8f394d98a8fad06",
+      "reason": "Add source-bound decision format and saved review, explicit reader history selection, and compatibility with valid reason/checks-only native reviews.",
+      "sha256": "90cd301393d4349e3ef52be3c6c86b37f6fa91930cee4a37b516dc17bd2ef6cf",
       "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
     },
     {

@@ -210,6 +210,10 @@ class UnifiedLoom:
             reviews = []
             for handle in self.memory._reviews(outcome_handle):
                 record = self.memory.read_review(handle)
+                # A valid native reason/checks-only review has no correction.
+                # read_review already rejects an explicitly nontext correction.
+                if "correction" not in record["review"]:
+                    continue
                 try:
                     saved = json.loads(record["review"]["correction"])
                 except (ValueError, TypeError):

@@ -179,6 +179,42 @@ print(json.dumps({'readonly':readonly, 'empty':empty, 'preview':preview,
         self.assertEqual(saved["review_handle"], actual["saved"]["retention"]["review_handle"])
         self.assertEqual(saved["learning_verdict"], "UNRESOLVED")
 
+    def test_context_skips_valid_reason_only_and_non_json_reviews_without_relaxing_native_validation(self):
+        actual = self.native('''
+encounter, contract = fixture()
+first = run(encounter, response())
+ordinary = loom.correct(first['outcome_handle'], correction='Ordinary prose correction.', author='Fixture')
+review = memory.read_review(ordinary['review_handle'])['review']
+reason_only = dict(review)
+reason_only.pop('correction')
+reason_only['reason'] = 'Valid native review containing reason and checks without a correction.'
+reason_handle = memory.review_outcome(first['outcome_handle'], reason_only)
+malformed = loom.correct(first['outcome_handle'], correction='{unclosed JSON-shaped prose', author='Fixture')
+assert 'correction' not in memory.read_review(reason_handle)['review']
+before = snapshot()
+context = loom.decision_review_context(first['outcome_handle'])
+readonly = before == snapshot()
+invalid = dict(reason_only, correction=None)
+try:
+    memory.review_outcome(first['outcome_handle'], invalid)
+except ValueError:
+    nontext_rejected = True
+else:
+    nontext_rejected = False
+print(json.dumps({'context':context, 'readonly':readonly,
+    'nontext_rejected':nontext_rejected, 'invalid_review_no_writes':before == snapshot(),
+    'reason_only':memory.read_review(reason_handle),
+    'malformed_prose':memory.read_review(malformed['review_handle']),
+    'original_response':memory.read_outcome(first['outcome_handle'])['response']}))
+''')
+        self.assertEqual(actual["context"]["reviews"], [])
+        self.assertEqual(actual["context"]["response"], actual["original_response"])
+        self.assertNotIn("correction", actual["reason_only"]["review"])
+        self.assertEqual(actual["malformed_prose"]["review"]["correction"], "{unclosed JSON-shaped prose")
+        self.assertTrue(actual["readonly"])
+        self.assertTrue(actual["nontext_rejected"])
+        self.assertTrue(actual["invalid_review_no_writes"])
+
     def test_native_preview_cannot_rebind_another_encounter(self):
         actual = self.native('''
 encounter, contract = fixture()
