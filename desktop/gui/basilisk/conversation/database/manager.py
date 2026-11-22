@@ -1,6 +1,7 @@
 """Database manager for conversation persistence."""
 
 import hashlib
+import json
 import logging
 from pathlib import Path
 
@@ -36,6 +37,7 @@ from .models import (
 	DBMessageAttachment,
 	DBMessageBlock,
 	DBLoomBlockPurpose,
+	DBLoomBlockPracticeOptions,
 	DBSystemPrompt,
 )
 
@@ -82,6 +84,7 @@ class ConversationDatabase:
 		# Independent optional metadata keeps revision 001 readable by the
 		# previous preview during rollback. Never rewrite existing block columns.
 		DBLoomBlockPurpose.__table__.create(self._engine, checkfirst=True)
+		DBLoomBlockPracticeOptions.__table__.create(self._engine, checkfirst=True)
 		self.cleanup_orphan_attachments()
 		log.info("Database initialized at %s", db_path)
 
@@ -398,6 +401,9 @@ class ConversationDatabase:
 		block.db_id = db_block.id
 		if block.loom_purpose is not None:
 			session.add(DBLoomBlockPurpose(block_id=db_block.id, purpose=block.loom_purpose))
+		if block.loom_practice_options is not None:
+			session.add(DBLoomBlockPracticeOptions(block_id=db_block.id,
+				options_json=json.dumps(block.loom_practice_options, ensure_ascii=False, sort_keys=True)))
 		return db_block
 
 	def save_message_block(
@@ -709,6 +715,7 @@ class ConversationDatabase:
 					system_index = db_block.system_prompt_link.position
 
 				purpose = session.get(DBLoomBlockPurpose, db_block.id)
+				practice = session.get(DBLoomBlockPracticeOptions, db_block.id)
 				block = MessageBlock(
 					request=request_msg,
 					response=response_msg,
@@ -722,6 +729,7 @@ class ConversationDatabase:
 					top_p=db_block.top_p,
 					stream=db_block.stream,
 					loom_purpose=purpose.purpose if purpose is not None else None,
+					loom_practice_options=json.loads(practice.options_json) if practice is not None else None,
 					created_at=db_block.created_at,
 					updated_at=db_block.updated_at,
 				)

@@ -144,9 +144,16 @@ class MessageBlock(BaseModel):
 	top_p: float = Field(default=1)
 	stream: bool = Field(default=False)
 	loom_purpose: str | None = Field(default=None)
+	loom_practice_options: dict[str, Any] | None = Field(default=None)
 	created_at: datetime = Field(default_factory=datetime.now)
 	updated_at: datetime = Field(default_factory=datetime.now)
 	db_id: int | None = Field(default=None, exclude=True)
+
+	@field_validator("loom_practice_options", mode="after")
+	@classmethod
+	def validate_practice_options(cls, value):
+		from basilisk.services.loom_practice import validate_options
+		return validate_options(value)
 
 	@field_validator("response", mode="after")
 	@classmethod

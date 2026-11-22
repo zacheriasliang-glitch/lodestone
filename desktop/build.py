@@ -9,7 +9,7 @@ import shutil
 import tempfile
 import zipfile
 
-VERSION = "0.4.0-preview.3"
+VERSION = "0.4.0-preview.4"
 ROOT_FILES = ("install.py", "run_loom.py", "bootstrap_learning.py", "dependencies.py",
               "dependencies.lock.json", "Install Lodestone.command", "README.md",
               "THIRD_PARTY.md", "SOURCE_PROVENANCE.json", "LICENSE", "smoke.py",

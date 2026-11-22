@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import datetime
 import logging
+from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
 import wx
@@ -242,6 +243,7 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 			bskc_path=bskc_path,
 		)
 
+		self.loom_practice_options = None
 		self._is_destroying = False
 		self.process: Any | None = None  # multiprocessing.Process
 		self.ocr_handler = OCRHandler(self)
@@ -269,6 +271,13 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 		self.loom_purpose.Bind(wx.EVT_TEXT, self._on_prompt_text_changed)
 		sizer.Add(self.loom_purpose_label, proportion=0, flag=wx.EXPAND)
 		sizer.Add(self.loom_purpose, proportion=0, flag=wx.EXPAND)
+		practice_row = wx.BoxSizer(wx.HORIZONTAL)
+		self.loom_practice_btn = wx.Button(self, label="Practice options…")
+		self.Bind(wx.EVT_BUTTON, self.on_loom_practice, self.loom_practice_btn)
+		self.loom_practice_summary = wx.StaticText(self, label="Ordinary defaults")
+		practice_row.Add(self.loom_practice_btn, 0, wx.RIGHT, 8)
+		practice_row.Add(self.loom_practice_summary, 1, wx.ALIGN_CENTER_VERTICAL)
+		sizer.Add(practice_row, 0, wx.EXPAND)
 
 		label = wx.StaticText(
 			self,
@@ -447,7 +456,7 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 		account = self.current_account
 		is_loom = bool(account and account.provider.id == "loom")
 		for control in (self.loom_purpose_label, self.loom_purpose, self.loom_correction_btn,
-			self.loom_origami_btn, self.loom_toolkits_btn):
+			self.loom_origami_btn, self.loom_toolkits_btn, self.loom_practice_btn, self.loom_practice_summary):
 			control.Show(is_loom)
 		if is_loom:
 			for control in (self.temperature_spinner_label, self.temperature_spinner,
@@ -459,6 +468,8 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 				not self.completion_handler.is_running() and bool(latest_receipt(self.conversation)))
 			self.loom_origami_btn.Enable(self.loom_correction_btn.IsEnabled())
 			self.loom_toolkits_btn.Enable(not self.completion_handler.is_running())
+			self.loom_practice_btn.Enable(not self.completion_handler.is_running())
+		self.refresh_loom_practice_summary()
 		self.Layout()
 
 	def adjust_advanced_mode_setting(self):
@@ -469,6 +480,28 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 		super().refresh_sampling_controls_visibility(model,
 			gate_on_advanced_mode=gate_on_advanced_mode)
 		self.update_loom_controls()
+
+	def refresh_loom_practice_summary(self):
+		if not hasattr(self, "loom_practice_summary") or not hasattr(self, "prompt_panel"):
+			return
+		from basilisk.services.loom_practice import summary
+		self.loom_practice_summary.SetLabel(summary(self.loom_practice_options,
+			self.prompt_panel.prompt_text, self.loom_purpose.GetValue()))
+
+	def on_loom_practice(self, event):
+		if self.completion_handler.is_running():
+			return
+		from .loom_practice_dialog import LoomPracticeDialog
+		try:
+			with LoomPracticeDialog(self, engine=self.current_engine,
+				encounter=self.prompt_panel.prompt_text, purpose=self.loom_purpose.GetValue(),
+				options=self.loom_practice_options) as dialog:
+				if dialog.ShowModal() == wx.ID_OK:
+					self.loom_practice_options = deepcopy(dialog.result)
+					self.refresh_loom_practice_summary()
+					self.presenter.on_prompt_text_changed()
+		except Exception as exc:
+			self.show_error(str(exc), "Practice options unavailable")
 
 	def on_loom_correction(self, event):
 		"""Retain feedback on the last displayed encounter without inference."""
@@ -641,6 +674,7 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 	def _restore_block_settings(self, block: MessageBlock):
 		"""Restore saved settings only for a still-configured account and route."""
 		self._pending_restored_settings = block
+		self.loom_practice_options = deepcopy(block.loom_practice_options)
 		if block.loom_purpose is not None:
 			self.loom_purpose.SetValue(block.loom_purpose)
 		if block.system_index is not None:
@@ -714,6 +748,7 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 	def _on_prompt_text_changed(self, event):
 		"""Handle prompt text changes for draft auto-save debouncing."""
 		event.Skip()
+		self.refresh_loom_practice_summary()
 		self.presenter.on_prompt_text_changed()
 
 	def _on_draft_timer(self, event):
