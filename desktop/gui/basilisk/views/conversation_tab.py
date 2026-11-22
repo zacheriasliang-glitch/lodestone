@@ -478,7 +478,7 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 		if receipt is None or not self.current_account or self.current_account.provider.id != "loom":
 			return
 		from .loom_correction_dialog import LoomCorrectionDialog
-		with LoomCorrectionDialog(self, receipt) as dialog:
+		with LoomCorrectionDialog(self, receipt, engine=self.current_engine) as dialog:
 			while dialog.ShowModal() == wx.ID_OK:
 				values = dialog.values()
 				correction = values["correction"] + "\nApplies when: " + values["conditions"]
@@ -493,6 +493,9 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 					continue
 				wx.GetTopLevelParent(self).SetStatusText("Correction retained for subsequent Loom practice.")
 				break
+			if dialog.last_saved_review is not None:
+				wx.GetTopLevelParent(self).SetStatusText(
+					"Structured case review retained. Learning review remains unresolved; original answer unchanged.")
 
 	def on_loom_toolkits(self, event):
 		if self.completion_handler.is_running() or not self.current_account or self.current_account.provider.id != "loom":

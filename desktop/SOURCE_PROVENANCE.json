@@ -387,7 +387,7 @@
     "gui/basilisk/provider_engine/loom_engine.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/provider_engine/loom_engine.py",
-      "sha256": "0223c341b952f14d04003cc839462b01faeaf1b125bbe0240114f084b08c2697",
+      "sha256": "b256cbbcaf6d2c8d173048ec0b9df4c23e36a2ee24618285f295f083d012df43",
       "source_sha256": "0223c341b952f14d04003cc839462b01faeaf1b125bbe0240114f084b08c2697"
     },
     "gui/basilisk/provider_engine/mistralai_engine.py": {
@@ -663,7 +663,7 @@
     "gui/basilisk/views/conversation_tab.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/views/conversation_tab.py",
-      "sha256": "98c6bf918917cf25ee1b875cae68d231df2303f82ee6d3608a22851a566a35b6",
+      "sha256": "1d9ec76d4f647b875309fe1c1cec3fb47ad5f4119876c8c4071f779711970eb5",
       "source_sha256": "5d8dfb817cfacd9ae7602ada1531f4f8159f8b90a82b52cd0a56706c19de3ae1"
     },
     "gui/basilisk/views/edit_block_dialog.py": {
@@ -693,7 +693,7 @@
     "gui/basilisk/views/loom_correction_dialog.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/views/loom_correction_dialog.py",
-      "sha256": "e2d81e3fb27ab0f198fa6e4667738f2e7021a3f7dcb5b7120b696332c23fc9b0",
+      "sha256": "82f4c4b1ad4422815a637d829d9376b7b5ea14b03fd9323afd8c2aa4388eb4d5",
       "source_sha256": "080fee86d71436a1074f4e7d0d903996a30a7a6a81152ffb7b6a0416dcb8268e"
     },
     "gui/basilisk/views/loom_origami_dialog.py": {
@@ -1458,6 +1458,18 @@
       "sha256": "c4eed7f06ddebe41e5cd33c3fa3f82ad2498baf1872b224bd7211ca12cebb451",
       "source_sha256": "c4eed7f06ddebe41e5cd33c3fa3f82ad2498baf1872b224bd7211ca12cebb451"
     },
+    "runtime/src/lodestone_machinery/decision_contract.py": {
+      "origin": "desktop-decision-extension",
+      "path": "src/lodestone_machinery/decision_contract.py",
+      "sha256": "9838abb819e5c10c594d51313d6c4ffe1e594e008f5c3af015d62ea0c183dc48",
+      "source_sha256": "9838abb819e5c10c594d51313d6c4ffe1e594e008f5c3af015d62ea0c183dc48"
+    },
+    "runtime/src/lodestone_machinery/decision_format.py": {
+      "origin": "desktop-decision-extension",
+      "path": "src/lodestone_machinery/decision_format.py",
+      "sha256": "c98c8d1cc57c057c2aff65b051b17734d3903ec2f40372e9a8423ec50d0b2f88",
+      "source_sha256": "c98c8d1cc57c057c2aff65b051b17734d3903ec2f40372e9a8423ec50d0b2f88"
+    },
     "runtime/src/lodestone_machinery/engine.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/engine.py",
@@ -1545,13 +1557,13 @@
     "runtime/src/lodestone_machinery/learning_cli.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/learning_cli.py",
-      "sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315",
+      "sha256": "ea3a98987f8640770f6e62794959b7761640139f54f7286f8e4b31d3d01b5ca6",
       "source_sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315"
     },
     "runtime/src/lodestone_machinery/learning_context.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/learning_context.py",
-      "sha256": "de5043d546b785e1ac00bccf67e7c5518ea089ac35390bbbbe629f2f1a9b3060",
+      "sha256": "e1819a13e074029963c79ad5129de9c0517b4794970cd18b766ed10188dcd88e",
       "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
     },
     "runtime/src/lodestone_machinery/learning_reader.py": {
@@ -1659,13 +1671,13 @@
     "runtime/src/lodestone_machinery/loom_runtime.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_runtime.py",
-      "sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878",
+      "sha256": "e7c2a7c2598385669776cba9a763f7452b8b791edc13d8d8bc704d04d7bf778c",
       "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
     },
     "runtime/src/lodestone_machinery/loom_runtime_worker.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_runtime_worker.py",
-      "sha256": "f3ef93a7dfca4c5a6281fc51970d739f288b7f7d4766e682fc33e7e178e095f1",
+      "sha256": "c4e993dbe2470b7b5d6ada8d4f6d28b06f001e9df8e1577f0052ec304e5a35f8",
       "source_sha256": "c27a1bd2556109fc41ce2242cc557841f1d46f57ed369c42067cfec4aea3e01f"
     },
     "runtime/src/lodestone_machinery/loom_support.py": {
@@ -1719,7 +1731,7 @@
     "runtime/src/lodestone_machinery/loom_unified.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_unified.py",
-      "sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e",
+      "sha256": "90cd301393d4349e3ef52be3c6c86b37f6fa91930cee4a37b516dc17bd2ef6cf",
       "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
     },
     "runtime/src/lodestone_machinery/loom_voxels.py": {
@@ -1929,7 +1941,7 @@
     "runtime/src/lodestone_machinery/yggdrasil_learning.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/yggdrasil_learning.py",
-      "sha256": "f0bed09f43d31c2048f1554914d274ca7e014c00380dd2ee9e1a29dc92cabeda",
+      "sha256": "39b952ce6983419705f1c1003e38299ae773ce07ca6ac7686b6f534a807a007a",
       "source_sha256": "f0bed09f43d31c2048f1554914d274ca7e014c00380dd2ee9e1a29dc92cabeda"
     },
     "runtime/src/lodestone_machinery/yggdrasil_reuse.py": {
@@ -2025,7 +2037,7 @@
     "runtime/src/lodestone_nurarihyon/learning_conscience.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_nurarihyon/learning_conscience.py",
-      "sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9",
+      "sha256": "8ff39c3ce6c5c26c6c98b5ecd064a5bcc647c23694ef86d4770914fbda875102",
       "source_sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9"
     },
     "runtime/src/lodestone_nurarihyon/learning_recurrence.py": {
@@ -2418,6 +2430,7 @@
   "schema": "lodestone-desktop-source-provenance/v1",
   "source_scopes": {
     "basilisk-derived-gui": "Modified Basilisk GUI source and resources, including its GPL-2.0-only licence.",
+    "desktop-decision-extension": "New public source-bound decision checker; no private records, model calls or semantic-learning claim.",
     "public-core": "Previously public runtime, documentation and examples.",
     "unified-runtime": "Callable runtime code and generic integration catalogues from Unified Loom; no private records or experiment histories."
   },
@@ -2430,8 +2443,8 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_runtime_worker.py",
-      "reason": "Use tokenizer-only checks for the local Ollama path; retain exact asset hashes.",
-      "sha256": "f3ef93a7dfca4c5a6281fc51970d739f288b7f7d4766e682fc33e7e178e095f1",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
+      "sha256": "c4e993dbe2470b7b5d6ada8d4f6d28b06f001e9df8e1577f0052ec304e5a35f8",
       "source_sha256": "c27a1bd2556109fc41ce2242cc557841f1d46f57ed369c42067cfec4aea3e01f"
     },
     {
@@ -2442,8 +2455,8 @@
     },
     {
       "path": "gui/basilisk/views/loom_correction_dialog.py",
-      "reason": "Use a generic editable local-user author, not a developer identity.",
-      "sha256": "e2d81e3fb27ab0f198fa6e4667738f2e7021a3f7dcb5b7120b696332c23fc9b0",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
+      "sha256": "82f4c4b1ad4422815a637d829d9376b7b5ea14b03fd9323afd8c2aa4388eb4d5",
       "source_sha256": "080fee86d71436a1074f4e7d0d903996a30a7a6a81152ffb7b6a0416dcb8268e"
     },
     {
@@ -2496,14 +2509,14 @@
     },
     {
       "path": "gui/basilisk/views/conversation_tab.py",
-      "reason": "Preserve first drafts and per-encounter purpose, restore configured routes, and reject stale model-list callbacks across normal project reopening.",
-      "sha256": "98c6bf918917cf25ee1b875cae68d231df2303f82ee6d3608a22851a566a35b6",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
+      "sha256": "1d9ec76d4f647b875309fe1c1cec3fb47ad5f4119876c8c4071f779711970eb5",
       "source_sha256": "5d8dfb817cfacd9ae7602ada1531f4f8159f8b90a82b52cd0a56706c19de3ae1"
     },
     {
       "path": "runtime/src/lodestone_machinery/learning_context.py",
-      "reason": "Represent repeated current encounter/purpose through exact structural section references and select complete reader renders by actual tokenizer cost, with legacy rendering retained on ties.",
-      "sha256": "de5043d546b785e1ac00bccf67e7c5518ea089ac35390bbbbe629f2f1a9b3060",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
+      "sha256": "e1819a13e074029963c79ad5129de9c0517b4794970cd18b766ed10188dcd88e",
       "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
     },
     {
@@ -2517,6 +2530,48 @@
       "reason": "Represent repeated current encounter/purpose through exact structural section references and select complete reader renders by actual tokenizer cost, with legacy rendering retained on ties.",
       "sha256": "44a03ef2bd05e1b54bd0d2828efe357461d0e84f47af177aadd4b16001b2270a",
       "source_sha256": "c661ab4aaafa8961341d8ee0aa8301118e8e6679b5eefadb34983f3518921486"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/learning_cli.py",
+      "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome.",
+      "sha256": "ea3a98987f8640770f6e62794959b7761640139f54f7286f8e4b31d3d01b5ca6",
+      "source_sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_unified.py",
+      "reason": "Add source-bound decision format and saved review, explicit reader history selection, and compatibility with valid reason/checks-only native reviews.",
+      "sha256": "90cd301393d4349e3ef52be3c6c86b37f6fa91930cee4a37b516dc17bd2ef6cf",
+      "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_runtime.py",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
+      "sha256": "e7c2a7c2598385669776cba9a763f7452b8b791edc13d8d8bc704d04d7bf778c",
+      "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
+    },
+    {
+      "path": "gui/basilisk/provider_engine/loom_engine.py",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
+      "sha256": "b256cbbcaf6d2c8d173048ec0b9df4c23e36a2ee24618285f295f083d012df43",
+      "source_sha256": "0223c341b952f14d04003cc839462b01faeaf1b125bbe0240114f084b08c2697"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/yggdrasil_learning.py",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
+      "sha256": "39b952ce6983419705f1c1003e38299ae773ce07ca6ac7686b6f534a807a007a",
+      "source_sha256": "f0bed09f43d31c2048f1554914d274ca7e014c00380dd2ee9e1a29dc92cabeda"
+    },
+    {
+      "path": "runtime/src/lodestone_nurarihyon/learning_conscience.py",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
+      "sha256": "8ff39c3ce6c5c26c6c98b5ecd064a5bcc647c23694ef86d4770914fbda875102",
+      "source_sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/decision_format.py",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
+      "sha256": "c98c8d1cc57c057c2aff65b051b17734d3903ec2f40372e9a8423ec50d0b2f88",
+      "source_sha256": "c98c8d1cc57c057c2aff65b051b17734d3903ec2f40372e9a8423ec50d0b2f88"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"

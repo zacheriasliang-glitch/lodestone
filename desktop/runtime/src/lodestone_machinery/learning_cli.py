@@ -121,6 +121,10 @@ def main(argv=None):
     c = sub.add_parser("review")
     c.add_argument("outcome_handle")
     c.add_argument("--file", required=True)
+    c = sub.add_parser("review-decision", help="Retain a source-bound structured decision check without calling a model")
+    c.add_argument("outcome_handle")
+    c.add_argument("--contract", required=True, help="Exact lodestone-decision-contract/v1 JSON file")
+    c.add_argument("--author", required=True)
     c = sub.add_parser("eligibility")
     c.add_argument("outcome_handle")
     c = sub.add_parser("promote-fold")
@@ -192,6 +196,13 @@ def main(argv=None):
         elif a.command == "review":
             with learning.locked(memory):
                 result = {"handle": memory.review_outcome(a.outcome_handle, read(a.file))}
+        elif a.command == "review-decision":
+            from .loom_unified import UnifiedLoom
+            from .decision_contract import MAX_CONTRACT_BYTES
+            from lodestone_nurarihyon.common import read_bytes, strict_json
+            contract = strict_json(read_bytes(a.contract, MAX_CONTRACT_BYTES), MAX_CONTRACT_BYTES)
+            result = UnifiedLoom(memory, config["seed_handles"]).review_decision(
+                a.outcome_handle, contract=contract, author=a.author)
         elif a.command == "promote-fold":
             from .origami import Origami
             from .learning_context import promote_origami_learning_fold

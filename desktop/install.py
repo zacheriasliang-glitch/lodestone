@@ -25,7 +25,7 @@ import sys
 import tempfile
 import uuid
 
-VERSION = "0.4.0-preview.2"
+VERSION = "0.4.0-preview.3"
 DEFAULT_ROOT = Path.home() / "Library/Application Support/Lodestone Preview"
 DEFAULT_APP = Path.home() / "Applications/Lodestone Preview.app"
 SCHEMA = "lodestone-desktop-active/v1"

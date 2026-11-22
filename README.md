@@ -97,6 +97,8 @@ project checkpoints.
 | Inspect discrepancies and lineage in captured records | [Reconciliation](docs/nurarihyon.md#supported-contracts) |
 | Prepare a source-bound request for my own model provider | [Origami](docs/toolkits.md) |
 | Assess a proposed command against my policy | [Conscience](docs/conscience.md) |
+| Check a structured Loom decision against explicit rules and retain its review | [Decision discernment (source checkout)](docs/decision-discernment.md) |
+| Dispatch one explicitly selected GitHub workflow and inspect its exact run | [Workflow dispatch adapter (source checkout)](docs/workflow-dispatch.md) |
 
 ## Install a short command (optional)
 

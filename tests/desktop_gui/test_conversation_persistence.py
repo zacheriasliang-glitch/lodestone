@@ -13,7 +13,8 @@ from types import SimpleNamespace
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
-GUI = ROOT / "desktop/gui"
+PAYLOAD = Path(os.environ.get("LODESTONE_DESKTOP_TEST_PAYLOAD", ROOT / "desktop")).resolve()
+GUI = PAYLOAD / "gui"
 sys.path.insert(0, str(GUI))
 builtins._ = lambda text: text
 _configuration = tempfile.TemporaryDirectory(prefix="lodestone-gui-test-config-")
@@ -25,6 +26,13 @@ from basilisk.conversation import Conversation, Message, MessageBlock, MessageRo
 from basilisk.conversation.database import ConversationDatabase
 from basilisk.provider_ai_model import AIModelInfo
 from basilisk.services.conversation_service import ConversationService
+
+
+def setUpModule():
+    for name in ("basilisk.conversation", "basilisk.conversation.database",
+                 "basilisk.services.conversation_service"):
+        if not Path(sys.modules[name].__file__).resolve().is_relative_to(GUI):
+            raise AssertionError("GUI test imported outside selected payload: " + name)
 
 
 def block(text="Unsent inspection checklist", purpose="Keep the inspection date undecided"):
