@@ -159,12 +159,14 @@ class DependencyTests(unittest.TestCase):
         token = self.artifact(b"tokenizer", "tokenizer.json")
         blob = self.artifact(b"GGUF-fixture", "model.gguf")
         manifest = self.artifact(b"manifest", "manifest.json")
-        lock = {"schema": d.SCHEMA, "artifacts": {}, "environments": {},
+        archive = self.archive([("bin/tool", b"#!/bin/sh\nexit 0\n", None)])
+        lock = {"schema": d.SCHEMA, "artifacts": {"ollama": archive}, "environments": {},
                 "tokenizer": {"files": [token]}, "model": {"digest": manifest["sha256"],
                 "blobs": [blob], "manifest": manifest, "manifest_path": "manifests/model"}}
         lock_path = payload / "dependencies.lock.json"
         lock_path.write_text(json.dumps(lock))
         deps = self.root / "deps/sets" / hashlib.sha256(lock_path.read_bytes()).hexdigest()
+        d.unpack(archive, self.cache, deps / "ollama", offline=True)
         for artifact, path, raw in [(token, "tokenizer/tokenizer.json", b"tokenizer"),
                                     (blob, "ollama-models/blobs/sha256-" + blob["sha256"], b"GGUF-fixture"),
                                     (manifest, "ollama-models/manifests/model", b"manifest")]:
@@ -230,6 +232,19 @@ class DependencyTests(unittest.TestCase):
             self.assertEqual(d._inventory(first_set), retained)
             self.assertEqual(d.verify(self.root, payloads[0])["model_digest"], first["model_digest"])
             self.assertEqual(d.verify(self.root, payloads[1])["model_digest"], second["model_digest"])
+            path_fields = ("gui_python", "worker_python", "assets_dir", "ollama_binary",
+                           "ollama_models", "model_digest")
+            expected = {name: first[name] for name in path_fields}
+            self.assertEqual(d.verify(self.root, payloads[0])["paths"], expected)
+            # A stale/tampered installation receipt cannot make doctor endorse
+            # the other release's executable, asset or model paths.
+            receipt_path = first_set / "dependencies.json"
+            receipt = json.loads(receipt_path.read_text())
+            receipt.update({name: second[name] for name in path_fields})
+            d._json(receipt_path, receipt)
+            before = d._inventory(first_set)
+            self.assertEqual(d.verify(self.root, payloads[0])["paths"], expected)
+            self.assertEqual(d._inventory(first_set), before)
 
     def test_public_lock_has_binary_wheels_and_no_worker_torch(self):
         lock = json.loads(d.LOCK_PATH.read_text())

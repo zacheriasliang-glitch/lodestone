@@ -344,7 +344,16 @@ def verify(root: Path, payload: Path) -> dict:
             raise ValueError("Installed model blob changed")
     if not _verified(deps / "ollama-models" / _relative(model["manifest_path"]), model["manifest"]):
         raise ValueError("Installed model manifest changed")
+    # Derive the runtime contract from the selected, verified lock. Receipt
+    # paths are bookkeeping and must never redirect doctor to another set.
+    paths = {"gui_python": str(deps / "gui/bin/python"),
+             "worker_python": str(deps / "worker/bin/python"),
+             "assets_dir": str(deps / "tokenizer"),
+             "ollama_binary": str(deps / "ollama" / _relative(lock["artifacts"]["ollama"]["executable"])),
+             "ollama_models": str(deps / "ollama-models"),
+             "model_digest": model["digest"]}
     return {"status": "VERIFIED", "lock_sha256": lock_sha256, "dependency_set": str(deps),
+            "paths": paths,
             "model_digest": model["digest"], "network_calls": 0, "model_calls": 0,
             "environment_integrity": "Matches installation file receipts",
             "artifact_integrity": "Matches pinned archives, tokenizer files and model blobs"}

@@ -88,10 +88,16 @@ jobs:
               target = root / 'startup-verification.json'
               if target.exists():
                   target.rename(evidence / ('startup-before-' + str(number) + '.json'))
+              command = ([os.environ['GUI_PYTHON'], '-B', str(Path(os.environ['ACTIVE_RELEASE']) / 'run_loom.py'),
+                          '--root', str(root), '--verify-startup'] if number == 1 else
+                         [str(Path(os.environ['PREVIEW_APP']) / 'Contents/MacOS/Lodestone'), '--verify-startup'])
+              (evidence / ('gui-launch-' + str(number) + '.json')).write_text(json.dumps({
+                  'method': 'direct_gui_python' if number == 1 else 'installed_app_wrapper',
+                  'command': command,
+                  'wrapper_log': str(root / 'launcher.log') if number == 2 else None,
+              }, indent=2))
               with (evidence / 'logs' / ('gui-' + str(number) + '.log')).open('w') as log:
-                  subprocess.run([os.environ['GUI_PYTHON'], '-B', str(Path(os.environ['ACTIVE_RELEASE']) / 'run_loom.py'),
-                                  '--root', str(root), '--verify-startup'], stdout=log, stderr=subprocess.STDOUT,
-                                 timeout=120, check=True)
+                  subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, timeout=120, check=True)
               result = json.loads(target.read_text())
               assert result['shown'] is True and result['models'], result
               assert result['model_calls'] == 0, result

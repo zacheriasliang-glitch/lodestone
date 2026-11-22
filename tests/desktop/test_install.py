@@ -230,6 +230,18 @@ class InstallationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "selections differ"):
             install.learning_readiness(self.root)
 
+    def test_doctor_binds_runtime_paths_to_selected_dependency_set(self):
+        self.setup_install()
+        expected = self.provision(self.root, self.payload)
+        conf = install.read(self.root / "Loom/runtime.json")
+        other = self.root / "deps/other-existing-python"
+        other.touch()
+        conf["python"] = str(other)
+        install.save(self.root / "Loom/runtime.json", conf)
+        with self.assertRaisesRegex(ValueError, "verified dependency set: python"):
+            install.doctor(self.root, verify_dependencies=lambda *args: {"paths": expected},
+                           verify_learning=lambda *args: {"fixture": True})
+
 
 if __name__ == "__main__":
     unittest.main()

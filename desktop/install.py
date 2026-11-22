@@ -388,6 +388,16 @@ def doctor(root, *, verify_dependencies=None, verify_learning=None):
     if verify_dependencies is None:
         verify_dependencies = release_module(active["release"], "dependencies").verify
     dependencies = verify_dependencies(root, Path(active["release"]))
+    if "paths" in dependencies:
+        expected = dependencies["paths"]
+        for field in ("gui_python", "worker_python"):
+            if active.get(field) != expected[field]:
+                raise ValueError("Active interpreter differs from the verified dependency set: " + field)
+        for field, dependency in (("python", "worker_python"), ("assets_dir", "assets_dir"),
+                                  ("ollama_binary", "ollama_binary"), ("ollama_models", "ollama_models"),
+                                  ("ollama_model_digest", "model_digest")):
+            if conf.get(field) != expected[dependency]:
+                raise ValueError("Runtime differs from the verified dependency set: " + field)
     learning = (verify_learning or learning_readiness)(root)
     return {"status": "READY", "version": active["version"], "release_id": release_id,
             "app": active["app"], "local_reader": "qwen3:0.6b", "model_called": False,
