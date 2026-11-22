@@ -218,14 +218,25 @@ class PracticeOptionsTests(unittest.TestCase):
             self.assertEqual(db.execute("SELECT version_num FROM alembic_version").fetchone(), ("001",))
 
     def test_previous_reader_ignores_optional_options_without_changing_current_records(self):
-        old_source = os.environ.get("LODESTONE_OLD_GUI_SOURCE")
-        if not old_source:
-            self.skipTest("Set LODESTONE_OLD_GUI_SOURCE to test the previous preview reader")
-        conversation = Conversation(title="Prior-reader project", messages=[block(options())])
+        readers = (
+            ("preview1", os.environ.get("LODESTONE_OLD_GUI_SOURCE"), False),
+            ("preview3", os.environ.get("LODESTONE_PREVIOUS_GUI_SOURCE"), True),
+        )
+        if any(not source for _, source, _ in readers):
+            self.skipTest("Set LODESTONE_OLD_GUI_SOURCE and LODESTONE_PREVIOUS_GUI_SOURCE for both pinned readers")
+        saved_block = block(options())
+        saved_block.response = Message(role=MessageRoleEnum.ASSISTANT,
+                                       content="Scripted prior-reader response; no model call")
+        conversation = Conversation(title="Prior-reader project", messages=[saved_block])
         conv_id = self.db.save_conversation(conversation)
         project = self.root / "old-readable.bskc"
         conversation.save(str(project))
         self.db.close()
+        project_before = project.read_bytes()
+        def stored_options():
+            with closing(sqlite3.connect(self.root / "conversations.db")) as db:
+                return db.execute("SELECT * FROM loom_block_practice_options ORDER BY block_id").fetchall()
+        options_before = stored_options()
         program = '''
 import argparse,builtins,json,pathlib,sys
 builtins._=lambda text:text
@@ -233,23 +244,52 @@ sys.path.insert(0,sys.argv[1])
 from basilisk import global_vars
 global_vars.user_data_path=pathlib.Path(sys.argv[2]).parent
 global_vars.args=argparse.Namespace(no_env_account=True)
-from basilisk.conversation import Conversation
+from basilisk.conversation import Conversation,MessageBlock
+import basilisk.conversation.conversation_model as conversation_model
+assert pathlib.Path(conversation_model.__file__).resolve().is_relative_to(pathlib.Path(sys.argv[1]).resolve())
 from basilisk.conversation.database import ConversationDatabase
 from upath import UPath
+purpose_supported="loom_purpose" in MessageBlock.model_fields
+assert purpose_supported == (sys.argv[5] == "true"), "Pinned reader feature set changed"
+assert "loom_practice_options" not in MessageBlock.model_fields
 db=ConversationDatabase(pathlib.Path(sys.argv[2]))
 saved=db.load_conversation(int(sys.argv[3]))
 project=Conversation.open(sys.argv[4],UPath("memory://previous-practice-reader"))
-assert saved.messages[0].request.content == project.messages[0].request.content
-assert not hasattr(saved.messages[0],"loom_practice_options")
-print(json.dumps({"request":saved.messages[0].request.content,"purpose":saved.messages[0].loom_purpose}))
+def core(block):
+    return {"request":block.request.content,"request_role":block.request.role.value,
+            "response":block.response.content,"response_role":block.response.role.value,
+            "purpose":block.loom_purpose if purpose_supported else None}
+assert core(saved.messages[0]) == core(project.messages[0])
+print(json.dumps({"purpose_supported":purpose_supported,**core(saved.messages[0])}))
 db.close()
 '''
-        result = subprocess.run([sys.executable, "-B", "-c", program, old_source,
-            str(self.root / "conversations.db"), str(conv_id), str(project)], text=True, capture_output=True, check=True)
-        self.assertEqual(json.loads(result.stdout), {"request": TEXT, "purpose": PURPOSE})
+        for label, source, purpose_supported in readers:
+            with self.subTest(reader=label):
+                result = subprocess.run([sys.executable, "-B", "-c", program, source,
+                    str(self.root / "conversations.db"), str(conv_id), str(project),
+                    str(purpose_supported).lower()], text=True, capture_output=True)
+                evidence = os.environ.get("LODESTONE_GUI_EVIDENCE_DIR")
+                if evidence:
+                    destination = Path(evidence) / "previous-reader-compatibility"
+                    destination.mkdir(parents=True, exist_ok=True)
+                    (destination / (label + ".json")).write_text(json.dumps({
+                        "reader": label, "source": source, "purpose_supported": purpose_supported,
+                        "returncode": result.returncode, "stdout": result.stdout, "stderr": result.stderr,
+                        "scope": "Read existing current DB and project only; no older-reader re-save or model call",
+                    }, indent=2) + "\n")
+                self.assertEqual(result.returncode, 0,
+                    f"{label} reader failed:\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+                self.assertEqual(json.loads(result.stdout), {"request": TEXT, "request_role": "user",
+                    "response": saved_block.response.content, "response_role": "assistant",
+                    "purpose_supported": purpose_supported, "purpose": PURPOSE if purpose_supported else None})
+                self.assertEqual(project.read_bytes(), project_before)
+                self.assertEqual(stored_options(), options_before)
         reopened_db = ConversationDatabase(self.root / "conversations.db")
         self.addCleanup(reopened_db.close)
-        self.assertEqual(reopened_db.load_conversation(conv_id).messages[0].loom_practice_options, options())
+        restored = reopened_db.load_conversation(conv_id).messages[0]
+        self.assertEqual(restored.loom_practice_options, options())
+        self.assertEqual(restored.loom_purpose, PURPOSE)
+        self.assertEqual(restored.response.content, saved_block.response.content)
 
 
 @unittest.skipUnless(os.environ.get("LODESTONE_GUI_EVENT_TESTS") == "1", "Enable actual desktop wx events")

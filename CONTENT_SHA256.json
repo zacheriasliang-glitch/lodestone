@@ -1,6 +1,6 @@
 {
   ".gitattributes": "9c3b4fd301dd95dc420d052af8d880e4d9b361ef85c426f0ff2118e2f5d97427",
-  ".github/workflows/desktop-preview.yml": "1f1ed51c5107557bc9c4b9a8f217f661f4cf72863b1b5ccb0c6622ae9514784a",
+  ".github/workflows/desktop-preview.yml": "ab6e3a0f3e85f7c984fbf88ec94338f8e19678b32e9d38314080598d17e45cf1",
   ".github/workflows/verify.yml": "7e7f8b82bb7c9284d19b9761e6d89268292a684be57fe1ff76760077d6b57ec3",
   ".gitignore": "205617a18c088bdd484d9df7904c2b6b6857762ba09886a76809fd704670911e",
   "AGENTS.md": "b21f503bd51444d433a2e72e6ad852167943fa85d7b3b6d2936c4f528243706b",
@@ -227,7 +227,7 @@
   "tests/desktop/test_reader_history_window.py": "3322bfcc0f19e1bc9de36fe4fe97c37d98c5ba87ff282045f9fb76bcc478da08",
   "tests/desktop_gui/test_conversation_persistence.py": "40831241a161eb6a376bfcb0e43650060cdc908cf30837daeaac9b6c13616409",
   "tests/desktop_gui/test_decision_review_dialog.py": "f189cff528d51271117fdad3875b220fdc3899a8486d7f7c3873100543e0a04d",
-  "tests/desktop_gui/test_practice_options.py": "faa767bb9288acfd0b536121da114c3e41901fa28580f20de44a6f5d84c1154f",
+  "tests/desktop_gui/test_practice_options.py": "04cd1170ec133437b95e05c1c8dd62df626fb46e32f59a2d36a5494945a47571",
   "tests/ecosystem/test_conscience.py": "0068d0cf018c537a827faf60f6d013034b783c6533c385ba7f28c5fdf60beef0",
   "tests/ecosystem/test_conscience_criterion_closure.py": "9e4386d59ebedbfd11de1db68f7ac74d04eb07157fcc5e3fe899816ee735c7b1",
   "tests/ecosystem/test_conscience_history.py": "3683dde0ae1d7bbf1333acc3dbbd46bc8e9d44d851f9a0ea62cf9e4b7f496251",
