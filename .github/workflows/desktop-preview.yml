@@ -1,0 +1,202 @@
+name: Desktop preview fresh Mac
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'desktop/**'
+      - 'tests/desktop/**'
+      - '.github/workflows/desktop-preview.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-preview-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fresh-intel-mac:
+    # Standard runners are free for public repositories. Never use a paid
+    # larger runner or execute this model check in a private repository.
+    # https://docs.github.com/en/actions/reference/runners/github-hosted-runners
+    if: github.event.repository.private == false
+    runs-on: macos-15-intel
+    timeout-minutes: 90
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify source and installer regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B desktop/verify_payload.py
+          python3 -B -m unittest discover -s tests/desktop -v
+
+      - name: Build and extract the exact download without Git metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          task_dir="$RUNNER_TEMP/lodestone-desktop-evidence"
+          mkdir -p "$task_dir/download" "$task_dir/extracted" "$task_dir/logs"
+          python3 -B desktop/build.py --output "$task_dir/download" | tee "$task_dir/logs/build.log"
+          (cd "$task_dir/download" && /usr/bin/shasum -a 256 -c SHA256SUMS.txt)
+          archives=("$task_dir/download/"*.zip)
+          /usr/bin/ditto -x -k "${archives[0]}" "$task_dir/extracted"
+          payloads=("$task_dir/extracted/"*)
+          test ! -e "${payloads[0]}/.git"
+          {
+            echo "EVIDENCE_ROOT=$task_dir"
+            echo "PAYLOAD_ROOT=${payloads[0]}"
+            echo "PREVIEW_ROOT=$RUNNER_TEMP/lodestone-fresh-preview"
+            echo "PREVIEW_APP=$RUNNER_TEMP/Lodestone Preview.app"
+            echo "PREVIEW_CACHE=$RUNNER_TEMP/lodestone-download-cache"
+          } >> "$GITHUB_ENV"
+
+      - name: Install using only the bundled shell bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e "$PREVIEW_ROOT"
+          test ! -e "$PREVIEW_APP"
+          /bin/bash "$PAYLOAD_ROOT/Install Lodestone.command" \
+            --root "$PREVIEW_ROOT" --app "$PREVIEW_APP" --cache "$PREVIEW_CACHE" --no-open \
+            2>&1 | tee "$EVIDENCE_ROOT/logs/fresh-install.log"
+          python3 -B - <<'PY'
+          import json, os
+          from pathlib import Path
+          active = json.loads((Path(os.environ['PREVIEW_ROOT']) / 'ACTIVE.json').read_text())
+          with open(os.environ['GITHUB_ENV'], 'a') as env:
+              for name, key in [('WORKER_PYTHON', 'worker_python'), ('GUI_PYTHON', 'gui_python'), ('ACTIVE_RELEASE', 'release')]:
+                  env.write(name + '=' + active[key] + '\n')
+          (Path(os.environ['EVIDENCE_ROOT']) / 'installed-active.json').write_text(json.dumps(active, indent=2))
+          PY
+
+      - name: Verify the normal GUI starts, closes and reopens
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          set -euo pipefail
+          /bin/launchctl print "gui/$(id -u)" > "$EVIDENCE_ROOT/logs/gui-session.txt"
+          "$WORKER_PYTHON" -B - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          root, evidence = Path(os.environ['PREVIEW_ROOT']), Path(os.environ['EVIDENCE_ROOT'])
+          for number in (1, 2):
+              target = root / 'startup-verification.json'
+              if target.exists():
+                  target.rename(evidence / ('startup-before-' + str(number) + '.json'))
+              with (evidence / 'logs' / ('gui-' + str(number) + '.log')).open('w') as log:
+                  subprocess.run([os.environ['GUI_PYTHON'], '-B', str(Path(os.environ['ACTIVE_RELEASE']) / 'run_loom.py'),
+                                  '--root', str(root), '--verify-startup'], stdout=log, stderr=subprocess.STDOUT,
+                                 timeout=120, check=True)
+              result = json.loads(target.read_text())
+              assert result['shown'] is True and result['models'], result
+              assert result['model_calls'] == 0, result
+              (evidence / ('gui-startup-' + str(number) + '.json')).write_text(json.dumps(result, indent=2))
+          PY
+
+      - name: Generate locally and deliver a retained correction to the next encounter
+        timeout-minutes: 45
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$WORKER_PYTHON" -B "$ACTIVE_RELEASE/smoke.py" \
+            --root "$PREVIEW_ROOT" --output "$EVIDENCE_ROOT/local-smoke.json" --max-tokens 256 \
+            2>&1 | tee "$EVIDENCE_ROOT/logs/local-smoke.log"
+
+      - name: Check idempotent reinstall without losing practice
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$WORKER_PYTHON" -B - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root = Path(os.environ['PREVIEW_ROOT'])
+          files = {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest()
+                   for folder in ('learning', 'Loom/data', 'Loom/runs')
+                   for p in (root / folder).rglob('*') if p.is_file()}
+          assert files
+          (Path(os.environ['EVIDENCE_ROOT']) / 'retained-before-lifecycle.json').write_text(json.dumps(files, indent=2))
+          PY
+          /bin/bash "$PAYLOAD_ROOT/Install Lodestone.command" \
+            --root "$PREVIEW_ROOT" --app "$PREVIEW_APP" --cache "$PREVIEW_CACHE" --no-open \
+            2>&1 | tee "$EVIDENCE_ROOT/logs/idempotent-install.log"
+
+      - name: Exercise a synthetic version upgrade, rollback and removal
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$WORKER_PYTHON" -B - <<'PY'
+          import hashlib, json, os, shutil, subprocess
+          from pathlib import Path
+          root, evidence = Path(os.environ['PREVIEW_ROOT']), Path(os.environ['EVIDENCE_ROOT'])
+          original = json.loads((root / 'ACTIVE.json').read_text())
+          expected = json.loads((evidence / 'retained-before-lifecycle.json').read_text())
+          def retained():
+              for name, digest in expected.items():
+                  assert hashlib.sha256((root / name).read_bytes()).hexdigest() == digest, name
+          retained()
+          fixture = evidence / 'synthetic-upgrade-payload'
+          shutil.copytree(os.environ['PAYLOAD_ROOT'], fixture)
+          note = fixture / 'README.md'
+          note.write_text(note.read_text() + '\nSynthetic CI lifecycle fixture only; never a published release.\n')
+          manifest_file = fixture / 'MANIFEST.json'
+          manifest = json.loads(manifest_file.read_text())
+          manifest['version'] += '+ci-lifecycle-fixture'
+          manifest['files']['README.md'] = hashlib.sha256(note.read_bytes()).hexdigest()
+          manifest_file.write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+          installer = Path(original['release']) / 'install.py'
+          def command(label, *args):
+              with (evidence / 'logs' / (label + '.log')).open('w') as log:
+                  subprocess.run([original['worker_python'], '-B', str(installer), '--root', str(root), *args],
+                                 stdout=log, stderr=subprocess.STDOUT, timeout=900, check=True)
+          command('synthetic-upgrade', 'install', '--payload', str(fixture), '--app', os.environ['PREVIEW_APP'],
+                  '--cache', os.environ['PREVIEW_CACHE'])
+          upgraded = json.loads((root / 'ACTIVE.json').read_text())
+          assert upgraded['release_id'] != original['release_id']
+          retained()
+          command('rollback', 'rollback')
+          restored = json.loads((root / 'ACTIVE.json').read_text())
+          assert restored['release_id'] == original['release_id']
+          retained()
+          command('restored-doctor', 'doctor')
+          command('uninstall', 'uninstall')
+          assert not (root / 'ACTIVE.json').exists()
+          assert not (Path(os.environ['PREVIEW_APP']) / 'Contents/MacOS/Lodestone').exists()
+          retained()
+          (evidence / 'lifecycle.json').write_text(json.dumps({
+              'status': 'PASSED', 'original_release': original['release_id'],
+              'synthetic_upgrade_release': upgraded['release_id'], 'restored_release': restored['release_id'],
+              'retained_files_verified': len(expected), 'uninstalled': True,
+              'scope': 'A separately labelled synthetic payload exercises version switching; it is not a new product release.'
+          }, indent=2))
+          PY
+
+      - name: Preserve all generated outcomes, corrections and logs
+        if: always()
+        shell: bash
+        run: |
+          set -eu
+          evidence="${EVIDENCE_ROOT:-$RUNNER_TEMP/lodestone-desktop-evidence}"
+          mkdir -p "$evidence/native"
+          root="${PREVIEW_ROOT:-$RUNNER_TEMP/lodestone-fresh-preview}"
+          if [ -d "$root" ]; then
+            for name in learning Loom transactions; do
+              if [ -d "$root/$name" ]; then /usr/bin/ditto "$root/$name" "$evidence/native/$name"; fi
+            done
+            for name in ACTIVE.json UNINSTALLED.json startup-error.txt startup-verification.json launcher.log; do
+              if [ -f "$root/$name" ]; then cp "$root/$name" "$evidence/native/$name"; fi
+            done
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: desktop-preview-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/lodestone-desktop-evidence
+          include-hidden-files: true
+          retention-days: 30
+          if-no-files-found: error

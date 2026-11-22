@@ -1,0 +1,2457 @@
+{
+  "excluded": [
+    "Private memory/workspace records and user data",
+    "Credentials and machine-specific runtime configuration",
+    "Private experiments, assessment results and chat histories",
+    "Git metadata and private infrastructure workflows"
+  ],
+  "exported_files": {
+    "gui/LICENSE": {
+      "origin": "basilisk-derived-gui",
+      "path": "LICENSE",
+      "sha256": "231f7edcc7352d7734a96eef0b8030f77982678c516876fcb81e25b32d68564c",
+      "source_sha256": "231f7edcc7352d7734a96eef0b8030f77982678c516876fcb81e25b32d68564c"
+    },
+    "gui/basilisk/__init__.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/__init__.py",
+      "sha256": "d1e5457d57766995d364715770b667164f0c7ed208e1c321441058b771e6dcb2",
+      "source_sha256": "d1e5457d57766995d364715770b667164f0c7ed208e1c321441058b771e6dcb2"
+    },
+    "gui/basilisk/__main__.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/__main__.py",
+      "sha256": "f2f51de00111eec08e0a23bebed90e58ae0888ec6620c9a636ca7a19239f26e3",
+      "source_sha256": "f2f51de00111eec08e0a23bebed90e58ae0888ec6620c9a636ca7a19239f26e3"
+    },
+    "gui/basilisk/accessible_output.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/accessible_output.py",
+      "sha256": "62a77b50ff94a4edb4233f0f0619e57d4ae99abc8dfe77dfd28a3bb9b59393c1",
+      "source_sha256": "62a77b50ff94a4edb4233f0f0619e57d4ae99abc8dfe77dfd28a3bb9b59393c1"
+    },
+    "gui/basilisk/completion_handler.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/completion_handler.py",
+      "sha256": "4eea2dd985667ae0d7179852fa27e183de3cea9c7c5a0c88c9d3b10ff4638847",
+      "source_sha256": "4eea2dd985667ae0d7179852fa27e183de3cea9c7c5a0c88c9d3b10ff4638847"
+    },
+    "gui/basilisk/config/__init__.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/config/__init__.py",
+      "sha256": "414ed232da026aa20e2da9d6c5dae34dd073bbe62977adc6dddbc50f0fead3f8",
+      "source_sha256": "414ed232da026aa20e2da9d6c5dae34dd073bbe62977adc6dddbc50f0fead3f8"
+    },
+    "gui/basilisk/config/account_config.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/config/account_config.py",
+      "sha256": "4cee1688a346357994f58303d98ae31149ffa21b68cda75e5d026fcdfd16670d",
+      "source_sha256": "4cee1688a346357994f58303d98ae31149ffa21b68cda75e5d026fcdfd16670d"
+    },
+    "gui/basilisk/config/config_enums.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/config/config_enums.py",
+      "sha256": "96def08f4cb99d113e52fbbcdcd9a6fca9eadbb47bb4dfa73374476acfaf7ad5",
+      "source_sha256": "96def08f4cb99d113e52fbbcdcd9a6fca9eadbb47bb4dfa73374476acfaf7ad5"
+    },
+    "gui/basilisk/config/config_helper.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/config/config_helper.py",
+      "sha256": "9060e349d859c9d0b9620d9236ba034d6155ab26854b244c9c9ffd92955db0d7",
+      "source_sha256": "9060e349d859c9d0b9620d9236ba034d6155ab26854b244c9c9ffd92955db0d7"
+    },
+    "gui/basilisk/config/conversation_profile.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/config/conversation_profile.py",
+      "sha256": "977d83d7dc90a343f34c5853fbd473966abdeb61d31d5a46f86697ac0b7ec26e",
+      "source_sha256": "977d83d7dc90a343f34c5853fbd473966abdeb61d31d5a46f86697ac0b7ec26e"
+    },
+    "gui/basilisk/config/main_config.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/config/main_config.py",
+      "sha256": "eee31f75e5eba31bbbf94c73281a837eb7d85bbbdb1ff0dd9fd17920eb886aa6",
+      "source_sha256": "eee31f75e5eba31bbbf94c73281a837eb7d85bbbdb1ff0dd9fd17920eb886aa6"
+    },
+    "gui/basilisk/consts.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/consts.py",
+      "sha256": "5b77dd855b10a93d576fc86cb630af87f44ca39abf3f5d40044b574895defc5e",
+      "source_sha256": "5b77dd855b10a93d576fc86cb630af87f44ca39abf3f5d40044b574895defc5e"
+    },
+    "gui/basilisk/conversation/__init__.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/conversation/__init__.py",
+      "sha256": "b9dd6cfecec30ce42219346dbf3d149af8b2ab90fe3797c7b455f3a2ecd7ca31",
+      "source_sha256": "b9dd6cfecec30ce42219346dbf3d149af8b2ab90fe3797c7b455f3a2ecd7ca31"
+    },
+    "gui/basilisk/conversation/attached_file.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/conversation/attached_file.py",
+      "sha256": "0ed8d4d2feeddd4ee6e48bface69a6a69410795d0bd9f1f04d231b8586aab2c9",
+      "source_sha256": "0ed8d4d2feeddd4ee6e48bface69a6a69410795d0bd9f1f04d231b8586aab2c9"
+    },
+    "gui/basilisk/conversation/conversation_helper.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/conversation/conversation_helper.py",
+      "sha256": "38bb0572ef2229e797a5dfd67f4564e28b0fd4975009a37ab7dd525dd6a03715",
+      "source_sha256": "38bb0572ef2229e797a5dfd67f4564e28b0fd4975009a37ab7dd525dd6a03715"
+    },
+    "gui/basilisk/conversation/conversation_model.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/conversation/conversation_model.py",
+      "sha256": "ce6c50345e6180ec65686d0bf817beb0cc1a91d9b963ddd85fc1c03cf4f9bf62",
+      "source_sha256": "ce6c50345e6180ec65686d0bf817beb0cc1a91d9b963ddd85fc1c03cf4f9bf62"
+    },
+    "gui/basilisk/conversation/database/__init__.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/conversation/database/__init__.py",
+      "sha256": "464cec14153e87a0888c7d623ed486bce8e773840d6cf10f45528e6209d75a38",
+      "source_sha256": "464cec14153e87a0888c7d623ed486bce8e773840d6cf10f45528e6209d75a38"
+    },
+    "gui/basilisk/conversation/database/manager.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/conversation/database/manager.py",
+      "sha256": "91bb952a86513006c78e6379ad6c40f5d698e30691a92c350ed564ed3c765d97",
+      "source_sha256": "91bb952a86513006c78e6379ad6c40f5d698e30691a92c350ed564ed3c765d97"
+    },
+    "gui/basilisk/conversation/database/models.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/conversation/database/models.py",
+      "sha256": "ac456c47ccb675d0f1eba0447b37ba6e5d9c66da7f1c9e920bcc5f5c89c40547",
+      "source_sha256": "ac456c47ccb675d0f1eba0447b37ba6e5d9c66da7f1c9e920bcc5f5c89c40547"
+    },
+    "gui/basilisk/custom_types.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/custom_types.py",
+      "sha256": "143c77aa5092b4c9396a195e927e840c90726c0689aa0bdeb22ecabb62a74f88",
+      "source_sha256": "143c77aa5092b4c9396a195e927e840c90726c0689aa0bdeb22ecabb62a74f88"
+    },
+    "gui/basilisk/decorators.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/decorators.py",
+      "sha256": "56c187270f0e363b5e8d01bcfaffa3efb130f8c971b0644180f1e833ac23077a",
+      "source_sha256": "56c187270f0e363b5e8d01bcfaffa3efb130f8c971b0644180f1e833ac23077a"
+    },
+    "gui/basilisk/global_vars.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/global_vars.py",
+      "sha256": "4941504d15ebf26a31e4ac9ee4a93621ca8982bbd4933014a8858de7f3c0b895",
+      "source_sha256": "4941504d15ebf26a31e4ac9ee4a93621ca8982bbd4933014a8858de7f3c0b895"
+    },
+    "gui/basilisk/ipc/__init__.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/ipc/__init__.py",
+      "sha256": "6bb1b4517381170b867efe0aa1cde9fd12f3726d98534f71007251e2b308c3ef",
+      "source_sha256": "6bb1b4517381170b867efe0aa1cde9fd12f3726d98534f71007251e2b308c3ef"
+    },
+    "gui/basilisk/ipc/abstract_ipc.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/ipc/abstract_ipc.py",
+      "sha256": "045ef53cc768578e3f3e47fa358fee021cd4200d45101a64034ce6fb9eb854d9",
+      "source_sha256": "045ef53cc768578e3f3e47fa358fee021cd4200d45101a64034ce6fb9eb854d9"
+    },
+    "gui/basilisk/ipc/ipc_model.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/ipc/ipc_model.py",
+      "sha256": "7aa4ef54c8880710f5e98165ef11b96706a2a2f678e7793222b1462c23a7a136",
+      "source_sha256": "7aa4ef54c8880710f5e98165ef11b96706a2a2f678e7793222b1462c23a7a136"
+    },
+    "gui/basilisk/ipc/unix_ipc.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/ipc/unix_ipc.py",
+      "sha256": "56937a63a5b5b24a1a34bbbf21aef66d96ff5bbb0bdbeb704c5515682acc6425",
+      "source_sha256": "56937a63a5b5b24a1a34bbbf21aef66d96ff5bbb0bdbeb704c5515682acc6425"
+    },
+    "gui/basilisk/ipc/windows_ipc.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/ipc/windows_ipc.py",
+      "sha256": "c960a65134b8f1136005838b78bdb002e022c633448ab82e4440a35adf1f5307",
+      "source_sha256": "c960a65134b8f1136005838b78bdb002e022c633448ab82e4440a35adf1f5307"
+    },
+    "gui/basilisk/localization.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/localization.py",
+      "sha256": "e529d84f29f4c5d04febb5a48b1fb0e70422f1e65d3aae24ec6adc6b80ce7a7e",
+      "source_sha256": "e529d84f29f4c5d04febb5a48b1fb0e70422f1e65d3aae24ec6adc6b80ce7a7e"
+    },
+    "gui/basilisk/logger.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/logger.py",
+      "sha256": "5756c86a50c97746a8473d77082aff27dedd215e0e595dbc276cad5e540c7e31",
+      "source_sha256": "5756c86a50c97746a8473d77082aff27dedd215e0e595dbc276cad5e540c7e31"
+    },
+    "gui/basilisk/main_app.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/main_app.py",
+      "sha256": "56c12447c9b6c825c851a69099d57afdecbd477dd163093d2524ba0aab6b8776",
+      "source_sha256": "56c12447c9b6c825c851a69099d57afdecbd477dd163093d2524ba0aab6b8776"
+    },
+    "gui/basilisk/message_segment_manager.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/message_segment_manager.py",
+      "sha256": "e839ca299eceb892933126daaccf05a766112d4231ea9f2a937cf28a39718655",
+      "source_sha256": "e839ca299eceb892933126daaccf05a766112d4231ea9f2a937cf28a39718655"
+    },
+    "gui/basilisk/model_catalog/__init__.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/model_catalog/__init__.py",
+      "sha256": "f7db9096e4083520de55f23b858ec56818a9b5cc773d0f5da91e63ae8de86607",
+      "source_sha256": "f7db9096e4083520de55f23b858ec56818a9b5cc773d0f5da91e63ae8de86607"
+    },
+    "gui/basilisk/model_catalog/display.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/model_catalog/display.py",
+      "sha256": "aca0c0adfc636dc354779cc7695d7cd34cbf8c76f296c095339512f514ff0230",
+      "source_sha256": "aca0c0adfc636dc354779cc7695d7cd34cbf8c76f296c095339512f514ff0230"
+    },
+    "gui/basilisk/model_catalog/sampling.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/model_catalog/sampling.py",
+      "sha256": "5edd86c35920bbe734f1b01e185f378384e198462b6b3a292ca7ea2e70efbf1f",
+      "source_sha256": "5edd86c35920bbe734f1b01e185f378384e198462b6b3a292ca7ea2e70efbf1f"
+    },
+    "gui/basilisk/multiprocessing_worker.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/multiprocessing_worker.py",
+      "sha256": "32ec273e084bc42c64812bba2a069b456053d0f8b96716480ce8b71c3e14dc7e",
+      "source_sha256": "32ec273e084bc42c64812bba2a069b456053d0f8b96716480ce8b71c3e14dc7e"
+    },
+    "gui/basilisk/presenters/__init__.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/__init__.py",
+      "sha256": "60efc2c2047c5910de57d9648dbf7b0ad4c24a4110c86c4cab4381d425aa36b3",
+      "source_sha256": "60efc2c2047c5910de57d9648dbf7b0ad4c24a4110c86c4cab4381d425aa36b3"
+    },
+    "gui/basilisk/presenters/account_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/account_presenter.py",
+      "sha256": "b8ca67fb25232cc14d0adb62f63534402fbe20677fbac96e514eba1d0354db0a",
+      "source_sha256": "b8ca67fb25232cc14d0adb62f63534402fbe20677fbac96e514eba1d0354db0a"
+    },
+    "gui/basilisk/presenters/attachment_panel_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/attachment_panel_presenter.py",
+      "sha256": "5a099a14897f66fd8d433830cc07edc7b6576003c231a299c3ea7ee0f9052989",
+      "source_sha256": "5a099a14897f66fd8d433830cc07edc7b6576003c231a299c3ea7ee0f9052989"
+    },
+    "gui/basilisk/presenters/base_conversation_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/base_conversation_presenter.py",
+      "sha256": "d0aacf1d420d07fea17d7e22eb86c586db22007fb12781a723c4d09515f7cead",
+      "source_sha256": "d0aacf1d420d07fea17d7e22eb86c586db22007fb12781a723c4d09515f7cead"
+    },
+    "gui/basilisk/presenters/conversation_history_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/conversation_history_presenter.py",
+      "sha256": "6f6f63a844c193a4414b4e3d58702366423908b91005f0f77907f2df17ea62ea",
+      "source_sha256": "6f6f63a844c193a4414b4e3d58702366423908b91005f0f77907f2df17ea62ea"
+    },
+    "gui/basilisk/presenters/conversation_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/conversation_presenter.py",
+      "sha256": "a1a78bc8842c4b2844d2ae5b506c3cc88bd08864d56725b194789e040a39da37",
+      "source_sha256": "a1a78bc8842c4b2844d2ae5b506c3cc88bd08864d56725b194789e040a39da37"
+    },
+    "gui/basilisk/presenters/conversation_profile_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/conversation_profile_presenter.py",
+      "sha256": "7b04439afde8ad6dd5bfe8b88cdc6f6a968facc574cbb49796374b702d1d2c06",
+      "source_sha256": "7b04439afde8ad6dd5bfe8b88cdc6f6a968facc574cbb49796374b702d1d2c06"
+    },
+    "gui/basilisk/presenters/edit_block_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/edit_block_presenter.py",
+      "sha256": "0541692b9597eb7baab5dfff3053f241aa462c620b017eedadd9a8902fa9b3f1",
+      "source_sha256": "0541692b9597eb7baab5dfff3053f241aa462c620b017eedadd9a8902fa9b3f1"
+    },
+    "gui/basilisk/presenters/enhanced_error_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/enhanced_error_presenter.py",
+      "sha256": "9f77e9b79960c84e50231320fcdff34d9a029c4f888e9a844a1beb7234895e57",
+      "source_sha256": "9f77e9b79960c84e50231320fcdff34d9a029c4f888e9a844a1beb7234895e57"
+    },
+    "gui/basilisk/presenters/history_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/history_presenter.py",
+      "sha256": "6008a90ab967a9f7e731e2acb13a74cbdf3b3430b8a40a1609621c5284dc439b",
+      "source_sha256": "6008a90ab967a9f7e731e2acb13a74cbdf3b3430b8a40a1609621c5284dc439b"
+    },
+    "gui/basilisk/presenters/main_frame_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/main_frame_presenter.py",
+      "sha256": "bb3c3dd6047559794e725f8ca9c59fed4c53dc35558556fe7f0f07bc612a07ce",
+      "source_sha256": "bb3c3dd6047559794e725f8ca9c59fed4c53dc35558556fe7f0f07bc612a07ce"
+    },
+    "gui/basilisk/presenters/ocr_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/ocr_presenter.py",
+      "sha256": "2b160267931efa17b91758adfc38f3689cd6bdf60b6ad6d95eaaa4230f14d5fa",
+      "source_sha256": "2b160267931efa17b91758adfc38f3689cd6bdf60b6ad6d95eaaa4230f14d5fa"
+    },
+    "gui/basilisk/presenters/preferences_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/preferences_presenter.py",
+      "sha256": "7085e8dc77a323ebfacd44603413603c2e79864d864e0441edd5b578aa7d5237",
+      "source_sha256": "7085e8dc77a323ebfacd44603413603c2e79864d864e0441edd5b578aa7d5237"
+    },
+    "gui/basilisk/presenters/presenter_mixins.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/presenter_mixins.py",
+      "sha256": "39355173e4ce8da5997c314b1cd6b8012c075eb8d0361b8a3970ee9820f38947",
+      "source_sha256": "39355173e4ce8da5997c314b1cd6b8012c075eb8d0361b8a3970ee9820f38947"
+    },
+    "gui/basilisk/presenters/search_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/search_presenter.py",
+      "sha256": "45e5d70e7944b2dca3cd6583b0a07c09f890f54edecd6aec28bca908c0ba6b35",
+      "source_sha256": "45e5d70e7944b2dca3cd6583b0a07c09f890f54edecd6aec28bca908c0ba6b35"
+    },
+    "gui/basilisk/presenters/update_presenter.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/presenters/update_presenter.py",
+      "sha256": "4406a7e799a927463f771ea22a178cd576d77669d470343877a05f4aac523f7b",
+      "source_sha256": "4406a7e799a927463f771ea22a178cd576d77669d470343877a05f4aac523f7b"
+    },
+    "gui/basilisk/process_helper.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/process_helper.py",
+      "sha256": "4d7dea593de0b9c1c8ffd3b4f01ed1f9838b71e4a99b061f09e400501a98831f",
+      "source_sha256": "4d7dea593de0b9c1c8ffd3b4f01ed1f9838b71e4a99b061f09e400501a98831f"
+    },
+    "gui/basilisk/provider.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider.py",
+      "sha256": "a107cb39426a9aef25ea17fcc502dda2089ed9b2047aa42f57a6d6e0cf7e7a04",
+      "source_sha256": "bf18173b4c81eee2d1f52fd8dbd7f60773936398bb464aea7f3e3430b318d644"
+    },
+    "gui/basilisk/provider_ai_model.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_ai_model.py",
+      "sha256": "eeaaee2ea4b3fc72e1edbcd7c3f0dbf6808237026f6b24118ef3de70baac554b",
+      "source_sha256": "eeaaee2ea4b3fc72e1edbcd7c3f0dbf6808237026f6b24118ef3de70baac554b"
+    },
+    "gui/basilisk/provider_capability.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_capability.py",
+      "sha256": "46336982ee5fbcbd04223a79084c3682ba1522ac64c5171c6a803dd2625f99b8",
+      "source_sha256": "46336982ee5fbcbd04223a79084c3682ba1522ac64c5171c6a803dd2625f99b8"
+    },
+    "gui/basilisk/provider_engine/anthropic_engine.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/anthropic_engine.py",
+      "sha256": "ae77df87b391b8543b7e67f2839de301fba22464a4a5a983a9d4e652569e01d2",
+      "source_sha256": "ae77df87b391b8543b7e67f2839de301fba22464a4a5a983a9d4e652569e01d2"
+    },
+    "gui/basilisk/provider_engine/base_engine.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/base_engine.py",
+      "sha256": "ac25b27c6df60ad4c329a0dcd588133b224ef8267df27661c6253dd55a326f76",
+      "source_sha256": "ac25b27c6df60ad4c329a0dcd588133b224ef8267df27661c6253dd55a326f76"
+    },
+    "gui/basilisk/provider_engine/completion_request_strip_keys.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/completion_request_strip_keys.py",
+      "sha256": "42eb2d547136c30029edde81413a725b32159d8870ef1f891359657605777e0b",
+      "source_sha256": "42eb2d547136c30029edde81413a725b32159d8870ef1f891359657605777e0b"
+    },
+    "gui/basilisk/provider_engine/deepseek_engine.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/deepseek_engine.py",
+      "sha256": "4ea7515d783261ed52a4cf12f0d88d8ea7cdd4fd8fcd99f93b05f47ef083386b",
+      "source_sha256": "4ea7515d783261ed52a4cf12f0d88d8ea7cdd4fd8fcd99f93b05f47ef083386b"
+    },
+    "gui/basilisk/provider_engine/dynamic_model_loader.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/dynamic_model_loader.py",
+      "sha256": "05a08f35bda8fb4344da102f17bd8dbbcbe889961a799418bfdd7aa6c265428b",
+      "source_sha256": "05a08f35bda8fb4344da102f17bd8dbbcbe889961a799418bfdd7aa6c265428b"
+    },
+    "gui/basilisk/provider_engine/engine_model_list_cache.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/engine_model_list_cache.py",
+      "sha256": "be0fdc21295763b85cead3a01874169d04b76d2db5777cd01d128178043608d4",
+      "source_sha256": "be0fdc21295763b85cead3a01874169d04b76d2db5777cd01d128178043608d4"
+    },
+    "gui/basilisk/provider_engine/gemini_engine.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/gemini_engine.py",
+      "sha256": "c638834875eb3d432fcb1638363ace225c97258ecb620d72f9f2391e5e51e0cc",
+      "source_sha256": "c638834875eb3d432fcb1638363ace225c97258ecb620d72f9f2391e5e51e0cc"
+    },
+    "gui/basilisk/provider_engine/legacy_openai_engine.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/legacy_openai_engine.py",
+      "sha256": "17113de7c2fc933c71d3a27b1d27beb04baa541532016e2cbd66dbc40e601237",
+      "source_sha256": "17113de7c2fc933c71d3a27b1d27beb04baa541532016e2cbd66dbc40e601237"
+    },
+    "gui/basilisk/provider_engine/loom_engine.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/loom_engine.py",
+      "sha256": "0223c341b952f14d04003cc839462b01faeaf1b125bbe0240114f084b08c2697",
+      "source_sha256": "0223c341b952f14d04003cc839462b01faeaf1b125bbe0240114f084b08c2697"
+    },
+    "gui/basilisk/provider_engine/mistralai_engine.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/mistralai_engine.py",
+      "sha256": "26a56dfa4dab5e3125d730671c486a06dd0906e93d58e11c7161586ecfeec4e2",
+      "source_sha256": "26a56dfa4dab5e3125d730671c486a06dd0906e93d58e11c7161586ecfeec4e2"
+    },
+    "gui/basilisk/provider_engine/mistralai_ocr.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/mistralai_ocr.py",
+      "sha256": "2c0b2c0f8b028ff1a7c25554d0f56e2c02b385d61278f5ecd1608462f245413d",
+      "source_sha256": "2c0b2c0f8b028ff1a7c25554d0f56e2c02b385d61278f5ecd1608462f245413d"
+    },
+    "gui/basilisk/provider_engine/model_cache_registry.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/model_cache_registry.py",
+      "sha256": "b2c2ba5f97d85611981bc0284f7113fdc51cf92acaf28b1dab585022d1e2ed4d",
+      "source_sha256": "b2c2ba5f97d85611981bc0284f7113fdc51cf92acaf28b1dab585022d1e2ed4d"
+    },
+    "gui/basilisk/provider_engine/ollama_engine.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/ollama_engine.py",
+      "sha256": "1913bda52af5398813859a0991b87cd2f0e533c7d592c3c2581ed6725305d5ed",
+      "source_sha256": "1913bda52af5398813859a0991b87cd2f0e533c7d592c3c2581ed6725305d5ed"
+    },
+    "gui/basilisk/provider_engine/openai_engine.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/openai_engine.py",
+      "sha256": "f8bbecc117c2c2d80744a88bd25b393f244d787aa53e9a053f8fb44c4aa6a320",
+      "source_sha256": "f8bbecc117c2c2d80744a88bd25b393f244d787aa53e9a053f8fb44c4aa6a320"
+    },
+    "gui/basilisk/provider_engine/openrouter_engine.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/openrouter_engine.py",
+      "sha256": "4f7e24ac0d3bd651d189e209e83de1f4f45b0f4c2dda83431d79c2219d55dcae",
+      "source_sha256": "4f7e24ac0d3bd651d189e209e83de1f4f45b0f4c2dda83431d79c2219d55dcae"
+    },
+    "gui/basilisk/provider_engine/xai_engine.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/provider_engine/xai_engine.py",
+      "sha256": "f99838cf4897d9a76da2f38f653430044d73be6d516af93ada673b0d58cbfb77",
+      "source_sha256": "f99838cf4897d9a76da2f38f653430044d73be6d516af93ada673b0d58cbfb77"
+    },
+    "gui/basilisk/recording_thread.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/recording_thread.py",
+      "sha256": "ee57b4de1578b1eac6725d391b7feeb6d0d686978f609cb8393ac55723f0769c",
+      "source_sha256": "ee57b4de1578b1eac6725d391b7feeb6d0d686978f609cb8393ac55723f0769c"
+    },
+    "gui/basilisk/res/alembic/env.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/alembic/env.py",
+      "sha256": "3f1cfe2027d6c0dfc608ad0c910dca806496cb1ac4949e2177ef1df76e0475c3",
+      "source_sha256": "3f1cfe2027d6c0dfc608ad0c910dca806496cb1ac4949e2177ef1df76e0475c3"
+    },
+    "gui/basilisk/res/alembic/script.mako": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/alembic/script.mako",
+      "sha256": "304a8bfb6a804e5493f5300e79882c70c9f5bb2e87512f4d16f0e097dddd323f",
+      "source_sha256": "304a8bfb6a804e5493f5300e79882c70c9f5bb2e87512f4d16f0e097dddd323f"
+    },
+    "gui/basilisk/res/alembic/versions/001_initial_schema.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/alembic/versions/001_initial_schema.py",
+      "sha256": "fdf11e4667f1a19b2752c652e9f07e226d0d55c8bc96c1864dc9032821afcd71",
+      "source_sha256": "fdf11e4667f1a19b2752c652e9f07e226d0d55c8bc96c1864dc9032821afcd71"
+    },
+    "gui/basilisk/res/connectors/nvda/globalPlugins/basiliskllm.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/connectors/nvda/globalPlugins/basiliskllm.py",
+      "sha256": "cc3886b80543b19ec4ac5b87048b8b3128025c261744ab253eaaa7f2dcc70c8b",
+      "source_sha256": "cc3886b80543b19ec4ac5b87048b8b3128025c261744ab253eaaa7f2dcc70c8b"
+    },
+    "gui/basilisk/res/connectors/nvda/manifest.ini": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/connectors/nvda/manifest.ini",
+      "sha256": "1c185ea20d88c8d8e686a66338e91c39ddf797304c31ae731f848e89a6acfe6b",
+      "source_sha256": "1c185ea20d88c8d8e686a66338e91c39ddf797304c31ae731f848e89a6acfe6b"
+    },
+    "gui/basilisk/res/locale/es/LC_MESSAGES/basiliskLLM.po": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/locale/es/LC_MESSAGES/basiliskLLM.po",
+      "sha256": "5e94e961df62876efc9200da9df5ca64e9b8cd462cd77effca8c3c9a7a3423fd",
+      "source_sha256": "5e94e961df62876efc9200da9df5ca64e9b8cd462cd77effca8c3c9a7a3423fd"
+    },
+    "gui/basilisk/res/locale/fr/LC_MESSAGES/basiliskLLM.po": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/locale/fr/LC_MESSAGES/basiliskLLM.po",
+      "sha256": "a15deaf69a79f2b46e77669eb00a3f7fecb670fca47c43d89e57dd97a478642e",
+      "source_sha256": "a15deaf69a79f2b46e77669eb00a3f7fecb670fca47c43d89e57dd97a478642e"
+    },
+    "gui/basilisk/res/locale/pt_BR/LC_MESSAGES/basiliskLLM.po": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/locale/pt_BR/LC_MESSAGES/basiliskLLM.po",
+      "sha256": "a08285fabed81a3526be6b914d4d3ba51e3c0ae41bbed152cf0205b9d6d4bf7b",
+      "source_sha256": "a08285fabed81a3526be6b914d4d3ba51e3c0ae41bbed152cf0205b9d6d4bf7b"
+    },
+    "gui/basilisk/res/locale/ru/LC_MESSAGES/basiliskLLM.po": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/locale/ru/LC_MESSAGES/basiliskLLM.po",
+      "sha256": "1a3025b1581753f4957b24851a2958c2155a118d4b491181ea88a4887f576e15",
+      "source_sha256": "1a3025b1581753f4957b24851a2958c2155a118d4b491181ea88a4887f576e15"
+    },
+    "gui/basilisk/res/locale/tr/LC_MESSAGES/basiliskLLM.po": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/locale/tr/LC_MESSAGES/basiliskLLM.po",
+      "sha256": "1df3a6c5ba43dea0c6a8859cd41e9b6254eb2fe9c2283ac497e66dc7135afffa",
+      "source_sha256": "1df3a6c5ba43dea0c6a8859cd41e9b6254eb2fe9c2283ac497e66dc7135afffa"
+    },
+    "gui/basilisk/res/locale/uk/LC_MESSAGES/basiliskLLM.po": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/locale/uk/LC_MESSAGES/basiliskLLM.po",
+      "sha256": "bbcb5c08510ec351817d864067878f10f8fe03b4a44bdf685e6213b15dc34579",
+      "source_sha256": "bbcb5c08510ec351817d864067878f10f8fe03b4a44bdf685e6213b15dc34579"
+    },
+    "gui/basilisk/res/sounds/chat_request_sent.wav": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/sounds/chat_request_sent.wav",
+      "sha256": "62cb8764f0ca502175cce9d486434230f104bc7baf956a9664ef2aff40c6d07c",
+      "source_sha256": "62cb8764f0ca502175cce9d486434230f104bc7baf956a9664ef2aff40c6d07c"
+    },
+    "gui/basilisk/res/sounds/chat_response_pending.wav": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/sounds/chat_response_pending.wav",
+      "sha256": "8c8fa5c5193e72271cd6b8e2e71b67f5a8f41d46bfc3c063186dda27e3c7763a",
+      "source_sha256": "8c8fa5c5193e72271cd6b8e2e71b67f5a8f41d46bfc3c063186dda27e3c7763a"
+    },
+    "gui/basilisk/res/sounds/chat_response_received.wav": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/sounds/chat_response_received.wav",
+      "sha256": "2d16a72b089cf6d9e160f818db96b12190acb781e5d00724a50d99a8c63c3439",
+      "source_sha256": "2d16a72b089cf6d9e160f818db96b12190acb781e5d00724a50d99a8c63c3439"
+    },
+    "gui/basilisk/res/sounds/progress.wav": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/sounds/progress.wav",
+      "sha256": "c674c6de7409a78da665a53390369ada63199f8f89b5e231aa1b2312d4f8991a",
+      "source_sha256": "c674c6de7409a78da665a53390369ada63199f8f89b5e231aa1b2312d4f8991a"
+    },
+    "gui/basilisk/res/sounds/recording_started.wav": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/sounds/recording_started.wav",
+      "sha256": "33e68b96affb0909b9490af18e817c98dab36b017a93106761dcb333ea98ed05",
+      "source_sha256": "33e68b96affb0909b9490af18e817c98dab36b017a93106761dcb333ea98ed05"
+    },
+    "gui/basilisk/res/sounds/recording_stopped.wav": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/res/sounds/recording_stopped.wav",
+      "sha256": "41db67ca153afd381d9d184405896c83d8f5cff08e1fe0449155f8aec4db76f6",
+      "source_sha256": "41db67ca153afd381d9d184405896c83d8f5cff08e1fe0449155f8aec4db76f6"
+    },
+    "gui/basilisk/screen_capture_thread.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/screen_capture_thread.py",
+      "sha256": "8262bc2f626c59597d4f06d10d2870746197213b8fce6dd9b6bbc3874be78d6d",
+      "source_sha256": "8262bc2f626c59597d4f06d10d2870746197213b8fce6dd9b6bbc3874be78d6d"
+    },
+    "gui/basilisk/send_signal.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/send_signal.py",
+      "sha256": "d935fa52d0cea3c3fad87e50b99aa73e6ab63cb3f5e7ddb1d37c169d726aec41",
+      "source_sha256": "d935fa52d0cea3c3fad87e50b99aa73e6ab63cb3f5e7ddb1d37c169d726aec41"
+    },
+    "gui/basilisk/server_thread.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/server_thread.py",
+      "sha256": "02ab74298a6f2ecc310d4c087b0c222b6cc04c1fdd1ff05a0165afdbe3a44048",
+      "source_sha256": "02ab74298a6f2ecc310d4c087b0c222b6cc04c1fdd1ff05a0165afdbe3a44048"
+    },
+    "gui/basilisk/services/__init__.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/services/__init__.py",
+      "sha256": "20141b73d1a8ba47cbe0b9548696b8fb3e189d2ddb2f029c61dcd9c64e1bfc4f",
+      "source_sha256": "20141b73d1a8ba47cbe0b9548696b8fb3e189d2ddb2f029c61dcd9c64e1bfc4f"
+    },
+    "gui/basilisk/services/account_model_service.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/services/account_model_service.py",
+      "sha256": "a6fb43fb2dbe9a72a623c1bb8d59e2eb463ac4406ddd4d785e0776842f705d80",
+      "source_sha256": "a6fb43fb2dbe9a72a623c1bb8d59e2eb463ac4406ddd4d785e0776842f705d80"
+    },
+    "gui/basilisk/services/attachment_service.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/services/attachment_service.py",
+      "sha256": "1cf04d36a001ba83e7807ad8d7fc3a400b8afd44be6ae48406e371c127846aef",
+      "source_sha256": "1cf04d36a001ba83e7807ad8d7fc3a400b8afd44be6ae48406e371c127846aef"
+    },
+    "gui/basilisk/services/conversation_service.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/services/conversation_service.py",
+      "sha256": "c1fcb6649855983005ac6defc4fda29b83335152740caa8c968729ec821ebc93",
+      "source_sha256": "c1fcb6649855983005ac6defc4fda29b83335152740caa8c968729ec821ebc93"
+    },
+    "gui/basilisk/services/loom_records.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/services/loom_records.py",
+      "sha256": "9eb93b52fcb9dfa9de196db6b94362229da6e37af9f054eb80b28f9edd0a99b7",
+      "source_sha256": "9eb93b52fcb9dfa9de196db6b94362229da6e37af9f054eb80b28f9edd0a99b7"
+    },
+    "gui/basilisk/services/search_service.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/services/search_service.py",
+      "sha256": "a25a9de395901a5a7da97298eb5ad23ce8002da36e48b9caebc3471a6f585b2e",
+      "source_sha256": "a25a9de395901a5a7da97298eb5ad23ce8002da36e48b9caebc3471a6f585b2e"
+    },
+    "gui/basilisk/singleton_instance/__init__.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/singleton_instance/__init__.py",
+      "sha256": "848abe954f40ce817a64f093335f0f4ebb146064e00e31e81e6d6a1b66e2f44c",
+      "source_sha256": "848abe954f40ce817a64f093335f0f4ebb146064e00e31e81e6d6a1b66e2f44c"
+    },
+    "gui/basilisk/singleton_instance/abstract_singleton_instance.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/singleton_instance/abstract_singleton_instance.py",
+      "sha256": "af41a24e8383558bbecc5e22cadbac5ac91d46edb2c0d463f4d66582f6ee9aa0",
+      "source_sha256": "af41a24e8383558bbecc5e22cadbac5ac91d46edb2c0d463f4d66582f6ee9aa0"
+    },
+    "gui/basilisk/singleton_instance/posix_singleton_instance.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/singleton_instance/posix_singleton_instance.py",
+      "sha256": "03a5042d3054340270537baff8243744082edd03cddc3d309c7acd82dbe38a5d",
+      "source_sha256": "03a5042d3054340270537baff8243744082edd03cddc3d309c7acd82dbe38a5d"
+    },
+    "gui/basilisk/singleton_instance/windows_singleton_instance.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/singleton_instance/windows_singleton_instance.py",
+      "sha256": "69f37897c038e219c5204cdc04de43367a56a72850e0969389b9f1dd7d1df93f",
+      "source_sha256": "69f37897c038e219c5204cdc04de43367a56a72850e0969389b9f1dd7d1df93f"
+    },
+    "gui/basilisk/sound_manager.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/sound_manager.py",
+      "sha256": "3539b4e291b46ec14871034c9a2d0b51a9de2473f26c3808a3c1a04fbc830393",
+      "source_sha256": "3539b4e291b46ec14871034c9a2d0b51a9de2473f26c3808a3c1a04fbc830393"
+    },
+    "gui/basilisk/updater.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/updater.py",
+      "sha256": "ba8d51af5adba6cc3d26281df7313668c90a93538497cae0d8299c4b49184d10",
+      "source_sha256": "ba8d51af5adba6cc3d26281df7313668c90a93538497cae0d8299c4b49184d10"
+    },
+    "gui/basilisk/views/about_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/about_dialog.py",
+      "sha256": "c0b1fabce94d4f6abbacf165cb35089ed5cb98c4702bd27188f088a64c710c40",
+      "source_sha256": "8db661e065945423a42dc1ffba25f15dc56e41a54a502c9301b95dd55293316d"
+    },
+    "gui/basilisk/views/account_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/account_dialog.py",
+      "sha256": "8cc0995bcecc8e383c49a0e53603670c9b317a4cc8c3124e80fcb2a58949b2a5",
+      "source_sha256": "8cc0995bcecc8e383c49a0e53603670c9b317a4cc8c3124e80fcb2a58949b2a5"
+    },
+    "gui/basilisk/views/base_conversation.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/base_conversation.py",
+      "sha256": "61a79fdc7287a8bed8cd679bd35f94c4e2921e7b60aceeb00ece739b703a850b",
+      "source_sha256": "61a79fdc7287a8bed8cd679bd35f94c4e2921e7b60aceeb00ece739b703a850b"
+    },
+    "gui/basilisk/views/conversation_history_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/conversation_history_dialog.py",
+      "sha256": "5d03fcd8b0af98924a5a8f4abbeca4504c8fb84420c798a503a3daa0d73ea73b",
+      "source_sha256": "5d03fcd8b0af98924a5a8f4abbeca4504c8fb84420c798a503a3daa0d73ea73b"
+    },
+    "gui/basilisk/views/conversation_profile_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/conversation_profile_dialog.py",
+      "sha256": "3f486d8dc7312b8867786d169a33c81382147daa8d03a36e6841354ae3e83b0c",
+      "source_sha256": "3f486d8dc7312b8867786d169a33c81382147daa8d03a36e6841354ae3e83b0c"
+    },
+    "gui/basilisk/views/conversation_tab.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/conversation_tab.py",
+      "sha256": "5d8dfb817cfacd9ae7602ada1531f4f8159f8b90a82b52cd0a56706c19de3ae1",
+      "source_sha256": "5d8dfb817cfacd9ae7602ada1531f4f8159f8b90a82b52cd0a56706c19de3ae1"
+    },
+    "gui/basilisk/views/edit_block_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/edit_block_dialog.py",
+      "sha256": "ae8cbe7b9d53a9a30a8757cd6098757ca5a46bbb4a0b85430c84028d0cc3ac63",
+      "source_sha256": "ae8cbe7b9d53a9a30a8757cd6098757ca5a46bbb4a0b85430c84028d0cc3ac63"
+    },
+    "gui/basilisk/views/enhanced_error_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/enhanced_error_dialog.py",
+      "sha256": "730b2c8a213056d1fbad2561ea7cd0d9a0e378522cbafc7a2c4386cf4db99e08",
+      "source_sha256": "730b2c8a213056d1fbad2561ea7cd0d9a0e378522cbafc7a2c4386cf4db99e08"
+    },
+    "gui/basilisk/views/history_msg_text_ctrl.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/history_msg_text_ctrl.py",
+      "sha256": "ca3b2711ee95a09e2f40885d34f5fee78317f935957c6adee1ced37bc26f2952",
+      "source_sha256": "ca3b2711ee95a09e2f40885d34f5fee78317f935957c6adee1ced37bc26f2952"
+    },
+    "gui/basilisk/views/html_view_window.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/html_view_window.py",
+      "sha256": "bb825b0f2bb82a9769ecf427c31c6b02ed5472071c6586f9ff5c826bc1a5a180",
+      "source_sha256": "bb825b0f2bb82a9769ecf427c31c6b02ed5472071c6586f9ff5c826bc1a5a180"
+    },
+    "gui/basilisk/views/loom_correction_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/loom_correction_dialog.py",
+      "sha256": "e2d81e3fb27ab0f198fa6e4667738f2e7021a3f7dcb5b7120b696332c23fc9b0",
+      "source_sha256": "080fee86d71436a1074f4e7d0d903996a30a7a6a81152ffb7b6a0416dcb8268e"
+    },
+    "gui/basilisk/views/loom_origami_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/loom_origami_dialog.py",
+      "sha256": "cbb38455dd28d42d3350aa0369610ef77b5545c0d56b3cfc0730b91ae0d23ef3",
+      "source_sha256": "cbb38455dd28d42d3350aa0369610ef77b5545c0d56b3cfc0730b91ae0d23ef3"
+    },
+    "gui/basilisk/views/loom_toolkits_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/loom_toolkits_dialog.py",
+      "sha256": "f954d82e2e750c263c78ca0f5de1363755dce995b54620e978373ba7e55135ef",
+      "source_sha256": "f954d82e2e750c263c78ca0f5de1363755dce995b54620e978373ba7e55135ef"
+    },
+    "gui/basilisk/views/main_frame.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/main_frame.py",
+      "sha256": "19dc9d5d2664df73bdd90f859d70bcf8c7a79d29f1492454f31ba09e21ce3567",
+      "source_sha256": "19dc9d5d2664df73bdd90f859d70bcf8c7a79d29f1492454f31ba09e21ce3567"
+    },
+    "gui/basilisk/views/name_conversation_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/name_conversation_dialog.py",
+      "sha256": "a94dc090361ca10191f2e18d66a9a68096412658cb90988770306d4027365f17",
+      "source_sha256": "a94dc090361ca10191f2e18d66a9a68096412658cb90988770306d4027365f17"
+    },
+    "gui/basilisk/views/ocr_handler.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/ocr_handler.py",
+      "sha256": "59a923ac49f013ca2aae27ec205c77ea4528b7674b9174c70fe4eea81d9fed9e",
+      "source_sha256": "59a923ac49f013ca2aae27ec205c77ea4528b7674b9174c70fe4eea81d9fed9e"
+    },
+    "gui/basilisk/views/preferences_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/preferences_dialog.py",
+      "sha256": "c701fe00bf008a5bd32b74cfdbcca75bc7332ea582c21824f82af767b633b8c6",
+      "source_sha256": "c701fe00bf008a5bd32b74cfdbcca75bc7332ea582c21824f82af767b633b8c6"
+    },
+    "gui/basilisk/views/progress_bar_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/progress_bar_dialog.py",
+      "sha256": "10bd91d502b119bdb29196ca1860ccb0fb6a9a67897c13fcf5af3b3ab6026afc",
+      "source_sha256": "10bd91d502b119bdb29196ca1860ccb0fb6a9a67897c13fcf5af3b3ab6026afc"
+    },
+    "gui/basilisk/views/prompt_attachments_panel.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/prompt_attachments_panel.py",
+      "sha256": "a0900b44c13a33cb493694060da081a41e43a7234cdf75429d53089566594c27",
+      "source_sha256": "a0900b44c13a33cb493694060da081a41e43a7234cdf75429d53089566594c27"
+    },
+    "gui/basilisk/views/read_only_message_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/read_only_message_dialog.py",
+      "sha256": "9e3a0426205e9973b9d6331e655319cd95260ea07e0472bc79bf520799510c79",
+      "source_sha256": "9e3a0426205e9973b9d6331e655319cd95260ea07e0472bc79bf520799510c79"
+    },
+    "gui/basilisk/views/search_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/search_dialog.py",
+      "sha256": "b999dd7c697b70f25bdc8a0d6f6401cc33b650fd315d457e0f51181846918567",
+      "source_sha256": "b999dd7c697b70f25bdc8a0d6f6401cc33b650fd315d457e0f51181846918567"
+    },
+    "gui/basilisk/views/taskbar_icon.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/taskbar_icon.py",
+      "sha256": "b069c092de0df5764f917a3f5a530249a0953c872a3fed6b692f6e75711ce76b",
+      "source_sha256": "b069c092de0df5764f917a3f5a530249a0953c872a3fed6b692f6e75711ce76b"
+    },
+    "gui/basilisk/views/update_dialog.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/update_dialog.py",
+      "sha256": "57caadaa4e28290079a589112febcb51baaf5d2ca2944cf22f4267ee168cbfed",
+      "source_sha256": "57caadaa4e28290079a589112febcb51baaf5d2ca2944cf22f4267ee168cbfed"
+    },
+    "gui/basilisk/views/view_mixins.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "basilisk/views/view_mixins.py",
+      "sha256": "406d3359ada965ad8704cd230d15dde33eaf3b7cccd089bb5c26703f6ffe32aa",
+      "source_sha256": "406d3359ada965ad8704cd230d15dde33eaf3b7cccd089bb5c26703f6ffe32aa"
+    },
+    "gui/pyproject.toml": {
+      "origin": "basilisk-derived-gui",
+      "path": "pyproject.toml",
+      "sha256": "53635f5b7a04c71407d3b4010b33a19f07cb5623b563f5dcc0acc2b447a2b007",
+      "source_sha256": "53635f5b7a04c71407d3b4010b33a19f07cb5623b563f5dcc0acc2b447a2b007"
+    },
+    "gui/setup.cfg": {
+      "origin": "basilisk-derived-gui",
+      "path": "setup.cfg",
+      "sha256": "77444c61b4956528acc787333b364db4e54de924925948a10609b1fd92408caf",
+      "source_sha256": "77444c61b4956528acc787333b364db4e54de924925948a10609b1fd92408caf"
+    },
+    "gui/setup.py": {
+      "origin": "basilisk-derived-gui",
+      "path": "setup.py",
+      "sha256": "bbd3203946001a540246b57fc3f76f19d481f62db65503f57b390d3dc64a8710",
+      "source_sha256": "bbd3203946001a540246b57fc3f76f19d481f62db65503f57b390d3dc64a8710"
+    },
+    "gui/uv.lock": {
+      "origin": "basilisk-derived-gui",
+      "path": "uv.lock",
+      "sha256": "250429789457d15314a165c8a3e35c82ea9ad7ce9952fe03e3db0d368a24c7db",
+      "source_sha256": "250429789457d15314a165c8a3e35c82ea9ad7ce9952fe03e3db0d368a24c7db"
+    },
+    "runtime/AGENTS.md": {
+      "origin": "public-core",
+      "path": "AGENTS.md",
+      "sha256": "b21f503bd51444d433a2e72e6ad852167943fa85d7b3b6d2936c4f528243706b",
+      "source_sha256": "b21f503bd51444d433a2e72e6ad852167943fa85d7b3b6d2936c4f528243706b"
+    },
+    "runtime/LICENSE": {
+      "origin": "unified-runtime",
+      "path": "LICENSE",
+      "sha256": "4fe30e267833d23280493f44ccd3942e6e7de150a7fd3feffa63e6e35a84d679",
+      "source_sha256": "4fe30e267833d23280493f44ccd3942e6e7de150a7fd3feffa63e6e35a84d679"
+    },
+    "runtime/README.md": {
+      "origin": "public-core",
+      "path": "README.md",
+      "sha256": "716c4cb350935b238b81ff36c5b357dc712214029b9e85300d0e18f077766098",
+      "source_sha256": "716c4cb350935b238b81ff36c5b357dc712214029b9e85300d0e18f077766098"
+    },
+    "runtime/VERSION": {
+      "origin": "unified-runtime",
+      "path": "VERSION",
+      "sha256": "a0dc8325e2fbe558e09bf7d61260ca378151b0a3f875dd8b46ecd3693e34c10b",
+      "source_sha256": "a0dc8325e2fbe558e09bf7d61260ca378151b0a3f875dd8b46ecd3693e34c10b"
+    },
+    "runtime/docs/archives.md": {
+      "origin": "public-core",
+      "path": "docs/archives.md",
+      "sha256": "2f840e12be7b59d0b4b9e6c49bc826bdcaa2b0a5c26af1035afc955f2ed0249b",
+      "source_sha256": "2f840e12be7b59d0b4b9e6c49bc826bdcaa2b0a5c26af1035afc955f2ed0249b"
+    },
+    "runtime/docs/capability-map.json": {
+      "origin": "unified-runtime",
+      "path": "docs/capability-map.json",
+      "sha256": "8c1546dcc70c27d81423a0e9b236ffde962963d4e27a338f771f491e3aa473a7",
+      "source_sha256": "8c1546dcc70c27d81423a0e9b236ffde962963d4e27a338f771f491e3aa473a7"
+    },
+    "runtime/docs/capability-map.md": {
+      "origin": "public-core",
+      "path": "docs/capability-map.md",
+      "sha256": "0868bb2228e047e8b3943612a930903b1c7f6cfa7b00d97b7fae2edc80a98123",
+      "source_sha256": "0868bb2228e047e8b3943612a930903b1c7f6cfa7b00d97b7fae2edc80a98123"
+    },
+    "runtime/docs/conscience.md": {
+      "origin": "public-core",
+      "path": "docs/conscience.md",
+      "sha256": "a70ff24e478bc46469e8edb46f90d6359672f8d59912e4f523bad9bd55aa8fd2",
+      "source_sha256": "a70ff24e478bc46469e8edb46f90d6359672f8d59912e4f523bad9bd55aa8fd2"
+    },
+    "runtime/docs/continuity.md": {
+      "origin": "public-core",
+      "path": "docs/continuity.md",
+      "sha256": "c31c1132f2b0b6bf6f0e2a484caa6f638437509b4c5b5f2bf4beb50ad7432e07",
+      "source_sha256": "c31c1132f2b0b6bf6f0e2a484caa6f638437509b4c5b5f2bf4beb50ad7432e07"
+    },
+    "runtime/docs/corpus-fold.md": {
+      "origin": "public-core",
+      "path": "docs/corpus-fold.md",
+      "sha256": "3df661541addf6bce22612c8958107adb670dfc089454e8a9f09b7df01d3a851",
+      "source_sha256": "3df661541addf6bce22612c8958107adb670dfc089454e8a9f09b7df01d3a851"
+    },
+    "runtime/docs/loom-integration-map.json": {
+      "origin": "unified-runtime",
+      "path": "docs/loom-integration-map.json",
+      "sha256": "5acdc7f8e0e89b0cf2b1df498b3af3288cad94056c2824c5743b23e0a6516eb6",
+      "source_sha256": "5acdc7f8e0e89b0cf2b1df498b3af3288cad94056c2824c5743b23e0a6516eb6"
+    },
+    "runtime/docs/mailbox.md": {
+      "origin": "public-core",
+      "path": "docs/mailbox.md",
+      "sha256": "57cda59a702abe5ee98a554d7826e677695ebbeb15d94428991dabf7f2e2ec40",
+      "source_sha256": "57cda59a702abe5ee98a554d7826e677695ebbeb15d94428991dabf7f2e2ec40"
+    },
+    "runtime/docs/nurarihyon-recovery.md": {
+      "origin": "public-core",
+      "path": "docs/nurarihyon-recovery.md",
+      "sha256": "814d40c334d115f7745fa1bd8a108ada5df89ab7ded91445f2f281d07b7ec74b",
+      "source_sha256": "814d40c334d115f7745fa1bd8a108ada5df89ab7ded91445f2f281d07b7ec74b"
+    },
+    "runtime/docs/nurarihyon-service.md": {
+      "origin": "public-core",
+      "path": "docs/nurarihyon-service.md",
+      "sha256": "2faac3cdfd4b9c0c8583716af22a37b752ef8b248ce283fc9a0255508463aba3",
+      "source_sha256": "2faac3cdfd4b9c0c8583716af22a37b752ef8b248ce283fc9a0255508463aba3"
+    },
+    "runtime/docs/nurarihyon.md": {
+      "origin": "public-core",
+      "path": "docs/nurarihyon.md",
+      "sha256": "9e4d6c87499b1f075e91fd84333ad324a53836164670d45ff9a7a18d02d66073",
+      "source_sha256": "9e4d6c87499b1f075e91fd84333ad324a53836164670d45ff9a7a18d02d66073"
+    },
+    "runtime/docs/orchestrator.md": {
+      "origin": "public-core",
+      "path": "docs/orchestrator.md",
+      "sha256": "06b4180fcd35622d4a58b5abc919ce902e114e52ea46132697aa597f7a3d919c",
+      "source_sha256": "06b4180fcd35622d4a58b5abc919ce902e114e52ea46132697aa597f7a3d919c"
+    },
+    "runtime/docs/origami-fold.md": {
+      "origin": "public-core",
+      "path": "docs/origami-fold.md",
+      "sha256": "2720d3903b9b710d366048260313b476b7deeccbc128bbdb47bf70b358e5fe87",
+      "source_sha256": "2720d3903b9b710d366048260313b476b7deeccbc128bbdb47bf70b358e5fe87"
+    },
+    "runtime/docs/pando.md": {
+      "origin": "public-core",
+      "path": "docs/pando.md",
+      "sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a",
+      "source_sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a"
+    },
+    "runtime/docs/porcelain.md": {
+      "origin": "public-core",
+      "path": "docs/porcelain.md",
+      "sha256": "c4b05501ba252b334df1f43128918c61a7cb80b76b76a82e453d10feaa5336bf",
+      "source_sha256": "c4b05501ba252b334df1f43128918c61a7cb80b76b76a82e453d10feaa5336bf"
+    },
+    "runtime/docs/quickstart.md": {
+      "origin": "public-core",
+      "path": "docs/quickstart.md",
+      "sha256": "0578347e81f6f199290f3445bbc477f15181a43235f128ba17ebbf7ef2cc0829",
+      "source_sha256": "0578347e81f6f199290f3445bbc477f15181a43235f128ba17ebbf7ef2cc0829"
+    },
+    "runtime/docs/reviewed-answers.md": {
+      "origin": "public-core",
+      "path": "docs/reviewed-answers.md",
+      "sha256": "6ac105a7268de9e77909adfa47eb01f5fc90401ec165a03ab38076bad2f61c61",
+      "source_sha256": "6ac105a7268de9e77909adfa47eb01f5fc90401ec165a03ab38076bad2f61c61"
+    },
+    "runtime/docs/reviewed-lessons.md": {
+      "origin": "public-core",
+      "path": "docs/reviewed-lessons.md",
+      "sha256": "6fbb94182a1e47784399858f3d210dec6cfd89959745ac1822d86b6eac6e1fbb",
+      "source_sha256": "6fbb94182a1e47784399858f3d210dec6cfd89959745ac1822d86b6eac6e1fbb"
+    },
+    "runtime/docs/reviewed-source-graph.md": {
+      "origin": "public-core",
+      "path": "docs/reviewed-source-graph.md",
+      "sha256": "485bb03d57c720a62af43e033dbec21b391deabcc62d77f7e88d4365bc9a3bdc",
+      "source_sha256": "485bb03d57c720a62af43e033dbec21b391deabcc62d77f7e88d4365bc9a3bdc"
+    },
+    "runtime/docs/source-memory-recovery.md": {
+      "origin": "public-core",
+      "path": "docs/source-memory-recovery.md",
+      "sha256": "848afc3b3208ad7d9940eb1a6eed81afef36029cd1dc8461e46a78fc1fb7de13",
+      "source_sha256": "848afc3b3208ad7d9940eb1a6eed81afef36029cd1dc8461e46a78fc1fb7de13"
+    },
+    "runtime/docs/supplied-candidates.md": {
+      "origin": "public-core",
+      "path": "docs/supplied-candidates.md",
+      "sha256": "a268fa9cc21673af3176116665779209d1c969eca549714577aaa6519cad6e3e",
+      "source_sha256": "a268fa9cc21673af3176116665779209d1c969eca549714577aaa6519cad6e3e"
+    },
+    "runtime/docs/toolkits.md": {
+      "origin": "public-core",
+      "path": "docs/toolkits.md",
+      "sha256": "a83b98c75d7a90910af34807adfa7afaf48a32cf6079cb3df500a0a3c20522ad",
+      "source_sha256": "a83b98c75d7a90910af34807adfa7afaf48a32cf6079cb3df500a0a3c20522ad"
+    },
+    "runtime/examples/machinery/custom_worker.py": {
+      "origin": "public-core",
+      "path": "examples/machinery/custom_worker.py",
+      "sha256": "d3e278bc77c6018629ced37145226132fe711eb4e1efa9dea1c8ee747b8d3748",
+      "source_sha256": "d3e278bc77c6018629ced37145226132fe711eb4e1efa9dea1c8ee747b8d3748"
+    },
+    "runtime/examples/machinery/organ_records.py": {
+      "origin": "public-core",
+      "path": "examples/machinery/organ_records.py",
+      "sha256": "465fedf0fd4b2f6b396b1e08ddbb04aa03fa5b9d23098465d629c49b43f0b123",
+      "source_sha256": "465fedf0fd4b2f6b396b1e08ddbb04aa03fa5b9d23098465d629c49b43f0b123"
+    },
+    "runtime/examples/machinery/review_handoff.py": {
+      "origin": "public-core",
+      "path": "examples/machinery/review_handoff.py",
+      "sha256": "e8803e136118168ec37700328c3c516e53681984ea854616fe09dc876067f647",
+      "source_sha256": "e8803e136118168ec37700328c3c516e53681984ea854616fe09dc876067f647"
+    },
+    "runtime/examples/machinery/supplied_candidates.py": {
+      "origin": "public-core",
+      "path": "examples/machinery/supplied_candidates.py",
+      "sha256": "9f6aa6c3aada9d658dd480e1540f3552a6ee276b6709838a63ecbd6b874cc521",
+      "source_sha256": "9f6aa6c3aada9d658dd480e1540f3552a6ee276b6709838a63ecbd6b874cc521"
+    },
+    "runtime/examples/machinery/yggdrasil_macro.py": {
+      "origin": "public-core",
+      "path": "examples/machinery/yggdrasil_macro.py",
+      "sha256": "47b77b8925bcbf73763c0e3eeaadad47739165c53f1bb95359f038f5a226c5ec",
+      "source_sha256": "47b77b8925bcbf73763c0e3eeaadad47739165c53f1bb95359f038f5a226c5ec"
+    },
+    "runtime/examples/nurarihyon/prepare_sources.py": {
+      "origin": "public-core",
+      "path": "examples/nurarihyon/prepare_sources.py",
+      "sha256": "43f679897881ef7a3264108a1e1b828d8e3396e70a49fc44d642fa91357fc741",
+      "source_sha256": "43f679897881ef7a3264108a1e1b828d8e3396e70a49fc44d642fa91357fc741"
+    },
+    "runtime/experiments/porcelain-simulator/.gitignore": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/.gitignore",
+      "sha256": "62e106dc6a0fcc39fc71dc16aea625e9a4ace2f912f3ccde6777c43c6bd5383c",
+      "source_sha256": "62e106dc6a0fcc39fc71dc16aea625e9a4ace2f912f3ccde6777c43c6bd5383c"
+    },
+    "runtime/experiments/porcelain-simulator/PROVENANCE.md": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/PROVENANCE.md",
+      "sha256": "16466af2c7dd5aac7a208ab2865886dab4eb063fc0af0252214034736b8e06bc",
+      "source_sha256": "16466af2c7dd5aac7a208ab2865886dab4eb063fc0af0252214034736b8e06bc"
+    },
+    "runtime/experiments/porcelain-simulator/README.md": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/README.md",
+      "sha256": "d4df53d16f93fc3611f986d613ebf63879277c1be2df6c23d54ae77606cb2106",
+      "source_sha256": "d4df53d16f93fc3611f986d613ebf63879277c1be2df6c23d54ae77606cb2106"
+    },
+    "runtime/experiments/porcelain-simulator/SOURCE_MANIFEST.json": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/SOURCE_MANIFEST.json",
+      "sha256": "b88360ff8211fc3e133856279fe6f737b3d3b741a919c3261788f229d9f89730",
+      "source_sha256": "b88360ff8211fc3e133856279fe6f737b3d3b741a919c3261788f229d9f89730"
+    },
+    "runtime/experiments/porcelain-simulator/examples/compress_and_release.json": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/examples/compress_and_release.json",
+      "sha256": "fdec5860997e12162ccf479b24a6b40bb4152beac147d86e87091da2ad64513a",
+      "source_sha256": "fdec5860997e12162ccf479b24a6b40bb4152beac147d86e87091da2ad64513a"
+    },
+    "runtime/experiments/porcelain-simulator/examples/pairs/driven-vs-stopped.json": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/examples/pairs/driven-vs-stopped.json",
+      "sha256": "0f7e6d02baca18c6644422143b2794bf5c957a396118601a9e3262d1d8c38480",
+      "source_sha256": "0f7e6d02baca18c6644422143b2794bf5c957a396118601a9e3262d1d8c38480"
+    },
+    "runtime/experiments/porcelain-simulator/examples/pairs/one-vs-two-contacts.json": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/examples/pairs/one-vs-two-contacts.json",
+      "sha256": "e7268e91df65de4a52ca8a4baf170bdf7cd31e72b1e2d65c031bc6e4aa066ccc",
+      "source_sha256": "e7268e91df65de4a52ca8a4baf170bdf7cd31e72b1e2d65c031bc6e4aa066ccc"
+    },
+    "runtime/experiments/porcelain-simulator/examples/pairs/support-vs-squeeze.json": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/examples/pairs/support-vs-squeeze.json",
+      "sha256": "3eaca5be63b7fbb19a66cef3664ef786c8b12ff903cf426f3fb5387418e083f2",
+      "source_sha256": "3eaca5be63b7fbb19a66cef3664ef786c8b12ff903cf426f3fb5387418e083f2"
+    },
+    "runtime/experiments/porcelain-simulator/examples/pairs/wrist-support.json": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/examples/pairs/wrist-support.json",
+      "sha256": "22bd238c2f81d79b95a4757a4a976c420974fce9ca297fe7652440702743c0fd",
+      "source_sha256": "22bd238c2f81d79b95a4757a4a976c420974fce9ca297fe7652440702743c0fd"
+    },
+    "runtime/experiments/porcelain-simulator/porcelain/__init__.py": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/porcelain/__init__.py",
+      "sha256": "5c828d921490b3fd35a1b3ceea1ba677743226f60cb528219fef494cab537572",
+      "source_sha256": "5c828d921490b3fd35a1b3ceea1ba677743226f60cb528219fef494cab537572"
+    },
+    "runtime/experiments/porcelain-simulator/porcelain/core.py": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/porcelain/core.py",
+      "sha256": "3752d4e83db0a90955571e77dc9a04482ecd6b270051ad88ea1739ec84209a0d",
+      "source_sha256": "3752d4e83db0a90955571e77dc9a04482ecd6b270051ad88ea1739ec84209a0d"
+    },
+    "runtime/experiments/porcelain-simulator/porcelain/hands.py": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/porcelain/hands.py",
+      "sha256": "a0f04225cd30e34c82d77214806a2679f2cef264520982c77154a5dcb7d88a3c",
+      "source_sha256": "a0f04225cd30e34c82d77214806a2679f2cef264520982c77154a5dcb7d88a3c"
+    },
+    "runtime/experiments/porcelain-simulator/porcelain/pair.py": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/porcelain/pair.py",
+      "sha256": "9db39301a45590e9a63d6337e3106220d788e6eb6cb45f3ac55969ad7a884d23",
+      "source_sha256": "9db39301a45590e9a63d6337e3106220d788e6eb6cb45f3ac55969ad7a884d23"
+    },
+    "runtime/experiments/porcelain-simulator/porcelain/report.py": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/porcelain/report.py",
+      "sha256": "c5da5f4a30ab9040d8809a6a0dd5e7c33c3c3300662f525cf8c076ef4c705d84",
+      "source_sha256": "c5da5f4a30ab9040d8809a6a0dd5e7c33c3c3300662f525cf8c076ef4c705d84"
+    },
+    "runtime/experiments/porcelain-simulator/porcelain/report_pair.py": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/porcelain/report_pair.py",
+      "sha256": "25874f873366b762be0f4c354a8fb0098c572343ff07718d0ffd793d7cd47950",
+      "source_sha256": "25874f873366b762be0f4c354a8fb0098c572343ff07718d0ffd793d7cd47950"
+    },
+    "runtime/experiments/porcelain-simulator/porcelain/run.py": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/porcelain/run.py",
+      "sha256": "7e221038cf08782a2fc0bb19a6952b85a8e2707fe3432c7eb94b2803b0d409e1",
+      "source_sha256": "7e221038cf08782a2fc0bb19a6952b85a8e2707fe3432c7eb94b2803b0d409e1"
+    },
+    "runtime/experiments/porcelain-simulator/porcelain/verify.py": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/porcelain/verify.py",
+      "sha256": "9eb26dc30032073cb235a70c3ca40e4fa65df075863bf7e89909cda880d61db4",
+      "source_sha256": "9eb26dc30032073cb235a70c3ca40e4fa65df075863bf7e89909cda880d61db4"
+    },
+    "runtime/experiments/porcelain-simulator/porcelain/verify_hands.py": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/porcelain/verify_hands.py",
+      "sha256": "365aa377957db5d5315a7a9c4ade5126d858857d3af7613c80fc791c41d914b2",
+      "source_sha256": "365aa377957db5d5315a7a9c4ade5126d858857d3af7613c80fc791c41d914b2"
+    },
+    "runtime/experiments/porcelain-simulator/requirements-tested.txt": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/requirements-tested.txt",
+      "sha256": "3a3c759aca181cfab3200178b678fcd449164c4e46d6ea538ec92d76038ce031",
+      "source_sha256": "3a3c759aca181cfab3200178b678fcd449164c4e46d6ea538ec92d76038ce031"
+    },
+    "runtime/experiments/porcelain-simulator/requirements.txt": {
+      "origin": "public-core",
+      "path": "experiments/porcelain-simulator/requirements.txt",
+      "sha256": "d1c85a3758d24ee75b3b3cf1448aaa316221a1318232bdb05f6422da8b51eed0",
+      "source_sha256": "d1c85a3758d24ee75b3b3cf1448aaa316221a1318232bdb05f6422da8b51eed0"
+    },
+    "runtime/lodestone.py": {
+      "origin": "unified-runtime",
+      "path": "lodestone.py",
+      "sha256": "90e404d886559eb16b04b1ba9437a5a99ea14c4c5999012dec16b86b6fde198e",
+      "source_sha256": "90e404d886559eb16b04b1ba9437a5a99ea14c4c5999012dec16b86b6fde198e"
+    },
+    "runtime/orchestrator/README.md": {
+      "origin": "public-core",
+      "path": "orchestrator/README.md",
+      "sha256": "fd3a4f3f1c69a52751409b6459be1f7fce9ad1d137ee0ace3e2ab9ad26d1b34e",
+      "source_sha256": "fd3a4f3f1c69a52751409b6459be1f7fce9ad1d137ee0ace3e2ab9ad26d1b34e"
+    },
+    "runtime/orchestrator/bootstrap.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/bootstrap.py",
+      "sha256": "441c81c11cd4ccf2a0bfea566171c11976e23c8afcb0da91502d647e2bddbbed",
+      "source_sha256": "441c81c11cd4ccf2a0bfea566171c11976e23c8afcb0da91502d647e2bddbbed"
+    },
+    "runtime/orchestrator/bridge/__init__.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/bridge/__init__.py",
+      "sha256": "b74166df7bf94a2ca68857e2d0082e0a27f20f61c88412dace1dd653b091d3b4",
+      "source_sha256": "b74166df7bf94a2ca68857e2d0082e0a27f20f61c88412dace1dd653b091d3b4"
+    },
+    "runtime/orchestrator/bridge/attachment.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/bridge/attachment.py",
+      "sha256": "11254e432b1dc9fb940665b2677f108a1155125886b2743fea0eb40bb37699cc",
+      "source_sha256": "11254e432b1dc9fb940665b2677f108a1155125886b2743fea0eb40bb37699cc"
+    },
+    "runtime/orchestrator/bridge/contracts.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/bridge/contracts.py",
+      "sha256": "3d0dd11634fb7efaf96cf295aa03c6e8008c4c6a988402677340abc3d8ec450c",
+      "source_sha256": "3d0dd11634fb7efaf96cf295aa03c6e8008c4c6a988402677340abc3d8ec450c"
+    },
+    "runtime/orchestrator/bridge/handoff.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/bridge/handoff.py",
+      "sha256": "64e2095aa30b47d903b762c9a6fe3421db1660aed6689e78426f904f5852c933",
+      "source_sha256": "64e2095aa30b47d903b762c9a6fe3421db1660aed6689e78426f904f5852c933"
+    },
+    "runtime/orchestrator/bridge/permissions.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/bridge/permissions.py",
+      "sha256": "0ecdf59219603ff2f5a9fc6d38621e026a230a807b07347ab755c5c11a84141f",
+      "source_sha256": "0ecdf59219603ff2f5a9fc6d38621e026a230a807b07347ab755c5c11a84141f"
+    },
+    "runtime/orchestrator/bridge/recovery.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/bridge/recovery.py",
+      "sha256": "510c01fedd33406bbbf89f67c22846e42efc19d220c9078d8d4b8eec51f7723c",
+      "source_sha256": "510c01fedd33406bbbf89f67c22846e42efc19d220c9078d8d4b8eec51f7723c"
+    },
+    "runtime/orchestrator/bridge/return_verify.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/bridge/return_verify.py",
+      "sha256": "5e1be590779e871ace9b48c55fc0fbf18d7e235415e6dfef58fca773c7942e13",
+      "source_sha256": "5e1be590779e871ace9b48c55fc0fbf18d7e235415e6dfef58fca773c7942e13"
+    },
+    "runtime/orchestrator/bridge/transport.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/bridge/transport.py",
+      "sha256": "b7d6599740939de3a14cd6773d15199f39fb14bc95093d9132252d35b8bb902f",
+      "source_sha256": "b7d6599740939de3a14cd6773d15199f39fb14bc95093d9132252d35b8bb902f"
+    },
+    "runtime/orchestrator/bridge/tribunal.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/bridge/tribunal.py",
+      "sha256": "7392c6498c86a245354d20d82d9479f338173e48284d4a78076c2dd6c05c03d2",
+      "source_sha256": "7392c6498c86a245354d20d82d9479f338173e48284d4a78076c2dd6c05c03d2"
+    },
+    "runtime/orchestrator/bridge/witness.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/bridge/witness.py",
+      "sha256": "ced6d918401691008a681be92a8820861b083fb5f83d74a5b6ee9c097299e012",
+      "source_sha256": "ced6d918401691008a681be92a8820861b083fb5f83d74a5b6ee9c097299e012"
+    },
+    "runtime/orchestrator/bridge/workspace_identity.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/bridge/workspace_identity.py",
+      "sha256": "c28fed12c12a5a20b95235b4b0a3ca1abd906e4e53fa6414570bb30c21d70ac7",
+      "source_sha256": "c28fed12c12a5a20b95235b4b0a3ca1abd906e4e53fa6414570bb30c21d70ac7"
+    },
+    "runtime/orchestrator/config/orchestrator.config.json": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/config/orchestrator.config.json",
+      "sha256": "d3e26e8f001ac6abf45f925997598108f0c71ce667e2c188a926371cbc5cffce",
+      "source_sha256": "d3e26e8f001ac6abf45f925997598108f0c71ce667e2c188a926371cbc5cffce"
+    },
+    "runtime/orchestrator/engine/__init__.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/engine/__init__.py",
+      "sha256": "1062822c69fa3a2ab0f821dbdd1dfe52a6c412960f4f32ecd90ba11a1aa6a976",
+      "source_sha256": "1062822c69fa3a2ab0f821dbdd1dfe52a6c412960f4f32ecd90ba11a1aa6a976"
+    },
+    "runtime/orchestrator/engine/contracts.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/engine/contracts.py",
+      "sha256": "060be1a39e491b050bec8d4bcdbad4bde646c325ca6a5348d9e879ab2d079fd1",
+      "source_sha256": "060be1a39e491b050bec8d4bcdbad4bde646c325ca6a5348d9e879ab2d079fd1"
+    },
+    "runtime/orchestrator/engine/kernel20_phenotype.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/engine/kernel20_phenotype.py",
+      "sha256": "7b903e50ef6cb7ef7bc0dfde066f76baca6f08e600b0ab9a745b5724f4417f86",
+      "source_sha256": "7b903e50ef6cb7ef7bc0dfde066f76baca6f08e600b0ab9a745b5724f4417f86"
+    },
+    "runtime/orchestrator/engine/legacy_engine.py": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/engine/legacy_engine.py",
+      "sha256": "973af8973afa7c1cbf4b5c7d6d62d53f14e248d0d2cbb05b893d3eb0801780fd",
+      "source_sha256": "973af8973afa7c1cbf4b5c7d6d62d53f14e248d0d2cbb05b893d3eb0801780fd"
+    },
+    "runtime/orchestrator/examples/project/CURRENT_STATE.md": {
+      "origin": "public-core",
+      "path": "orchestrator/examples/project/CURRENT_STATE.md",
+      "sha256": "d41c53ab6a8943c4976a8f5888a1bdb51a257edbb42f441fa176909609c1147a",
+      "source_sha256": "d41c53ab6a8943c4976a8f5888a1bdb51a257edbb42f441fa176909609c1147a"
+    },
+    "runtime/orchestrator/examples/project/experiments/001-demo/notes.md": {
+      "origin": "public-core",
+      "path": "orchestrator/examples/project/experiments/001-demo/notes.md",
+      "sha256": "bbcb2ddd2086721ecf47e266b56d8d41d75fa529a664754841c3200bcd03d8d6",
+      "source_sha256": "bbcb2ddd2086721ecf47e266b56d8d41d75fa529a664754841c3200bcd03d8d6"
+    },
+    "runtime/orchestrator/examples/project/sources/experiment-001/SHA256SUMS.txt": {
+      "origin": "public-core",
+      "path": "orchestrator/examples/project/sources/experiment-001/SHA256SUMS.txt",
+      "sha256": "7a8ae0da11dc772d350cb036e25f68756258f617fdc31834feee44413bd1dbcc",
+      "source_sha256": "7a8ae0da11dc772d350cb036e25f68756258f617fdc31834feee44413bd1dbcc"
+    },
+    "runtime/orchestrator/examples/project/sources/experiment-001/SOURCE_DECLARATION.md": {
+      "origin": "public-core",
+      "path": "orchestrator/examples/project/sources/experiment-001/SOURCE_DECLARATION.md",
+      "sha256": "4dbfa5cebdc687cf72ad4903924cbdde22cba932977f070deb244fa4175bc962",
+      "source_sha256": "4dbfa5cebdc687cf72ad4903924cbdde22cba932977f070deb244fa4175bc962"
+    },
+    "runtime/orchestrator/examples/project/sources/experiment-001/SOURCE_MANIFEST.json": {
+      "origin": "public-core",
+      "path": "orchestrator/examples/project/sources/experiment-001/SOURCE_MANIFEST.json",
+      "sha256": "24e89ff52ff5e82c174404793e5a07f0845a8f1a55585f454ea248ca861abaad",
+      "source_sha256": "24e89ff52ff5e82c174404793e5a07f0845a8f1a55585f454ea248ca861abaad"
+    },
+    "runtime/orchestrator/run": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/run",
+      "sha256": "1fb88672075191cb78fdefc7a65cfab42a961b923edb4020d0a8f92d8540f2e2",
+      "source_sha256": "1fb88672075191cb78fdefc7a65cfab42a961b923edb4020d0a8f92d8540f2e2"
+    },
+    "runtime/orchestrator/schemas/attachment_contract.schema.json": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/schemas/attachment_contract.schema.json",
+      "sha256": "072b1ce9eb6c3b61cfe8d7d08d8f90564bee2b81bb0bb9dcbabf2776a33cfda8",
+      "source_sha256": "072b1ce9eb6c3b61cfe8d7d08d8f90564bee2b81bb0bb9dcbabf2776a33cfda8"
+    },
+    "runtime/orchestrator/schemas/lifecycle_witness.schema.json": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/schemas/lifecycle_witness.schema.json",
+      "sha256": "2db05bb3736e5c7daa41ea5585cc2d87eee7ceedf236975406d3dcd1a55c06c3",
+      "source_sha256": "2db05bb3736e5c7daa41ea5585cc2d87eee7ceedf236975406d3dcd1a55c06c3"
+    },
+    "runtime/orchestrator/schemas/next_action.schema.json": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/schemas/next_action.schema.json",
+      "sha256": "3734ec89613a8a332ff55ac1787b2a5eb98e671cc9a811f826f5b994c47fd116",
+      "source_sha256": "3734ec89613a8a332ff55ac1787b2a5eb98e671cc9a811f826f5b994c47fd116"
+    },
+    "runtime/orchestrator/schemas/orchestration_decision.schema.json": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/schemas/orchestration_decision.schema.json",
+      "sha256": "938eaec2ee66262d60fcaee626a8514c475bbfbb87f2ed695af3925d257389e1",
+      "source_sha256": "938eaec2ee66262d60fcaee626a8514c475bbfbb87f2ed695af3925d257389e1"
+    },
+    "runtime/orchestrator/schemas/return_evidence.schema.json": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/schemas/return_evidence.schema.json",
+      "sha256": "550b718f462a7ffc7773b417bd76a6182ee10b238b3a05f39634c1993338f138",
+      "source_sha256": "550b718f462a7ffc7773b417bd76a6182ee10b238b3a05f39634c1993338f138"
+    },
+    "runtime/orchestrator/schemas/task_packet.schema.json": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/schemas/task_packet.schema.json",
+      "sha256": "b4ec6f2d2d55880157fbecc341a09fd8655e42d06bb9a6ecb092f61643f06111",
+      "source_sha256": "b4ec6f2d2d55880157fbecc341a09fd8655e42d06bb9a6ecb092f61643f06111"
+    },
+    "runtime/orchestrator/schemas/transport_plan.schema.json": {
+      "origin": "unified-runtime",
+      "path": "orchestrator/schemas/transport_plan.schema.json",
+      "sha256": "58847b936648fc6ba420b5004c30e06db326f8a9253fa55c13e3bd250cabc614",
+      "source_sha256": "58847b936648fc6ba420b5004c30e06db326f8a9253fa55c13e3bd250cabc614"
+    },
+    "runtime/skills/lodestone-compact-context/SKILL.md": {
+      "origin": "public-core",
+      "path": "skills/lodestone-compact-context/SKILL.md",
+      "sha256": "78eff4932402dbf9dd97fddb3217ed748e529d2b5757084aa9c73d5028b10a6f",
+      "source_sha256": "78eff4932402dbf9dd97fddb3217ed748e529d2b5757084aa9c73d5028b10a6f"
+    },
+    "runtime/skills/lodestone-compact-context/agents/openai.yaml": {
+      "origin": "public-core",
+      "path": "skills/lodestone-compact-context/agents/openai.yaml",
+      "sha256": "48067a747e254f00ba577bdf5afbe39ff0fbe307b3479bb96bdbc7013c57b7b1",
+      "source_sha256": "48067a747e254f00ba577bdf5afbe39ff0fbe307b3479bb96bdbc7013c57b7b1"
+    },
+    "runtime/skills/lodestone-inference-memory/SKILL.md": {
+      "origin": "unified-runtime",
+      "path": "skills/lodestone-inference-memory/SKILL.md",
+      "sha256": "9d26d017472bd07b347e8b03b08c0c2b3fd1ad05b68dd9dbf9e8f4d50fe84271",
+      "source_sha256": "9d26d017472bd07b347e8b03b08c0c2b3fd1ad05b68dd9dbf9e8f4d50fe84271"
+    },
+    "runtime/src/lodestone_machinery/__init__.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/__init__.py",
+      "sha256": "684abdbb9114dbdd8a4e2fb955711fa5ae0ddcfbbe6819f140a329e053b346e5",
+      "source_sha256": "684abdbb9114dbdd8a4e2fb955711fa5ae0ddcfbbe6819f140a329e053b346e5"
+    },
+    "runtime/src/lodestone_machinery/__main__.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/__main__.py",
+      "sha256": "9a89658f358a839a6c75769cbec55bb39083c3db9c05c445af402f6687f27bf5",
+      "source_sha256": "9a89658f358a839a6c75769cbec55bb39083c3db9c05c445af402f6687f27bf5"
+    },
+    "runtime/src/lodestone_machinery/archive_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/archive_cli.py",
+      "sha256": "28f5981bf9fe9a799463468ee0cfaddec100b73ee513a2c340f2be147fe4c23f",
+      "source_sha256": "28f5981bf9fe9a799463468ee0cfaddec100b73ee513a2c340f2be147fe4c23f"
+    },
+    "runtime/src/lodestone_machinery/archive_format.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/archive_format.py",
+      "sha256": "5fcf4cd3ec987166ab556bb9eb43547782685b6c6397390e5e5505c02c9a2faf",
+      "source_sha256": "5fcf4cd3ec987166ab556bb9eb43547782685b6c6397390e5e5505c02c9a2faf"
+    },
+    "runtime/src/lodestone_machinery/archive_pack.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/archive_pack.py",
+      "sha256": "98fc7563b6aa9db86247779c58b1f492413c7dbd2e27a496ecb6631e39953d09",
+      "source_sha256": "98fc7563b6aa9db86247779c58b1f492413c7dbd2e27a496ecb6631e39953d09"
+    },
+    "runtime/src/lodestone_machinery/archive_restore.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/archive_restore.py",
+      "sha256": "08469504917b3d13682ddebb7163b8519abe880d77dbb117cd47496d729f87e8",
+      "source_sha256": "08469504917b3d13682ddebb7163b8519abe880d77dbb117cd47496d729f87e8"
+    },
+    "runtime/src/lodestone_machinery/bezoar.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/bezoar.py",
+      "sha256": "26e18f8656b010c83992841371fb95c9460311ca1ce64c7b01f5bc5efd648d2d",
+      "source_sha256": "26e18f8656b010c83992841371fb95c9460311ca1ce64c7b01f5bc5efd648d2d"
+    },
+    "runtime/src/lodestone_machinery/bezoar_capture.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/bezoar_capture.py",
+      "sha256": "117a911d2c2a99d20180c0cd389675bab4cc0efc923252e8448ab58385da36e0",
+      "source_sha256": "117a911d2c2a99d20180c0cd389675bab4cc0efc923252e8448ab58385da36e0"
+    },
+    "runtime/src/lodestone_machinery/bezoar_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/bezoar_cli.py",
+      "sha256": "df230d152f83f1447bb0b0d1217c08d52e6f63a30a4674e18f3956e06208e72c",
+      "source_sha256": "df230d152f83f1447bb0b0d1217c08d52e6f63a30a4674e18f3956e06208e72c"
+    },
+    "runtime/src/lodestone_machinery/bezoar_familiarity.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/bezoar_familiarity.py",
+      "sha256": "2b036b7041636355778ef389bfc99ea7985622c58c11818500dfe84afe559d04",
+      "source_sha256": "2b036b7041636355778ef389bfc99ea7985622c58c11818500dfe84afe559d04"
+    },
+    "runtime/src/lodestone_machinery/bezoar_learning.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/bezoar_learning.py",
+      "sha256": "30836076bfb6c4dbf19f5c6d6dd5489db01edd67c67404cdc12f987026857322",
+      "source_sha256": "30836076bfb6c4dbf19f5c6d6dd5489db01edd67c67404cdc12f987026857322"
+    },
+    "runtime/src/lodestone_machinery/bezoar_lessons.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/bezoar_lessons.py",
+      "sha256": "df5c5fe22ed3be6c9d5255509147052227cf472f083975b3aebad1a9db1635c0",
+      "source_sha256": "df5c5fe22ed3be6c9d5255509147052227cf472f083975b3aebad1a9db1635c0"
+    },
+    "runtime/src/lodestone_machinery/bezoar_observation.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/bezoar_observation.py",
+      "sha256": "21f043a35125641f81580e99aa22457aa439a1996788c69d1ec5bd23d091abab",
+      "source_sha256": "21f043a35125641f81580e99aa22457aa439a1996788c69d1ec5bd23d091abab"
+    },
+    "runtime/src/lodestone_machinery/bezoar_reconciliation.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/bezoar_reconciliation.py",
+      "sha256": "9f5e757bbc9a1e92679f655f9fa69b1c2c1bd6d395998692b38e8a2ceb6a2cb4",
+      "source_sha256": "9f5e757bbc9a1e92679f655f9fa69b1c2c1bd6d395998692b38e8a2ceb6a2cb4"
+    },
+    "runtime/src/lodestone_machinery/bezoar_registry.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/bezoar_registry.py",
+      "sha256": "70fba2e87065197e620afe43a82a49ba67607958cf1423719a2ebd62ab875caa",
+      "source_sha256": "70fba2e87065197e620afe43a82a49ba67607958cf1423719a2ebd62ab875caa"
+    },
+    "runtime/src/lodestone_machinery/bezoar_routing.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/bezoar_routing.py",
+      "sha256": "f102e968d6e7e5157409fc6a76a76d8c7ad9d6425a17655827ca677f03e601d5",
+      "source_sha256": "f102e968d6e7e5157409fc6a76a76d8c7ad9d6425a17655827ca677f03e601d5"
+    },
+    "runtime/src/lodestone_machinery/corpus_fold_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/corpus_fold_cli.py",
+      "sha256": "ef781f49c7b88f20b3ae46cc078e1c62320ab56a207c990cf5d086ad2fd83fef",
+      "source_sha256": "ef781f49c7b88f20b3ae46cc078e1c62320ab56a207c990cf5d086ad2fd83fef"
+    },
+    "runtime/src/lodestone_machinery/crystal_claims.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/crystal_claims.py",
+      "sha256": "97d44b26e105ae661a9c4368158bc079efa37bdcad14732678c87353360df737",
+      "source_sha256": "97d44b26e105ae661a9c4368158bc079efa37bdcad14732678c87353360df737"
+    },
+    "runtime/src/lodestone_machinery/crystal_mutations.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/crystal_mutations.py",
+      "sha256": "f248a6d4168c1b4fcb331290af478bb432f3f916f43b4490b88489b7b1780c19",
+      "source_sha256": "f248a6d4168c1b4fcb331290af478bb432f3f916f43b4490b88489b7b1780c19"
+    },
+    "runtime/src/lodestone_machinery/crystal_policy.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/crystal_policy.py",
+      "sha256": "e84efe63da44780e425607e4fdd77181140a4601a3958a380eb9ed91a3b6d3ca",
+      "source_sha256": "e84efe63da44780e425607e4fdd77181140a4601a3958a380eb9ed91a3b6d3ca"
+    },
+    "runtime/src/lodestone_machinery/crystal_routing.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/crystal_routing.py",
+      "sha256": "19a974948a46d041b713c023f431f085663234f470b09439496b3611fe5e8316",
+      "source_sha256": "19a974948a46d041b713c023f431f085663234f470b09439496b3611fe5e8316"
+    },
+    "runtime/src/lodestone_machinery/crystals.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/crystals.py",
+      "sha256": "98aa666353bb45ccddd838da053b6f99dbb915b61a0d290b4d93f5acc37720c6",
+      "source_sha256": "98aa666353bb45ccddd838da053b6f99dbb915b61a0d290b4d93f5acc37720c6"
+    },
+    "runtime/src/lodestone_machinery/crystals_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/crystals_cli.py",
+      "sha256": "c4eed7f06ddebe41e5cd33c3fa3f82ad2498baf1872b224bd7211ca12cebb451",
+      "source_sha256": "c4eed7f06ddebe41e5cd33c3fa3f82ad2498baf1872b224bd7211ca12cebb451"
+    },
+    "runtime/src/lodestone_machinery/engine.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/engine.py",
+      "sha256": "a18ee157a5e1ac689ba2204af883501ac3e709667a8fde9b52cd0dd08bde2caf",
+      "source_sha256": "a18ee157a5e1ac689ba2204af883501ac3e709667a8fde9b52cd0dd08bde2caf"
+    },
+    "runtime/src/lodestone_machinery/fold_export.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/fold_export.py",
+      "sha256": "2595fbd1767be2e88b053720c0f7efc03717dec7d4b71a20eed170ee504bc524",
+      "source_sha256": "2595fbd1767be2e88b053720c0f7efc03717dec7d4b71a20eed170ee504bc524"
+    },
+    "runtime/src/lodestone_machinery/fold_isolation.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/fold_isolation.py",
+      "sha256": "79af4bb665e7c7bed84f6cd730ad254cde4c453240733e9cd5fb3feca6565366",
+      "source_sha256": "79af4bb665e7c7bed84f6cd730ad254cde4c453240733e9cd5fb3feca6565366"
+    },
+    "runtime/src/lodestone_machinery/inspection.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/inspection.py",
+      "sha256": "9766cf7cbfab93f7ed401be93750ea7ed9fda6dd7acdb2edbad766899485a214",
+      "source_sha256": "9766cf7cbfab93f7ed401be93750ea7ed9fda6dd7acdb2edbad766899485a214"
+    },
+    "runtime/src/lodestone_machinery/latent/__init__.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/latent/__init__.py",
+      "sha256": "d0e2e0e4d0bc1a70b4e2c411839b22c2ada0d44c7a5afc7d37cd82dfbe3dafb6",
+      "source_sha256": "d0e2e0e4d0bc1a70b4e2c411839b22c2ada0d44c7a5afc7d37cd82dfbe3dafb6"
+    },
+    "runtime/src/lodestone_machinery/latent/artifact_storage.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/latent/artifact_storage.py",
+      "sha256": "876135538f4cfa4a4fd1f1d31a6f69faf19bd7766d0e7f6b26f5ffba6f4b1499",
+      "source_sha256": "876135538f4cfa4a4fd1f1d31a6f69faf19bd7766d0e7f6b26f5ffba6f4b1499"
+    },
+    "runtime/src/lodestone_machinery/latent/candidate_inputs.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/latent/candidate_inputs.py",
+      "sha256": "97dc791f6676d26b143aa911cde2f4ebc78aa3e938b0e9de9c9cb69b643c1d56",
+      "source_sha256": "97dc791f6676d26b143aa911cde2f4ebc78aa3e938b0e9de9c9cb69b643c1d56"
+    },
+    "runtime/src/lodestone_machinery/latent/cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/latent/cli.py",
+      "sha256": "4cc003c110359eac3b7be5865cf49c963b7c0bf14f99b802115e00fb1735bf59",
+      "source_sha256": "4cc003c110359eac3b7be5865cf49c963b7c0bf14f99b802115e00fb1735bf59"
+    },
+    "runtime/src/lodestone_machinery/latent/codec.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/latent/codec.py",
+      "sha256": "43f2877358b8243531e0be2f2af27ec4fd0e5d219bdedc475a59f46dd685b2a5",
+      "source_sha256": "43f2877358b8243531e0be2f2af27ec4fd0e5d219bdedc475a59f46dd685b2a5"
+    },
+    "runtime/src/lodestone_machinery/latent/compact_checkpoint.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/latent/compact_checkpoint.py",
+      "sha256": "9c1b407590707753a19c8170e91b47ed9dc7d7286b520a7a0a725b32f00cd369",
+      "source_sha256": "9c1b407590707753a19c8170e91b47ed9dc7d7286b520a7a0a725b32f00cd369"
+    },
+    "runtime/src/lodestone_machinery/latent/compact_layout.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/latent/compact_layout.py",
+      "sha256": "6bd0f5c255d00fa10dc03cc3ae15a090cdb08995a4c806edfd9a1eb0345bd1ef",
+      "source_sha256": "6bd0f5c255d00fa10dc03cc3ae15a090cdb08995a4c806edfd9a1eb0345bd1ef"
+    },
+    "runtime/src/lodestone_machinery/latent/latent_model.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/latent/latent_model.py",
+      "sha256": "3cab3683748bc3888fbcda28212509857f882193a41e5bccd296401a4bb46c4c",
+      "source_sha256": "3cab3683748bc3888fbcda28212509857f882193a41e5bccd296401a4bb46c4c"
+    },
+    "runtime/src/lodestone_machinery/latent/lifting.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/latent/lifting.py",
+      "sha256": "ee76457d0faf71597aa2eb6c896d01036208f2e43d2365d02c4f498db10a7410",
+      "source_sha256": "ee76457d0faf71597aa2eb6c896d01036208f2e43d2365d02c4f498db10a7410"
+    },
+    "runtime/src/lodestone_machinery/latent/store_adapter.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/latent/store_adapter.py",
+      "sha256": "07558b36e47cf4e856bfd73dca44d6814131a4ad84a9011c91fcce7f77366f0a",
+      "source_sha256": "07558b36e47cf4e856bfd73dca44d6814131a4ad84a9011c91fcce7f77366f0a"
+    },
+    "runtime/src/lodestone_machinery/learning_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/learning_cli.py",
+      "sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315",
+      "source_sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315"
+    },
+    "runtime/src/lodestone_machinery/learning_context.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/learning_context.py",
+      "sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24",
+      "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
+    },
+    "runtime/src/lodestone_machinery/learning_reader.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/learning_reader.py",
+      "sha256": "140ec434cc47a3b4a8b40842562197fb0ddb6de9c648b123545ba34b35fa90a4",
+      "source_sha256": "140ec434cc47a3b4a8b40842562197fb0ddb6de9c648b123545ba34b35fa90a4"
+    },
+    "runtime/src/lodestone_machinery/lesson_context.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/lesson_context.py",
+      "sha256": "3d8adde6fff161004ec6744f278b675e4072fce347e575fcf2583da5d7bfb016",
+      "source_sha256": "3d8adde6fff161004ec6744f278b675e4072fce347e575fcf2583da5d7bfb016"
+    },
+    "runtime/src/lodestone_machinery/loom.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom.py",
+      "sha256": "8e0907fb8e1b362809fef7b97e6c192b517b894c84b303999817b86a11bd14bf",
+      "source_sha256": "8e0907fb8e1b362809fef7b97e6c192b517b894c84b303999817b86a11bd14bf"
+    },
+    "runtime/src/lodestone_machinery/loom_adapter.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_adapter.py",
+      "sha256": "c661ab4aaafa8961341d8ee0aa8301118e8e6679b5eefadb34983f3518921486",
+      "source_sha256": "c661ab4aaafa8961341d8ee0aa8301118e8e6679b5eefadb34983f3518921486"
+    },
+    "runtime/src/lodestone_machinery/loom_adapter_local.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_adapter_local.py",
+      "sha256": "ee4b291faae2818539507060db04a6d9611736275f0ba98eac59adf698112989",
+      "source_sha256": "31fb73057c4f679fde8edcf50fcdb97e04323211b796e3a2961643b96fb567c3"
+    },
+    "runtime/src/lodestone_machinery/loom_adapter_torch.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_adapter_torch.py",
+      "sha256": "7e56b6b73f52081fb649f4bc8479b1219d40f0f5abea77c4aa90f71b174bf01f",
+      "source_sha256": "7e56b6b73f52081fb649f4bc8479b1219d40f0f5abea77c4aa90f71b174bf01f"
+    },
+    "runtime/src/lodestone_machinery/loom_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_cli.py",
+      "sha256": "48ae43cc58d91cbf77331097a96f5d62651aad5d83097779dd57e7f847e80bf3",
+      "source_sha256": "48ae43cc58d91cbf77331097a96f5d62651aad5d83097779dd57e7f847e80bf3"
+    },
+    "runtime/src/lodestone_machinery/loom_context.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_context.py",
+      "sha256": "c9282c1af1d7333649e9557aad3a6e605e7a145382f0c091cd8fcc96904023b4",
+      "source_sha256": "c9282c1af1d7333649e9557aad3a6e605e7a145382f0c091cd8fcc96904023b4"
+    },
+    "runtime/src/lodestone_machinery/loom_garden.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_garden.py",
+      "sha256": "d24a663c237ffca91b52f5972c1ce9c2610f40c65983947b196ddb2f9bd914ac",
+      "source_sha256": "d24a663c237ffca91b52f5972c1ce9c2610f40c65983947b196ddb2f9bd914ac"
+    },
+    "runtime/src/lodestone_machinery/loom_handoff.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_handoff.py",
+      "sha256": "c3f9fb64a73f2d18a8695c217e64c8ea12407799626bc1144b175ca2ba526df5",
+      "source_sha256": "c3f9fb64a73f2d18a8695c217e64c8ea12407799626bc1144b175ca2ba526df5"
+    },
+    "runtime/src/lodestone_machinery/loom_improvement.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_improvement.py",
+      "sha256": "bcbec6c662b33c16dc62284a39fe197952b538e69d614f735e1cfe5c3b133f2f",
+      "source_sha256": "bcbec6c662b33c16dc62284a39fe197952b538e69d614f735e1cfe5c3b133f2f"
+    },
+    "runtime/src/lodestone_machinery/loom_improvement_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_improvement_cli.py",
+      "sha256": "41f130866549d44d8112b80e694f50ed02979c3fb08934910def325bb12fb1ae",
+      "source_sha256": "41f130866549d44d8112b80e694f50ed02979c3fb08934910def325bb12fb1ae"
+    },
+    "runtime/src/lodestone_machinery/loom_inference_memory.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_inference_memory.py",
+      "sha256": "a9e4622ee6d07d2413752e7a055a95aecf5b0d2f959cb02a9444bc6a39757a7a",
+      "source_sha256": "a9e4622ee6d07d2413752e7a055a95aecf5b0d2f959cb02a9444bc6a39757a7a"
+    },
+    "runtime/src/lodestone_machinery/loom_memory_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_memory_cli.py",
+      "sha256": "ee5b370ac861b13b82cf7065db8ab74f0ba200fbf14b0d98d4597376ce90065f",
+      "source_sha256": "ee5b370ac861b13b82cf7065db8ab74f0ba200fbf14b0d98d4597376ce90065f"
+    },
+    "runtime/src/lodestone_machinery/loom_nli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_nli.py",
+      "sha256": "8bb11d235a57821e7afbe12256955412658c028b7e7f7b7a27adf157e9d46bec",
+      "source_sha256": "8bb11d235a57821e7afbe12256955412658c028b7e7f7b7a27adf157e9d46bec"
+    },
+    "runtime/src/lodestone_machinery/loom_operations.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_operations.py",
+      "sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c",
+      "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
+    },
+    "runtime/src/lodestone_machinery/loom_optional_operations.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_optional_operations.py",
+      "sha256": "21f70c48e6ec29d9f00dafe65975fdc55be71f4608b2be01cfcecd96311e8dbc",
+      "source_sha256": "21f70c48e6ec29d9f00dafe65975fdc55be71f4608b2be01cfcecd96311e8dbc"
+    },
+    "runtime/src/lodestone_machinery/loom_runtime.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_runtime.py",
+      "sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878",
+      "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
+    },
+    "runtime/src/lodestone_machinery/loom_runtime_worker.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_runtime_worker.py",
+      "sha256": "f3ef93a7dfca4c5a6281fc51970d739f288b7f7d4766e682fc33e7e178e095f1",
+      "source_sha256": "c27a1bd2556109fc41ce2242cc557841f1d46f57ed369c42067cfec4aea3e01f"
+    },
+    "runtime/src/lodestone_machinery/loom_support.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_support.py",
+      "sha256": "6604c1f1c4bddadce0406268d86965a594c312f293619b6ca83c3853644f0a1c",
+      "source_sha256": "6604c1f1c4bddadce0406268d86965a594c312f293619b6ca83c3853644f0a1c"
+    },
+    "runtime/src/lodestone_machinery/loom_support_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_support_cli.py",
+      "sha256": "8c027f092d18d71f08045335e452a60946454320cb9a9044c8b94e2c02a8719e",
+      "source_sha256": "8c027f092d18d71f08045335e452a60946454320cb9a9044c8b94e2c02a8719e"
+    },
+    "runtime/src/lodestone_machinery/loom_support_decision.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_support_decision.py",
+      "sha256": "909fd0f1b7e8837074f03738770e11c8e6cf5a8c483d65f8f0fc8143609648bf",
+      "source_sha256": "909fd0f1b7e8837074f03738770e11c8e6cf5a8c483d65f8f0fc8143609648bf"
+    },
+    "runtime/src/lodestone_machinery/loom_text.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_text.py",
+      "sha256": "b1ddf92ffabe19c565e8a59e0ef77deebff2d28a41665ef62904fe434d57c234",
+      "source_sha256": "b1ddf92ffabe19c565e8a59e0ef77deebff2d28a41665ef62904fe434d57c234"
+    },
+    "runtime/src/lodestone_machinery/loom_text_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_text_cli.py",
+      "sha256": "bddcabb75abb3d6312a4e2d4f686c03af726a9800b8b4f0ab35948ff084f4ee9",
+      "source_sha256": "bddcabb75abb3d6312a4e2d4f686c03af726a9800b8b4f0ab35948ff084f4ee9"
+    },
+    "runtime/src/lodestone_machinery/loom_text_torch.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_text_torch.py",
+      "sha256": "563cb6b70836844474407b3b28de034ab5b323ed534843ca0d15991ed80dee57",
+      "source_sha256": "563cb6b70836844474407b3b28de034ab5b323ed534843ca0d15991ed80dee57"
+    },
+    "runtime/src/lodestone_machinery/loom_training.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_training.py",
+      "sha256": "2e21db869eb200ee2f6bb6a5cf244b0d8de07f0897a26bbb218e4b58c9b66289",
+      "source_sha256": "2e21db869eb200ee2f6bb6a5cf244b0d8de07f0897a26bbb218e4b58c9b66289"
+    },
+    "runtime/src/lodestone_machinery/loom_training_worker.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_training_worker.py",
+      "sha256": "2b78276cf87a5d7f762f00f844cf76a026414d9af9b8b1fcd9100048e60c634e",
+      "source_sha256": "2b78276cf87a5d7f762f00f844cf76a026414d9af9b8b1fcd9100048e60c634e"
+    },
+    "runtime/src/lodestone_machinery/loom_unified.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_unified.py",
+      "sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e",
+      "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
+    },
+    "runtime/src/lodestone_machinery/loom_voxels.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_voxels.py",
+      "sha256": "9af2cead9f119dbe0d8d7108ac6f78ed0118d30ddd735a1c3eb146bf3c2a1c67",
+      "source_sha256": "9af2cead9f119dbe0d8d7108ac6f78ed0118d30ddd735a1c3eb146bf3c2a1c67"
+    },
+    "runtime/src/lodestone_machinery/loom_would_probe.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/loom_would_probe.py",
+      "sha256": "dae7c6e3605a99854734a91a6b194d0bf1bd8384973ade2b5f5f01d7e7d0bb09",
+      "source_sha256": "dae7c6e3605a99854734a91a6b194d0bf1bd8384973ade2b5f5f01d7e7d0bb09"
+    },
+    "runtime/src/lodestone_machinery/macro_voxel.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/macro_voxel.py",
+      "sha256": "6016efca0f7f46e081d72c24b2191ae3b68b79f88d153e47d045928ae33644b9",
+      "source_sha256": "6016efca0f7f46e081d72c24b2191ae3b68b79f88d153e47d045928ae33644b9"
+    },
+    "runtime/src/lodestone_machinery/nodes.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/nodes.py",
+      "sha256": "90e2dc6ce95c3a0f7aa214d5900dbaf5c1dc392dfd4c78bf51a091a694aef93d",
+      "source_sha256": "90e2dc6ce95c3a0f7aa214d5900dbaf5c1dc392dfd4c78bf51a091a694aef93d"
+    },
+    "runtime/src/lodestone_machinery/organs/__init__.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/__init__.py",
+      "sha256": "c1ddce3f27eb784111d1cb73cd9df7f161548a829b29a64cda3d87779208362c",
+      "source_sha256": "c1ddce3f27eb784111d1cb73cd9df7f161548a829b29a64cda3d87779208362c"
+    },
+    "runtime/src/lodestone_machinery/organs/_kernel.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/_kernel.py",
+      "sha256": "4b8a5fcea14a0cb062e4131bd465437723cae124f4780242c2b25fd2dba81f31",
+      "source_sha256": "4b8a5fcea14a0cb062e4131bd465437723cae124f4780242c2b25fd2dba81f31"
+    },
+    "runtime/src/lodestone_machinery/organs/_values.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/_values.py",
+      "sha256": "e658469632efd2c421dac14090d641d16f194b2cff95dc503cc7bb30e38028f4",
+      "source_sha256": "e658469632efd2c421dac14090d641d16f194b2cff95dc503cc7bb30e38028f4"
+    },
+    "runtime/src/lodestone_machinery/organs/brief.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/brief.py",
+      "sha256": "e3a634530b98622df41ac0617dd91d96a916f126fd29be9e8b01c4cd2f76d7d2",
+      "source_sha256": "e3a634530b98622df41ac0617dd91d96a916f126fd29be9e8b01c4cd2f76d7d2"
+    },
+    "runtime/src/lodestone_machinery/organs/eat.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/eat.py",
+      "sha256": "877be9fd7bb7c600f927fcc92887c6549a0c155551b7a4da7625072b5e90083e",
+      "source_sha256": "877be9fd7bb7c600f927fcc92887c6549a0c155551b7a4da7625072b5e90083e"
+    },
+    "runtime/src/lodestone_machinery/organs/ingest.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/ingest.py",
+      "sha256": "96a511bc7195f36866f5f70e6be9cd1d9ffacc000f73039108b1d44b0024474c",
+      "source_sha256": "96a511bc7195f36866f5f70e6be9cd1d9ffacc000f73039108b1d44b0024474c"
+    },
+    "runtime/src/lodestone_machinery/organs/measurement.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/measurement.py",
+      "sha256": "dd84a147673ee315eca56b2a8513d4aa5e3aed50be4b5ab44b6d1ea376baf948",
+      "source_sha256": "dd84a147673ee315eca56b2a8513d4aa5e3aed50be4b5ab44b6d1ea376baf948"
+    },
+    "runtime/src/lodestone_machinery/organs/mutate.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/mutate.py",
+      "sha256": "03a16d02684f7eace91827c34798cf1ce5f1bf877f9c96ae199a20d71277e618",
+      "source_sha256": "03a16d02684f7eace91827c34798cf1ce5f1bf877f9c96ae199a20d71277e618"
+    },
+    "runtime/src/lodestone_machinery/organs/pressure.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/pressure.py",
+      "sha256": "313112d93f307647246cd08012aece9b700e5aa1b2191d15ff78907aea98d952",
+      "source_sha256": "313112d93f307647246cd08012aece9b700e5aa1b2191d15ff78907aea98d952"
+    },
+    "runtime/src/lodestone_machinery/organs/residuals.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/residuals.py",
+      "sha256": "269d87c4a15d54ca9d845246a13144ff41db1b7b15ecd26092594405d6b6a90b",
+      "source_sha256": "269d87c4a15d54ca9d845246a13144ff41db1b7b15ecd26092594405d6b6a90b"
+    },
+    "runtime/src/lodestone_machinery/organs/selection.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/selection.py",
+      "sha256": "742e8b5c43d0afc6264eb76359e93be5aeed839fe49654b163815ab46b2ea311",
+      "source_sha256": "742e8b5c43d0afc6264eb76359e93be5aeed839fe49654b163815ab46b2ea311"
+    },
+    "runtime/src/lodestone_machinery/organs/sources.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/sources.py",
+      "sha256": "088f11e1875a4e3bc122218f101b435eabb368b6c5079a4fdb8c574443576da8",
+      "source_sha256": "088f11e1875a4e3bc122218f101b435eabb368b6c5079a4fdb8c574443576da8"
+    },
+    "runtime/src/lodestone_machinery/organs/watcher.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/organs/watcher.py",
+      "sha256": "b19142d86daa3281e9207bd77b9b85927b08e0c418bc63d889b1844b353a41e6",
+      "source_sha256": "b19142d86daa3281e9207bd77b9b85927b08e0c418bc63d889b1844b353a41e6"
+    },
+    "runtime/src/lodestone_machinery/origami.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/origami.py",
+      "sha256": "519004864947824b9a5ca38d7017c774cbe4a6dcacb8dc85ae3e523a1bd30d80",
+      "source_sha256": "519004864947824b9a5ca38d7017c774cbe4a6dcacb8dc85ae3e523a1bd30d80"
+    },
+    "runtime/src/lodestone_machinery/origami_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/origami_cli.py",
+      "sha256": "3edb850b08b2c5c666739887a4fbc1660b9796d49f7082e8d95a7d39610bf2cd",
+      "source_sha256": "3edb850b08b2c5c666739887a4fbc1660b9796d49f7082e8d95a7d39610bf2cd"
+    },
+    "runtime/src/lodestone_machinery/pressure_pair.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/pressure_pair.py",
+      "sha256": "047ca9ae58b69bbf853cf1b49f949c25a62b292e1002d8a5d79b2d10e3e142bb",
+      "source_sha256": "047ca9ae58b69bbf853cf1b49f949c25a62b292e1002d8a5d79b2d10e3e142bb"
+    },
+    "runtime/src/lodestone_machinery/records.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/records.py",
+      "sha256": "c575a0a6649eb08b2ba7b41f650764c1ccac9c2334932140842000c269ad8b5e",
+      "source_sha256": "c575a0a6649eb08b2ba7b41f650764c1ccac9c2334932140842000c269ad8b5e"
+    },
+    "runtime/src/lodestone_machinery/reviewed_workflow.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/reviewed_workflow.py",
+      "sha256": "500ce3771e7188f1c0c26a228ebe1626c07303293a30482f68a8f36c49b47e0e",
+      "source_sha256": "500ce3771e7188f1c0c26a228ebe1626c07303293a30482f68a8f36c49b47e0e"
+    },
+    "runtime/src/lodestone_machinery/samples/repair.md": {
+      "origin": "public-core",
+      "path": "src/lodestone_machinery/samples/repair.md",
+      "sha256": "9bd20b8dad8dca2cce564c27720d45493a0304093ac9abcdd918049e0fb885fb",
+      "source_sha256": "9bd20b8dad8dca2cce564c27720d45493a0304093ac9abcdd918049e0fb885fb"
+    },
+    "runtime/src/lodestone_machinery/samples/workshop.md": {
+      "origin": "public-core",
+      "path": "src/lodestone_machinery/samples/workshop.md",
+      "sha256": "1cbe7b95f3bb2f876bd843d5d273b675fa4b9152b4c122e73294f8a47585860d",
+      "source_sha256": "1cbe7b95f3bb2f876bd843d5d273b675fa4b9152b4c122e73294f8a47585860d"
+    },
+    "runtime/src/lodestone_machinery/source_seeds.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/source_seeds.py",
+      "sha256": "2359dfd3546cbf3ffd9e81a3953322717be87062360645f9979b2ef29b7e2663",
+      "source_sha256": "2359dfd3546cbf3ffd9e81a3953322717be87062360645f9979b2ef29b7e2663"
+    },
+    "runtime/src/lodestone_machinery/support_review.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/support_review.py",
+      "sha256": "df07f7e3d4b2c5b01d8710e952553142c410635cce55205a6bacc7bb5eca00ad",
+      "source_sha256": "df07f7e3d4b2c5b01d8710e952553142c410635cce55205a6bacc7bb5eca00ad"
+    },
+    "runtime/src/lodestone_machinery/support_review_provider.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/support_review_provider.py",
+      "sha256": "4a7588c2d53a07dbc4f2950e05114bb7d91af5e40a3e31205a3c2554d230e632",
+      "source_sha256": "4a7588c2d53a07dbc4f2950e05114bb7d91af5e40a3e31205a3c2554d230e632"
+    },
+    "runtime/src/lodestone_machinery/transformer.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/transformer.py",
+      "sha256": "91c8de71cb0972bc61936698871ab0133db0d18a15dfc2ca0f102b93208c0e30",
+      "source_sha256": "91c8de71cb0972bc61936698871ab0133db0d18a15dfc2ca0f102b93208c0e30"
+    },
+    "runtime/src/lodestone_machinery/transformer_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/transformer_cli.py",
+      "sha256": "c26249426d3bd1a5119bf1a7a30ed15ee9e55e45b3e5d2f1355e892754a4c365",
+      "source_sha256": "c26249426d3bd1a5119bf1a7a30ed15ee9e55e45b3e5d2f1355e892754a4c365"
+    },
+    "runtime/src/lodestone_machinery/transformer_training.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/transformer_training.py",
+      "sha256": "f04911b1be8ea9b4a354527c8ea6c6d472b10f23abfc41713fc25ed4f011de3b",
+      "source_sha256": "f04911b1be8ea9b4a354527c8ea6c6d472b10f23abfc41713fc25ed4f011de3b"
+    },
+    "runtime/src/lodestone_machinery/transformer_training_cli.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/transformer_training_cli.py",
+      "sha256": "c01f51c3f110655540b0b7709e9d1338494b6545a9813edf3aece631d451586f",
+      "source_sha256": "c01f51c3f110655540b0b7709e9d1338494b6545a9813edf3aece631d451586f"
+    },
+    "runtime/src/lodestone_machinery/usage.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/usage.py",
+      "sha256": "ee38e822f34c91d19d24c7a6299de485781afa486c143729d6f6cb3082b2a844",
+      "source_sha256": "ee38e822f34c91d19d24c7a6299de485781afa486c143729d6f6cb3082b2a844"
+    },
+    "runtime/src/lodestone_machinery/workers.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/workers.py",
+      "sha256": "ae0f6851f75524672a6e93fdeb6473db78202c1a6559a5f2ea39e64acb830c2b",
+      "source_sha256": "ae0f6851f75524672a6e93fdeb6473db78202c1a6559a5f2ea39e64acb830c2b"
+    },
+    "runtime/src/lodestone_machinery/yggdrasil.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/yggdrasil.py",
+      "sha256": "e977ef6d9c549f9069ec2d40d4d28d6970d56a3bb9b568555cc106e68184085f",
+      "source_sha256": "e977ef6d9c549f9069ec2d40d4d28d6970d56a3bb9b568555cc106e68184085f"
+    },
+    "runtime/src/lodestone_machinery/yggdrasil_learning.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/yggdrasil_learning.py",
+      "sha256": "f0bed09f43d31c2048f1554914d274ca7e014c00380dd2ee9e1a29dc92cabeda",
+      "source_sha256": "f0bed09f43d31c2048f1554914d274ca7e014c00380dd2ee9e1a29dc92cabeda"
+    },
+    "runtime/src/lodestone_machinery/yggdrasil_reuse.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/yggdrasil_reuse.py",
+      "sha256": "b4ee8b8bc3a3fab39c92d0a2874a44f0cef2a0837c7c906920c85666a8c71179",
+      "source_sha256": "b4ee8b8bc3a3fab39c92d0a2874a44f0cef2a0837c7c906920c85666a8c71179"
+    },
+    "runtime/src/lodestone_machinery/yggdrasil_runtime.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/yggdrasil_runtime.py",
+      "sha256": "8bade491d113612bfd346cb3fa679521b13e96e845e9ed62dd46cd58009285d5",
+      "source_sha256": "8bade491d113612bfd346cb3fa679521b13e96e845e9ed62dd46cd58009285d5"
+    },
+    "runtime/src/lodestone_machinery/yggdrasil_sources.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/yggdrasil_sources.py",
+      "sha256": "2c9176f663a78421901ce47ce2824ff7eab17f0f1ae8e73fd645bdd4d7f6858a",
+      "source_sha256": "2c9176f663a78421901ce47ce2824ff7eab17f0f1ae8e73fd645bdd4d7f6858a"
+    },
+    "runtime/src/lodestone_nurarihyon/__init__.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/__init__.py",
+      "sha256": "e0185827ac7600ce2a1306cf9d40b3591c2b1da7a4bec91896da6064e6ddd852",
+      "source_sha256": "e0185827ac7600ce2a1306cf9d40b3591c2b1da7a4bec91896da6064e6ddd852"
+    },
+    "runtime/src/lodestone_nurarihyon/__main__.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/__main__.py",
+      "sha256": "415312a8d535f9ac1c3273880d165e96936df9f9c765faabfee5fc360a7828bd",
+      "source_sha256": "415312a8d535f9ac1c3273880d165e96936df9f9c765faabfee5fc360a7828bd"
+    },
+    "runtime/src/lodestone_nurarihyon/common.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/common.py",
+      "sha256": "e1b4aa1ab0abf7d7753c33a1373b1d0da4ef609992de6abc1905515ec55836df",
+      "source_sha256": "e1b4aa1ab0abf7d7753c33a1373b1d0da4ef609992de6abc1905515ec55836df"
+    },
+    "runtime/src/lodestone_nurarihyon/complete_capture.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/complete_capture.py",
+      "sha256": "cfbebf4d279ae46b3ea9a4f80cb85a490063bb5830e6200139e5cd401057724b",
+      "source_sha256": "cfbebf4d279ae46b3ea9a4f80cb85a490063bb5830e6200139e5cd401057724b"
+    },
+    "runtime/src/lodestone_nurarihyon/conscience_binding.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/conscience_binding.py",
+      "sha256": "111bf041e09cfd75ad10578a1dbd79b576b9a8ea8f0fb0cfd79d6dae813b38da",
+      "source_sha256": "111bf041e09cfd75ad10578a1dbd79b576b9a8ea8f0fb0cfd79d6dae813b38da"
+    },
+    "runtime/src/lodestone_nurarihyon/context.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/context.py",
+      "sha256": "00da5dd4381d98c9d958f97ed5a6a6b5977d6058cf3f335ded8ec435714e9f04",
+      "source_sha256": "00da5dd4381d98c9d958f97ed5a6a6b5977d6058cf3f335ded8ec435714e9f04"
+    },
+    "runtime/src/lodestone_nurarihyon/controller.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/controller.py",
+      "sha256": "cefdc0fe266243432b3a163b9547b3e009af09a1b22539de11a7737716ece32c",
+      "source_sha256": "cefdc0fe266243432b3a163b9547b3e009af09a1b22539de11a7737716ece32c"
+    },
+    "runtime/src/lodestone_nurarihyon/deployment.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/deployment.py",
+      "sha256": "a5b5bdc6f64a01ef96f8ee87c9286cee00517d1d58efadca4483d21a1085c26d",
+      "source_sha256": "a5b5bdc6f64a01ef96f8ee87c9286cee00517d1d58efadca4483d21a1085c26d"
+    },
+    "runtime/src/lodestone_nurarihyon/documents.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/documents.py",
+      "sha256": "c3dd1869e05228898b11c0699502b4c915c7f14f4d5232e884875055089417d9",
+      "source_sha256": "c3dd1869e05228898b11c0699502b4c915c7f14f4d5232e884875055089417d9"
+    },
+    "runtime/src/lodestone_nurarihyon/historical_observation.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/historical_observation.py",
+      "sha256": "b4bfd556ee3e6abc035fb34bc29033fa15e31abda9d84ad56a04574079b76021",
+      "source_sha256": "b4bfd556ee3e6abc035fb34bc29033fa15e31abda9d84ad56a04574079b76021"
+    },
+    "runtime/src/lodestone_nurarihyon/inspection.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/inspection.py",
+      "sha256": "fdd66e53be2a161fb00fd40f907e37ee6f0586b16fe2179a584c89c6c94b9af8",
+      "source_sha256": "fdd66e53be2a161fb00fd40f907e37ee6f0586b16fe2179a584c89c6c94b9af8"
+    },
+    "runtime/src/lodestone_nurarihyon/learning.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/learning.py",
+      "sha256": "2784d690b51e3d8e6a56923b228891f006a7cfcd44f286a0cccc49d90cca4c68",
+      "source_sha256": "2784d690b51e3d8e6a56923b228891f006a7cfcd44f286a0cccc49d90cca4c68"
+    },
+    "runtime/src/lodestone_nurarihyon/learning_conscience.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/learning_conscience.py",
+      "sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9",
+      "source_sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9"
+    },
+    "runtime/src/lodestone_nurarihyon/learning_recurrence.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/learning_recurrence.py",
+      "sha256": "ccc4c6e3bb12bda7a5fe40035442cc683eb7a76b924fbc9996087a59a64bedec",
+      "source_sha256": "ccc4c6e3bb12bda7a5fe40035442cc683eb7a76b924fbc9996087a59a64bedec"
+    },
+    "runtime/src/lodestone_nurarihyon/outcome_memory.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/outcome_memory.py",
+      "sha256": "2d6324a981c567248d25171711444b068eb95deecd0ab6d385662854797e15b1",
+      "source_sha256": "2d6324a981c567248d25171711444b068eb95deecd0ab6d385662854797e15b1"
+    },
+    "runtime/src/lodestone_nurarihyon/plans.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/plans.py",
+      "sha256": "e47d5665f2d6824be7377dfa4abf1aa68b86d98f09d39008c4f3d60816f24521",
+      "source_sha256": "e47d5665f2d6824be7377dfa4abf1aa68b86d98f09d39008c4f3d60816f24521"
+    },
+    "runtime/src/lodestone_nurarihyon/policy.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/policy.py",
+      "sha256": "65bc6a6c37d0b96e90bb1c9d524d516deef9aca80ea4c6546e2831771dbfa8e4",
+      "source_sha256": "65bc6a6c37d0b96e90bb1c9d524d516deef9aca80ea4c6546e2831771dbfa8e4"
+    },
+    "runtime/src/lodestone_nurarihyon/portable.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/portable.py",
+      "sha256": "177b9715070327fc4e7e0e9cc6a81d7c067b57c90ded925cf3b97505dd453e58",
+      "source_sha256": "177b9715070327fc4e7e0e9cc6a81d7c067b57c90ded925cf3b97505dd453e58"
+    },
+    "runtime/src/lodestone_nurarihyon/preparation.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/preparation.py",
+      "sha256": "b640c42934068b3b78e52c719b271e40769c33c8c33f0feb3ddd34989f2fa367",
+      "source_sha256": "b640c42934068b3b78e52c719b271e40769c33c8c33f0feb3ddd34989f2fa367"
+    },
+    "runtime/src/lodestone_nurarihyon/process_rss.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/process_rss.py",
+      "sha256": "7df9b1939241a8bf1a9d8fd370148d78f3c17945e8ddcdbdf33929db324c66db",
+      "source_sha256": "7df9b1939241a8bf1a9d8fd370148d78f3c17945e8ddcdbdf33929db324c66db"
+    },
+    "runtime/src/lodestone_nurarihyon/reconciliation.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/reconciliation.py",
+      "sha256": "b21f3836f84b0dfeae950ceb5777559f658ab46d79071b5b4abed2a0bc8def61",
+      "source_sha256": "b21f3836f84b0dfeae950ceb5777559f658ab46d79071b5b4abed2a0bc8def61"
+    },
+    "runtime/src/lodestone_nurarihyon/reconciliation_intent.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/reconciliation_intent.py",
+      "sha256": "879a183812f2aee5487ee7214ed45667bbdea30f7d0f7fa358436bbfa726c76e",
+      "source_sha256": "879a183812f2aee5487ee7214ed45667bbdea30f7d0f7fa358436bbfa726c76e"
+    },
+    "runtime/src/lodestone_nurarihyon/registry.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/registry.py",
+      "sha256": "a13730cb4456f3da4ff53cb10447f2081f4e32cbd7a619c367114b98571f40ec",
+      "source_sha256": "a13730cb4456f3da4ff53cb10447f2081f4e32cbd7a619c367114b98571f40ec"
+    },
+    "runtime/src/lodestone_nurarihyon/service.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/service.py",
+      "sha256": "81158c8ab9016324bbb7cd02210cef50d701d68a406e4ed0e25bb8482c086a3c",
+      "source_sha256": "81158c8ab9016324bbb7cd02210cef50d701d68a406e4ed0e25bb8482c086a3c"
+    },
+    "runtime/src/lodestone_nurarihyon/startup.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/startup.py",
+      "sha256": "f22d30201a539f3169ed7f4601ac9ce43df8f763ad836053282fcba122b738ea",
+      "source_sha256": "f22d30201a539f3169ed7f4601ac9ce43df8f763ad836053282fcba122b738ea"
+    },
+    "runtime/src/lodestone_nurarihyon/worker.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_nurarihyon/worker.py",
+      "sha256": "4045d216fa85a81878a7c5a6af0227fcfd94b466d1374b53ca5e6d476af09400",
+      "source_sha256": "4045d216fa85a81878a7c5a6af0227fcfd94b466d1374b53ca5e6d476af09400"
+    },
+    "runtime/src/lodestone_pando/__init__.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_pando/__init__.py",
+      "sha256": "b277498a5d11c9333690aeb5d0fd8bfd3ec1bf5ccca469fa4adbda815f23ce3e",
+      "source_sha256": "b277498a5d11c9333690aeb5d0fd8bfd3ec1bf5ccca469fa4adbda815f23ce3e"
+    },
+    "runtime/src/lodestone_pando/__main__.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_pando/__main__.py",
+      "sha256": "9f57dfd36ee844c6eeb8e30935bbe374fbbaced60e0bf1d80b0a5a30074818cd",
+      "source_sha256": "9f57dfd36ee844c6eeb8e30935bbe374fbbaced60e0bf1d80b0a5a30074818cd"
+    },
+    "runtime/src/lodestone_pando/server.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_pando/server.py",
+      "sha256": "561061e22f5e9f65637e97602d0320700e2ca0fb6b8c8c46c72213c00874f119",
+      "source_sha256": "561061e22f5e9f65637e97602d0320700e2ca0fb6b8c8c46c72213c00874f119"
+    },
+    "runtime/src/lodestone_pando/static/index.html": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_pando/static/index.html",
+      "sha256": "32f657f58aefc7752055c95ab4da99696fee0fb6718cd31c9c7ae30096591165",
+      "source_sha256": "32f657f58aefc7752055c95ab4da99696fee0fb6718cd31c9c7ae30096591165"
+    },
+    "runtime/src/lodestone_pando/store.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_pando/store.py",
+      "sha256": "a75df102e7ffc706b09d8a2abb60e340c365703f84793e1f4c31bc0d16a192aa",
+      "source_sha256": "a75df102e7ffc706b09d8a2abb60e340c365703f84793e1f4c31bc0d16a192aa"
+    },
+    "runtime/tools/continuity/README.md": {
+      "origin": "public-core",
+      "path": "tools/continuity/README.md",
+      "sha256": "78686bf375d4aff8f7e09da955068e24c09977e7bae6ffd42d929ef40e0a4886",
+      "source_sha256": "78686bf375d4aff8f7e09da955068e24c09977e7bae6ffd42d929ef40e0a4886"
+    },
+    "runtime/tools/continuity/checkpoint.py": {
+      "origin": "unified-runtime",
+      "path": "tools/continuity/checkpoint.py",
+      "sha256": "1cb9c4cd8abef300f3f47d03fcaac627618b37039247590ef43a3d3c9c728572",
+      "source_sha256": "1cb9c4cd8abef300f3f47d03fcaac627618b37039247590ef43a3d3c9c728572"
+    },
+    "runtime/tools/corpus-fold/src/corpus_fold.py": {
+      "origin": "unified-runtime",
+      "path": "tools/corpus-fold/src/corpus_fold.py",
+      "sha256": "aae6f4751ad5fe2f9ddd86b70edb411fe779f4831959de522900064f533c0247",
+      "source_sha256": "aae6f4751ad5fe2f9ddd86b70edb411fe779f4831959de522900064f533c0247"
+    },
+    "runtime/tools/ecosystem/cli.py": {
+      "origin": "unified-runtime",
+      "path": "tools/ecosystem/cli.py",
+      "sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e",
+      "source_sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e"
+    },
+    "runtime/tools/ecosystem/conscience-policy.json": {
+      "origin": "unified-runtime",
+      "path": "tools/ecosystem/conscience-policy.json",
+      "sha256": "ca8209b1afea7d1b6bf2a8aa680502d496e33f2e0c4df0f5ec1080b9e286ca27",
+      "source_sha256": "ca8209b1afea7d1b6bf2a8aa680502d496e33f2e0c4df0f5ec1080b9e286ca27"
+    },
+    "runtime/tools/ecosystem/conscience.py": {
+      "origin": "unified-runtime",
+      "path": "tools/ecosystem/conscience.py",
+      "sha256": "554b181a41a86d8766e7025d1ef386d80e7c2342b72ac6a8c1a7a16419114889",
+      "source_sha256": "554b181a41a86d8766e7025d1ef386d80e7c2342b72ac6a8c1a7a16419114889"
+    },
+    "runtime/tools/ecosystem/conscience_targets.py": {
+      "origin": "unified-runtime",
+      "path": "tools/ecosystem/conscience_targets.py",
+      "sha256": "2e93484a588eeefb19b8fe489fe4fd2fadefa9ed24e79a57ca48f8a047a43569",
+      "source_sha256": "2e93484a588eeefb19b8fe489fe4fd2fadefa9ed24e79a57ca48f8a047a43569"
+    },
+    "runtime/tools/ecosystem/install.py": {
+      "origin": "unified-runtime",
+      "path": "tools/ecosystem/install.py",
+      "sha256": "dbdc3b0638fd0dce4db3f178107557c7b83b5dcf061d925200d04bc8c7863052",
+      "source_sha256": "dbdc3b0638fd0dce4db3f178107557c7b83b5dcf061d925200d04bc8c7863052"
+    },
+    "runtime/tools/ecosystem/lodestone": {
+      "origin": "unified-runtime",
+      "path": "tools/ecosystem/lodestone",
+      "sha256": "7731c19b5256edf7cd37aedae2c22db40b2f1cacc615eb19ab179abc446827e8",
+      "source_sha256": "7731c19b5256edf7cd37aedae2c22db40b2f1cacc615eb19ab179abc446827e8"
+    },
+    "runtime/tools/local-memory/README.md": {
+      "origin": "public-core",
+      "path": "tools/local-memory/README.md",
+      "sha256": "00f53c0c7e940359a0a0dfcd488ffef367d9edd9f5fde79402b7b8bd7cbf806a",
+      "source_sha256": "00f53c0c7e940359a0a0dfcd488ffef367d9edd9f5fde79402b7b8bd7cbf806a"
+    },
+    "runtime/tools/local-memory/schemas/record.schema.json": {
+      "origin": "unified-runtime",
+      "path": "tools/local-memory/schemas/record.schema.json",
+      "sha256": "21c99b7f40baab13e4f8f30741950c3ee2c3652b8817576ffbe7fa75b55e2716",
+      "source_sha256": "21c99b7f40baab13e4f8f30741950c3ee2c3652b8817576ffbe7fa75b55e2716"
+    },
+    "runtime/tools/local-memory/src/lodestone_memory.py": {
+      "origin": "unified-runtime",
+      "path": "tools/local-memory/src/lodestone_memory.py",
+      "sha256": "13feb8ff9a5d34d926a0c43f7fbcbbe22a0267b00feb2d123955f030198d43cf",
+      "source_sha256": "13feb8ff9a5d34d926a0c43f7fbcbbe22a0267b00feb2d123955f030198d43cf"
+    },
+    "runtime/tools/local-memory/src/source_addresses.py": {
+      "origin": "unified-runtime",
+      "path": "tools/local-memory/src/source_addresses.py",
+      "sha256": "b5b240407277c288732adf879b982f0fb0c923490956cd752cfa2076442bf2ae",
+      "source_sha256": "b5b240407277c288732adf879b982f0fb0c923490956cd752cfa2076442bf2ae"
+    },
+    "runtime/tools/machinery/append_receipt.py": {
+      "origin": "unified-runtime",
+      "path": "tools/machinery/append_receipt.py",
+      "sha256": "929dd4d8411ce5ad58f44ddee72ac79f014995c1f63717cd19b7a1ce00c55b51",
+      "source_sha256": "929dd4d8411ce5ad58f44ddee72ac79f014995c1f63717cd19b7a1ce00c55b51"
+    },
+    "runtime/tools/machinery/check_bezoar.py": {
+      "origin": "unified-runtime",
+      "path": "tools/machinery/check_bezoar.py",
+      "sha256": "2d97f90855c7dede3a9106203040e82851f4e3d732921035d801cbf0028dfd92",
+      "source_sha256": "2d97f90855c7dede3a9106203040e82851f4e3d732921035d801cbf0028dfd92"
+    },
+    "runtime/tools/machinery/check_brief.py": {
+      "origin": "unified-runtime",
+      "path": "tools/machinery/check_brief.py",
+      "sha256": "d8114ca810581fb06e9de3c06b5ba587b8f3186a7b639cb4feec923dd51cce42",
+      "source_sha256": "d8114ca810581fb06e9de3c06b5ba587b8f3186a7b639cb4feec923dd51cce42"
+    },
+    "runtime/tools/machinery/check_repository.py": {
+      "origin": "unified-runtime",
+      "path": "tools/machinery/check_repository.py",
+      "sha256": "1e576b5a027bf6752845e59ef3c8c08ef12b12a1181d15afd8912fc9293bf57a",
+      "source_sha256": "1e576b5a027bf6752845e59ef3c8c08ef12b12a1181d15afd8912fc9293bf57a"
+    },
+    "runtime/tools/machinery/loom-practice": {
+      "origin": "unified-runtime",
+      "path": "tools/machinery/loom-practice",
+      "sha256": "eac1bee5101c452082a2d3a3b4bd0f5c1854cf529ffbe478334cfbd5c5000b82",
+      "source_sha256": "eac1bee5101c452082a2d3a3b4bd0f5c1854cf529ffbe478334cfbd5c5000b82"
+    },
+    "runtime/tools/machinery/run": {
+      "origin": "unified-runtime",
+      "path": "tools/machinery/run",
+      "sha256": "b1b0b7fdb151020b399941bfdb238243709a10d7cebd264f7e58692da04a2c70",
+      "source_sha256": "b1b0b7fdb151020b399941bfdb238243709a10d7cebd264f7e58692da04a2c70"
+    },
+    "runtime/tools/machinery/yggdrasil_findings.py": {
+      "origin": "unified-runtime",
+      "path": "tools/machinery/yggdrasil_findings.py",
+      "sha256": "1c2def831fc87e11f4f308156866f3300bf96b8900d512d81ea6db7d159f6651",
+      "source_sha256": "1c2def831fc87e11f4f308156866f3300bf96b8900d512d81ea6db7d159f6651"
+    },
+    "runtime/tools/mailbox/README.md": {
+      "origin": "public-core",
+      "path": "tools/mailbox/README.md",
+      "sha256": "e520390877280af07cd5410c9c21e6d388416564b6d497e3021ff859658171e7",
+      "source_sha256": "e520390877280af07cd5410c9c21e6d388416564b6d497e3021ff859658171e7"
+    },
+    "runtime/tools/mailbox/mailbox.py": {
+      "origin": "unified-runtime",
+      "path": "tools/mailbox/mailbox.py",
+      "sha256": "9b5116ea542be5a25812bc9fdd5305a33d3834dc8e13e5f8485f19bdb7b02eee",
+      "source_sha256": "9b5116ea542be5a25812bc9fdd5305a33d3834dc8e13e5f8485f19bdb7b02eee"
+    },
+    "runtime/tools/mailbox/observe_processes.py": {
+      "origin": "unified-runtime",
+      "path": "tools/mailbox/observe_processes.py",
+      "sha256": "9b6c85331a2608f9091c57fe57176f5ac52172c304aa6c48f8958287b8f1eaee",
+      "source_sha256": "9b6c85331a2608f9091c57fe57176f5ac52172c304aa6c48f8958287b8f1eaee"
+    },
+    "runtime/tools/mailbox/worker.py": {
+      "origin": "unified-runtime",
+      "path": "tools/mailbox/worker.py",
+      "sha256": "82c1a7523e418814a4e44b463592ee4ca284c32f67799677c7702647038ef13e",
+      "source_sha256": "82c1a7523e418814a4e44b463592ee4ca284c32f67799677c7702647038ef13e"
+    },
+    "runtime/tools/nurarihyon/configure.py": {
+      "origin": "unified-runtime",
+      "path": "tools/nurarihyon/configure.py",
+      "sha256": "ed577ffbda02b9da813a7c52de52e52e3dc3885a3f0808af13b5705aa06f0040",
+      "source_sha256": "ed577ffbda02b9da813a7c52de52e52e3dc3885a3f0808af13b5705aa06f0040"
+    },
+    "runtime/tools/nurarihyon/learning-observer": {
+      "origin": "unified-runtime",
+      "path": "tools/nurarihyon/learning-observer",
+      "sha256": "69fc5f6614f56486c69f1375d6619e469a3678b10a838a7368f9c790ecb5fe62",
+      "source_sha256": "69fc5f6614f56486c69f1375d6619e469a3678b10a838a7368f9c790ecb5fe62"
+    },
+    "runtime/tools/nurarihyon/run": {
+      "origin": "unified-runtime",
+      "path": "tools/nurarihyon/run",
+      "sha256": "b990a43db655e6ea83dd2431e2a51fc1881cc02b4667d5e738100af8872581b5",
+      "source_sha256": "b990a43db655e6ea83dd2431e2a51fc1881cc02b4667d5e738100af8872581b5"
+    },
+    "runtime/tools/origami-fold/README.md": {
+      "origin": "public-core",
+      "path": "tools/origami-fold/README.md",
+      "sha256": "c8fcd2a783aebfe89430829edd536012a3a8bb05e3b7a7ebdac73d54b23f7180",
+      "source_sha256": "c8fcd2a783aebfe89430829edd536012a3a8bb05e3b7a7ebdac73d54b23f7180"
+    },
+    "runtime/tools/origami-fold/examples/demo/CURRENT_STATE.md": {
+      "origin": "public-core",
+      "path": "tools/origami-fold/examples/demo/CURRENT_STATE.md",
+      "sha256": "f03214505ea959f52184f37af43be3f4d0bacf83efdb46b8f64bd3f0f926e4f1",
+      "source_sha256": "f03214505ea959f52184f37af43be3f4d0bacf83efdb46b8f64bd3f0f926e4f1"
+    },
+    "runtime/tools/origami-fold/examples/demo/DIRECTIVE.md": {
+      "origin": "public-core",
+      "path": "tools/origami-fold/examples/demo/DIRECTIVE.md",
+      "sha256": "174e4788ad3ff09424699c00a4c197a855d870c1c339b75ef1491159d500874d",
+      "source_sha256": "174e4788ad3ff09424699c00a4c197a855d870c1c339b75ef1491159d500874d"
+    },
+    "runtime/tools/origami-fold/examples/demo/RESULT.md": {
+      "origin": "public-core",
+      "path": "tools/origami-fold/examples/demo/RESULT.md",
+      "sha256": "10cb8eb68cd6c42c747268503ffd6bc818c6790033c995c5e2ddfe42228a0382",
+      "source_sha256": "10cb8eb68cd6c42c747268503ffd6bc818c6790033c995c5e2ddfe42228a0382"
+    },
+    "runtime/tools/origami-fold/examples/demo/fold.json": {
+      "origin": "public-core",
+      "path": "tools/origami-fold/examples/demo/fold.json",
+      "sha256": "18700986a14df6301e3876a4f940a6c386da963c324459d9f7e183ec23a9084f",
+      "source_sha256": "18700986a14df6301e3876a4f940a6c386da963c324459d9f7e183ec23a9084f"
+    },
+    "runtime/tools/origami-fold/examples/demo/fold.md": {
+      "origin": "public-core",
+      "path": "tools/origami-fold/examples/demo/fold.md",
+      "sha256": "3bd0ebb91ec81a3fea2e393efc3d54ea19bfce1b5e80d70411d8bd63a3132929",
+      "source_sha256": "3bd0ebb91ec81a3fea2e393efc3d54ea19bfce1b5e80d70411d8bd63a3132929"
+    },
+    "runtime/tools/origami-fold/src/build_example.py": {
+      "origin": "unified-runtime",
+      "path": "tools/origami-fold/src/build_example.py",
+      "sha256": "d51e4206c5471a648504646b8d72d7783a11d80600964d12940da2a02ca5ca93",
+      "source_sha256": "d51e4206c5471a648504646b8d72d7783a11d80600964d12940da2a02ca5ca93"
+    },
+    "runtime/tools/origami-fold/src/origami_fold.py": {
+      "origin": "unified-runtime",
+      "path": "tools/origami-fold/src/origami_fold.py",
+      "sha256": "f54c2cbac61dfd62653a604c8aecc02cacc866a9b6108427cefad6fde66e2e87",
+      "source_sha256": "f54c2cbac61dfd62653a604c8aecc02cacc866a9b6108427cefad6fde66e2e87"
+    },
+    "runtime/tools/pando/run": {
+      "origin": "unified-runtime",
+      "path": "tools/pando/run",
+      "sha256": "862b85e6fb9f2e7f0a43219ecf628edb3141e1e5c29fbb4a5ffe71af747b69c8",
+      "source_sha256": "862b85e6fb9f2e7f0a43219ecf628edb3141e1e5c29fbb4a5ffe71af747b69c8"
+    },
+    "runtime/tools/release/nurarihyon_smoke.py": {
+      "origin": "public-core",
+      "path": "tools/release/nurarihyon_smoke.py",
+      "sha256": "564b50b6757b69e473e72280c7c505da98f93bc1575e60cec4bfb49ac3daebd6",
+      "source_sha256": "564b50b6757b69e473e72280c7c505da98f93bc1575e60cec4bfb49ac3daebd6"
+    },
+    "runtime/tools/release/package.py": {
+      "origin": "public-core",
+      "path": "tools/release/package.py",
+      "sha256": "599b4c42abae58f807553591b7836d61114efacd5dbce4bb7121e975744484ab",
+      "source_sha256": "599b4c42abae58f807553591b7836d61114efacd5dbce4bb7121e975744484ab"
+    },
+    "runtime/tools/release/smoke.py": {
+      "origin": "public-core",
+      "path": "tools/release/smoke.py",
+      "sha256": "bde737c4c638446a84ee5a15b5f0889ec67ff7dc756795b6f73dfb41215bf298",
+      "source_sha256": "bde737c4c638446a84ee5a15b5f0889ec67ff7dc756795b6f73dfb41215bf298"
+    },
+    "runtime/tools/release/verify_archive.py": {
+      "origin": "public-core",
+      "path": "tools/release/verify_archive.py",
+      "sha256": "cdff6615fa28bdf44ae9aba93ca71a731b7f91441c30488a99ad74d05f532815",
+      "source_sha256": "cdff6615fa28bdf44ae9aba93ca71a731b7f91441c30488a99ad74d05f532815"
+    },
+    "runtime/tools/repository/README.md": {
+      "origin": "public-core",
+      "path": "tools/repository/README.md",
+      "sha256": "f1932eb29351990fdc7c5954dfd852a91b4dc3cd587bdba18c695689155aebf9",
+      "source_sha256": "f1932eb29351990fdc7c5954dfd852a91b4dc3cd587bdba18c695689155aebf9"
+    },
+    "runtime/tools/repository/export.py": {
+      "origin": "unified-runtime",
+      "path": "tools/repository/export.py",
+      "sha256": "1193a11dc380afe81ff429bd0ffd097db09b9ed29ce99969d81f206c4b17ee6b",
+      "source_sha256": "1193a11dc380afe81ff429bd0ffd097db09b9ed29ce99969d81f206c4b17ee6b"
+    },
+    "runtime/tools/repository/manifest.py": {
+      "origin": "unified-runtime",
+      "path": "tools/repository/manifest.py",
+      "sha256": "f8f07279cd3757d0a5d55d06c53c565f4988e3785b2cf754e20316411f1b44fc",
+      "source_sha256": "f8f07279cd3757d0a5d55d06c53c565f4988e3785b2cf754e20316411f1b44fc"
+    },
+    "runtime/tools/repository/verify_pilot.py": {
+      "origin": "unified-runtime",
+      "path": "tools/repository/verify_pilot.py",
+      "sha256": "2c9a4ae0aedca15214a0c72ba138e6ce7d643a3b4edbb81428eac61562cc7ddd",
+      "source_sha256": "2c9a4ae0aedca15214a0c72ba138e6ce7d643a3b4edbb81428eac61562cc7ddd"
+    },
+    "runtime/tools/toolkits.json": {
+      "origin": "unified-runtime",
+      "path": "tools/toolkits.json",
+      "sha256": "77100bbcd7db72edee20b70f4d7892ba3afbe5afd9d1aaf67d40d1d3b3bd24be",
+      "source_sha256": "77100bbcd7db72edee20b70f4d7892ba3afbe5afd9d1aaf67d40d1d3b3bd24be"
+    },
+    "runtime/verify_download.py": {
+      "origin": "unified-runtime",
+      "path": "verify_download.py",
+      "sha256": "65aa5b5d148e1ae1717a3412b0b6bcb6163e22e66001cd9886a5f01f68977502",
+      "source_sha256": "65aa5b5d148e1ae1717a3412b0b6bcb6163e22e66001cd9886a5f01f68977502"
+    }
+  },
+  "public_base_commit": "e597844bd6b0a7427b63db0fcedf4a52d7107934",
+  "public_repository": "https://github.com/zacheriasliang-glitch/lodestone",
+  "schema": "lodestone-desktop-source-provenance/v1",
+  "source_scopes": {
+    "basilisk-derived-gui": "Modified Basilisk GUI source and resources, including its GPL-2.0-only licence.",
+    "public-core": "Previously public runtime, documentation and examples.",
+    "unified-runtime": "Callable runtime code and generic integration catalogues from Unified Loom; no private records or experiment histories."
+  },
+  "transformations": [
+    {
+      "path": "runtime/src/lodestone_machinery/loom_adapter_local.py",
+      "reason": "Separate tokenizer package checks from the unchanged full model/training package binding.",
+      "sha256": "ee4b291faae2818539507060db04a6d9611736275f0ba98eac59adf698112989",
+      "source_sha256": "31fb73057c4f679fde8edcf50fcdb97e04323211b796e3a2961643b96fb567c3"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_runtime_worker.py",
+      "reason": "Use tokenizer-only checks for the local Ollama path; retain exact asset hashes.",
+      "sha256": "f3ef93a7dfca4c5a6281fc51970d739f288b7f7d4766e682fc33e7e178e095f1",
+      "source_sha256": "c27a1bd2556109fc41ce2242cc557841f1d46f57ed369c42067cfec4aea3e01f"
+    },
+    {
+      "path": "gui/basilisk/provider.py",
+      "reason": "Register only the local Loom provider in the desktop preview.",
+      "sha256": "a107cb39426a9aef25ea17fcc502dda2089ed9b2047aa42f57a6d6e0cf7e7a04",
+      "source_sha256": "bf18173b4c81eee2d1f52fd8dbd7f60773936398bb464aea7f3e3430b318d644"
+    },
+    {
+      "path": "gui/basilisk/views/loom_correction_dialog.py",
+      "reason": "Use a generic editable local-user author, not a developer identity.",
+      "sha256": "e2d81e3fb27ab0f198fa6e4667738f2e7021a3f7dcb5b7120b696332c23fc9b0",
+      "source_sha256": "080fee86d71436a1074f4e7d0d903996a30a7a6a81152ffb7b6a0416dcb8268e"
+    },
+    {
+      "path": "gui/basilisk/views/about_dialog.py",
+      "reason": "Permit version display from the distributed source payload without Git metadata.",
+      "sha256": "c0b1fabce94d4f6abbacf165cb35089ed5cb98c4702bd27188f088a64c710c40",
+      "source_sha256": "8db661e065945423a42dc1ffba25f15dc56e41a54a502c9301b95dd55293316d"
+    }
+  ],
+  "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"
+}

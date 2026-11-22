@@ -1,0 +1,222 @@
+"""Module for MistralAI API integration.
+
+This module provides the MistralAIEngine class for interacting with the MistralAI API,
+implementing capabilities for text and image generation/processing.
+"""
+
+from __future__ import annotations
+
+import logging
+from collections.abc import Generator
+from functools import cached_property
+from typing import TYPE_CHECKING, Any, ClassVar
+
+from mistralai.client import Mistral
+from mistralai.client.models import ChatCompletionResponse, CompletionEvent
+from mistralai.client.utils.eventstreaming import EventStream
+
+from basilisk.conversation import (
+	Conversation,
+	Message,
+	MessageBlock,
+	MessageRoleEnum,
+)
+from basilisk.conversation.attached_file import AttachmentFile
+
+from .base_engine import BaseEngine, ProviderCapability, sigma_night_data_file
+from .completion_request_strip_keys import CHAT_CLIENT_TUNING_TOP_LEVEL_KEYS
+from .mistralai_ocr import handle_ocr
+
+if TYPE_CHECKING:
+	from basilisk.config import Account
+
+log = logging.getLogger(__name__)
+
+
+class MistralAIEngine(BaseEngine):
+	"""Engine implementation for MistralAI API integration.
+
+	Provides functionality for interacting with MistralAI's models, supporting text,
+	image and document capabilities.
+
+	Attributes:
+		capabilities: Set of supported capabilities including text, image, document, and OCR.
+	"""
+
+	catalog_strip_candidate_keys: ClassVar[frozenset[str] | None] = (
+		CHAT_CLIENT_TUNING_TOP_LEVEL_KEYS
+	)
+	capabilities: ClassVar[set[ProviderCapability]] = {
+		ProviderCapability.TEXT,
+		ProviderCapability.IMAGE,
+		ProviderCapability.DOCUMENT,
+		ProviderCapability.OCR,
+	}
+	supported_attachment_formats: ClassVar[set[str]] = {
+		"image/gif",
+		"image/jpeg",
+		"image/png",
+		"image/webp",
+		"application/pdf",
+	}
+
+	MODELS_JSON_URL = sigma_night_data_file("mistralai.json")
+
+	def __init__(self, account: Account) -> None:
+		"""Initializes the MistralAI engine.
+
+		Args:
+			account: Account configuration for the MistralAI provider.
+		"""
+		super().__init__(account)
+
+	@cached_property
+	def client(self) -> Mistral:
+		"""Creates and configures the Mistral client.
+
+		Returns:
+			Configured MistralAI client instance.
+		"""
+		return Mistral(
+			api_key=self.account.api_key.get_secret_value(),
+			server_url=self.account.custom_base_url
+			or self.account.provider.base_url,
+		)
+
+	def prepare_message_request(self, message: Message) -> dict[str, Any]:
+		"""Prepares a message for MistralAI API request.
+
+		Args:
+			message: Message to be prepared.
+
+		Returns:
+			MistralAI API compatible message parameter.
+		"""
+		super().prepare_message_request(message)
+		content = [{"type": "text", "text": message.content}]
+		if getattr(message, "attachments", None):
+			for attachment in message.attachments:
+				mime_type = attachment.mime_type
+				if mime_type.startswith("image/"):
+					content.append(
+						{"type": "image_url", "image_url": attachment.url}
+					)
+				else:
+					content.append(
+						{"type": "document_url", "document_url": attachment.url}
+					)
+		return {"role": message.role.value, "content": content}
+
+	def prepare_message_response(self, response: Message) -> dict[str, Any]:
+		"""Prepares an assistant message response.
+
+		Args:
+			response: Response message to be prepared.
+
+		Returns:
+			MistralAI API compatible assistant message parameter.
+		"""
+		super().prepare_message_response(response)
+		return {
+			"role": response.role.value,
+			"content": [{"type": "text", "text": response.content}],
+		}
+
+	def completion(
+		self,
+		new_block: MessageBlock,
+		conversation: Conversation,
+		system_message: Message | None,
+		stop_block_index: int | None = None,
+		**kwargs,
+	) -> ChatCompletionResponse | EventStream[CompletionEvent]:
+		"""Generates a chat completion using the MistralAI API.
+
+		Args:
+			new_block: The message block containing generation parameters.
+			conversation: The conversation history context.
+			system_message: Optional system message to guide the AI's behavior.
+			stop_block_index: Optional index to stop processing messages at. If None, all messages are processed.
+			**kwargs: Additional keyword arguments for the API request.
+
+		Returns:
+			The chat completion response.
+		"""
+		super().completion(
+			new_block, conversation, system_message, stop_block_index, **kwargs
+		)
+		model = self.get_model(new_block.model.model_id)
+		params = {
+			"model": new_block.model.model_id,
+			"messages": self.get_messages(
+				new_block,
+				conversation,
+				system_message,
+				stop_block_index=stop_block_index,
+			),
+			"temperature": new_block.temperature,
+			"top_p": new_block.top_p,
+			"stream": new_block.stream,
+		}
+		if new_block.max_tokens:
+			params["max_tokens"] = new_block.max_tokens
+		params.update(kwargs)
+		self._strip_catalog_sampling_params(model, params)
+		if new_block.stream:
+			return self.client.chat.stream(**params)
+		return self.client.chat.complete(**params)
+
+	def completion_response_with_stream(
+		self, stream: Generator[CompletionEvent]
+	):
+		"""Processes a streaming completion response.
+
+		Args:
+			stream: Generator of chat completion chunks.
+
+		Yields:
+			Content from each chunk in the stream.
+		"""
+		for chunk in stream:
+			delta = chunk.data.choices[0].delta
+			if delta and delta.content:
+				yield delta.content
+
+	def completion_response_without_stream(
+		self,
+		response: ChatCompletionResponse,
+		new_block: MessageBlock,
+		**kwargs,
+	) -> MessageBlock:
+		"""Processes a non-streaming completion response.
+
+		Args:
+			response: The chat completion response.
+			new_block: The message block to update with the response.
+			**kwargs: Additional keyword arguments.
+
+		Returns:
+			Updated message block containing the response.
+		"""
+		new_block.response = Message(
+			role=MessageRoleEnum.ASSISTANT,
+			content=response.choices[0].message.content,
+		)
+		return new_block
+
+	@staticmethod
+	def handle_ocr(
+		api_key: str, base_url: str, attachments: list[AttachmentFile], **kwargs
+	) -> tuple[str, Any]:
+		"""Extracts text from images using OCR.
+
+		Args:
+			api_key: The API key for the MistralAI account
+			base_url: The base URL for the MistralAI API
+			attachments: List of attachments to extract text from
+			**kwargs: Additional keyword arguments
+
+		Returns:
+			List of file paths containing the extracted text.
+		"""
+		return handle_ocr(api_key, base_url, attachments, **kwargs)

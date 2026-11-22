@@ -1,0 +1,136 @@
+"""Server thread for receiving commands from external applications like screen readers."""
+
+from __future__ import annotations
+
+import logging
+import re
+import socket
+import threading
+from typing import TYPE_CHECKING
+
+import wx
+
+from basilisk.screen_capture_thread import CaptureMode
+
+if TYPE_CHECKING:
+	from basilisk.views.main_frame import MainFrame
+
+log = logging.getLogger(__name__)
+
+
+class ServerThread(threading.Thread):
+	"""Thread for receiving commands from external applications like screen readers."""
+
+	def __init__(self, frame: MainFrame, port: int) -> None:
+		"""Initialize the server thread.
+
+		Args:
+			frame: Application main frame instance
+			port: port to listen on
+		"""
+		super().__init__()
+		self.frame = frame
+		self.port = port
+		self.running = threading.Event()
+		self.daemon = True
+
+	def run(self) -> None:
+		"""Start the server thread.
+
+		Listen on localhost with the specified port for incoming connections and process the received data.
+		Socket errors and connection timeouts are handled gracefully. The server will:
+		- Log errors without crashing
+		- Continue listening after connection failures
+		- Clean up resources when stopped
+		"""
+		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		if not sock:
+			log.error("Failed to create socket")
+			return
+		sock.bind(("127.0.0.1", self.port))
+		self.running.set()
+		log.info("Server started on port %d", self.port)
+		sock.listen(1)
+		while self.running.is_set():
+			sock.settimeout(1.0)
+			try:
+				conn, _addr = sock.accept()
+			except TimeoutError:
+				continue
+			with conn:
+				try:
+					data = conn.recv(1024 * 1024 * 20)
+					if data:
+						self.manage_rcv_data(data)
+						conn.sendall(b"ACK")
+					else:
+						log.error("No data received")
+				except Exception:
+					log.exception("Error receiving data")
+				finally:
+					conn.close()
+		sock.close()
+
+	def manage_rcv_data(self, data: bytes) -> None:
+		r"""Process the received data.
+
+		Evaluate the received data and call the appropriate method on the main frame.
+
+		Examples:
+			screenshot commands:
+				Full screen:
+					grab:full
+				Active window:
+					grab:window
+				Partial screen:
+					grab:0, 0, 100, 100
+				Partial screen with a name:
+					grab:0, 0, 100, 100\nname
+			URL Commands:
+				Add images:
+					url:https://example.com/image.png
+				Add an image from a URL with a name:
+					url:https://example.com/image.png\nname
+
+		Args:
+			data: data received from the client
+		"""
+		data = data.decode("utf-8")
+		if data.startswith("grab:"):
+			grab_mode = data.split(":", 1)[1].strip()
+			if grab_mode == "full":
+				wx.CallAfter(self.frame.screen_capture, CaptureMode.FULL)
+			elif grab_mode == "window":
+				wx.CallAfter(self.frame.screen_capture, CaptureMode.WINDOW)
+			elif re.match(r"\d+, ?\d+, ?\d+, ?\d+(?:;.*+)?", grab_mode):
+				name = ""
+				coords = grab_mode
+				if "\n" in grab_mode:
+					coords, name = grab_mode.split("\n", 1)
+					coords = tuple(map(int, coords.split(",")))
+					if len(coords) != 4:
+						log.error("Invalid coordinates")
+						return
+					wx.CallAfter(
+						self.frame.screen_capture,
+						CaptureMode.PARTIAL,
+						coords,
+						name,
+					)
+			else:
+				log.error("Invalid grab mode: %s", grab_mode)
+		elif data.startswith("url:"):
+			name = ""
+			url = data.split(":", 1)[1].strip()
+			if "\n" in url:
+				url, name = url.split("\n", 1)
+				wx.CallAfter(
+					self.frame.current_tab.prompt_panel.add_attachment_url_thread,
+					url,
+				)
+		else:
+			log.error("no action for data: %s", data)
+
+	def stop(self):
+		"""Stop the server thread."""
+		self.running.clear()

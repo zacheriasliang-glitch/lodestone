@@ -1,0 +1,187 @@
+"""Run Origami through a trusted provider command or an explicit file exchange."""
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+
+from .origami import Origami, VERSION, MAX_JSON, ROLES, _read, _endpoints, _auth_path
+
+
+class CommandProvider:
+    """JSON stdin -> JSON stdout, shell disabled, one invocation per decision.
+
+    The command is caller-selected trusted code. Origami.run applies an environment
+    allowlist and a kernel sandbox where available; otherwise local filesystem and
+    network privileges remain. Calling this adapter directly does not apply that
+    launch policy. Never configure a command supplied by evidence documents.
+    stderr is not persisted because model clients can print credentials there.
+    """
+
+    def __init__(self, argv, timeout=120):
+        if type(argv) is not list or not argv or any(type(x) is not str or not x for x in argv):
+            raise ValueError("provider command must be a nonempty JSON array of strings")
+        if type(timeout) is not int or not 1 <= timeout <= 600:
+            raise ValueError("provider timeout must be 1 to 600 seconds")
+        self.argv, self.timeout = argv, timeout
+
+    def __call__(self, request):
+        # Spool output to a disposable file so it cannot exhaust process memory.
+        with tempfile.TemporaryFile() as output:
+            result = subprocess.run(self.argv, input=json.dumps(request, ensure_ascii=False).encode("utf-8"),
+                                    stdout=output, stderr=subprocess.DEVNULL,
+                                    timeout=self.timeout, check=False)
+            if result.returncode:
+                raise RuntimeError("Provider command failed")
+            output.seek(0)
+            data = output.read(MAX_JSON + 1)
+            if len(data) > MAX_JSON:
+                raise ValueError("Provider output exceeds size bound")
+            return json.loads(data)
+
+
+def main(argv=None):
+    supplied = sys.argv[1:] if argv is None else argv
+    if supplied and supplied[0] == "loom":
+        if len(supplied) > 1 and supplied[1] == "practice":
+            from .learning_cli import main as learning_main
+            return learning_main(supplied[2:])
+        if len(supplied) > 1 and supplied[1] == "support":
+            from .loom_support_cli import main as loom_support_main
+            return loom_support_main(supplied[2:])
+        if len(supplied) > 1 and supplied[1] == "text-predict":
+            from .loom_text_cli import main as loom_text_main
+            return loom_text_main(supplied[2:])
+        from .loom_cli import main as loom_main
+        return loom_main(supplied[1:])
+    if supplied and supplied[0] == "corpus-fold":
+        from .corpus_fold_cli import main as corpus_fold_main
+        return corpus_fold_main(supplied[1:])
+    if supplied and supplied[0] == "archive":
+        from .archive_cli import main as archive_main
+        return archive_main(supplied[1:])
+    if supplied and supplied[0] == "transformer":
+        from .transformer_cli import main as transformer_main
+        return transformer_main(supplied[1:])
+    if supplied and supplied[0] == "crystal":
+        from .crystals_cli import main as crystal_main
+        return crystal_main(supplied[1:])
+    parser = argparse.ArgumentParser(description=f"Origami source-linked reasoning loop v{VERSION}")
+    parser.epilog = "Use 'origami archive' for exact file archives, 'origami corpus-fold' for source-linked reading maps, 'origami transformer' for the bounded decoder, or 'origami crystal' for the Yggdrasil crystal store."
+    commands = parser.add_subparsers(dest="operation", required=True)
+    for name in ("ask", "start", "request", "advance", "run", "status", "inspect",
+                 "review-request", "review", "answer", "complete"):
+        sub = commands.add_parser(name)
+        sub.add_argument("--workspace", required=True)
+        if name in ("ask", "start"):
+            sub.add_argument("--root")
+            sub.add_argument("--source", action="append", dest="sources")
+            sub.add_argument("--source-address-report", help="Saved source-address JSON; reopens exact bound bytes")
+            sub.add_argument("--source-address-selection", action="append", dest="address_selections",
+                             help="Explicit record_id:binding_index selection; repeat to resolve an ambiguous report")
+            sub.add_argument("--question", required=True)
+            sub.add_argument("--epoch", required=True, help="Caller-declared target epoch; not an inferred live Git HEAD")
+            sub.add_argument("--authority-ref", required=True, help="Reference to caller's authorization for bounded source reads")
+            sub.add_argument("--max-calls", type=int, default=4)
+            sub.add_argument("--max-read-bytes", type=int, default=65536)
+            sub.add_argument("--initial-passages", type=int, default=6)
+            sub.add_argument("--previous", help="Prior run id in this workspace; reassessment is mandatory")
+            for role in ROLES:
+                sub.add_argument("--" + role, help="Identity of the " + role + " body; all four must be given, or none; "
+                                 "constructor, consumer and checker distinct; provider never the checker")
+        else:
+            sub.add_argument("run_id")
+        if name in ("advance", "review"):
+            sub.add_argument("--response", required=True, help="JSON provider envelope responding to the current request")
+        if name == "answer":
+            sub.add_argument("--review", help="Exact checker record handle returned by review")
+        if name in ("ask", "run", "complete"):
+            sub.add_argument("--provider-command", required=name == "run", help='Explicit trusted argv as JSON, e.g. ["python3", "/path/provider.py"]; complete needs it only for a new answer')
+            sub.add_argument("--timeout", type=int, default=120)
+            sub.add_argument("--allowed-endpoint", action="append", default=[], dest="allowed_endpoints",
+                             help="host:port allowed through the proxy; repeatable; network restriction requires a kernel sandbox")
+            sub.add_argument("--provider-auth-path", help="Additional readable auth directory in the sandbox profile; no filesystem isolation without a kernel sandbox")
+        if name == "complete":
+            sub.add_argument("--reviewer-command",
+                             help="Separate trusted reviewer argv as JSON; needed only for a new review")
+            sub.add_argument("--reviewer-timeout", type=int, default=120)
+            sub.add_argument("--reviewer-allowed-endpoint", action="append", default=[],
+                             dest="reviewer_allowed_endpoints", help="Explicit reviewer host:port; repeatable")
+            sub.add_argument("--reviewer-auth-path", help="Explicit readable reviewer authentication directory")
+    args = parser.parse_args(supplied)
+    try:
+        organ = Origami(args.workspace)
+        if args.operation in ("ask", "start"):
+            if args.source_address_report is not None:
+                if args.root is not None or args.sources is not None:
+                    raise ValueError("Use --source-address-report OR --root/--source")
+                from .source_seeds import source_address_seeds
+                from .support_review import read_review_file
+                source_args = source_address_seeds(
+                    read_review_file(args.source_address_report, max_bytes=1048576),
+                    selections=args.address_selections)
+            else:
+                if args.root is None or not args.sources or args.address_selections:
+                    raise ValueError("Supply --root and --source, or --source-address-report")
+                source_args = {"root": args.root, "paths": args.sources}
+            provider = None
+            if args.operation == "ask":
+                if args.provider_command is not None:
+                    # Reject malformed launch settings before persisting a new encounter.
+                    provider = CommandProvider(json.loads(args.provider_command), args.timeout)
+                    _endpoints(args.allowed_endpoints)
+                    _auth_path(args.provider_auth_path)
+                elif args.allowed_endpoints or args.provider_auth_path is not None:
+                    raise ValueError("Provider endpoint/auth options require --provider-command")
+            supplied = {role: getattr(args, role) for role in ROLES}
+            roles = supplied if any(value is not None for value in supplied.values()) else None
+            result = organ.start(**source_args, question=args.question, epoch=args.epoch,
+                                 authority_ref=args.authority_ref,
+                                 max_calls=args.max_calls, max_read_bytes=args.max_read_bytes,
+                                 initial_passages=args.initial_passages, previous=args.previous, roles=roles)
+            if args.operation == "ask":
+                if provider is not None:
+                    result = organ.run(result["run_id"], provider,
+                                       allowed_endpoints=args.allowed_endpoints,
+                                       provider_auth_path=args.provider_auth_path)
+                else:
+                    result = {**result, "request": organ.request(result["run_id"])}
+        elif args.operation == "advance":
+            result = organ.advance(args.run_id, _read(Path(args.response)))
+        elif args.operation == "run":
+            result = organ.run(args.run_id, CommandProvider(json.loads(args.provider_command), args.timeout),
+                               allowed_endpoints=args.allowed_endpoints, provider_auth_path=args.provider_auth_path)
+        elif args.operation == "complete":
+            from .reviewed_workflow import complete
+            result = complete(organ, args.run_id,
+                              CommandProvider(json.loads(args.provider_command), args.timeout) if args.provider_command else None,
+                              CommandProvider(json.loads(args.reviewer_command), args.reviewer_timeout) if args.reviewer_command else None,
+                              allowed_endpoints=args.allowed_endpoints, provider_auth_path=args.provider_auth_path,
+                              reviewer_allowed_endpoints=args.reviewer_allowed_endpoints,
+                              reviewer_auth_path=args.reviewer_auth_path)
+        elif args.operation == "review-request":
+            from .support_review import support_request
+            result = support_request(organ, args.run_id)
+        elif args.operation == "review":
+            from .support_review import publish_support_review, read_review_file
+            result = publish_support_review(organ, args.run_id, read_review_file(args.response))
+        elif args.operation == "answer":
+            from .support_review import reviewed_answer
+            result = reviewed_answer(organ, args.run_id, args.review)
+        else:
+            result = getattr(organ, args.operation)(args.run_id)
+        print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
+        if args.operation == "complete":
+            return 0 if result.get("status") == "REVIEWED_PASS" else 2
+        return 0 if args.operation in ("request", "review-request") or result.get("status") in (
+            "NEEDS_PROVIDER", "ANSWER", "REVIEW_RECORDED", "REVIEWED_PASS") else 2
+    except (ValueError, OSError, RuntimeError, KeyError, TypeError) as exc:
+        print(json.dumps({"error": type(exc).__name__, "message": str(exc)[:1000]}), file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,129 @@
+{
+  "name": "wrist-support",
+  "declared_difference": "same hooked contact and the same 0.3 mm 3 Hz disturbance of the hand reference; scene a compliance 1e-5 m/N (supported wrist), scene b 1e-4 m/N (unsupported)",
+  "isolates": "effect of declared hand compliance under the same imposed radial disturbance",
+  "scenes": [
+    {
+      "name": "a-hook-supported-disturbed",
+      "description": "hooked contact, stiff hand (supported wrist), disturbed reference",
+      "synthetic": true,
+      "geometry": {
+        "radial": 1,
+        "angular": 10,
+        "vertical": 3,
+        "inner_radius": 0.03,
+        "outer_radius": 0.045,
+        "height": 0.08
+      },
+      "material": {
+        "density": 1800.0,
+        "consistency": 80.0,
+        "exponent": 1.0,
+        "yield_stress": 1200.0,
+        "yield_time": 10.0,
+        "rate_floor": 0.001
+      },
+      "gravity": 9.81,
+      "slip_beta": 2000.0,
+      "dt": 0.005,
+      "max_volume_drift": 0.01,
+      "hands": [
+        {
+          "name": "hook",
+          "side": "inner",
+          "angle_center": 0.0,
+          "angle_width": 0.7853981633974483,
+          "z_low": 0.03,
+          "z_high": 0.06,
+          "compliance": 1e-05,
+          "disturbance_amplitude": 0.0003,
+          "disturbance_hz": 3.0
+        }
+      ],
+      "schedule": [
+        {
+          "time": 0.0,
+          "wheel_omega": 2.0,
+          "hand_radii": {
+            "hook": 0.03
+          }
+        },
+        {
+          "time": 0.2,
+          "wheel_omega": 2.0,
+          "hand_radii": {
+            "hook": 0.0304
+          }
+        },
+        {
+          "time": 0.25,
+          "wheel_omega": 2.0,
+          "hand_radii": {
+            "hook": 0.0304
+          }
+        }
+      ]
+    },
+    {
+      "name": "b-hook-unsupported-disturbed",
+      "description": "hooked contact, compliant hand (unsupported wrist), same disturbance",
+      "synthetic": true,
+      "geometry": {
+        "radial": 1,
+        "angular": 10,
+        "vertical": 3,
+        "inner_radius": 0.03,
+        "outer_radius": 0.045,
+        "height": 0.08
+      },
+      "material": {
+        "density": 1800.0,
+        "consistency": 80.0,
+        "exponent": 1.0,
+        "yield_stress": 1200.0,
+        "yield_time": 10.0,
+        "rate_floor": 0.001
+      },
+      "gravity": 9.81,
+      "slip_beta": 2000.0,
+      "dt": 0.005,
+      "max_volume_drift": 0.01,
+      "hands": [
+        {
+          "name": "hook",
+          "side": "inner",
+          "angle_center": 0.0,
+          "angle_width": 0.7853981633974483,
+          "z_low": 0.03,
+          "z_high": 0.06,
+          "compliance": 0.0001,
+          "disturbance_amplitude": 0.0003,
+          "disturbance_hz": 3.0
+        }
+      ],
+      "schedule": [
+        {
+          "time": 0.0,
+          "wheel_omega": 2.0,
+          "hand_radii": {
+            "hook": 0.03
+          }
+        },
+        {
+          "time": 0.2,
+          "wheel_omega": 2.0,
+          "hand_radii": {
+            "hook": 0.0304
+          }
+        },
+        {
+          "time": 0.25,
+          "wheel_omega": 2.0,
+          "hand_radii": {
+            "hook": 0.0304
+          }
+        }
+      ]
+    }
+  ]
+}

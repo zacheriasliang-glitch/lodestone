@@ -1,0 +1,208 @@
+"""Module to ensure that only one instance of basiliskLLM is running at a time.
+
+This module implements platform-specific locking mechanisms to prevent
+multiple instances of the application from running simultaneously:
+- POSIX: Uses fcntl file locking with proper stale lock handling
+"""
+
+import errno
+import fcntl
+import logging
+import os
+import threading
+
+from basilisk.consts import FILE_LOCK_PATH
+
+from .abstract_singleton_instance import AbstractSingletonInstance
+
+log = logging.getLogger(__name__)
+
+
+class PosixSingletonInstance(AbstractSingletonInstance):
+	"""Class to ensure that only one instance of basiliskLLM is running at a time.
+
+	This class implements platform-specific locking mechanisms:
+	- POSIX: Uses fcntl file locking with proper stale lock handling
+	- Prevents multiple instances from running simultaneously
+	- Automatically releases the lock on program exit
+	- Provides methods to check for existing instances and get their PIDs
+	"""
+
+	# Class-level lock to prevent multiple instances within the same process
+	_process_lock = threading.Lock()
+	_process_acquired = False
+
+	def __init__(self):
+		"""Initialize the SingletonInstance object."""
+		super().__init__()
+		self.lock_file_path = FILE_LOCK_PATH
+		self.lock_file_handle = None
+		self._has_process_lock = False
+		os.makedirs(os.path.dirname(self.lock_file_path), exist_ok=True)
+
+	def acquire(self) -> bool:
+		"""Acquire the lock on POSIX systems using fcntl file locking.
+
+		This method uses proper POSIX file locking with fcntl to ensure
+		atomic lock acquisition. It also handles stale lock files from
+		crashed processes and prevents multiple instances within the same process.
+
+		Returns:
+			True if the lock was acquired, False otherwise.
+		"""
+		# First, try to acquire the process-level lock
+		with PosixSingletonInstance._process_lock:
+			if PosixSingletonInstance._process_acquired:
+				# Another instance in this process already has the lock
+				return False
+
+			# Try to acquire the file-level lock
+			if self._try_acquire_posix_lock():
+				PosixSingletonInstance._process_acquired = True
+				self._has_process_lock = True
+				return True
+
+			# A live kernel lock is authoritative, even before its PID is written.
+			# POSIX releases the lock automatically after a crashed process exits.
+			return False
+
+	def _try_acquire_posix_lock(self) -> bool:
+		"""Try to acquire the POSIX lock without retry logic.
+
+		Returns:
+			True if the lock was acquired, False otherwise.
+		"""
+		try:
+			# Ensure the directory exists
+			os.makedirs(os.path.dirname(self.lock_file_path), exist_ok=True)
+
+			# Open the lock file for writing
+			self.lock_file_handle = open(self.lock_file_path, "a+")  # noqa: SIM115
+
+			# Try to acquire an exclusive lock (non-blocking)
+			fcntl.flock(
+				self.lock_file_handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB
+			)
+
+			# Write our PID to the lock file
+			self.lock_file_handle.seek(0)
+			self.lock_file_handle.truncate()
+			self.lock_file_handle.write(str(os.getpid()))
+			self.lock_file_handle.flush()
+
+			# Register cleanup on exit
+			self.register_release_on_exit()
+			return True
+
+		except OSError:
+			# Lock is already held by another process or other I/O error
+			self._cleanup_failed_lock_attempt()
+			return False
+		except Exception:
+			log.debug("Unexpected error acquiring the lock", exc_info=True)
+			self._cleanup_failed_lock_attempt()
+			return False
+
+	def _get_lock_holder_pid(self) -> int | None:
+		"""Get the PID of the current lock holder from the lock file.
+
+		Returns:
+			The PID of the lock holder, or None if it cannot be determined.
+		"""
+		try:
+			with open(self.lock_file_path, "r") as f:
+				pid_str = f.read().strip()
+				if pid_str:
+					return int(pid_str)
+		except OSError, ValueError:
+			log.debug("Cannot read the lock holder PID", exc_info=True)
+		return None
+
+	def _is_process_alive(self, pid: int) -> bool:
+		"""Check if a process with the given PID is still alive.
+
+		Args:
+			pid: The process ID to check.
+
+		Returns:
+			True if the process is alive, False otherwise.
+		"""
+		try:
+			# Send signal 0 to check if process exists
+			os.kill(pid, 0)
+			return True
+		except OSError as e:
+			if e.errno == errno.ESRCH:
+				# Process doesn't exist
+				return False
+			elif e.errno == errno.EPERM:
+				# Process exists but we don't have permission to signal it
+				return True
+			else:
+				# Other error, assume process exists
+				return True
+		except Exception:
+			log.debug("Cannot check process, assume it exists", exc_info=True)
+			return True
+
+	def _cleanup_failed_lock_attempt(self):
+		"""Clean up resources after a failed lock acquisition attempt."""
+		if self.lock_file_handle:
+			try:
+				self.lock_file_handle.close()
+			except Exception:
+				log.debug("Failed to close the lock file", exc_info=True)
+			finally:
+				self.lock_file_handle = None
+
+	def _cleanup_stale_lock(self):
+		"""Clean up a stale lock file."""
+		# Keep the inode: unlinking it can create two independently locked files.
+		self._cleanup_failed_lock_attempt()
+
+	def release(self) -> None:
+		"""Release the POSIX lock file."""
+		if self.lock_file_handle:
+			try:
+				# Release the file lock
+				fcntl.flock(self.lock_file_handle.fileno(), fcntl.LOCK_UN)
+				self.lock_file_handle.close()
+			except Exception:
+				log.debug("Failed to unlock the lock file", exc_info=True)
+				# If unlocking fails, at least close the file handle
+				try:
+					self.lock_file_handle.close()
+				except Exception:
+					log.debug("Failed to close the lock file", exc_info=True)
+			finally:
+				self.lock_file_handle = None
+
+		# Keep the shared inode for the next process to lock.
+
+		# Release the process-level lock if we have it
+		if self._has_process_lock:
+			with PosixSingletonInstance._process_lock:
+				PosixSingletonInstance._process_acquired = False
+				self._has_process_lock = False
+
+	def get_existing_pid(self) -> int | None:
+		"""Get the PID of the existing instance, if any.
+
+		Returns:
+			The PID of the existing instance, or None if no instance is running.
+		"""
+		# POSIX file-based approach with proper lock checking
+		if not os.path.exists(self.lock_file_path):
+			return None
+
+		pid = self._get_lock_holder_pid()
+		if pid is None:
+			return None
+
+		# Check if the process is still alive
+		if self._is_process_alive(pid):
+			return pid
+		else:
+			# Process is dead, clean up stale lock
+			self._cleanup_stale_lock()
+			return None

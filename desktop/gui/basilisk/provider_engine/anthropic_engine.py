@@ -1,0 +1,431 @@
+"""Module for Anthropic API integration.
+
+This module provides the AnthropicEngine class for interacting with the Anthropic API,
+implementing capabilities for text and image generation.
+"""
+
+from __future__ import annotations
+
+import dataclasses
+import logging
+from collections.abc import Iterator
+from functools import cached_property
+from typing import TYPE_CHECKING, ClassVar
+
+from anthropic import Anthropic
+from anthropic.types import Message as AnthropicMessage
+from anthropic.types import TextBlock
+
+from basilisk.conversation import (
+	AttachmentFile,
+	AttachmentFileTypes,
+	Conversation,
+	ImageFile,
+	Message,
+	MessageBlock,
+	MessageRoleEnum,
+	SystemMessage,
+)
+from basilisk.provider_ai_model import ProviderAIModel
+
+from .base_engine import BaseEngine, ProviderCapability, sigma_night_data_file
+from .completion_request_strip_keys import CHAT_CLIENT_TUNING_TOP_LEVEL_KEYS
+
+if TYPE_CHECKING:
+	from anthropic._streaming import Stream
+	from anthropic.types.message_stream_event import MessageStreamEvent
+
+	from basilisk.config import Account
+
+log = logging.getLogger(__name__)
+
+_REASONING_ID_SUFFIX = "_reasoning"
+
+
+class AnthropicEngine(BaseEngine):
+	"""Engine implementation for Anthropic API integration.
+
+	Provides functionality for interacting with Anthropic's Claude models,
+	supporting both text and image processing capabilities.
+
+	Attributes:
+		capabilities: Set of supported capabilities including
+			text and image generation.
+	"""
+
+	catalog_strip_candidate_keys: ClassVar[frozenset[str] | None] = (
+		CHAT_CLIENT_TUNING_TOP_LEVEL_KEYS
+	)
+	capabilities: ClassVar[set[ProviderCapability]] = {
+		ProviderCapability.TEXT,
+		ProviderCapability.IMAGE,
+		ProviderCapability.DOCUMENT,
+		ProviderCapability.CITATION,
+		ProviderCapability.WEB_SEARCH,
+	}
+	supported_attachment_formats: ClassVar[set[str]] = {
+		"image/gif",
+		"image/jpeg",
+		"image/png",
+		"image/webp",
+		"application/pdf",
+		"text/plain",
+	}
+
+	MODELS_JSON_URL = sigma_night_data_file("anthropic.json")
+
+	def _postprocess_models(
+		self, models: list[ProviderAIModel]
+	) -> list[ProviderAIModel]:
+		"""Add `` (thinking)`` entries only when reasoning is supported."""
+		if not any(m.extra_info.get("reasoning_capable") for m in models):
+			return models
+
+		ids = {m.id for m in models}
+		out: list[ProviderAIModel] = []
+		for m in models:
+			out.append(m)
+			if m.reasoning or m.id.endswith(_REASONING_ID_SUFFIX):
+				base_id = m.id.removesuffix(_REASONING_ID_SUFFIX)
+				if base_id in ids:
+					continue
+				base_name = (
+					m.name.removesuffix(" (thinking)") if m.name else m.name
+				)
+				out.append(
+					dataclasses.replace(
+						m, id=base_id, name=base_name, reasoning=False
+					)
+				)
+				ids.add(base_id)
+				continue
+			if not m.extra_info.get("reasoning_capable"):
+				continue
+			twin_id = f"{m.id}{_REASONING_ID_SUFFIX}"
+			if twin_id in ids:
+				continue
+			think_label = f"{m.name or m.id} (thinking)"
+			out.append(
+				dataclasses.replace(
+					m, id=twin_id, name=think_label, reasoning=True
+				)
+			)
+			ids.add(twin_id)
+		return out
+
+	def __init__(self, account: Account) -> None:
+		"""Initializes the engine with the given account.
+
+		Args:
+			account: The provider account configuration.
+		"""
+		super().__init__(account)
+
+	@cached_property
+	def client(self) -> Anthropic:
+		"""Property to return the client object for the Anthropic API.
+
+		Returns:
+			The client object for the Anthropic API initialized with the account API key.
+		"""
+		return Anthropic(api_key=self.account.api_key.get_secret_value())
+
+	def get_attachment_source(
+		self, attachment: AttachmentFile | ImageFile
+	) -> dict:
+		"""Get the source for the attachment.
+
+		Args:
+			attachment: Attachment to process.
+
+		Returns:
+			Attachment source data.
+		"""
+		if attachment.type == AttachmentFileTypes.URL:
+			return {"type": "url", "url": attachment.url}
+		elif attachment.type != AttachmentFileTypes.UNKNOWN:
+			source = {"media_type": attachment.mime_type}
+			match attachment.mime_type.split("/")[0]:
+				case "image" | "application":
+					source["type"] = "base64"
+					source["data"] = attachment.encode_base64()
+				case "text":
+					source["type"] = "text"
+					source["data"] = attachment.read_as_plain_text()
+				case _:
+					raise ValueError(
+						f"Unsupported attachment type: {attachment.type}"
+					)
+			return source
+
+	def get_attachment_extras(
+		self, attachment: AttachmentFile | ImageFile
+	) -> dict:
+		"""Get the extras for the attachment.
+
+		Args:
+			attachment: Attachment to process.
+
+		Returns:
+			Attachment extra data.
+		"""
+		extras = {}
+		match attachment.mime_type.split("/")[0]:
+			case "image":
+				extras["type"] = "image"
+			case "application" | "text":
+				extras["type"] = "document"
+				extras["citations"] = {"enabled": True}
+			case _:
+				raise ValueError(
+					f"Unsupported attachment type: {attachment.type}"
+				)
+		return extras
+
+	def convert_message(self, message: Message) -> dict:
+		"""Converts internal message format to Anthropic API format.
+
+		Args:
+			message: Message to be converted.
+
+		Returns:
+			Message in Anthropic API format with role and content.
+		"""
+		contents = [TextBlock(text=message.content, type="text")]
+		if message.attachments:
+			# TODO: implement "context" and "title" for documents
+			# TODO: add support for custom content document format
+			for attachment in message.attachments:
+				source = self.get_attachment_source(attachment)
+				extras = self.get_attachment_extras(attachment)
+				if not source or not extras:
+					raise ValueError(
+						f"Unsupported attachment type: {attachment.type}"
+					)
+				contents.append({"source": source} | extras)
+		return {"role": message.role.value, "content": contents}
+
+	prepare_message_request = convert_message
+	prepare_message_response = convert_message
+
+	def completion(
+		self,
+		new_block: MessageBlock,
+		conversation: Conversation,
+		system_message: SystemMessage | None,
+		stop_block_index: int | None = None,
+		**kwargs,
+	) -> Message | Stream[MessageStreamEvent]:
+		"""Sends a completion request to the Anthropic API.
+
+		Args:
+			new_block: Message block with generation parameters.
+			conversation: Current conversation context.
+			system_message: Optional system-level instruction message.
+			stop_block_index: Optional index to stop processing messages at. If None, all messages are processed.
+			**kwargs: Additional API request parameters.
+
+		Returns:
+			Either a complete message or a stream of message events.
+		"""
+		super().completion(
+			new_block, conversation, system_message, stop_block_index, **kwargs
+		)
+		tools = []
+		web_search = kwargs.pop("web_search_mode", False)
+		if web_search:
+			tools.append({"type": "web_search_20250305", "name": "web_search"})
+		model = self.get_model(new_block.model.model_id)
+		if model is None:
+			raise ValueError(
+				f"Unknown model id for Anthropic completion: "
+				f"{new_block.model.model_id}"
+			)
+		params = {
+			"model": model.id,
+			"messages": self.get_messages(
+				new_block, conversation, stop_block_index=stop_block_index
+			),
+			"temperature": new_block.temperature,
+			"max_tokens": new_block.max_tokens or model.max_output_tokens,
+			"stream": new_block.stream,
+		}
+		# Only include top_p if it's not the default value (1.0)
+		# New Claude 4 models don't allow both temperature and top_p
+		if new_block.top_p != 1.0:
+			params["top_p"] = new_block.top_p
+		if system_message:
+			params["system"] = system_message.content
+		if tools:
+			params["tools"] = tools
+		if model.reasoning:
+			params.pop("top_p", None)
+			params["model"] = model.id.removesuffix(_REASONING_ID_SUFFIX)
+			params["thinking"] = {
+				"type": "enabled",
+				"budget_tokens": kwargs.get("budget_tokens", 16000),
+			}
+		params.update(kwargs)
+		self._strip_catalog_sampling_params(model, params)
+		response = self.client.messages.create(**params)
+		return response
+
+	def _handle_citation(self, citation: dict) -> dict:
+		"""Processes citation data from the API response.
+
+		Args:
+			citation: Citation data from the API response.
+
+		Returns:
+			Processed citation data.
+		"""
+		citation_chunk_data = {}
+		if citation.type in ("char_location", "page_location"):
+			citation_chunk_data = dict(citation)
+		else:
+			log.warning("Unsupported citation type: %s", citation.type)
+		return citation_chunk_data
+
+	def _handle_thinking(
+		self, started: bool, event: MessageStreamEvent
+	) -> tuple[str, bool]:
+		"""Handles the 'thinking' content in the API response.
+
+		Args:
+			started: Flag indicating if thinking content has started.
+			event: Event data from the API response.
+
+		Returns:
+			Tuple containing the thinking content and updated started flag.
+		"""
+		if not started:
+			started = True
+			content = f"```think\n {event.delta.thinking}"
+			return content, started
+		else:
+			return event.delta.thinking, started
+
+	def _handle_content_block_stop(
+		self, thinking_content_started: bool, current_block_type: str
+	) -> tuple[str | None, bool]:
+		"""Handles content block stop events from the stream.
+
+		Args:
+			thinking_content_started: Flag indicating if thinking content has started.
+			current_block_type: Type of the current content block.
+
+		Returns:
+			Tuple containing optional yield content and updated thinking_started flag.
+		"""
+		if thinking_content_started and current_block_type == "thinking":
+			return "\n```\n\n", False
+		return None, thinking_content_started
+
+	def _handle_content_block_delta(
+		self, event: MessageStreamEvent, thinking_content_started: bool
+	) -> tuple[str | tuple[str, dict] | None, bool]:
+		"""Handles content block delta events from the stream.
+
+		Args:
+			event: The stream event to process.
+			thinking_content_started: Flag indicating if thinking content has started.
+
+		Returns:
+			Tuple containing yield content and updated thinking_started flag.
+		"""
+		match event.delta.type:
+			case "text_delta":
+				return event.delta.text, thinking_content_started
+			case "thinking_delta":
+				text, updated_started = self._handle_thinking(
+					thinking_content_started, event
+				)
+				return text, updated_started
+			case "citations_delta":
+				return (
+					("citation", self._handle_citation(event.delta.citation)),
+					thinking_content_started,
+				)
+		return None, thinking_content_started
+
+	def completion_response_with_stream(
+		self, stream: Stream[MessageStreamEvent]
+	) -> Iterator[TextBlock | dict]:
+		"""Processes streaming response from Anthropic API.
+
+		Args:
+			stream: Stream of message events from the API.
+
+		Yields:
+			Text content from each event or thinking content.
+		"""
+		thinking_content_started = False
+		current_block_type = None
+		for event in stream:
+			match event.type:
+				case "content_block_start":
+					current_block_type = event.content_block.type
+				case "content_block_stop":
+					content, thinking_content_started = (
+						self._handle_content_block_stop(
+							thinking_content_started, current_block_type
+						)
+					)
+					if content:
+						yield content
+				case "content_block_delta":
+					content, thinking_content_started = (
+						self._handle_content_block_delta(
+							event, thinking_content_started
+						)
+					)
+					if content:
+						yield content
+				case "message_stop":
+					if thinking_content_started:
+						yield "\n```\n"
+					break
+
+	def completion_response_without_stream(
+		self, response: AnthropicMessage, new_block: MessageBlock, **kwargs
+	) -> MessageBlock:
+		"""Processes non-streaming response from Anthropic API.
+
+		Args:
+			response: Complete message from the API.
+			new_block: Message block to update.
+			**kwargs: Additional processing parameters.
+
+		Returns:
+			Updated message block with response.
+		"""
+		citations = []
+		text_parts: list[str] = []
+		thinking_parts: list[str] = []
+		if hasattr(response, "thinking") and response.thinking:
+			thinking_parts.append(response.thinking)
+		for content in response.content:
+			block_type = getattr(content, "type", "")
+			if block_type == "thinking":
+				thinking_text = getattr(content, "thinking", None)
+				if thinking_text:
+					thinking_parts.append(thinking_text)
+				continue
+			if getattr(content, "citations", None):
+				for citation in content.citations:
+					citations.append(self._handle_citation(citation))
+			text = getattr(content, "text", None)
+			if text:
+				text_parts.append(text)
+		final_content = "".join(text_parts)
+		thinking_content = "".join(thinking_parts)
+		if thinking_content:
+			final_content = (
+				f"```think\n{thinking_content}\n```\n\n{final_content}"
+			)
+		new_block.response = Message(
+			role=MessageRoleEnum.ASSISTANT,
+			content=final_content,
+			citations=citations,
+		)
+		return new_block

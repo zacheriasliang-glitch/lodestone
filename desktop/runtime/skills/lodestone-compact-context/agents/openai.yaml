@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lodestone Compact Context"
+  short_description: "Save and verify task continuity checkpoints"
+  default_prompt: "Use $lodestone-compact-context to save this task's state and verify its sources before resuming."
