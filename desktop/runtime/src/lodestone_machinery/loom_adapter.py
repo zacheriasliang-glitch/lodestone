@@ -194,23 +194,32 @@ def render_prompt(request, tokenizer):
     request = validate_request(request)
     data = {key: request[key] for key in ("context", "encounter", "purpose")}
     _no_control_markers(data.values(), tokenizer)
-    from .learning_context import render_practice_data
-    user = render_practice_data(request)
-    if user is None:
+    from .learning_context import practice_data_candidates
+    users = practice_data_candidates(request)
+    if users is None:
         # Voxel contexts (teaching plus named knots) render as readable sections;
         # every other context keeps the original exact-JSON presentation.
         from .loom_voxels import render_voxel_request
         user = render_voxel_request(request)
-    if user is None:
-        user = json.dumps(data, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        if user is None:
+            user = json.dumps(data, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        users = [user]
     # JSON escape sequences in a structured practice context must not introduce
     # tokenizer control markers when decoded into literal reader sections.
-    _no_control_markers([user], tokenizer)
-    prompt = tokenizer.apply_chat_template(
-        [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": user}],
-        tokenize=False, add_generation_prompt=True, enable_thinking=False)
-    _text(prompt, 262144, "rendered prompt")
-    return prompt
+    prompts = []
+    for user in users:
+        _no_control_markers([user], tokenizer)
+        prompt = tokenizer.apply_chat_template(
+            [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": user}],
+            tokenize=False, add_generation_prompt=True, enable_thinking=False)
+        _text(prompt, 262144, "rendered prompt")
+        prompts.append(prompt)
+    if len(prompts) == 1:
+        return prompts[0]
+    # Byte length is a poor proxy for tokenizer cost (e.g. digest tables).
+    # Stable ties preserve the legacy byte-selected representation. Prediction and
+    # completion-only encoding share this exact selection and provider prefix.
+    return min(prompts, key=lambda text: len(_tokens(tokenizer.encode(text, add_special_tokens=False))))
 
 
 def _tokens(value):

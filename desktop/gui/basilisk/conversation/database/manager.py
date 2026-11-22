@@ -35,6 +35,7 @@ from .models import (
 	DBMessage,
 	DBMessageAttachment,
 	DBMessageBlock,
+	DBLoomBlockPurpose,
 	DBSystemPrompt,
 )
 
@@ -78,6 +79,9 @@ class ConversationDatabase:
 		self._engine = self.get_db_engine(self._db_path)
 		self._session_factory = sessionmaker(bind=self._engine)
 		self._run_migrations()
+		# Independent optional metadata keeps revision 001 readable by the
+		# previous preview during rollback. Never rewrite existing block columns.
+		DBLoomBlockPurpose.__table__.create(self._engine, checkfirst=True)
 		self.cleanup_orphan_attachments()
 		log.info("Database initialized at %s", db_path)
 
@@ -392,6 +396,8 @@ class ConversationDatabase:
 		session.add(db_block)
 		session.flush()
 		block.db_id = db_block.id
+		if block.loom_purpose is not None:
+			session.add(DBLoomBlockPurpose(block_id=db_block.id, purpose=block.loom_purpose))
 		return db_block
 
 	def save_message_block(
@@ -702,6 +708,7 @@ class ConversationDatabase:
 				if db_block.system_prompt_link is not None:
 					system_index = db_block.system_prompt_link.position
 
+				purpose = session.get(DBLoomBlockPurpose, db_block.id)
 				block = MessageBlock(
 					request=request_msg,
 					response=response_msg,
@@ -714,6 +721,7 @@ class ConversationDatabase:
 					max_tokens=db_block.max_tokens,
 					top_p=db_block.top_p,
 					stream=db_block.stream,
+					loom_purpose=purpose.purpose if purpose is not None else None,
 					created_at=db_block.created_at,
 					updated_at=db_block.updated_at,
 				)

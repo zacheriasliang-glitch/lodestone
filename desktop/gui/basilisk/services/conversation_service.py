@@ -102,7 +102,6 @@ class ConversationService:
 			conf.conversation.auto_save_to_db
 			and conf.conversation.auto_save_draft
 			and not self.private
-			and self.db_conv_id is not None
 		)
 
 	def set_private(self, private: bool) -> tuple[bool, bool]:
@@ -175,6 +174,14 @@ class ConversationService:
 			system_msg: The current system message.
 		"""
 		if self.db_conv_id is None:
+			if draft_block is None:
+				return
+			try:
+				initial = conversation.model_copy(deep=True)
+				initial.add_block(draft_block, system_msg)
+				self.db_conv_id = self._get_conv_db().save_conversation(initial)
+			except Exception:
+				log.exception("Failed to save first conversation draft")
 			return
 		if draft_block is None:
 			try:

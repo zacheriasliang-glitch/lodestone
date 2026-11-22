@@ -221,6 +221,8 @@ class BaseConversation:
 
 	def update_model_list(self):
 		"""Update the model list with current engine's available models."""
+		load_token = object()
+		self._model_display_token = load_token
 		account = self.current_account
 		engine = self.current_engine
 		self.base_conv_presenter.shutdown_model_loading()
@@ -233,8 +235,15 @@ class BaseConversation:
 		self.base_conv_presenter.start_model_loading(
 			account,
 			engine,
-			lambda *args: wx.CallAfter(self._on_models_loaded, *args),
+			lambda *args: wx.CallAfter(self._on_current_models_loaded, load_token, *args),
 		)
+
+	def _on_current_models_loaded(self, load_token, *args):
+		# An earlier same-account load may already be queued on the wx thread
+		# when draft restoration requests a new load. It must not consume the
+		# pending selection and then let the later callback clear that selection.
+		if load_token is getattr(self, "_model_display_token", None):
+			self._on_models_loaded(*args)
 
 	def get_display_models(self) -> list[tuple[str, str, str]]:
 		"""Get list of models for display.

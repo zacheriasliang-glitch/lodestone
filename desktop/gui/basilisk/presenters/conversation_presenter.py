@@ -28,6 +28,7 @@ from basilisk.presenters.presenter_mixins import (
 from basilisk.provider_ai_model import AIModelInfo
 from basilisk.provider_capability import ProviderCapability
 from basilisk.services.conversation_service import ConversationService
+from basilisk.services.loom_records import DEFAULT_LOOM_PURPOSE, latest_receipt
 from basilisk.sound_manager import play_sound, stop_sound
 
 if TYPE_CHECKING:
@@ -171,6 +172,7 @@ class ConversationPresenter(DestroyGuardMixin):
 			top_p=view.top_p_spinner.GetValue(),
 			max_tokens=view.max_tokens_spin_ctrl.GetValue(),
 			stream=view.stream_mode.GetValue(),
+			loom_purpose=view.loom_purpose.GetValue() if view.current_account.provider.id == "loom" else None,
 		)
 
 	def get_completion_args(self) -> dict[str, Any] | None:
@@ -538,7 +540,11 @@ class ConversationPresenter(DestroyGuardMixin):
 			return None
 		prompt_text = view.prompt_panel.prompt_text
 		attachments = view.prompt_panel.attachment_files
-		if not prompt_text and not attachments:
+		purpose = view.loom_purpose.GetValue() if view.current_account.provider.id == "loom" else None
+		last = latest_receipt(self.conversation) if purpose is not None else None
+		prior_purpose = last["purpose"] if last else DEFAULT_LOOM_PURPOSE
+		purpose_changed = purpose is not None and purpose != prior_purpose
+		if not prompt_text and not attachments and not purpose_changed:
 			return None
 		block = MessageBlock(
 			request=Message(
@@ -554,6 +560,7 @@ class ConversationPresenter(DestroyGuardMixin):
 			max_tokens=view.max_tokens_spin_ctrl.GetValue(),
 			top_p=view.top_p_spinner.GetValue(),
 			stream=view.stream_mode.GetValue(),
+			loom_purpose=purpose,
 		)
 		system_msg = self.get_system_message()
 		if system_msg and system_msg in self.conversation.systems:
@@ -565,6 +572,10 @@ class ConversationPresenter(DestroyGuardMixin):
 	def _save_draft_to_db(self):
 		"""Save the current draft to the database."""
 		draft_block = self._build_draft_block()
+		if draft_block is None and (not self.view.current_account or not self.view.current_model):
+			# A temporarily unavailable route is not an instruction to erase the
+			# saved draft, including one containing only a changed purpose.
+			return
 		system_msg = self.get_system_message()
 		self.service.save_draft_to_db(
 			self.conversation, draft_block, system_msg

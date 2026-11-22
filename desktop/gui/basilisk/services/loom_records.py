@@ -10,6 +10,8 @@ import tempfile
 
 from basilisk import global_vars
 
+DEFAULT_LOOM_PURPOSE = "Find a useful next contribution to this encounter."
+
 
 def block_key(block) -> str:
 	"""Use fields already preserved by the conversation database and export."""

@@ -143,6 +143,7 @@ class MessageBlock(BaseModel):
 	max_tokens: int = Field(default=4096)
 	top_p: float = Field(default=1)
 	stream: bool = Field(default=False)
+	loom_purpose: str | None = Field(default=None)
 	created_at: datetime = Field(default_factory=datetime.now)
 	updated_at: datetime = Field(default_factory=datetime.now)
 	db_id: int | None = Field(default=None, exclude=True)

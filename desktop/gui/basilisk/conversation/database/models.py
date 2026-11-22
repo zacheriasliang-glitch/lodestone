@@ -116,6 +116,16 @@ class DBMessageBlock(Base):
 	)
 
 
+class DBLoomBlockPurpose(Base):
+	"""Optional GUI metadata; old preview readers can ignore this additive table."""
+
+	__tablename__ = "loom_block_purposes"
+	block_id: Mapped[int] = mapped_column(
+		ForeignKey("message_blocks.id", ondelete="CASCADE"), primary_key=True
+	)
+	purpose: Mapped[str]
+
+
 class DBMessage(Base):
 	"""Represents a single message (user or assistant) within a block."""
 
