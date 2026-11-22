@@ -146,6 +146,59 @@ print(json.dumps({'checked':checked, 'repeated':repeated, 'feedback':feedback,
         self.assertFalse(actual["eligible"])
         self.assertEqual(actual["pending"], [])
 
+    def test_preview_is_read_only_and_reopen_uses_saved_assessment(self):
+        actual = self.native('''
+encounter, contract = fixture()
+first = run(encounter, response())
+before = snapshot()
+preview = loom.preview_decision_review(first['outcome_handle'],
+    case_json=contract['case_json'], policy=contract['policy'], author=contract['author'])
+empty = loom.decision_review_context(first['outcome_handle'])
+readonly = before == snapshot()
+saved = loom.review_decision(first['outcome_handle'], contract=preview['contract'], author='Saved reviewer')
+after = snapshot()
+def no_regrading(*args, **kwargs):
+    raise AssertionError('Reopening must not recompute the saved assessment')
+decision_contract.review_decision = no_regrading
+reopened = UnifiedLoom(LearningMemory(config['memory_workspace']), config['seed_handles'])
+context = reopened.decision_review_context(first['outcome_handle'])
+print(json.dumps({'readonly':readonly, 'empty':empty, 'preview':preview,
+    'saved':saved, 'context':context, 'reopen_readonly':after == snapshot()}))
+''')
+        self.assertTrue(actual["readonly"])
+        self.assertTrue(actual["reopen_readonly"])
+        self.assertEqual(actual["empty"]["reviews"], [])
+        self.assertEqual(actual["preview"]["assessment"]["status"], "REJECTED")
+        context = actual["context"]
+        self.assertEqual(context["response"], actual["preview"]["assessment"]["raw_response"])
+        self.assertEqual(context["native_status"], "COMPLETED")
+        self.assertEqual(len(context["reviews"]), 1)
+        saved = context["reviews"][0]
+        self.assertEqual(saved["contract"], actual["preview"]["contract"])
+        self.assertEqual(saved["assessment"]["status"], "REJECTED")
+        self.assertEqual(saved["review_handle"], actual["saved"]["retention"]["review_handle"])
+        self.assertEqual(saved["learning_verdict"], "UNRESOLVED")
+
+    def test_native_preview_cannot_rebind_another_encounter(self):
+        actual = self.native('''
+encounter, contract = fixture()
+first = run(encounter, response(), 'INTERRUPTED')
+before = snapshot()
+try:
+    loom.preview_decision_review(first['outcome_handle'],
+        case_json=contract['case_json'].replace('unit-A', 'changed-target'), author='Test')
+except ValueError as error:
+    reason = str(error)
+else:
+    raise AssertionError('Foreign case must be rejected')
+context = loom.decision_review_context(first['outcome_handle'])
+print(json.dumps({'reason':reason, 'readonly':before == snapshot(), 'context':context}))
+''')
+        self.assertIn("exact span", actual["reason"])
+        self.assertTrue(actual["readonly"])
+        self.assertEqual(actual["context"]["native_status"], "INTERRUPTED")
+        self.assertEqual(actual["context"]["reviews"], [])
+
     def test_passing_contract_check_stays_an_unresolved_learning_review(self):
         actual = self.native('''
 encounter, contract = fixture()

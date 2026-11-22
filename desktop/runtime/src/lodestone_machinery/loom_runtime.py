@@ -55,6 +55,10 @@ def _config(path):
         raise ValueError("Expected Loom unified runtime configuration")
     if value.get("backend") not in ("ollama_qwen3_base", "local_adapter"):
         raise ValueError("Unknown explicit local Loom backend")
+    if "decision_format" in value:
+        raise ValueError("Decision format is a per-encounter opt-in, not persistent configuration")
+    if "history_window" in value:
+        raise ValueError("Reader history window is a per-encounter opt-in, not persistent configuration")
     for field in ("learning_config", "python", "assets_dir", "runs_dir"):
         if type(value.get(field)) is not str or not Path(value[field]).is_absolute():
             raise ValueError(field + " must be an absolute local path")
@@ -182,6 +186,8 @@ def _execution_binding(config, identity, *, encounter, purpose, context):
     names = ("loom_runtime.py", "loom_runtime_worker.py", "loom_adapter.py",
              "loom_adapter_local.py", "loom_adapter_torch.py", "loom_inference_memory.py",
              "learning_context.py", "learning_reader.py")
+    if config.get("decision_format") is not None:
+        names += ("decision_format.py", "decision_contract.py")
     sources = {name: hashlib.sha256(read_bytes(root / name, _MAX_FILE)).hexdigest()
                for name in names}
     reader = {key: value for key, value in identity.items()
@@ -189,6 +195,12 @@ def _execution_binding(config, identity, *, encounter, purpose, context):
     source = {"sources": sources, "reader": reader}
     inputs = {"encounter": encounter, "purpose": purpose, "context": context,
               "generation": config["generation"], "max_total_tokens": config["max_total_tokens"]}
+    if config.get("decision_format") is not None:
+        from .decision_format import validate_decision_format
+        inputs["decision_format"] = validate_decision_format(encounter, config["decision_format"])
+    if config.get("history_window") is not None:
+        from .learning_context import history_window_policy
+        inputs["reader_history_window"] = history_window_policy(config["history_window"])
     return {"schema": "loom-execution-binding/v1", "operation": "loom.local-inference",
             "source_sha256": hashlib.sha256(canonical(source)).hexdigest(),
             "input_sha256": hashlib.sha256(canonical(inputs)).hexdigest(),
@@ -392,6 +404,13 @@ class LoomBridge:
         return _native(_config(self.config_path)).review_decision(
             outcome_handle, contract=contract, author=author)
 
+    def decision_review_context(self, outcome_handle):
+        return _native(_config(self.config_path)).decision_review_context(outcome_handle)
+
+    def preview_decision_review(self, outcome_handle, *, case_json, policy=None, author):
+        return _native(_config(self.config_path)).preview_decision_review(
+            outcome_handle, case_json=case_json, policy=policy, author=author)
+
     def preview_origami(self, outcome_handle, *, root, paths):
         config = _config(self.config_path)
         return _native(config).preview_origami(outcome_handle,
@@ -403,7 +422,7 @@ class LoomBridge:
             workspace=Path(config["runs_dir"]) / "origami-handoffs")
 
     def run(self, *, encounter, purpose, context="", route=None, max_tokens=None,
-            temperature=0, top_p=1, cancel_event=None):
+            temperature=0, top_p=1, cancel_event=None, decision_case_json=None, history_window=None):
         # Keep a failed reread of configuration inside the durable local error
         # boundary. The constructor's validated config supplies only the ledger.
         profile_error = None
@@ -441,6 +460,16 @@ class LoomBridge:
                                              "temperature": 0, "top_p": 1},
                           requested_generation={"max_tokens": max_tokens,
                                                 "temperature": temperature, "top_p": top_p})
+            if decision_case_json is not None:
+                if config["backend"] != "ollama_qwen3_base":
+                    raise ValueError("Structured decision decoding requires the local Ollama backend")
+                from .decision_format import bind_decision_format
+                config["decision_format"] = bind_decision_format(
+                    encounter, case_json=decision_case_json)
+            if history_window is not None:
+                from .learning_context import history_window_policy
+                history_window_policy(history_window)
+                config["history_window"] = history_window
             identity = runtime_identity(config)
             _save(directory / "config.json", config)
             _save(directory / "reader-identity.json", identity)
@@ -478,7 +507,8 @@ class LoomBridge:
                 run_id="unified-" + directory.name,
                 provider=provide, execution_binding=binding,
                 wait=TURN_WAIT_SECONDS, cancelled=cancelled,
-                failure_classifier=lambda returned: _resource_failure(returned, owned_result, config))
+                failure_classifier=lambda returned: _resource_failure(returned, owned_result, config),
+                history_window=history_window)
             result = dict(native_result, artifacts_dir=str(directory), reader_identity=identity)
             _save(directory / "receipt.json", result)
             return result

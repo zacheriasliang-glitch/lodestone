@@ -60,6 +60,32 @@ DEPARTURE_RULE = ("This supersedes the fold rule's 'every verdict and correction
                   "them complete. Seeds, NACREs and pairs never leave. A correction meant to outlast its run belongs "
                   "in a SEED. If departing every run but the newest still misses the target, nothing departs and the "
                   "fully folded input is used as before.")
+HISTORY_WINDOW_SCHEMA = "loom-reader-history-window/v1"
+HISTORY_WINDOW_RULE = ("Explicit reader history window: fold every prior run's encounter, purpose and outcome, "
+                       "and every review's fields other than reviewer, verdict and correction; then keep only "
+                       "the declared number of newest prior runs. Older runs are named in departed_history_runs. "
+                       "All retained review corrections, seeds, NACREs and pairs stay exact. Complete native "
+                       "preparations, outcomes and reviews remain in Bezoar. This selection does not depend on "
+                       "input length; if the selected view exceeds its existing bound, refuse without further departure.")
+
+
+def history_window_policy(keep_latest_runs):
+    """Validate an explicit per-call window; None preserves the existing rule."""
+    if keep_latest_runs is None:
+        return None
+    if type(keep_latest_runs) is not int or not 1 <= keep_latest_runs <= 32:
+        raise ValueError("Reader history window must be an integer from 1 to 32")
+    return {"schema": HISTORY_WINDOW_SCHEMA, "keep_latest_runs": keep_latest_runs}
+
+
+def _checked_history_window_policy(policy):
+    if (type(policy) is not dict or set(policy) != {"schema", "keep_latest_runs"}
+            or policy.get("schema") != HISTORY_WINDOW_SCHEMA):
+        raise ValueError("Unsupported reader history window policy")
+    expected = history_window_policy(policy["keep_latest_runs"])
+    if expected is None or canonical(policy) != canonical(expected):
+        raise ValueError("Invalid reader history window policy")
+    return expected
 
 
 def _memory(value):
@@ -217,6 +243,31 @@ def _reader_projection_from_snapshot(checked, snapshot, folded):
             "run_handle": checked["run_handle"], "binding": deepcopy(checked["binding"]),
             "content": content, "evidence_index": evidence_index,
             "projection": projection, "authority": "NONE"}
+
+
+def history_window_projection(checked, snapshot, keep_latest_runs):
+    """Pure projection of a detached snapshot, not native preparation evidence.
+
+    Native builders independently validate the preparation before invoking this
+    helper. Offline callers may estimate selection using a clearly labelled
+    snapshot; only actual admitted packets establish provider exposure.
+    """
+    policy = history_window_policy(keep_latest_runs)
+    if policy is None:
+        raise ValueError("Explicit history projection requires a window")
+    history = snapshot["history"]
+    departed = max(len(history) - keep_latest_runs, 0)
+    projected = _reader_projection_from_snapshot(
+        checked, snapshot, _folding_steps(history) + departed)
+    metadata = projected["projection"]
+    metadata["method"] = DEPARTED_METHOD if departed else FOLDED_METHOD
+    metadata["folded_history_runs"] = [row["run_handle"] for row in history[departed:]]
+    metadata.setdefault("folded_reviews", [])
+    metadata["reader_history_window"] = policy
+    metadata["fold_rule"] = HISTORY_WINDOW_RULE
+    if departed:
+        metadata["departure_rule"] = HISTORY_WINDOW_RULE
+    return projected
 
 
 def _map_values(value, replace):
@@ -443,13 +494,21 @@ def practice_data_candidates(request):
         return None
     if type(value) is not dict or value.get("schema") != PRACTICE_SCHEMA:
         return None
-    if (set(value) != {"schema", "exposure", "literal_context", "learning_context", "use", "authority"}
+    fields = {"schema", "exposure", "literal_context", "learning_context", "use", "authority"}
+    window_policy = None
+    if "reader_history_window" in value:
+        fields.add("reader_history_window")
+        window_policy = _checked_history_window_policy(value["reader_history_window"])
+    if (set(value) != fields
             or canonical(value).decode() != request["context"] or value["exposure"] != EXPOSURE
             or value["authority"] != "NONE" or value["use"] != PRACTICE_USE
             or type(value["literal_context"]) is not str):
         raise ValueError("Invalid complete practice input for rendering")
     projected = value["learning_context"]
     expanded = expand_learning_projection(projected)
+    if (type(expanded.get("projection")) is not dict
+            or expanded["projection"].get("reader_history_window") != window_policy):
+        raise ValueError("Rendered history window differs from its declared projection")
     if (set(expanded) != {"schema", "run_id", "run_handle", "binding", "content", "evidence_index", "projection", "authority"}
             or expanded["authority"] != "NONE" or type(expanded["run_handle"]) is not str
             or not HANDLE.fullmatch(expanded["run_handle"])):
@@ -495,6 +554,8 @@ def practice_data_candidates(request):
         sections = [("LITERAL_CONTEXT", value["literal_context"]),
                     ("LEARNING_CONTEXT_JSON", canonical(rendered).decode()),
                     ("ENCOUNTER", request["encounter"]), ("PURPOSE", request["purpose"])]
+        if window_policy is not None:
+            sections.insert(1, ("READER_HISTORY_WINDOW_JSON", canonical(window_policy).decode()))
         candidates.append(PRACTICE_SCHEMA + " | " + EXPOSURE + " | authority=NONE\n" + PRACTICE_USE + "\n"
             + "\n".join(name + " (UTF-8 bytes=" + str(len(text.encode())) + "):\n" + text
                         for name, text in sections))
@@ -699,7 +760,8 @@ def read_origami_learning_fold(organ, handle):
 
 
 def _practice_reference(memory, prepared, literal_context, *, encounter=None, purpose=None,
-                        max_bytes=MAX_PRACTICE_BYTES, fold=False, departures=True, _legacy_transport=False):
+                        max_bytes=MAX_PRACTICE_BYTES, fold=False, departures=True, _legacy_transport=False,
+                        history_window=None):
     """Return the complete practice reference, exact whenever it fits ``max_bytes``.
 
     With ``fold`` (the adapter path only) a reference above ``target`` folds
@@ -715,6 +777,9 @@ def _practice_reference(memory, prepared, literal_context, *, encounter=None, pu
     """
     if type(literal_context) is not str:
         raise ValueError("Literal context must be a string")
+    window_policy = history_window_policy(history_window)
+    if window_policy is not None and (not fold or not departures or _legacy_transport):
+        raise ValueError("Reader history window requires the current adapter projection")
     checked = validate_learning_context(memory, prepared, encounter=encounter, purpose=purpose)
     snapshot = json.loads(checked["context"])
     history = snapshot["history"]
@@ -723,14 +788,24 @@ def _practice_reference(memory, prepared, literal_context, *, encounter=None, pu
     target = min(max_bytes, ADAPTER_FOLD_TARGET_BYTES) if fold else max_bytes
 
     def reference(folded):
-        projected = _intern_learning_projection(_reader_projection_from_snapshot(checked, snapshot, folded))
+        plain = (history_window_projection(checked, snapshot, history_window)
+                 if window_policy is not None else _reader_projection_from_snapshot(checked, snapshot, folded))
+        projected = _intern_learning_projection(plain)
         if not _legacy_transport:
             projected = _compact_learning_projection(projected)
-        return canonical({"schema": PRACTICE_SCHEMA, "exposure": EXPOSURE,
+        value = {"schema": PRACTICE_SCHEMA, "exposure": EXPOSURE,
                           "literal_context": literal_context,
                           "learning_context": projected,
                           "use": PRACTICE_USE,
-                          "authority": "NONE"})
+                          "authority": "NONE"}
+        if window_policy is not None:
+            value["reader_history_window"] = window_policy
+        return canonical(value)
+    if window_policy is not None:
+        raw = reference(0)
+        if len(raw) <= max_bytes:
+            return raw.decode("utf-8")
+        raise ValueError("Declared reader history window exceeds the existing context bound; no further departure")
     for folded in range(steps + 1):
         raw = reference(folded)
         if len(raw) <= target:
@@ -745,11 +820,11 @@ def _practice_reference(memory, prepared, literal_context, *, encounter=None, pu
     raise ValueError("Complete practice context exceeds bound; truncation is forbidden")
 
 
-def build_adapter_request(memory, prepared, *, request_id, context, encounter, purpose):
+def build_adapter_request(memory, prepared, *, request_id, context, encounter, purpose, history_window=None):
     """Prepare the existing natural-language Loom adapter's exact input contract."""
     from .loom_adapter import MAX_CONTEXT_BYTES, REQUEST_SCHEMA, validate_request
     text = _practice_reference(memory, prepared, context, encounter=encounter, purpose=purpose,
-                               max_bytes=MAX_CONTEXT_BYTES, fold=True)
+                               max_bytes=MAX_CONTEXT_BYTES, fold=True, history_window=history_window)
     return validate_request({"schema": REQUEST_SCHEMA, "id": request_id,
                              "context": text, "context_sha256": hashlib.sha256(text.encode()).hexdigest(),
                              "encounter": encounter, "purpose": purpose})
@@ -798,10 +873,17 @@ def validate_practice_packet(memory, prepared, packet, kind, *, historical=False
     reference = json.loads(packet[field])
     if type(reference) is not dict or type(reference.get("literal_context")) is not str:
         raise ValueError("Missing complete literal practice context")
+    if "reader_history_window" in reference:
+        if kind != "adapter":
+            raise ValueError("Reader history window is supported only for adapter practice")
+        policy = _checked_history_window_policy(reference["reader_history_window"])
+        bound["history_window"] = policy["keep_latest_runs"]
     rebuilt = _practice_reference(memory, checked, reference["literal_context"],
                                   encounter=encounter, purpose=purpose, **bound)
     if packet[field] == rebuilt:
         return deepcopy(packet)
+    if "reader_history_window" in reference:
+        raise ValueError("Declared reader history window differs from its native projection")
     # Preserve the declared pre-departure rule as a supported complete-run view.
     if bound and packet[field] == _practice_reference(
             memory, checked, reference["literal_context"], encounter=encounter, purpose=purpose,

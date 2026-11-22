@@ -201,6 +201,50 @@ print(json.dumps(handle))
             bootstrap.import_memory(source, destination, RUNTIME, Path(sys.executable),
                                     seed_handles=initialized["seed_handles"])
 
+    def test_archive_pass_reuses_ancestors_but_later_reads_detect_tampering(self):
+        initialized = self.initialize()
+        actual = self.native('''
+import json
+from pathlib import Path
+from collections import Counter
+from lodestone_machinery.bezoar_learning import LearningMemory
+from lodestone_machinery.loom_unified import UnifiedLoom
+from lodestone_machinery.yggdrasil_learning import validate_learning_records
+config = json.loads(Path(sys.argv[2]).read_text())
+memory = LearningMemory(config['memory_workspace'])
+loom = UnifiedLoom(memory, config['seed_handles'])
+for i in range(3):
+    run = loom.run(encounter='Cumulative scripted encounter ' + str(i), purpose='Preserve history.',
+        reader='Scripted fixture; no model', provider=lambda packet: 'Fixture answer')
+    loom.correct(run['outcome_handle'], correction='Retain this actual fixture correction.', author='Fixture')
+calls = Counter()
+original = memory.store.relay
+def counted(consumer, handle, **kwargs):
+    calls[(handle, kwargs.get('kind'))] += 1
+    return original(consumer, handle, **kwargs)
+memory.store.relay = counted
+checked = validate_learning_records(memory.store)
+first_counts = list(calls.values())
+cache_cleared = not hasattr(checked, '_validated_records')
+seed = config['seed_handles'][0]
+path = Path(config['memory_workspace']) / 'organs/bezoar/records' / (seed.split(':')[1] + '.json')
+path.write_bytes(path.read_bytes() + b' ')
+try:
+    checked.read_seed(seed)
+except ValueError:
+    rejected = True
+else:
+    rejected = False
+print(json.dumps({'maximum_reads_per_record':max(first_counts), 'records_read':len(first_counts),
+    'cache_cleared':cache_cleared, 'later_tampering_rejected':rejected,
+    'failure_cache_cleared':not hasattr(checked, '_validated_records')}))
+''', initialized["active_config"])
+        self.assertGreater(actual["records_read"], 10)
+        self.assertEqual(actual["maximum_reads_per_record"], 1)
+        self.assertTrue(actual["cache_cleared"])
+        self.assertTrue(actual["later_tampering_rejected"])
+        self.assertTrue(actual["failure_cache_cleared"])
+
     def test_import_requires_selection_and_rejects_corruption_without_publishing(self):
         initialized = self.initialize()
         source = Path(initialized["memory_workspace"])

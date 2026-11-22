@@ -111,14 +111,79 @@ PYTHONPATH=desktop/runtime/src python3 -B -m lodestone_machinery.learning_cli \
 
 After a versioned runtime containing this change is installed, its `loom-practice`
 launcher exposes the same subcommand. This change alone does not update installed
-runtimes or add an automatic GUI response filter. Inspect the returned assessment;
+runtimes. Inspect the returned assessment;
 a zero CLI exit means the review was retained, not that the original answer passed.
+
+## Review in Desktop
+
+**Correct last encounter** keeps ordinary correction as its default. Its optional
+**Structured case review** tab reads the exact encounter, raw answer and native
+completion status from the configured memory. Select the exact case JSON from
+that encounter and optionally supply the attributed policy described above.
+Preview checks the actual saved answer without writing or making a model call.
+Saving retains the separate assessment through the same native review method.
+Changing any input invalidates an earlier preview.
+
+Previously saved reviews can be reopened from that tab. The stored contract,
+assessment, reviewer and native review handle are read back without regrading.
+Contract PASS/REJECTED/UNRESOLVED and the learning review verdict remain separate.
+A project file contains a receipt pointer; the configured native memory must still
+contain the referenced records. Moving a project alone does not move its memory.
+
+## Optional constrained generation
+
+`LoomBridge.run(..., decision_case_json=case_json)` enables source-bound JSON
+decoding for the local Ollama backend. The case must be an exact unique span of
+the encounter. Ordinary calls remain unchanged; another backend rejects this
+option before inference.
+
+The provider schema permits **every supplied action**, **both transitions**, and
+**every supplied observation ID**, including old, unverified and other-target
+observations. It requires exactly one citation and the four declared output
+fields. It supplies no condition interpretation, selected evidence, derived
+decision or grading key. The model still has to choose correctly.
+
+The schema travels in Ollama's `format` field, outside the rendered prompt. Its
+exact source binding and schema are retained with the worker configuration; the
+actual provider request is saved before dispatch and its digest is recorded.
+Raw model output remains unchanged. Correctly formatted output alone is not
+evidence of correct reasoning, retained-correction benefit or a weight update.
+
+## Explicit reader history window
+
+`LoomBridge.run(..., history_window=1)` and `UnifiedLoom.run` can explicitly select
+the newest prior run for the reader. The integer range is 1–32. This option is
+independent of constrained decoding and leaves ordinary calls unchanged.
+
+The existing folded representation is applied consistently to every historical
+run and review, then the declared number of newest runs remains in view. All
+review corrections within those runs and all selected seeds/NACRE remain exact.
+Departed run handles and the window rule are recorded in the native packet and
+shown in the rendered input. Conscience independently rebuilds the projection
+from the complete native preparation. Changing the declared window without its
+matching native projection fails validation.
+
+This explicit selection prevents feedback length from changing the number of
+visible prior runs in a matched comparison. Complete source records stay in
+Bezoar. If the chosen view exceeds existing limits, it is refused without further
+departure or silent truncation. A stored archive, a selected reader view and the
+model's actual use of a correction remain distinct.
+
+## Cumulative archive validation
+
+Captured memory imports share ancestor validation within one bounded, read-only
+archive pass. The cache is discarded after success or failure; subsequent calls
+read and validate the bytes again. Imports still copy all original records,
+check source bytes again before publication, and preserve their existing record,
+byte and timeout limits. This optimization does not shorten selected practice
+history or increase the model's context allowance.
 
 ## Checks and limits
 
 ```sh
 python3 -B -m unittest discover -s tests/desktop -p 'test_decision_contract.py' -v
 python3 -B -m unittest discover -s tests/desktop -p 'test_decision_retention.py' -v
+python3 -B -m unittest discover -s tests/desktop -p 'test_decision_format.py' -v
 ```
 
 The tests include renamed labels, reordered observations, another-target

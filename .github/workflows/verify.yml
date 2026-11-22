@@ -43,6 +43,9 @@ jobs:
         run: python -B -m unittest discover -s tests/github_actions -q
       - name: Structured decision contract checks
         run: python -B -m unittest discover -s tests/desktop -p 'test_decision_contract.py' -q
+      - name: Optional local decoding format checks
+        if: runner.os != 'Windows'
+        run: python -B -m unittest discover -s tests/desktop -p 'test_decision_format.py' -q
       - name: Continuity checks
         run: python -B -m unittest discover -s tests/continuity -q
       - name: Local memory checks

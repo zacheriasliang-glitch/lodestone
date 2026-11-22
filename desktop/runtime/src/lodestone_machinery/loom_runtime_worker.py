@@ -122,6 +122,18 @@ def stop_server(process):
 
 def run_ollama(config, request, partial_path, observation):
     from . import loom_adapter
+    decision_format = None
+    if config.get("decision_format") is not None:
+        from .decision_format import validate_decision_format
+        decision_format = validate_decision_format(request["encounter"], config["decision_format"])
+        observation["decision_format"] = {
+            "schema": decision_format["schema"],
+            "format_sha256": decision_format["format_sha256"],
+            "response_schema_sha256": decision_format["response_schema_sha256"],
+            "source_contract_sha256": decision_format["source_contract"]["contract_sha256"],
+            "choice_scope": decision_format["choice_scope"],
+            "semantic_learning": "NOT_ESTABLISHED",
+        }
     tokenizer, token_identity = verified_tokenizer(config["assets_dir"])
     maximum = config.get("generation", {}).get("max_tokens", config["max_new_tokens"])
     encoded = loom_adapter.encode_prediction(
@@ -157,7 +169,13 @@ def run_ollama(config, request, partial_path, observation):
                 "keep_alive": 0, "options": {"num_ctx": effective_context,
                     "num_predict": maximum, "num_thread": 2, "num_gpu": 0,
                     "temperature": 0, "seed": 0}}
+        if decision_format is not None:
+            body["format"] = decision_format["response_schema"]
         observation["provider_input_sha256"] = hashlib.sha256(canonical(body)).hexdigest()
+        if decision_format is not None:
+            # Exact provider envelope, separate from the native prompt packet.
+            # Saved before dispatch; no schema or derived answer enters prompt.
+            write_json(Path(partial_path).with_suffix(".provider-request.json"), body)
         http_request = urllib.request.Request(URL + "/api/generate", data=canonical(body),
                                              headers={"Content-Type": "application/json"})
         final = None
@@ -208,6 +226,8 @@ def run_ollama(config, request, partial_path, observation):
 
 
 def run_native(config, request, partial_path, observation):
+    if config.get("decision_format") is not None:
+        raise ValueError("Structured decision decoding requires the local Ollama backend")
     from .loom_adapter_local import MANIFEST_SHA256, VerifiedAssets, LocalAdapter, load_tokenizer
     from .loom_adapter import encode_prediction
     from .loom_runtime import _adapter_document, runtime_identity

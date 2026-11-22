@@ -3,13 +3,18 @@ name: Desktop preview fresh Mac
 on:
   workflow_dispatch:
     inputs:
+      mechanical_only:
+        description: 'Verify current source, installed GUI and lifecycle only; zero model calls, no prior-study claim'
+        type: boolean
+        default: false
+        required: false
       verify_prior_local_evidence:
         description: 'Verify prior local study and installed identity; perform zero fresh model calls'
         type: boolean
         default: false
         required: false
       expected_head:
-        description: 'Exact commit SHA required when verifying prior local evidence'
+        description: 'Exact commit SHA required for mechanical-only or prior-evidence verification'
         type: string
         default: ''
         required: false
@@ -19,6 +24,7 @@ on:
       - 'tests/desktop/**'
       - 'tests/desktop_gui/**'
       - 'tools/desktop_prior_evidence.py'
+      - 'tools/desktop_mechanical_check.py'
       - 'docs/desktop-validation/**'
       - '.github/workflows/desktop-preview.yml'
 
@@ -42,16 +48,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Bind manual zero-inference verification to its exact source commit
-        if: github.event_name == 'workflow_dispatch' && inputs.verify_prior_local_evidence
+      - name: Select verification mode and bind manual checks before installing anything
+        id: verification
         shell: bash
         env:
           EXPECTED_HEAD: ${{ inputs.expected_head }}
+          MECHANICAL_ONLY: ${{ inputs.mechanical_only }}
+          PRIOR_EVIDENCE: ${{ inputs.verify_prior_local_evidence }}
         run: |
           set -euo pipefail
-          test -n "$EXPECTED_HEAD"
-          test "$EXPECTED_HEAD" = "$GITHUB_SHA"
-          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          python3 -B tools/desktop_mechanical_check.py mode \
+            --event "$GITHUB_EVENT_NAME" --mechanical-only "$MECHANICAL_ONLY" \
+            --verify-prior-local-evidence "$PRIOR_EVIDENCE" --expected-head "$EXPECTED_HEAD" \
+            --github-sha "$GITHUB_SHA" --checkout-sha "$(git rev-parse HEAD)" \
+            --github-output "$GITHUB_OUTPUT" \
+            --output "$RUNNER_TEMP/lodestone-desktop-evidence/verification-mode.json"
 
       - name: Verify source and installer regressions
         shell: bash
@@ -99,16 +110,26 @@ jobs:
           (Path(os.environ['EVIDENCE_ROOT']) / 'installed-active.json').write_text(json.dumps(active, indent=2))
           PY
 
-      - name: Verify conversation persistence and previous-reader compatibility
+      - name: Bind extracted and installed payload bytes to the current source
         shell: bash
         run: |
           set -euo pipefail
+          python3 -B tools/desktop_mechanical_check.py identity \
+            --source "$GITHUB_WORKSPACE" --payload "$PAYLOAD_ROOT" --preview "$PREVIEW_ROOT" \
+            --source-commit "$GITHUB_SHA" --output "$EVIDENCE_ROOT/current-installed-identity.json"
+
+      - name: Verify installed GUI controls, persistence and previous-reader compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          /bin/launchctl print "gui/$(id -u)" > "$EVIDENCE_ROOT/logs/gui-session.txt"
           old_reader="$RUNNER_TEMP/lodestone-previous-gui"
           mkdir -p "$old_reader"
           git fetch --no-tags --depth=1 origin b82b78ddba3b8067a7c09df6c4c0a18084a7e59f
           git archive b82b78ddba3b8067a7c09df6c4c0a18084a7e59f desktop/gui | tar -x -C "$old_reader"
           LODESTONE_OLD_GUI_SOURCE="$old_reader/desktop/gui" \
-            "$GUI_PYTHON" -B -m unittest discover -s tests/desktop_gui -v \
+            "$GUI_PYTHON" -B tools/desktop_mechanical_check.py gui \
+              --tests tests/desktop_gui --payload "$ACTIVE_RELEASE" --evidence "$EVIDENCE_ROOT" \
             2>&1 | tee "$EVIDENCE_ROOT/logs/gui-persistence-tests.log"
 
       - name: Verify the normal GUI starts, closes and reopens
@@ -142,7 +163,7 @@ jobs:
           PY
 
       - name: Verify prior local evidence and the fresh installed identity without generation
-        if: github.event_name == 'workflow_dispatch' && inputs.verify_prior_local_evidence
+        if: steps.verification.outputs.mode == 'prior_local_evidence'
         shell: bash
         run: |
           set -euo pipefail
@@ -153,7 +174,7 @@ jobs:
             2>&1 | tee "$EVIDENCE_ROOT/logs/prior-local-evidence-check.log"
 
       - name: Generate locally and deliver a retained correction to the next encounter
-        if: github.event_name != 'workflow_dispatch' || !inputs.verify_prior_local_evidence
+        if: steps.verification.outputs.mode == 'inference_smoke'
         timeout-minutes: 45
         shell: bash
         run: |
@@ -251,7 +272,7 @@ jobs:
       # artifact storage: https://docs.github.com/en/billing/concepts/product-billing/github-actions
       # This explicit mode keeps recoverable bytes in logs and allocates no artifact/cache storage.
       - name: Preserve bounded fresh CI evidence in a recoverable log envelope
-        if: always() && github.event_name == 'workflow_dispatch' && inputs.verify_prior_local_evidence
+        if: always() && (steps.verification.outputs.mode == 'prior_local_evidence' || steps.verification.outputs.mode == 'mechanical_only')
         shell: bash
         run: |
           set -euo pipefail
@@ -259,7 +280,7 @@ jobs:
             --root "${EVIDENCE_ROOT:-$RUNNER_TEMP/lodestone-desktop-evidence}"
 
       - uses: actions/upload-artifact@v4
-        if: always() && (github.event_name != 'workflow_dispatch' || !inputs.verify_prior_local_evidence)
+        if: always() && steps.verification.outputs.mode == 'inference_smoke'
         with:
           name: desktop-preview-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/lodestone-desktop-evidence

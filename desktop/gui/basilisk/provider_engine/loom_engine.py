@@ -135,6 +135,17 @@ class LoomEngine(BaseEngine):
 		return self.client.correct(receipt["outcome_handle"], correction=correction,
 			author=author, observation=observation)
 
+	def decision_review_context(self, receipt):
+		return self.client.decision_review_context(receipt["outcome_handle"])
+
+	def preview_decision_review(self, receipt, *, case_json, policy=None, author):
+		return self.client.preview_decision_review(receipt["outcome_handle"],
+			case_json=case_json, policy=policy, author=author)
+
+	def review_decision(self, receipt, *, contract, author):
+		return self.client.review_decision(receipt["outcome_handle"],
+			contract=contract, author=author)
+
 	def preview_origami(self, receipt, *, root, paths):
 		return self.client.preview_origami(receipt["outcome_handle"], root=root, paths=paths)
 

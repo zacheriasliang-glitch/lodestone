@@ -46,10 +46,11 @@ def _rule_folded_adapter_request(memory, checked, packet):
     The fold (learning_context.FOLD_RULE) keeps every correction, verdict, condition and pattern
     exact and lets older run bodies and review details go from the view, naming them. Past that,
     DEPARTURE_RULE lets whole older runs (never the newest) leave the view, naming each; their
-    corrections are then not in the input. A caller cannot choose a fold or a departure: the
-    reference is rebuilt from the native records. Exactly two levels are admitted, the rule's step
-    and the 18 Nov fold (no departure), which keeps every run and so never carries fewer
-    corrections; any other bytes or level are refused. Returns the expanded projection, or None.
+    corrections are then not in the input. Default requests admit the automatic rule's step
+    and the 18 Nov fold (no departure), which keeps every run. An explicit history_window
+    selects its declared number of newest fully folded runs instead. Each supported policy
+    is independently rebuilt from the native records; arbitrary omissions or changed bytes
+    are refused. Returns the expanded projection, or None.
     """
     import json
     from lodestone_machinery.learning_context import (DEPARTED_METHOD, FOLDED_METHOD, expand_learning_projection,
@@ -76,12 +77,25 @@ def assess(memory, prepared, packet):
         raw = canonical(packet)
         if len(raw) > MAX_PACKET_BYTES:
             raise ValueError("Learning provider packet exceeds 2 MiB")
+        # An explicitly declared reader window is a contract even if literal
+        # caller text also contains the complete preparation. Do not let the
+        # generic full-delivery fast path bypass its exact source reconstruction.
+        from lodestone_machinery.loom_adapter import REQUEST_SCHEMA
+        if packet.get("schema") == REQUEST_SCHEMA and type(packet.get("context")) is str:
+            try:
+                reference = strict_json(packet["context"].encode(), MAX_PACKET_BYTES)
+            except (ValueError, UnicodeError):
+                reference = None
+            if type(reference) is dict and "reader_history_window" in reference:
+                from lodestone_machinery.learning_context import validate_practice_packet
+                validate_practice_packet(memory, checked, packet, "adapter")
         delivery, departed = "FULL_NATIVE_PREPARATION", []
         if not _contains(packet, checked):
             # Local import keeps the projection builder independent of broker
             # admission. Recompute from the native immutable records; a caller
-            # cannot decide which corrections, conditions or outcomes to drop,
-            # though its literal context's size moves how far the declared rule goes.
+            # cannot make arbitrary omissions. Default selection responds to
+            # literal-context size; an explicit reader window has its own fixed,
+            # independently recomputed newest-run selection.
             from lodestone_machinery.learning_context import project_learning_context
             projected = project_learning_context(memory, checked)
             if _contains(packet, projected):

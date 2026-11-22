@@ -5,7 +5,7 @@ reuses the producer's versioned contracts over captured bytes; it neither opens
 an attributed workspace nor calls a provider or promotes a learning fold.
 """
 from . import macro_voxel as mv
-from .bezoar_learning import LearningMemory, MAX_CONTEXT_BYTES
+from .bezoar_learning import LearningMemory, MAX_CONTEXT_BYTES, _operation
 from .records import HANDLE, canonical
 
 
@@ -158,16 +158,34 @@ class CapturedLearningMemory(LearningMemory):
         self.store = store
         self.workspace = None
 
+    @_operation
+    def validate_archive(self):
+        """Share validation only within this read-only captured-archive pass.
+
+        Import validates an isolated copy and checks the source bytes again
+        before publication. Reusing common ancestors here avoids validating the
+        same cumulative history once per row. The operation cache is discarded
+        on success or failure; later reads still detect changed bytes.
+        """
+        _validate_archive(self)
+
 
 def validate_learning_records(store):
     """Validate historical records without applying today's dispatch selection."""
     memory = CapturedLearningMemory(store)
+    memory.validate_archive()
+    return memory
+
+
+def _validate_archive(memory):
+    store = memory.store
     loaders = {"learning-" + kind: getattr(memory, "read_" + method)
                for kind, method in (("seed", "seed"), ("nacre", "nacre"),
                                     ("evidence", "evidence"), ("run", "prepared"),
                                     ("outcome", "outcome"), ("review", "review"))}
     improvements = None
-    for row in store.catalog()["entries"]:
+    memory._catalog_rows = store.catalog()["entries"]
+    for row in memory._catalog_rows:
         if row["owner"] == "bezoar" and row["kind"].startswith("learning-"):
             if row["kind"] not in loaders:
                 raise ValueError("Unsupported captured Bezoar learning contract")
@@ -189,7 +207,6 @@ def validate_learning_records(store):
                     improvements = ImprovementCycle(memory)
                 attempt = improvements.validate_trial_packet(record["payload"]["input"], historical=True)
                 _check_improvement_dispatch(store, record, attempt)
-    return memory
 
 
 def check_packet_learning(packet, memory):

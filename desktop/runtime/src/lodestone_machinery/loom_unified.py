@@ -74,7 +74,7 @@ class UnifiedLoom:
 
     def run(self, *, encounter, purpose, reader, context="", provider,
             run_id=None, applicability=None, wait=0, cancelled=None,
-            execution_binding=None, failure_classifier=None):
+            execution_binding=None, failure_classifier=None, history_window=None):
         """Prepare, admit, dispatch once and retain an actual practice outcome.
 
         The provider receives ``loom-adapter-request/v1`` and returns either text
@@ -92,11 +92,13 @@ class UnifiedLoom:
             raise ValueError("Unified Loom needs one explicitly supplied synchronous provider")
         if type(wait) not in (int, float) or not 0 <= wait <= 86400:
             raise ValueError("Loom turn wait must be 0..86400 seconds")
+        from .learning_context import history_window_policy
+        history_window_policy(history_window)
 
         def build(saved, literal):
             request = build_adapter_request(
                 self.memory, saved, request_id=saved["run_id"], context=literal,
-                encounter=encounter, purpose=purpose)
+                encounter=encounter, purpose=purpose, history_window=history_window)
             return validate_practice_packet(self.memory, saved, request, "adapter")
 
         held = {}
@@ -193,6 +195,62 @@ class UnifiedLoom:
                     "evidence_handle": evidence, "state": "RETAINED_UNRESOLVED",
                     "weight_update": False, "semantic_learning": "NOT_ESTABLISHED",
                     "authority": "NONE"}
+
+    def decision_review_context(self, outcome_handle):
+        """Read the exact native answer and saved assessments without regrading.
+
+        A project receipt is a pointer, never a replacement for native evidence.
+        Missing or damaged records therefore raise their normal read error.
+        """
+        from . import decision_contract
+        with learning.locked(self.memory, timeout=30):
+            outcome = self.memory.read_outcome(outcome_handle)
+            prepared = self.memory.read_prepared(outcome["run_handle"])
+            encounter = prepared["binding"]["encounter"]
+            reviews = []
+            for handle in self.memory._reviews(outcome_handle):
+                record = self.memory.read_review(handle)
+                try:
+                    saved = json.loads(record["review"]["correction"])
+                except (ValueError, TypeError):
+                    continue
+                if type(saved) is not dict or saved.get("schema") != "loom-decision-feedback/v1":
+                    continue
+                decision_contract._keys(saved, ("schema", "contract", "assessment",
+                    "checker_sha256", "outcome_handle", "native_status", "reviewer", "instruction"),
+                    "Saved decision feedback")
+                if type(saved["assessment"]) is not dict:
+                    raise ValueError("Saved decision assessment must be an object")
+                if (saved.get("outcome_handle") != outcome_handle
+                        or saved.get("native_status") != outcome["status"]):
+                    raise ValueError("Saved decision feedback differs from its native outcome")
+                decision_contract._checked_contract(encounter, saved["contract"])
+                assessment = saved["assessment"]
+                if (assessment.get("response_sha256") != outcome["response_sha256"]
+                        or assessment.get("contract_sha256") != saved["contract"]["contract_sha256"]):
+                    raise ValueError("Saved decision assessment differs from its source binding")
+                reviews.append({"review_handle": handle, "contract": saved["contract"],
+                    "assessment": assessment, "checker_sha256": saved["checker_sha256"],
+                    "reviewer": saved["reviewer"],
+                    "learning_verdict": record["review"]["verdict"]})
+        return {"schema": "loom-decision-review-context/v1", "outcome_handle": outcome_handle,
+            "encounter": encounter, "purpose": prepared["binding"]["purpose"],
+            "response": outcome["response"], "native_status": outcome["status"],
+            "response_sha256": outcome["response_sha256"], "reviews": reviews}
+
+    def preview_decision_review(self, outcome_handle, *, case_json, author, policy=None):
+        """Preview a source-bound assessment; no writes, inference or promotion."""
+        from . import decision_contract
+        with learning.locked(self.memory, timeout=30):
+            outcome = self.memory.read_outcome(outcome_handle)
+            prepared = self.memory.read_prepared(outcome["run_handle"])
+        encounter = prepared["binding"]["encounter"]
+        contract = decision_contract.bind_decision_contract(
+            encounter, case_json=case_json, author=author, policy=policy)
+        assessment = decision_contract.review_decision(encounter, outcome["response"], contract,
+            completed=outcome["status"] == "COMPLETED")
+        return {"contract": contract, "assessment": assessment,
+                "native_status": outcome["status"], "outcome_handle": outcome_handle}
 
     def review_decision(self, outcome_handle, *, contract, author):
         """Check a retained structured decision and retain the separate review.
