@@ -120,13 +120,19 @@ def learning_refs(record):
                                     ("nacres", "learning_repeated_pattern"),
                                     ("evidence", "learning_observation")):
                 refs.extend((relation, row["handle"]) for row in context[field])
-            for row in context["history"]:
-                refs.append(("learning_prior_attempt", row["run_handle"]))
-                if "outcome_handle" in row:
-                    refs.append(("learning_prior_outcome", row["outcome_handle"]))
-                refs.extend(("learning_correction_review", review["handle"]) for review in row["reviews"])
-                refs.extend(("learning_candidate_advice", lesson["handle"])
-                            for lesson in row.get("lessons", []))
+            if context.get("schema") == "bezoar-learning-context/v2":
+                from .history_inventory import typed_references
+                refs.extend(typed_references(context["history"], reference_budget=256 - len(refs)))
+            else:
+                if context.get("schema") != "bezoar-learning-context/v1":
+                    raise ValueError("Unsupported retained learning context")
+                for row in context["history"]:
+                    refs.append(("learning_prior_attempt", row["run_handle"]))
+                    if "outcome_handle" in row:
+                        refs.append(("learning_prior_outcome", row["outcome_handle"]))
+                    refs.extend(("learning_correction_review", review["handle"]) for review in row["reviews"])
+                    refs.extend(("learning_candidate_advice", lesson["handle"])
+                                for lesson in row.get("lessons", []))
         elif owner == "bezoar" and kind == "learning-outcome":
             refs.append(("learning_attempt", payload["run_handle"]))
         elif owner == "bezoar" and kind == "learning-review":

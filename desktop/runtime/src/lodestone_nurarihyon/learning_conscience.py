@@ -81,6 +81,10 @@ def assess(memory, prepared, packet):
         # caller text also contains the complete preparation. Do not let the
         # generic full-delivery fast path bypass its exact source reconstruction.
         from lodestone_machinery.loom_adapter import REQUEST_SCHEMA
+        saved_context = checked.get("context")
+        saved_snapshot = strict_json(saved_context.encode(), MAX_PACKET_BYTES) if type(saved_context) is str else {}
+        reference_history = type(saved_snapshot) is dict and saved_snapshot.get("schema") == "bezoar-learning-context/v2"
+        reference = None
         if packet.get("schema") == REQUEST_SCHEMA and type(packet.get("context")) is str:
             try:
                 reference = strict_json(packet["context"].encode(), MAX_PACKET_BYTES)
@@ -89,16 +93,21 @@ def assess(memory, prepared, packet):
             if type(reference) is dict and "reader_history_window" in reference:
                 from lodestone_machinery.learning_context import validate_practice_packet
                 validate_practice_packet(memory, checked, packet, "adapter")
+        if reference_history and not (type(reference) is dict and "reader_history_window" in reference):
+            raise ValueError("Reference history requires an explicit validated adapter reader window")
         delivery, departed = "FULL_NATIVE_PREPARATION", []
-        if not _contains(packet, checked):
+        if reference_history or not _contains(packet, checked):
             # Local import keeps the projection builder independent of broker
             # admission. Recompute from the native immutable records; a caller
             # cannot make arbitrary omissions. Default selection responds to
             # literal-context size; an explicit reader window has its own fixed,
             # independently recomputed newest-run selection.
             from lodestone_machinery.learning_context import project_learning_context
-            projected = project_learning_context(memory, checked)
-            if _contains(packet, projected):
+            # A v2 inventory is not an embedded full-history snapshot. Its
+            # explicit window was validated above and must be recomputed below;
+            # do not try the legacy whole-history projection first.
+            projected = None if reference_history else project_learning_context(memory, checked)
+            if projected is not None and _contains(packet, projected):
                 delivery = "EXACT_NATIVE_READER_PROJECTION"
             else:
                 folded = _rule_folded_adapter_request(memory, checked, packet)

@@ -188,7 +188,10 @@ def _reader_projection(memory, prepared, folded=0):
     Zero gives the exact projection.
     """
     checked = validate_learning_context(memory, prepared)
-    return _reader_projection_from_snapshot(checked, json.loads(checked["context"]), folded)
+    snapshot = json.loads(checked["context"])
+    if snapshot["schema"] == "bezoar-learning-context/v2":
+        raise ValueError("Reference history requires an explicit reader window; inspect complete rows with history_page")
+    return _reader_projection_from_snapshot(checked, snapshot, folded)
 
 
 def _reader_projection_from_snapshot(checked, snapshot, folded):
@@ -269,6 +272,52 @@ def history_window_projection(checked, snapshot, keep_latest_runs):
         metadata["departure_rule"] = HISTORY_WINDOW_RULE
     return projected
 
+
+
+def _reference_history_window_projection(memory, checked, snapshot, keep_latest_runs):
+    """Resolve only a declared window after every frozen source was validated.
+
+    This avoids building a fresh aggregate of all historical response/review
+    bodies. Native operation caches can still retain validated ancestry; this is
+    not a constant-memory claim. Original immutable records remain complete.
+    """
+    policy = history_window_policy(keep_latest_runs)
+    if policy is None or snapshot["schema"] != "bezoar-learning-context/v2":
+        raise ValueError("Versioned history references require an explicit reader window")
+    from .history_inventory import checked_inventory
+    inventory = checked_inventory(snapshot["history"])
+    entries = inventory["rows"]
+    departed = max(len(entries) - keep_latest_runs, 0)
+    projected = _reader_projection_from_snapshot(checked, {**snapshot, "history": []}, 0)
+    rows, folded_reviews = [], []
+    for item in entries[departed:]:
+        prior = memory.read_prepared(item["run_handle"])
+        row = {"run_handle": item["run_handle"], "run_id": prior["run_id"],
+               "reader": prior["binding"]["reader"],
+               "folded": sorted(FOLDED_HISTORY_FIELDS)}
+        if item["outcome_handle"] is None:
+            row.update(status="INCOMPLETE", reviews=[])
+        else:
+            outcome = memory.read_outcome(item["outcome_handle"])
+            row.update(status=outcome["status"], outcome_handle=item["outcome_handle"],
+                reviews=[_fold_review({"handle": h, "review": memory.read_review(h)})
+                         for h in item["review_handles"]],
+                lessons=[{"handle": h, "record": memory.read_seed(h)} for h in item["lesson_handles"]])
+            folded_reviews.extend(item["review_handles"])
+        rows.append(row)
+    projected["content"]["history"] = rows
+    meta = projected["projection"]
+    meta.update(method=DEPARTED_METHOD if departed else FOLDED_METHOD,
+                folded_history_runs=[row["run_handle"] for row in rows],
+                folded_reviews=folded_reviews, reader_history_window=policy,
+                fold_rule=HISTORY_WINDOW_RULE,
+                native_history_representation=inventory["schema"],
+                native_history_inventory_sha256=inventory["inventory_sha256"],
+                native_history_reference_count=inventory["reference_count"])
+    if departed:
+        meta.update(departed_history_runs=[row["run_handle"] for row in entries[:departed]],
+                    departure_rule=HISTORY_WINDOW_RULE)
+    return projected
 
 def _map_values(value, replace):
     if type(value) is dict:
@@ -782,13 +831,17 @@ def _practice_reference(memory, prepared, literal_context, *, encounter=None, pu
         raise ValueError("Reader history window requires the current adapter projection")
     checked = validate_learning_context(memory, prepared, encounter=encounter, purpose=purpose)
     snapshot = json.loads(checked["context"])
-    history = snapshot["history"]
+    referenced = snapshot["schema"] == "bezoar-learning-context/v2"
+    if referenced and window_policy is None:
+        raise ValueError("Reference history requires an explicit reader window; no automatic departure")
+    history = [] if referenced else snapshot["history"]
     folding = _folding_steps(history) if fold else 0
     steps = (_fold_steps(history) if departures else folding) if fold else 0
     target = min(max_bytes, ADAPTER_FOLD_TARGET_BYTES) if fold else max_bytes
 
     def reference(folded):
-        plain = (history_window_projection(checked, snapshot, history_window)
+        plain = (_reference_history_window_projection(_memory(memory), checked, snapshot, history_window)
+                 if referenced else history_window_projection(checked, snapshot, history_window)
                  if window_policy is not None else _reader_projection_from_snapshot(checked, snapshot, folded))
         projected = _intern_learning_projection(plain)
         if not _legacy_transport:

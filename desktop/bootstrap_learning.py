@@ -133,7 +133,7 @@ def initialize(root: Path, runtime: Path, python: Path) -> dict:
 
 
 def import_memory(source: Path, destination: Path, runtime: Path, python: Path,
-                  *, seed_handles) -> dict:
+                  *, seed_handles, history_references=False) -> dict:
     """Copy native record bytes into a NEW independent workspace.
 
     Explicit SEED selection is required. The returned config is optional practice
@@ -144,9 +144,13 @@ def import_memory(source: Path, destination: Path, runtime: Path, python: Path,
             or any(type(handle) is not str for handle in seed_handles)
             or len(set(seed_handles)) != len(seed_handles)):
         raise ValueError("Import requires 1..16 explicitly selected distinct SEED handles")
-    return _invoke("import", runtime, python,
-                   {"source": str(_path(source)), "destination": str(_path(destination)),
-                    "seed_handles": list(seed_handles)})
+    if type(history_references) is not bool:
+        raise ValueError("Reference-history import must be an explicit Boolean choice")
+    values = {"source": str(_path(source)), "destination": str(_path(destination)),
+              "seed_handles": list(seed_handles)}
+    if history_references:
+        values["history_references"] = True
+    return _invoke("import", runtime, python, values)
 
 
 def reconcile(root: Path, runtime: Path, python: Path) -> dict:
@@ -165,27 +169,34 @@ def select_import(root: Path, destination: Path, runtime: Path, python: Path) ->
                    {"root": str(_path(root)), "destination": str(_path(destination))})
 
 
-def _active(memory, seeds):
-    return {"schema": "lodestone-learning-active/v1", "required": True,
-            "memory_workspace": str(memory), "seed_handles": seeds,
-            "scope": "Explicit local practice; records are evidence and candidate advice, never authority."}
+def _active(memory, seeds, *, history_references=False):
+    result = {"schema": "lodestone-learning-active/v1", "required": True,
+              "memory_workspace": str(memory), "seed_handles": seeds,
+              "scope": "Explicit local practice; records are evidence and candidate advice, never authority."}
+    if history_references:
+        result.update(schema="lodestone-learning-active/v2",
+                      history_representation="bezoar-learning-history-inventory/v1")
+    return result
 
 
-def _policy(memory, seeds):
-    return {"schema": "origami-learning-policy/v1", "required": True,
-            "memory_workspace": str(memory), "purpose": PURPOSE, "seed_handles": seeds}
+def _policy(memory, seeds, *, history_references=False):
+    result = {"schema": "origami-learning-policy/v1", "required": True,
+              "memory_workspace": str(memory), "purpose": PURPOSE, "seed_handles": seeds}
+    if history_references:
+        # Fail closed in old and currently non-windowed Origami routes. The
+        # initial new capability is explicit Loom adapter practice only.
+        result.update(schema="origami-learning-policy/v2",
+                      history_representation="bezoar-learning-history-inventory/v1")
+    return result
 
 
 def _selected(config):
     from lodestone_machinery.bezoar_learning import LearningMemory
     from lodestone_nurarihyon import learning
-    if (config.get("schema") != "lodestone-learning-active/v1"
-            or config.get("required") is not True):
-        raise ValueError("Required native learning configuration is invalid")
     memory_path = _path(config["memory_workspace"])
     if not memory_path.is_dir() or str(memory_path) != config["memory_workspace"]:
         raise ValueError("Selected memory must be an existing resolved absolute directory")
-    memory = LearningMemory(memory_path)
+    memory = LearningMemory.from_active(config)
     with learning.locked(memory):
         seeds = memory.resolve_seeds(config["seed_handles"])
         memory._pairs(seeds, None)  # Require real linked SEED/NACRE conditions.
@@ -314,9 +325,11 @@ def _record_bytes(path):
     return raw
 
 
-def _import(source, destination, seed_handles):
+def _import(source, destination, seed_handles, *, history_references=False):
     from lodestone_machinery.records import RecordStore
     from lodestone_machinery.yggdrasil_learning import validate_learning_records
+    if type(history_references) is not bool:
+        raise ValueError("Reference-history import must be explicit")
     source, destination = _path(source), _path(destination)
     if destination.exists():
         raise ValueError("Import destination must be new")
@@ -355,14 +368,22 @@ def _import(source, destination, seed_handles):
             if hashlib.sha256(raw).hexdigest() != manifest[str(relative)]["sha256"]:
                 raise ValueError("Import source changed during capture; retry a stable snapshot")
         final_memory = destination / "memory"
-        _create(temporary / "ACTIVE.json", _active(final_memory, list(seed_handles)))
-        _create(temporary / "runtime/learning-policy.json", _policy(final_memory, list(seed_handles)))
+        if history_references:
+            _create(copied / "learning-history-format.json", {
+                "schema": "lodestone-learning-workspace-format/v1",
+                "history_representation": "bezoar-learning-history-inventory/v1",
+                "scope": "EXPLICIT_SEPARATE_IMPORT", "authority": "NONE"})
+        _create(temporary / "ACTIVE.json", _active(final_memory, list(seed_handles), history_references=history_references))
+        _create(temporary / "runtime/learning-policy.json", _policy(final_memory, list(seed_handles), history_references=history_references))
         receipt = {"schema": IMPORT_SCHEMA, "source": str(source), "destination": str(destination),
                    "captured_at": datetime.now(timezone.utc).isoformat(), "files": manifest,
                    "seed_handles": list(seed_handles), "records": len(paths), "bytes": total,
                    "authority": "NONE", "default_selection_changed": False, "provider_calls": 0,
                    "scope": "Original immutable records only. Attribution and claims are preserved, not endorsed. "
                             "No host configuration, active grants, queue control files, leases or executables imported."}
+        if history_references:
+            receipt["history_representation"] = "bezoar-learning-history-inventory/v1"
+            receipt["compatibility"] = "New isolated ACTIVE/v2 requires a supporting runtime. Rollback restores both old runtime and old ACTIVE/workspace. Origami policy/v2 currently refuses non-windowed use."
         _create(temporary / "IMPORT.json", receipt)
         # Claim the destination atomically; rename alone could replace another
         # writer's empty directory. IMPORT.json is the last published receipt.
@@ -437,6 +458,8 @@ def _select(root, destination):
     with _exclusive(_child(root, ".learning-bootstrap.lock")):
         receipt = _read(_child(destination, "IMPORT.json"), 1024 * 1024)
         imported = _read(_child(destination, "ACTIVE.json"))
+        if imported.get("schema") == "lodestone-learning-active/v2":
+            raise ValueError("Reference-history activation requires a paired supporting runtime and isolated ACTIVE/workspace; ordinary select_import cannot perform that transition")
         imported_path = _child(destination, "memory")
         if (receipt.get("schema") != IMPORT_SCHEMA or receipt.get("destination") != str(destination)
                 or not imported_path.is_dir()
@@ -540,7 +563,8 @@ def _main():
     if operation == "initialize":
         result = _initialize(Path(values["root"]), runtime, Path(python))
     elif operation == "import":
-        result = _import(Path(values["source"]), Path(values["destination"]), values["seed_handles"])
+        result = _import(Path(values["source"]), Path(values["destination"]), values["seed_handles"],
+                         history_references=values.get("history_references", False))
     elif operation == "reconcile":
         result = _reconcile(Path(values["root"]))
     elif operation == "select":

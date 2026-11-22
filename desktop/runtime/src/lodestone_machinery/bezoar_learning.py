@@ -107,9 +107,43 @@ def _operation(method):
 
 
 class LearningMemory:
-    def __init__(self, workspace):
+    def __init__(self, workspace, *, history_references=False):
+        _require(type(history_references) is bool, "History representation selection must be explicit")
+        self.history_references = history_references
         self.workspace = Path(workspace).resolve()
         self.store = RecordStore(self.workspace)
+        if history_references:
+            self._check_history_workspace()
+
+    def _check_history_workspace(self):
+        from .history_inventory import SCHEMA
+        marker = self.workspace / "learning-history-format.json"
+        _require(not marker.is_symlink() and marker.is_file(), "Reference history requires an explicitly isolated imported workspace")
+        with marker.open("rb") as stream:
+            raw = stream.read(4097)
+        _require(len(raw) <= 4096 and json.loads(raw) == {
+            "schema": "lodestone-learning-workspace-format/v1", "history_representation": SCHEMA,
+            "scope": "EXPLICIT_SEPARATE_IMPORT", "authority": "NONE"},
+            "Unsupported isolated history workspace capability")
+
+    @classmethod
+    def from_active(cls, active):
+        """Explicit v2 creation boundary; old configurations keep v1 behaviour."""
+        _require(type(active) is dict and active.get("required") is True,
+                 "Required native learning configuration is unavailable")
+        mode = active.get("schema")
+        _require(mode in ("lodestone-learning-active/v1", "lodestone-learning-active/v2"),
+                 "Unsupported native learning configuration")
+        workspace = active.get("memory_workspace")
+        _require(type(workspace) is str and Path(workspace).is_absolute(),
+                 "Native learning workspace must be an absolute path")
+        if mode == "lodestone-learning-active/v2":
+            from .history_inventory import SCHEMA
+            _require(active.get("history_representation") == SCHEMA,
+                     "Unsupported explicit native history representation")
+        else:
+            _require("history_representation" not in active, "Legacy active configuration cannot enable reference history")
+        return cls(workspace, history_references=mode == "lodestone-learning-active/v2")
 
     def _publish(self, kind, body, links=()):
         payload = {"schema": PREFIX + kind + "/v1", **_copy(body), "authority": "NONE"}
@@ -588,8 +622,78 @@ class LearningMemory:
             history.append(row)
         return sorted(history, key=lambda row: (self._read(row["run_handle"], "run")["payload"]["created_at"], row["run_handle"]))
 
+    def _history_reference_rows(self, nacres, *, reference_budget=256, exclude_run=None):
+        """Select exact native identities without collecting historical bodies."""
+        from .history_inventory import MAX_REFERENCES
+        _require(type(reference_budget) is int and 0 <= reference_budget <= MAX_REFERENCES,
+                 "History references exceed remaining native provenance budget")
+        rows = []
+        reference_count = 0
+        for handle in self._catalog("run"):
+            if handle == exclude_run:
+                continue
+            prepared = self.read_prepared(handle)
+            if not set(nacres) & set(prepared["binding"]["nacre_handles"]):
+                continue
+            outcome = self.outcome_for(prepared)
+            reviews = self._reviews(outcome) if outcome is not None else []
+            reference_count += 1 + int(outcome is not None) + len(reviews)
+            _require(reference_count <= reference_budget, "History inventory exceeds existing provenance bound; archive remains unchanged")
+            lessons = self._lessons_for(outcome, reviews) if outcome is not None else []
+            reference_count += len(lessons)
+            _require(reference_count <= reference_budget, "History inventory exceeds existing provenance bound; archive remains unchanged")
+            rows.append({"run_handle": handle, "outcome_handle": outcome,
+                         "review_handles": reviews,
+                         "lesson_handles": [row["handle"] for row in lessons]})
+        return sorted(rows, key=lambda row: (self._read(row["run_handle"], "run")["payload"]["created_at"], row["run_handle"]))
+
+    def _history_reference_sources(self, snapshot, *, run_handle, created_at, nacres):
+        from .history_inventory import validate_sources, MAX_REFERENCES
+        teaching_count = sum(len(snapshot[key]) for key in ("seeds", "nacres", "evidence"))
+        def read_run(handle):
+            self.read_prepared(handle)
+            return self._read(handle, "run")["payload"]
+        return validate_sources(snapshot["history"], current_run_handle=run_handle,
+            current_created_at=created_at, selected_nacres=nacres,
+            read_run=read_run, read_outcome=self.read_outcome, read_review=self.read_review,
+            read_seed=self.read_seed, reference_budget=MAX_REFERENCES - teaching_count)
+
+    def _history_row_from_reference(self, row):
+        prepared = self.read_prepared(row["run_handle"])
+        result = {"run_handle": row["run_handle"], "run_id": prepared["run_id"],
+                  **{k: prepared["binding"][k] for k in ("encounter", "purpose", "reader")}}
+        if row["outcome_handle"] is None:
+            result.update(status="INCOMPLETE", outcome=None, reviews=[])
+        else:
+            outcome = self.read_outcome(row["outcome_handle"])
+            result.update(status=outcome["status"], outcome_handle=row["outcome_handle"], outcome=outcome,
+                reviews=[{"handle": h, "review": self.read_review(h)} for h in row["review_handles"]],
+                lessons=[{"handle": h, "record": self.read_seed(h)} for h in row["lesson_handles"]])
+        return result
+
+    @_operation
+    def history_page(self, prepared, *, start=0, limit=1):
+        """Bounded complete inspection, distinct from the model's declared view."""
+        checked = self.validate_prepared(prepared)
+        _require(type(start) is int and start >= 0 and type(limit) is int and 1 <= limit <= 32,
+                 "History page requires a nonnegative start and limit1..32")
+        snapshot = json.loads(checked["context"])
+        history = snapshot["history"]
+        if snapshot["schema"] == PREFIX + "context/v2":
+            rows = [self._history_row_from_reference(row) for row in history["rows"][start:start + limit]]
+            count = history["row_count"]
+        else:
+            rows, count = history[start:start + limit], len(history)
+        _require(len(canonical(rows)) <= MAX_CONTEXT_BYTES,
+                 "Complete history page exceeds bound; request fewer rows or inspect exact native handles")
+        return {"schema": PREFIX + "history-page/v1", "run_handle": checked["run_handle"],
+                "context_sha256": checked["binding"]["context_sha256"],
+                "start": start, "total_rows": count, "rows": rows, "authority": "NONE"}
+
     @_operation
     def prepare(self, seed_handles, *, encounter, purpose, reader, run_id=None, applicability=None):
+        if getattr(self, "history_references", False):
+            self._check_history_workspace()
         for name, value in (("encounter", encounter), ("purpose", purpose), ("reader", reader)):
             _text(value, name, 32768 if name == "encounter" else 4096)
         run_id = run_id or uuid.uuid4().hex
@@ -608,7 +712,8 @@ class LearningMemory:
         seeds = self.resolve_seeds(seed_handles)
         pairs = self._pairs(seeds, applicability)
         nacres = sorted({p["nacre_handle"] for p in pairs})
-        history = self._history(nacres)
+        history = ([] if getattr(self, "history_references", False)
+                   else self._history(nacres))
         evidence_handles = set()
         for h in seeds:
             evidence_handles.update(self.read_seed(h)["evidence_handles"])
@@ -619,6 +724,12 @@ class LearningMemory:
                     "nacres": [{"handle": h, "record": self.read_nacre(h)} for h in nacres],
                     "evidence": [{"handle": h, "record": self.read_evidence(h)} for h in sorted(evidence_handles)],
                     "history": history, "authority": "NONE", "use": "Retained candidate advice and actual prior practice; reassess conditions and frame limits. No record status proves learning."}
+        if getattr(self, "history_references", False):
+            from .history_inventory import freeze_rows, MAX_REFERENCES
+            teaching_count = sum(len(snapshot[key]) for key in ("seeds", "nacres", "evidence"))
+            snapshot["schema"] = PREFIX + "context/v2"
+            history = self._history_reference_rows(nacres, reference_budget=MAX_REFERENCES - teaching_count)
+            snapshot["history"] = freeze_rows(history, reference_budget=MAX_REFERENCES - teaching_count)
         context = canonical(snapshot).decode("utf-8")
         _require(len(context.encode()) <= MAX_CONTEXT_BYTES, "Complete learning context exceeds bound; no history or correction was truncated")
         binding = {"encounter": encounter, "purpose": purpose, "reader": reader, "seed_handles": seeds,
@@ -645,7 +756,7 @@ class LearningMemory:
         snapshot = json.loads(context)
         _require(canonical(snapshot).decode() == context, "Retained context is not canonical")
         _fields(snapshot, ("schema", "encounter", "purpose", "pairs", "seeds", "nacres", "evidence", "history", "authority", "use"))
-        _require(snapshot["schema"] == PREFIX + "context/v1" and snapshot["authority"] == "NONE"
+        _require(snapshot["schema"] in (PREFIX + "context/v1", PREFIX + "context/v2") and snapshot["authority"] == "NONE"
                  and snapshot["encounter"] == binding["encounter"] and snapshot["purpose"] == binding["purpose"],
                  "Context encounter/purpose differs")
         for key, loader in (("seeds", self.read_seed), ("nacres", self.read_nacre), ("evidence", self.read_evidence)):
@@ -665,7 +776,13 @@ class LearningMemory:
         _require([r["handle"] for r in snapshot["evidence"]] == sorted(expected_evidence), "Context evidence selection differs")
         _require(record["links"] == sorted(set(binding["seed_handles"] + binding["nacre_handles"])), "Run dependency links differ")
         seen = set()
-        for row in snapshot["history"]:
+        if snapshot["schema"] == PREFIX + "context/v2":
+            self._history_reference_sources(snapshot, run_handle=run_handle,
+                created_at=payload["created_at"], nacres=binding["nacre_handles"])
+            history_rows = []  # Source relationships were checked without expanding all bodies.
+        else:
+            history_rows = snapshot["history"]
+        for row in history_rows:
             _fields(row, ("run_handle", "run_id", "encounter", "purpose", "reader", "status", "outcome", "reviews"),
                     ("outcome_handle", "lessons"))
             prior = self._read(row["run_handle"], "run")["payload"]
@@ -722,7 +839,18 @@ class LearningMemory:
         selected = checked["binding"]["seed_handles"]
         _require(self.resolve_seeds(selected) == selected, "A newer SEED correction requires fresh practice preparation")
         _require(self.outcome_for(checked) is None, "A terminal learning run cannot be dispatched again")
-        previous = json.loads(checked["context"])["history"]
+        snapshot = json.loads(checked["context"])
+        if snapshot["schema"] == PREFIX + "context/v2":
+            from .history_inventory import freeze_rows, terminal_signature, MAX_REFERENCES
+            previous_signature = terminal_signature(snapshot["history"])
+            budget = MAX_REFERENCES - sum(len(snapshot[key]) for key in ("seeds", "nacres", "evidence"))
+            current_rows = self._history_reference_rows(checked["binding"]["nacre_handles"],
+                reference_budget=budget, exclude_run=checked["run_handle"])
+            current_signature = terminal_signature(freeze_rows(current_rows, reference_budget=budget))
+            _require(previous_signature == current_signature,
+                     "A newer actual outcome or correction review requires fresh practice preparation")
+            return checked
+        previous = snapshot["history"]
         current = self._history(checked["binding"]["nacre_handles"])
 
         def signature(rows):
