@@ -1,0 +1,10 @@
+{
+  "kind": "synthetic-example",
+  "files": [
+    {
+      "path": "experiments/001-demo/notes.md",
+      "bytes": 147,
+      "sha256": "bbcb2ddd2086721ecf47e266b56d8d41d75fa529a664754841c3200bcd03d8d6"
+    }
+  ]
+}

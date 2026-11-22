@@ -1,0 +1,1750 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: basiliskllm\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-08-23 20:47+0000\n"
+"PO-Revision-Date: 2026-08-29 17:02\n"
+"Last-Translator: \n"
+"Language-Team: Portuguese, Brazilian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Crowdin-Project: basiliskllm\n"
+"X-Crowdin-Project-ID: 724543\n"
+"X-Crowdin-Language: pt-BR\n"
+"X-Crowdin-File: basiliskLLM.pot\n"
+"X-Crowdin-File-ID: 2\n"
+"Language: pt_BR\n"
+
+#: basilisk/completion_handler.py:306
+#: basilisk/presenters/conversation_presenter.py:298
+#, python-format
+msgid "An error occurred during completion: %s"
+msgstr "Um erro ocorreu durante a conclusão: %s"
+
+#: basilisk/completion_handler.py:308
+#: basilisk/presenters/conversation_presenter.py:299
+msgid "Completion Error"
+msgstr "Erro de conclusão"
+
+#: basilisk/decorators.py:35
+msgid "A task is already running. Please wait for it to complete."
+msgstr "Uma tarefa já está em execução. Aguarde a conclusão."
+
+#. Translators: Error title
+#. Translators: A label for the log level in the settings dialog
+#. Translators: A title for the error message in account dialog
+#. Translators: Title of the error dialog when deletion fails
+#. Translators: Title of the error dialog when loading conversation history
+#. fails
+#. Translators: Error dialog title
+#. Translators: Title of the error dialog when editing a message block fails
+#. Translators: An error message title
+#. Translators: A message box title.
+#. Translators: Short dialog title for an error message
+#: basilisk/config/config_enums.py:87 basilisk/decorators.py:36
+#: basilisk/main_app.py:194 basilisk/presenters/conversation_presenter.py:320
+#: basilisk/presenters/conversation_presenter.py:375
+#: basilisk/presenters/conversation_presenter.py:447
+#: basilisk/presenters/main_frame_presenter.py:212
+#: basilisk/presenters/main_frame_presenter.py:248
+#: basilisk/presenters/main_frame_presenter.py:288
+#: basilisk/presenters/main_frame_presenter.py:327
+#: basilisk/presenters/main_frame_presenter.py:331
+#: basilisk/presenters/main_frame_presenter.py:483
+#: basilisk/presenters/ocr_presenter.py:117
+#: basilisk/presenters/ocr_presenter.py:125
+#: basilisk/presenters/ocr_presenter.py:137
+#: basilisk/views/account_dialog.py:150 basilisk/views/account_dialog.py:672
+#: basilisk/views/account_dialog.py:930 basilisk/views/account_dialog.py:977
+#: basilisk/views/conversation_history_dialog.py:217
+#: basilisk/views/conversation_history_dialog.py:251
+#: basilisk/views/conversation_tab.py:638
+#: basilisk/views/edit_block_dialog.py:69
+#: basilisk/views/enhanced_error_dialog.py:35 basilisk/views/main_frame.py:500
+#: basilisk/views/main_frame.py:629 basilisk/views/main_frame.py:649
+#: basilisk/views/main_frame.py:716 basilisk/views/main_frame.py:891
+#: basilisk/views/name_conversation_dialog.py:103
+#: basilisk/views/view_mixins.py:50
+msgid "Error"
+msgstr "Erro"
+
+#. Translators: Error message
+#: basilisk/main_app.py:192
+msgid "Failed to activate system certificate store"
+msgstr "Falha ao ativar o armazenamento de certificados do sistema"
+
+#. Translators: Summary of a conversation profile
+#: basilisk/config/conversation_profile.py:198 basilisk/provider_ai_model.py:61
+msgid "yes"
+msgstr "sim"
+
+#: basilisk/config/conversation_profile.py:198 basilisk/provider_ai_model.py:61
+msgid "no"
+msgstr "não"
+
+#: basilisk/screen_capture_thread.py:109
+#, python-format
+msgid "Full screen capture (%s)"
+msgstr "Captura de tela inteira (%s)"
+
+#: basilisk/screen_capture_thread.py:130
+#, python-format
+msgid "Partial screen capture (%s)"
+msgstr "Captura de tela parcial (%s)"
+
+#: basilisk/screen_capture_thread.py:157
+#, python-format
+msgid "Window screen capture (%s)"
+msgstr "Captura de janela (%s)"
+
+#: basilisk/config/account_config.py:381 basilisk/views/account_dialog.py:570
+msgid "Personal"
+msgstr "Pessoal"
+
+#: basilisk/config/account_config.py:496
+msgid "From environment variable"
+msgstr "Da variável de ambiente"
+
+#. Translators: Account source label
+#: basilisk/config/config_enums.py:25
+msgid "Environment variable"
+msgstr "Variável de ambiente"
+
+#. Translators: Account source label
+#: basilisk/config/config_enums.py:27
+msgid "Configuration file"
+msgstr "Arquivo de configuração"
+
+#. Translators: A label for the API key storage method in the account dialog
+#: basilisk/config/config_enums.py:48
+msgid "Plain text"
+msgstr "Texto simples"
+
+#. Translators: A label for the API key storage method in the account dialog
+#: basilisk/config/config_enums.py:50
+msgid "System keyring"
+msgstr "Chaveiro do sistema"
+
+#. Translators: A label for the log level in the settings dialog
+#. Translators: A label for the automatic update mode in the settings dialog
+#: basilisk/config/config_enums.py:79 basilisk/config/config_enums.py:141
+msgid "Off"
+msgstr "Desativado"
+
+#. Translators: A label for the log level in the settings dialog
+#: basilisk/config/config_enums.py:81
+msgid "Debug"
+msgstr "Depuração"
+
+#. Translators: A label for the log level in the settings dialog
+#: basilisk/config/config_enums.py:83
+msgid "Info"
+msgstr "Informação"
+
+#. Translators: A label for the log level in the settings dialog
+#: basilisk/config/config_enums.py:85
+msgid "Warning"
+msgstr "Aviso"
+
+#. Translators: A label for the log level in the settings dialog
+#: basilisk/config/config_enums.py:89
+msgid "Critical"
+msgstr "Crítico"
+
+#. Translators: A label for the release channel in the settings dialog
+#: basilisk/config/config_enums.py:112
+msgid "Stable"
+msgstr "Estável"
+
+#. Translators: A label for the release channel in the settings dialog
+#: basilisk/config/config_enums.py:114
+msgid "Beta"
+msgstr "Beta"
+
+#. Translators: A label for the release channel in the settings dialog
+#: basilisk/config/config_enums.py:116
+msgid "Development"
+msgstr "Desenvolvimento"
+
+#. Translators: A label for the automatic update mode in the settings dialog
+#: basilisk/config/config_enums.py:143
+msgid "Notify new version"
+msgstr "Notificar nova versão"
+
+#. Translators: A label for the automatic update mode in the settings dialog
+#: basilisk/config/config_enums.py:145
+msgid "Download new version"
+msgstr "Baixe a nova versão"
+
+#. Translators: A label for the automatic update mode in the settings dialog
+#: basilisk/config/config_enums.py:147
+msgid "Install new version"
+msgstr "Instalar nova versão"
+
+#. Translators: Summary of a conversation profile
+#: basilisk/config/conversation_profile.py:181
+msgid "Name:"
+msgstr "Nome:"
+
+#. Translators: Summary of a conversation profile
+#: basilisk/config/conversation_profile.py:184
+msgid "Account name:"
+msgstr "Nome da conta:"
+
+#. Translators: Summary of a conversation profile
+#: basilisk/config/conversation_profile.py:187
+msgid "Model:"
+msgstr "Modelo:"
+
+#. Translators: Summary of a conversation profile
+#: basilisk/config/conversation_profile.py:190
+msgid "Max output tokens:"
+msgstr "Máximo de tokens de saída:"
+
+#. Translators: Summary of a conversation profile
+#: basilisk/config/conversation_profile.py:193
+msgid "Temperature:"
+msgstr "Temperatura:"
+
+#. Translators: Summary of a conversation profile
+#: basilisk/config/conversation_profile.py:196
+msgid "Top P:"
+msgstr ""
+
+#. Translators: Summary of a conversation profile
+#: basilisk/config/conversation_profile.py:200
+msgid "Stream mode:"
+msgstr "Modo de fluxo:"
+
+#. Translators: Summary of a conversation profile
+#: basilisk/config/conversation_profile.py:203
+msgid "System prompt:"
+msgstr "Prompt do sistema:"
+
+#. Translators: Placeholder for an unknown file size
+#. Translators: Placeholder for unknown image dimensions
+#: basilisk/conversation/attached_file.py:373
+#: basilisk/conversation/attached_file.py:532
+#: basilisk/views/account_dialog.py:267 basilisk/views/account_dialog.py:303
+#: basilisk/views/account_dialog.py:339 basilisk/views/account_dialog.py:811
+#: basilisk/views/account_dialog.py:946
+msgid "Unknown"
+msgstr "Desconhecido"
+
+#. Translators: Label indicating that the message is from the user in a
+#. conversation
+#: basilisk/conversation/conversation_model.py:49
+msgid "User:"
+msgstr "Usuário:"
+
+#. Translators: Label indicating that the message is from the assistant in a
+#. conversation
+#: basilisk/conversation/conversation_model.py:51
+msgid "Assistant:"
+msgstr "Assistente:"
+
+#. Translators: Label indicating that the message is a system message in a
+#. conversation
+#: basilisk/conversation/conversation_model.py:53
+msgid "System:"
+msgstr "Sistema:"
+
+#: basilisk/presenters/account_presenter.py:62
+#: basilisk/presenters/account_presenter.py:184
+msgid "Please enter a name"
+msgstr "Por favor, insira um nome"
+
+#: basilisk/presenters/account_presenter.py:67
+msgid "Please select a key storage method"
+msgstr "Por favor, selecione um método de armazenamento de chave"
+
+#: basilisk/presenters/account_presenter.py:73
+msgid "Please enter a key"
+msgstr "Por favor, insira uma chave"
+
+#: basilisk/presenters/account_presenter.py:188
+msgid "Please select a provider"
+msgstr "Por favor, selecione um provedor"
+
+#: basilisk/presenters/account_presenter.py:193
+msgid "Please select an API key storage method"
+msgstr "Por favor, selecione um método de armazenamento da chave API"
+
+#: basilisk/presenters/account_presenter.py:199
+msgid "Please enter an API key. It is required for this provider"
+msgstr "Por favor, insira uma chave API. É necessária para este provedor"
+
+#: basilisk/presenters/account_presenter.py:213
+msgid "Please enter a valid custom base URL"
+msgstr "Por favor, insira um URL base personalizado válido"
+
+#: basilisk/presenters/account_presenter.py:321
+msgid "No (personal)"
+msgstr "Não (pessoal)"
+
+#: basilisk/presenters/attachment_panel_presenter.py:140
+#: basilisk/presenters/attachment_panel_presenter.py:227
+msgid "No engine available. Please select an account."
+msgstr "Nenhum mecanismo disponível. Selecione uma conta."
+
+#: basilisk/presenters/attachment_panel_presenter.py:160
+#, python-format
+msgid "This attachment format is not supported by the current provider. Source: \n"
+"%s"
+msgstr ""
+
+#. Translators: This message is displayed when there are no supported
+#. attachment formats.
+#: basilisk/presenters/attachment_panel_presenter.py:237
+msgid "This provider does not support any attachment formats."
+msgstr "Este provedor não suporta nenhum formato de anexo."
+
+#. Translators: File dialog filter label. %s is replaced with file extensions
+#. like "*.png;*.jpg"
+#: basilisk/presenters/attachment_panel_presenter.py:241
+#, python-format
+msgid "All supported formats (%s)|(%s)"
+msgstr "Todos os formatos suportados (%s)|(%s)"
+
+#. Translators: Error when user enters an invalid URL in the attachment URL
+#. dialog
+#: basilisk/presenters/attachment_panel_presenter.py:254
+msgid "Invalid URL format."
+msgstr "Formato de URL inválido."
+
+#: basilisk/presenters/attachment_panel_presenter.py:285
+#, python-format
+msgid "This attachment format is not supported by the current provider. Source: %s"
+msgstr "Este formato de anexo não é suportado pelo provedor atual. Fonte: %s"
+
+#. Translators: Error when user tries to check attachment compatibility without
+#. selecting a model
+#: basilisk/presenters/attachment_panel_presenter.py:305
+msgid "Please select a model"
+msgstr "Por favor, selecione um modelo"
+
+#: basilisk/presenters/attachment_panel_presenter.py:308
+msgid "Please select an engine"
+msgstr ""
+
+#: basilisk/presenters/attachment_panel_presenter.py:318
+#, python-format
+msgid "The selected model does not support images. Please select a vision model instead (%s)."
+msgstr "O modelo selecionado não suporta imagens. Selecione um modelo de visão (%s)."
+
+#: basilisk/presenters/base_conversation_presenter.py:151
+msgid "Failed to load models. Please check your network and account settings."
+msgstr ""
+
+#: basilisk/presenters/conversation_presenter.py:319
+#: basilisk/presenters/conversation_presenter.py:374
+msgid "The selected provider does not support speech-to-text"
+msgstr "O provedor selecionado não suporta conversão de fala em texto"
+
+#: basilisk/presenters/conversation_presenter.py:323
+msgid "Stop recording"
+msgstr "Parar gravação"
+
+#. Translators: This is a label for record button in the main window
+#: basilisk/presenters/conversation_presenter.py:341
+#: basilisk/views/conversation_tab.py:319
+msgid "Record"
+msgstr "Gravar"
+
+#: basilisk/presenters/conversation_presenter.py:388
+msgid "Recording..."
+msgstr "Gravando..."
+
+#: basilisk/presenters/conversation_presenter.py:394
+msgid "Recording stopped"
+msgstr "Gravação parada"
+
+#: basilisk/presenters/conversation_presenter.py:400
+msgid "Transcribing..."
+msgstr "Transcrevendo..."
+
+#: basilisk/presenters/conversation_presenter.py:410
+#: basilisk/presenters/conversation_presenter.py:428
+#: basilisk/views/main_frame.py:255
+msgid "Ready"
+msgstr "Pronto"
+
+#: basilisk/presenters/conversation_presenter.py:430
+#, python-format
+msgid "An error occurred during transcription: %s"
+msgstr "Ocorreu um erro durante a transcrição: %s"
+
+#: basilisk/presenters/conversation_presenter.py:431
+msgid "Transcription Error"
+msgstr "Erro de transcrição"
+
+#: basilisk/presenters/conversation_presenter.py:445
+msgid "A completion is already in progress. Please wait until it finishes."
+msgstr "Uma conclusão já está em andamento. Aguarde até que termine."
+
+#: basilisk/presenters/conversation_presenter.py:467
+#, python-format
+msgid "An error occurred during title generation: %s"
+msgstr "Ocorreu um erro durante a geração do título: %s"
+
+#: basilisk/presenters/conversation_presenter.py:469
+msgid "An error occurred during title generation"
+msgstr "Ocorreu um erro durante a geração do título"
+
+#: basilisk/presenters/conversation_presenter.py:472
+msgid "Title Generation Error"
+msgstr "Erro de geração de título"
+
+#: basilisk/presenters/conversation_presenter.py:491
+#, python-format
+msgid "An error occurred while saving the conversation: %s"
+msgstr "Ocorreu um erro ao salvar a conversa: %s"
+
+#: basilisk/presenters/conversation_presenter.py:493
+msgid "Save Error"
+msgstr "Erro ao salvar"
+
+#: basilisk/presenters/enhanced_error_presenter.py:63
+msgid "Copied!"
+msgstr "Copiado!"
+
+#: basilisk/presenters/enhanced_error_presenter.py:67
+msgid "Copy failed"
+msgstr "Falha na cópia"
+
+#: basilisk/presenters/enhanced_error_presenter.py:74
+#, python-format
+msgid "Copy failed: %s"
+msgstr "Falha na cópia: %s"
+
+#: basilisk/presenters/enhanced_error_presenter.py:100
+msgid "Open failed"
+msgstr "Falha ao abrir"
+
+#: basilisk/presenters/history_presenter.py:201
+#, python-format
+msgid "Response speaking %s"
+msgstr "Resposta falando %s"
+
+#: basilisk/presenters/history_presenter.py:202
+msgid "enabled"
+msgstr "ativado"
+
+#: basilisk/presenters/history_presenter.py:202
+msgid "disabled"
+msgstr "desativado"
+
+#. Translators: This is a citation format for character locations
+#: basilisk/presenters/history_presenter.py:248
+#, python-brace-format
+msgid "C.{start} .. {end}"
+msgstr ""
+
+#. Translators: This is a citation format for page locations
+#: basilisk/presenters/history_presenter.py:255
+#, python-brace-format
+msgid "P.{start} .. {end}"
+msgstr ""
+
+#. Translators: This is a citation format for unknown locations
+#: basilisk/presenters/history_presenter.py:260
+msgid "Unknown location"
+msgstr "Localização desconhecida"
+
+#: basilisk/presenters/history_presenter.py:265
+#, python-brace-format
+msgid "{document_title} / {location_text}"
+msgstr ""
+
+#: basilisk/presenters/history_presenter.py:272
+#, python-brace-format
+msgid "Document {document_index} / {location_text}"
+msgstr "Documento {document_index} / {location_text}"
+
+#. Translators: This is a citation format for a cited text
+#: basilisk/presenters/history_presenter.py:280
+#, python-brace-format
+msgid "{location_text}: “{cited_text}”"
+msgstr ""
+
+#. Translators: This is a status message for the number of citations in the
+#. current message
+#: basilisk/presenters/history_presenter.py:315
+#, python-format
+msgid "%d citations in the current message"
+msgstr "%d citações na mensagem atual"
+
+#. Translators: This message is emitted when there are no citations for the
+#. current message.
+#: basilisk/presenters/history_presenter.py:329
+msgid "No citations for this message"
+msgstr "Nenhuma citação para esta mensagem"
+
+#. Translators: This is a title for message citations dialog
+#: basilisk/presenters/history_presenter.py:341
+msgid "Message citations"
+msgstr "Citações da mensagem"
+
+#. Translators: A default title for a conversation
+#: basilisk/presenters/main_frame_presenter.py:62
+#, python-format
+msgid "Conversation %d"
+msgstr "Conversa %d"
+
+#. Translators: An error message when a conversation file cannot be opened
+#: basilisk/presenters/main_frame_presenter.py:182
+#, python-format
+msgid "Failed to open conversation file: '%s', error: %s"
+msgstr "Falha ao abrir arquivo de conversa: '%s', erro: %s"
+
+#: basilisk/presenters/main_frame_presenter.py:212
+#, python-format
+msgid "Failed to open conversation: %s"
+msgstr "Falha ao abrir conversa: %s"
+
+#: basilisk/presenters/main_frame_presenter.py:248
+#: basilisk/presenters/main_frame_presenter.py:288
+#: basilisk/presenters/main_frame_presenter.py:327
+#: basilisk/views/main_frame.py:500 basilisk/views/main_frame.py:629
+#: basilisk/views/main_frame.py:649
+msgid "No conversation selected"
+msgstr "Nenhuma conversa selecionada"
+
+#: basilisk/presenters/main_frame_presenter.py:331
+msgid "No screen coordinates provided"
+msgstr "Nenhuma coordenada de tela fornecida"
+
+#. Translators: This message is displayed when no account is configured and the
+#. user tries to use the conversation tab.
+#: basilisk/presenters/main_frame_presenter.py:377
+msgid "Please add an account first. Do you want to add an account now?"
+msgstr "Por favor, adicione uma conta primeiro. Deseja adicionar uma conta agora?"
+
+#. Translators: This is a title for the message box
+#: basilisk/presenters/main_frame_presenter.py:380
+msgid "No account configured"
+msgstr "Nenhuma conta configurada"
+
+#: basilisk/presenters/main_frame_presenter.py:391
+msgid "Manage accounts"
+msgstr "Gerenciar contas"
+
+#: basilisk/presenters/main_frame_presenter.py:404
+msgid "Settings"
+msgstr "Configurações"
+
+#: basilisk/presenters/main_frame_presenter.py:420
+msgid "Manage conversation profiles"
+msgstr "Gerenciar perfis de conversa"
+
+#: basilisk/presenters/main_frame_presenter.py:483
+msgid "Failed to create NVDA addon"
+msgstr "Falha ao criar complemento NVDA"
+
+#. Translators: Error when provider does not support OCR
+#: basilisk/presenters/ocr_presenter.py:116
+msgid "The selected provider does not support OCR."
+msgstr "O provedor selecionado não suporta OCR."
+
+#. Translators: Error when no attachments present for OCR
+#: basilisk/presenters/ocr_presenter.py:124
+msgid "No attachments to perform OCR on."
+msgstr "Nenhum anexo para realizar OCR."
+
+#. Translators: Error when provider has no client
+#: basilisk/presenters/ocr_presenter.py:136
+msgid "The selected provider does not have a client."
+msgstr "O provedor selecionado não possui um cliente."
+
+#: basilisk/presenters/ocr_presenter.py:147
+msgid "Performing OCR..."
+msgstr "Realizando OCR..."
+
+#: basilisk/presenters/ocr_presenter.py:148
+msgid "Performing OCR on attachments..."
+msgstr "Realizando OCR em anexos..."
+
+#: basilisk/presenters/ocr_presenter.py:253
+#, python-format
+msgid "An error occurred while processing OCR results. Details: \n"
+"%s"
+msgstr "Ocorreu um erro ao processar os resultados do OCR. Detalhes: \n"
+"%s"
+
+#: basilisk/presenters/ocr_presenter.py:257
+#: basilisk/presenters/ocr_presenter.py:279
+msgid "OCR Error"
+msgstr "Erro de OCR"
+
+#. Translators: A label for the language in the settings dialog
+#: basilisk/presenters/preferences_presenter.py:63
+msgid "System default (auto)"
+msgstr "Padrão do sistema (auto)"
+
+#. Translators: Search dialog error message
+#: basilisk/presenters/search_presenter.py:198
+msgid "Please enter text to search for."
+msgstr "Por favor, insira o texto para pesquisar."
+
+#. Translators: Error shown when the user enters an invalid regular expression
+#: basilisk/presenters/search_presenter.py:246
+#, python-format
+msgid "Invalid regular expression: %s"
+msgstr "Expressão regular inválida: %s"
+
+#. Translators: Shown when updates are disabled for source builds
+#: basilisk/presenters/update_presenter.py:67
+msgid "Update are disabled for source application"
+msgstr "Atualizações desativadas para aplicativo de origem"
+
+#. Translators: Error message shown when an HTTP error occurs while downloading
+#. an attachment
+#: basilisk/services/attachment_service.py:97
+#, python-format
+msgid "HTTP error %s."
+msgstr "Erro HTTP %s."
+
+#. Translators: Error message shown when an unknown error occurs while
+#. downloading an attachment
+#: basilisk/services/attachment_service.py:106
+#, python-format
+msgid "Error adding attachment from URL: %s"
+msgstr "Erro ao adicionar anexo por URL: %s"
+
+#: basilisk/views/about_dialog.py:40
+msgid "Where LLMs Unite"
+msgstr "Onde os LLMs se Unem"
+
+#: basilisk/views/about_dialog.py:42
+msgid "GPLV2"
+msgstr "GPLv2"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:74 basilisk/views/account_dialog.py:444
+msgid "&Name:"
+msgstr "&Nome:"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:84
+msgid "Organisation key storage &method:"
+msgstr "&Método de armazenamento da chave da organização:"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:97
+msgid "Organisation &Key:"
+msgstr "&Chave da organização:"
+
+#: basilisk/views/account_dialog.py:201
+msgid "Organizations"
+msgstr "Organizações"
+
+#. Translators: A label in account dialog
+#. Translators: This label appears in the main window's list of models
+#. Translators: This is a label for attachment name
+#: basilisk/views/account_dialog.py:208 basilisk/views/account_dialog.py:734
+#: basilisk/views/base_conversation.py:205
+#: basilisk/views/prompt_attachments_panel.py:109
+#: basilisk/views/prompt_attachments_panel.py:617
+msgid "Name"
+msgstr "Nome"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:213
+msgid "Key"
+msgstr "Chave"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:218 basilisk/views/account_dialog.py:746
+msgid "Source"
+msgstr "Fonte"
+
+#. Translators: Button label to add a new conversation profile
+#: basilisk/views/account_dialog.py:224 basilisk/views/account_dialog.py:752
+#: basilisk/views/conversation_profile_dialog.py:210
+msgid "&Add"
+msgstr "&Adicionar"
+
+#. Translators: Button label to edit a conversation profile
+#: basilisk/views/account_dialog.py:226 basilisk/views/account_dialog.py:761
+#: basilisk/views/conversation_profile_dialog.py:216
+msgid "&Edit"
+msgstr "&Editar"
+
+#. Translators: Button label to remove a conversation profile
+#: basilisk/views/account_dialog.py:229 basilisk/views/account_dialog.py:765
+#: basilisk/views/conversation_profile_dialog.py:222
+msgid "&Remove"
+msgstr "&Remover"
+
+#: basilisk/views/account_dialog.py:294
+msgid "Add organization"
+msgstr "Adicionar organização"
+
+#: basilisk/views/account_dialog.py:326
+msgid "Edit organization"
+msgstr "Editar organização"
+
+#. Translators: A confirmation message in account dialog for removing
+#. organization
+#: basilisk/views/account_dialog.py:359
+#, python-brace-format
+msgid "Are you sure you want to remove the organization {}?"
+msgstr "Tem certeza de que deseja remover a organização {}?"
+
+#: basilisk/views/account_dialog.py:362 basilisk/views/account_dialog.py:973
+msgid "Confirmation"
+msgstr "Confirmação"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:454
+msgid "&Provider:"
+msgstr "&Provedor:"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:469
+msgid "API &key storage method:"
+msgstr "&Método de armazenamento da chave API:"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:483
+msgid "API &key:"
+msgstr "&Chave API:"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:492
+msgid "&Organization to use:"
+msgstr "&Organização a usar:"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:502 basilisk/views/account_dialog.py:655
+msgid "Custom &base URL:"
+msgstr "&URL base personalizado:"
+
+#: basilisk/views/account_dialog.py:651
+#, python-brace-format
+msgid "Custom &base URL (default: {})"
+msgstr "URL &base personalizado (padrão: {})"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:727
+msgid "Accounts"
+msgstr "Contas"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:738
+msgid "Provider"
+msgstr "Provedor"
+
+#. Translators: A label in account dialog
+#: basilisk/views/account_dialog.py:742
+msgid "Active organization"
+msgstr "Organização ativa"
+
+#: basilisk/views/account_dialog.py:756
+msgid "&Manage organizations..."
+msgstr "&Gerenciar organizações..."
+
+#: basilisk/views/account_dialog.py:770
+msgid "Default account"
+msgstr "Conta padrão"
+
+#: basilisk/views/account_dialog.py:876
+msgid "Manage organizations"
+msgstr "Gerenciar organizações"
+
+#: basilisk/views/account_dialog.py:901
+msgid "Add account"
+msgstr "Adicionar conta"
+
+#: basilisk/views/account_dialog.py:929
+msgid "Cannot edit account from environment variable"
+msgstr "Não é possível editar conta obtida de variável de ambiente"
+
+#: basilisk/views/account_dialog.py:933
+msgid "Edit account"
+msgstr "Editar conta"
+
+#. Translators: A confirmation message in account dialog
+#: basilisk/views/account_dialog.py:970
+#, python-brace-format
+msgid "Are you sure you want to remove the account {}?"
+msgstr "Tem certeza de que deseja remover a conta {}?"
+
+#: basilisk/views/account_dialog.py:976
+msgid "Cannot remove account from environment variable"
+msgstr "Não é possível remover conta obtida de variável de ambiente"
+
+#. Translators: This is a label for account in the main window
+#: basilisk/views/base_conversation.py:106
+msgid "&Account:"
+msgstr "&Conta:"
+
+#. Translators: This is a label for system prompt in the main window
+#: basilisk/views/base_conversation.py:187
+msgid "S&ystem prompt:"
+msgstr "&Prompt do sistema:"
+
+#: basilisk/views/base_conversation.py:202
+msgid "M&odels:"
+msgstr "&Modelos:"
+
+#. Translators: This label appears in the main window's list of models to
+#. indicate whether the model supports images
+#: basilisk/views/base_conversation.py:207
+msgid "Vision"
+msgstr "Visão"
+
+#. Translators: This label appears in the main window's list of models
+#: basilisk/views/base_conversation.py:209
+msgid "Context window"
+msgstr "Janela de contexto"
+
+#. Translators: This label appears in the main window's list of models
+#: basilisk/views/base_conversation.py:211
+msgid "Max tokens"
+msgstr "Máximo de tokens"
+
+#. Translators: Placeholder row in the model list while models load
+#: basilisk/views/base_conversation.py:231
+msgid "Loading..."
+msgstr ""
+
+#. Translators: Short status bar message when model list failed to load
+#: basilisk/views/base_conversation.py:381
+msgid "Model loading failed"
+msgstr ""
+
+#. Translators: Placeholder row when the model catalog failed to load
+#: basilisk/views/base_conversation.py:384
+msgid "Error loading models"
+msgstr ""
+
+#. Translators: Body of error dialog after model loading failure
+#: basilisk/views/base_conversation.py:388
+#, python-format
+msgid "An error occurred while loading models:\n"
+"%s"
+msgstr ""
+
+#. Translators: Title of error dialog for model loading failure
+#: basilisk/views/base_conversation.py:391
+msgid "Model loading error"
+msgstr ""
+
+#. Translators: This is a label for a context menu item
+#. Translators: This is a label for show details in the context menu
+#: basilisk/views/base_conversation.py:439
+#: basilisk/views/prompt_attachments_panel.py:481
+msgid "Show details"
+msgstr "Mostrar detalhes"
+
+#. Translators: This is a label for refreshing model list
+#: basilisk/views/base_conversation.py:447
+msgid "Refresh"
+msgstr ""
+
+#. Translators: This is a label for a title dialog
+#: basilisk/views/base_conversation.py:475
+msgid "Model details"
+msgstr "Detalhes do modelo"
+
+#. Translators: This is a label for web search mode in the main window
+#: basilisk/views/base_conversation.py:486
+msgid "&Web search mode"
+msgstr "Modo de &pesquisa na web"
+
+#. Translators: This is a label for max tokens in the main window
+#: basilisk/views/base_conversation.py:499
+msgid "Max to&kens:"
+msgstr "Máximo de &tokens:"
+
+#. Translators: This is a label for temperature in the main window
+#: basilisk/views/base_conversation.py:514
+msgid "&Temperature:"
+msgstr "&Temperatura:"
+
+#. Translators: This is a label for top P in the main window
+#: basilisk/views/base_conversation.py:540
+msgid "Probabilit&y Mass (top P):"
+msgstr "Massa de probabilidade (&top P):"
+
+#. Translators: This is a label for stream mode in the main window
+#: basilisk/views/base_conversation.py:562
+msgid "&Stream mode"
+msgstr "Modo de &fluxo"
+
+#. Translators: Title of the conversation history dialog
+#: basilisk/views/conversation_history_dialog.py:32
+msgid "Conversation history"
+msgstr "Histórico de conversas"
+
+#. Translators: Label for the search field in conversation history
+#: basilisk/views/conversation_history_dialog.py:57
+msgid "&Search:"
+msgstr "&Pesquisa:"
+
+#. Translators: Label for the conversation list in history dialog
+#: basilisk/views/conversation_history_dialog.py:69
+msgid "&Conversations:"
+msgstr "&Conversas:"
+
+#. Translators: Column header for conversation title
+#: basilisk/views/conversation_history_dialog.py:77
+msgid "Title"
+msgstr "Título"
+
+#. Translators: Column header for message count
+#: basilisk/views/conversation_history_dialog.py:82
+msgid "Messages"
+msgstr "Mensagens"
+
+#. Translators: Column header for last update time
+#: basilisk/views/conversation_history_dialog.py:87
+msgid "Last updated"
+msgstr "Última atualização"
+
+#. Translators: Shows how many conversations are currently displayed
+#. Translators: Button to open a conversation from history
+#: basilisk/views/conversation_history_dialog.py:112
+msgid "&Open"
+msgstr "&Abrir"
+
+#. Translators: Button to delete a conversation from history
+#: basilisk/views/conversation_history_dialog.py:122
+msgid "&Delete"
+msgstr "&Excluir"
+
+#. Translators: Button to load more conversations in history dialog
+#: basilisk/views/conversation_history_dialog.py:128
+msgid "Load &more"
+msgstr "Carregar mais"
+
+#: basilisk/views/conversation_history_dialog.py:132
+msgid "&Close"
+msgstr "&Fechar"
+
+#: basilisk/views/conversation_history_dialog.py:198
+#: basilisk/views/conversation_history_dialog.py:260
+#: basilisk/views/conversation_tab.py:204
+msgid "Untitled conversation"
+msgstr "Conversa sem título"
+
+#. Translators: Confirmation message for deleting a conversation
+#: basilisk/views/conversation_history_dialog.py:201
+#, python-format
+msgid "Are you sure you want to delete \"%s\"?"
+msgstr "Tem certeza de que deseja excluir \"%s\"?"
+
+#. Translators: Title of the delete confirmation dialog
+#: basilisk/views/conversation_history_dialog.py:203
+msgid "Confirm deletion"
+msgstr "Confirmar exclusão"
+
+#. Translators: Error message shown when a conversation cannot be deleted
+#: basilisk/views/conversation_history_dialog.py:215
+msgid "Failed to delete conversation"
+msgstr "Falha ao excluir conversa"
+
+#. Translators: Error shown when the conversation history cannot be loaded from
+#. the database
+#: basilisk/views/conversation_history_dialog.py:249
+msgid "Failed to load conversation history from the database."
+msgstr "Falha ao carregar o histórico de conversas do banco de dados."
+
+#: basilisk/views/conversation_history_dialog.py:272
+#, python-format
+msgid "Showing %d of %d conversations"
+msgstr "Mostrando %d de %d conversas"
+
+#. Translators: Label for the name of a conversation profile
+#: basilisk/views/conversation_profile_dialog.py:59
+msgid "profile &name:"
+msgstr "&nome do perfil:"
+
+#. Translators: Label for including an account in a conversation profile
+#: basilisk/views/conversation_profile_dialog.py:72
+msgid "&Include account in profile"
+msgstr "&Incluir conta no perfil"
+
+#. Translators: Message box title for a conversation profile name
+#: basilisk/views/conversation_profile_dialog.py:129
+msgid "Profile name cannot be empty"
+msgstr "O nome do perfil não pode estar vazio"
+
+#. Translators: Message box title for a conversation profile name
+#: basilisk/views/conversation_profile_dialog.py:131
+msgid "Profile name error"
+msgstr "Erro no nome do perfil"
+
+#. Translators: Label for the conversation profile dialog
+#: basilisk/views/conversation_profile_dialog.py:180
+msgid "Conversation &Profiles"
+msgstr "&Perfis de conversa"
+
+#. Translators: Column header for the name of a conversation profile
+#: basilisk/views/conversation_profile_dialog.py:187
+msgid "Profile name"
+msgstr "Nome do perfil"
+
+#: basilisk/views/conversation_profile_dialog.py:198
+msgid "Profile de&tails:"
+msgstr "&Detalhes do perfil:"
+
+#. Translators: Button label to set a conversation profile as the default
+#: basilisk/views/conversation_profile_dialog.py:228
+msgid "&Default Profile"
+msgstr "&Perfil padrão"
+
+#. Translators: Dialog title to add a new conversation profile
+#: basilisk/views/conversation_profile_dialog.py:292
+msgid "Add Conversation Profile"
+msgstr "Adicionar perfil de conversa"
+
+#. Translators: dialog title
+#: basilisk/views/conversation_profile_dialog.py:311
+msgid "Edit Conversation Profile"
+msgstr "Editar perfil de conversa"
+
+#. Translators: Message box title for removing a conversation profile
+#: basilisk/views/conversation_profile_dialog.py:346
+#, python-format
+msgid "Are you sure you want to remove the profile: %s?"
+msgstr "Tem certeza de que deseja remover o perfil: %s?"
+
+#. Translators: Message box title for removing a conversation profile
+#: basilisk/views/conversation_profile_dialog.py:349
+#, python-format
+msgid "Remove Profile %s"
+msgstr "Remover perfil %s"
+
+#. Translators: This is a label for user prompt in the main window
+#: basilisk/views/conversation_tab.py:264
+msgid "&Messages:"
+msgstr "&Mensagens:"
+
+#. Translators: This is a label for submit button in the main window
+#: basilisk/views/conversation_tab.py:299
+#: basilisk/views/prompt_attachments_panel.py:431
+msgid "Submit"
+msgstr "Enviar"
+
+#. Translators: This is a label for stop completion button in the main window
+#. Translators: This is a label for stop regeneration button
+#: basilisk/views/conversation_tab.py:308
+#: basilisk/views/edit_block_dialog.py:226
+msgid "Stop completio&n"
+msgstr "Parar &conclusão"
+
+#. Translators: This is a label for apply profile button in the main window
+#: basilisk/views/conversation_tab.py:327
+msgid "Apply profile"
+msgstr "Aplicar perfil"
+
+#. Translators: Error shown when a conversation cannot be made private
+#: basilisk/views/conversation_tab.py:634
+msgid "Failed to switch the conversation to private mode: the existing database record could not be deleted."
+msgstr "Falha ao mudar a conversa para modo privado: o registro do banco de dados existente não pôde ser excluído."
+
+#. Translators: This is a label for audio file in the main window
+#: basilisk/views/conversation_tab.py:698
+msgid "Select an audio file to transcribe"
+msgstr "Selecione um arquivo de áudio para transcrição"
+
+#: basilisk/views/conversation_tab.py:700
+msgid "Audio files"
+msgstr "Arquivos de áudio"
+
+#: basilisk/views/edit_block_dialog.py:47
+msgid "Edit Message Block"
+msgstr "Editar bloco de mensagens"
+
+#. Translators: Error shown when the message block to edit no longer exists
+#: basilisk/views/edit_block_dialog.py:66
+#, python-format
+msgid "Message block %d no longer exists in the conversation."
+msgstr "O bloco de mensagens %d não existe mais na conversa."
+
+#. Translators: This is a label for assistant response in the edit dialog
+#: basilisk/views/edit_block_dialog.py:125
+msgid "&Assistant response:"
+msgstr "&Resposta do assistente:"
+
+#. Translators: This is a label for regenerate button
+#: basilisk/views/edit_block_dialog.py:219
+msgid "&Regenerate Response"
+msgstr "&Regenerar resposta"
+
+#: basilisk/views/enhanced_error_dialog.py:115
+msgid "This completion error contains a URL that might provide more information about the issue:"
+msgstr "Este erro de conclusão contém um URL que pode fornecer mais informações sobre o problema:"
+
+#: basilisk/views/enhanced_error_dialog.py:119
+msgid "This error message contains a URL that might provide more information:"
+msgstr "Esta mensagem de erro contém um URL que pode fornecer mais informações:"
+
+#: basilisk/views/enhanced_error_dialog.py:136
+msgid "Open in Browser"
+msgstr "Abrir no navegador"
+
+#. Translators: Button to copy the error message to the clipboard
+#: basilisk/views/enhanced_error_dialog.py:146
+msgid "Copy Error"
+msgstr "Erro de cópia"
+
+#: basilisk/views/enhanced_error_dialog.py:155
+msgid "OK"
+msgstr "ok"
+
+#: basilisk/views/history_msg_text_ctrl.py:277
+msgid "Read current message"
+msgstr "Ler mensagem atual"
+
+#: basilisk/views/history_msg_text_ctrl.py:283
+msgid "Speak response"
+msgstr "Falar resposta"
+
+#: basilisk/views/history_msg_text_ctrl.py:289
+msgid "Show as HTML (from Markdown)"
+msgstr "Mostrar como HTML (de Markdown)"
+
+#: basilisk/views/history_msg_text_ctrl.py:294
+msgid "Show citations"
+msgstr "Mostrar citações"
+
+#: basilisk/views/history_msg_text_ctrl.py:296
+msgid "Copy current message"
+msgstr "Copiar mensagem atual"
+
+#: basilisk/views/history_msg_text_ctrl.py:299
+msgid "Select current message"
+msgstr "Selecionar mensagem atual"
+
+#: basilisk/views/history_msg_text_ctrl.py:305
+msgid "Go to previous message"
+msgstr "Ir para mensagem anterior"
+
+#: basilisk/views/history_msg_text_ctrl.py:311
+msgid "Go to next message"
+msgstr "Ir para próxima mensagem"
+
+#: basilisk/views/history_msg_text_ctrl.py:314
+msgid "Move to start of message"
+msgstr "Mover para o início da mensagem"
+
+#: basilisk/views/history_msg_text_ctrl.py:320
+msgid "Move to end of message"
+msgstr "Mover para o fim da mensagem"
+
+#: basilisk/views/history_msg_text_ctrl.py:326
+msgid "Edit message block"
+msgstr "Editar bloco de mensagens"
+
+#: basilisk/views/history_msg_text_ctrl.py:329
+msgid "Remove message block"
+msgstr "Remover bloco de mensagens"
+
+#: basilisk/views/history_msg_text_ctrl.py:334
+msgid "Find..."
+msgstr "Encontrar..."
+
+#: basilisk/views/history_msg_text_ctrl.py:335
+msgid "Find Next"
+msgstr "Encontrar próximo"
+
+#: basilisk/views/history_msg_text_ctrl.py:337
+msgid "Find Previous"
+msgstr "Encontrar anterior"
+
+#: basilisk/views/history_msg_text_ctrl.py:418
+msgid "Message copied to clipboard"
+msgstr "Mensagem copiada para a área de transferência"
+
+#: basilisk/views/history_msg_text_ctrl.py:429
+msgid "Start of message"
+msgstr "Início da mensagem"
+
+#: basilisk/views/history_msg_text_ctrl.py:437
+msgid "End of message"
+msgstr "Fim da mensagem"
+
+#: basilisk/views/history_msg_text_ctrl.py:538
+msgid "Message block removed"
+msgstr "Bloco de mensagens removido"
+
+#: basilisk/views/history_msg_text_ctrl.py:561
+msgid "Message block updated"
+msgstr "Bloco de mensagens atualizado"
+
+#. Translators: A label for a menu item to create a new conversation
+#: basilisk/views/main_frame.py:92
+msgid "New conversation"
+msgstr "Nova conversa"
+
+#. Translators: A label for a menu item to create a new private conversation
+#: basilisk/views/main_frame.py:100
+msgid "New private conversation"
+msgstr "Nova conversa privada"
+
+#. Translators: A label for a menu item to create a new conversation from a
+#. profile
+#: basilisk/views/main_frame.py:110
+msgid "New conversation from profile"
+msgstr "Nova conversa a partir de perfil"
+
+#. Translators: A label for a menu item to open a conversation
+#. Translators: A title for the open conversation dialog
+#: basilisk/views/main_frame.py:115 basilisk/views/main_frame.py:459
+msgid "Open conversation"
+msgstr "Abrir conversa"
+
+#. Translators: A label for a menu item to browse conversation history
+#: basilisk/views/main_frame.py:123
+msgid "Conversation &history"
+msgstr ""
+
+#. Translators: A label for a menu item to name a conversation
+#: basilisk/views/main_frame.py:129 basilisk/views/main_frame.py:817
+#: basilisk/views/name_conversation_dialog.py:36
+msgid "Name conversation"
+msgstr "Nomear conversa"
+
+#. Translators: A label for a menu item to save a conversation
+#. Translators: A title for the save conversation dialog
+#: basilisk/views/main_frame.py:134 basilisk/views/main_frame.py:506
+msgid "Save conversation"
+msgstr "Salvar conversa"
+
+#. Translators: A label for a menu item to save a conversation as a new file
+#: basilisk/views/main_frame.py:142
+msgid "Save conversation as"
+msgstr "Salvar conversa como"
+
+#. Translators: A label for a menu item to close a conversation
+#: basilisk/views/main_frame.py:148 basilisk/views/main_frame.py:829
+msgid "Close conversation"
+msgstr "Fechar conversa"
+
+#. Translators: A label for a menu item to attach files to a conversation
+#: basilisk/views/main_frame.py:157
+msgid "Attach f&iles"
+msgstr "Anexar a&rquivos"
+
+#. Translators: A label for a menu item to add an image from a URL
+#: basilisk/views/main_frame.py:167
+msgid "Add image from &URL"
+msgstr "Adicionar imagem por &URL"
+
+#: basilisk/views/main_frame.py:175
+msgid "Transcribe audio from microphone"
+msgstr "Transcrever áudio do microfone"
+
+#: basilisk/views/main_frame.py:183
+msgid "Transcribe audio file"
+msgstr "Transcrever arquivo de áudio"
+
+#. Translators: A label for a menu item to manage accounts
+#: basilisk/views/main_frame.py:203
+msgid "Manage &accounts"
+msgstr "Gerenciar &contas"
+
+#: basilisk/views/main_frame.py:212
+msgid "Install NVDA addon"
+msgstr "Instalar complemento NVDA"
+
+#: basilisk/views/main_frame.py:221 basilisk/views/main_frame.py:874
+msgid "Check updates"
+msgstr "Verificar atualizações"
+
+#: basilisk/views/main_frame.py:225
+msgid "&GitHub repository"
+msgstr "Repositório &GitHub"
+
+#: basilisk/views/main_frame.py:229
+msgid "Roko's Basilisk"
+msgstr "Basilisco de Roko"
+
+#: basilisk/views/main_frame.py:233
+msgid "View &log"
+msgstr "Visualizar &log"
+
+#: basilisk/views/main_frame.py:237
+msgid "&Conversation"
+msgstr "&Conversa"
+
+#: basilisk/views/main_frame.py:238
+msgid "Too&ls"
+msgstr "Ferramen&tas"
+
+#: basilisk/views/main_frame.py:239
+msgid "&Help"
+msgstr "&Ajuda"
+
+#: basilisk/views/main_frame.py:244
+msgid "Minimize to tray"
+msgstr "Minimizar para a bandeja"
+
+#: basilisk/views/main_frame.py:460 basilisk/views/main_frame.py:507
+msgid "Basilisk conversation files"
+msgstr "Arquivos de conversa do Basilisk"
+
+#. Translators: Label appended to tab title when conversation is private
+#. Translators: Label appended to window title when conversation is private
+#: basilisk/views/main_frame.py:671 basilisk/views/main_frame.py:684
+msgid "private"
+msgstr "privado"
+
+#. Translators: An error message when a conversation profile is not found
+#: basilisk/views/main_frame.py:714
+#, python-format
+msgid "Profile '%s' not found"
+msgstr "Perfil '%s' não encontrado"
+
+#. Translators: A label for a menu item to manage conversation profiles
+#: basilisk/views/main_frame.py:731
+msgid "Manage conversation &profiles"
+msgstr "Gerenciar &perfis de conversa"
+
+#. Translators: A label for a menu item to name a conversation
+#: basilisk/views/main_frame.py:767
+msgid "Manual name conversation"
+msgstr "Nomear conversa manualmente"
+
+#. Translators: A label for a menu item to automatically name a conversation
+#: basilisk/views/main_frame.py:777
+msgid "&Auto name conversation"
+msgstr "&Nomear conversa automaticamente"
+
+#. Translators: A label for a menu item to apply a conversation profile to the
+#. current conversation
+#: basilisk/views/main_frame.py:812
+msgid "Apply conversation profile"
+msgstr "Aplicar perfil de conversa"
+
+#. Translators: A label for a menu item to mark conversation as private (not
+#. saved to database)
+#: basilisk/views/main_frame.py:822
+msgid "&Private conversation"
+msgstr "Conversa privada"
+
+#: basilisk/views/main_frame.py:891
+msgid "Failed to open log file"
+msgstr "Falha ao abrir arquivo de log"
+
+#: basilisk/views/main_frame.py:927
+msgid "New version available"
+msgstr "Nova versão disponível"
+
+#: basilisk/views/main_frame.py:947 basilisk/views/update_dialog.py:362
+msgid "Downloading update"
+msgstr "Baixando atualização"
+
+#: basilisk/views/main_frame.py:950 basilisk/views/update_dialog.py:367
+#, python-format
+msgid "Update basiliskLLM version: %s"
+msgstr "Atualizar versão do basiliskLLM: %s"
+
+#. Translators: A label for a text field where the user can enter a name for a
+#. conversation.
+#: basilisk/views/name_conversation_dialog.py:50
+msgid "Enter a name for the conversation:"
+msgstr "Digite um nome para a conversa:"
+
+#. Translators: A button to generate a name for a conversation.
+#: basilisk/views/name_conversation_dialog.py:65
+msgid "&Generate"
+msgstr "&Gerar"
+
+#. Translators: An error message when generating a conversation name fails.
+#: basilisk/views/name_conversation_dialog.py:101
+#, python-format
+msgid "An error occurred while generating the name: %s"
+msgstr "Ocorreu um erro ao gerar o nome: %s"
+
+#. Translators: Label for perform OCR button in the conversation tab
+#: basilisk/views/ocr_handler.py:70
+msgid "Perform OCR on Attachments"
+msgstr "Realizar OCR em anexos"
+
+#. Translators: Shown when OCR succeeds; %s is replaced with the
+#. output file paths, one per line
+#: basilisk/views/ocr_handler.py:131
+#, python-format
+msgid "OCR completed successfully. Text extracted to:\n"
+"%s\n\n"
+"Do you want to open the files?"
+msgstr "A OCR foi concluída com sucesso. O texto foi extraído para: %s  Você deseja abrir os arquivos?"
+
+#: basilisk/views/ocr_handler.py:134 basilisk/views/ocr_handler.py:140
+#: basilisk/views/ocr_handler.py:150
+msgid "Result"
+msgstr "Resultado"
+
+#: basilisk/views/ocr_handler.py:149
+msgid "OCR completed, but no text was extracted."
+msgstr "OCR concluído, mas nenhum texto foi extraído."
+
+#. Translators: A label for the log level selection in the preferences dialog
+#: basilisk/views/preferences_dialog.py:51
+msgid "Log level"
+msgstr "Nível de log"
+
+#. Translators: A label for the language selection in the preferences dialog
+#: basilisk/views/preferences_dialog.py:70
+msgid "Language (Requires restart)"
+msgstr "Idioma (Requer reinicialização)"
+
+#: basilisk/views/preferences_dialog.py:83
+msgid "Quit on &close, don't minimize"
+msgstr "Sair ao &fechar, não minimizar"
+
+#: basilisk/views/preferences_dialog.py:88
+msgid "Update"
+msgstr "Atualizar"
+
+#: basilisk/views/preferences_dialog.py:92
+msgid "Release channel"
+msgstr "Canal de lançamento"
+
+#: basilisk/views/preferences_dialog.py:106
+msgid "Automatic update mode"
+msgstr "Modo de atualização automática"
+
+#. Translators: A label for a checkbox in the preferences dialog
+#: basilisk/views/preferences_dialog.py:125
+msgid "Advanced mode"
+msgstr "Modo avançado"
+
+#: basilisk/views/preferences_dialog.py:131
+msgid "Conversation"
+msgstr "Conversa"
+
+#. Translators: A label in the preferences dialog
+#: basilisk/views/preferences_dialog.py:139
+msgid "Custom role label for user:"
+msgstr "Rótulo de papel personalizado para usuário:"
+
+#. Translators: A label in the preferences dialog
+#: basilisk/views/preferences_dialog.py:150
+msgid "Custom role label for assistant:"
+msgstr "Rótulo de papel personalizado para assistente:"
+
+#. Translators: A label for a checkbox in the preferences dialog
+#: basilisk/views/preferences_dialog.py:162
+msgid "Message Selection on Previous/Next Navigation"
+msgstr "Seleção de mensagem na navegação Anterior/Próxima"
+
+#. Translators: A label for a checkbox in the preferences dialog
+#: basilisk/views/preferences_dialog.py:170
+msgid "Send message with Enter, insert newline with Shift+Enter"
+msgstr "Enviar mensagem com Enter, inserir nova linha com Shift+Enter"
+
+#. Translators: A label for a checkbox in the preferences dialog
+#: basilisk/views/preferences_dialog.py:179
+msgid "Enable &Accessible Output to provide spoken and braille feedback for actions and messages"
+msgstr "Ativar &Saída Acessível para fornecer feedback falado e em braille para ações e mensagens"
+
+#: basilisk/views/preferences_dialog.py:188
+msgid "Focus message history after sending"
+msgstr "Focar no histórico de mensagens após enviar"
+
+#. Translators: A label for a checkbox in the preferences dialog
+#: basilisk/views/preferences_dialog.py:198
+msgid "Automatically save conversations to &database"
+msgstr "Salvar conversas automaticamente para o banco de dados"
+
+#. Translators: A label for a checkbox in the preferences dialog
+#: basilisk/views/preferences_dialog.py:209
+msgid "Auto-save &draft prompt text"
+msgstr "Auto-salvar & texto de prompt de rascunho"
+
+#. Translators: A label for a checkbox in the preferences dialog
+#: basilisk/views/preferences_dialog.py:218
+msgid "&Reopen last conversation on startup"
+msgstr "Reabrir última conversa ao iniciar o aplicativo"
+
+#: basilisk/views/preferences_dialog.py:229
+msgid "Images"
+msgstr "Imagens"
+
+#. Translators: A label for a checkbox in the preferences dialog
+#: basilisk/views/preferences_dialog.py:235
+msgid "Resize images before uploading"
+msgstr "Redimensionar imagens antes de carregar"
+
+#. Translators: A label in the preferences dialog
+#: basilisk/views/preferences_dialog.py:245
+msgid "Maximum &height (0 to resize proportionally to the width):"
+msgstr "Altura &máxima (0 para redimensionar proporcionalmente à largura):"
+
+#. Translators: A label in the preferences dialog
+#: basilisk/views/preferences_dialog.py:258
+msgid "Maximum &width (0 to resize proportionally to the height):"
+msgstr "Largura &máxima (0 para redimensionar proporcionalmente à altura):"
+
+#. Translators: A label in the preferences dialog
+#: basilisk/views/preferences_dialog.py:271
+msgid "&Quality for JPEG images (0 [worst] to 95 [best], values above 95 should be avoided):"
+msgstr "&Qualidade para imagens JPEG (0 [pior] a 95 [melhor], valores acima de 95 devem ser evitados):"
+
+#. Translators: a group label in the preference dialog
+#: basilisk/views/preferences_dialog.py:285
+msgid "Network"
+msgstr "Rede"
+
+#. Translators: A label for a checkbox in the preferences dialog
+#: basilisk/views/preferences_dialog.py:291
+msgid "Use system certificate store (Requires restart)"
+msgstr "Usar armazenamento de certificados do sistema (Requer reinicialização)"
+
+#. Translators: Label for model catalog HTTP cache duration in preferences
+#: basilisk/views/preferences_dialog.py:299
+msgid "Model list &cache duration (seconds):"
+msgstr ""
+
+#: basilisk/views/preferences_dialog.py:313
+msgid "Server"
+msgstr "Servidor"
+
+#. Translators: A label for a checkbox in the preferences dialog
+#: basilisk/views/preferences_dialog.py:319
+msgid "Enable server mode (requires restart)"
+msgstr "Ativar modo de servidor (requer reinicialização)"
+
+#. Translators: A label in the preferences dialog
+#: basilisk/views/preferences_dialog.py:327
+msgid "Port:"
+msgstr "Porta:"
+
+#: basilisk/views/preferences_dialog.py:344
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. Translators: This is a label for user prompt
+#: basilisk/views/prompt_attachments_panel.py:76
+msgid "&Prompt:"
+msgstr "prompt:"
+
+#. Translators: This is a label for attachments
+#: basilisk/views/prompt_attachments_panel.py:93
+msgid "&Attachments:"
+msgstr "&Anexos:"
+
+#. Translators: This is a label for attachment size
+#: basilisk/views/prompt_attachments_panel.py:114
+#: basilisk/views/prompt_attachments_panel.py:618
+msgid "Size"
+msgstr "Tamanho"
+
+#. Translators: This is a label for attachment location
+#: basilisk/views/prompt_attachments_panel.py:119
+#: basilisk/views/prompt_attachments_panel.py:619
+msgid "Location"
+msgstr "Localização"
+
+#. Translators: This is a label for select files dialog
+#: basilisk/views/prompt_attachments_panel.py:255
+msgid "Select one or more files to attach"
+msgstr "Selecione um ou mais arquivos para anexar"
+
+#. Translators: This is a label for enter URL in add attachment dialog
+#: basilisk/views/prompt_attachments_panel.py:274
+msgid "Enter the URL of the file to attach:"
+msgstr "Digite o URL do arquivo a ser anexado:"
+
+#: basilisk/views/prompt_attachments_panel.py:275
+msgid "Add attachment from URL"
+msgstr "Adicionar anexo por URL"
+
+#. Translators: This is a label for paste in the context menu
+#: basilisk/views/prompt_attachments_panel.py:436
+#: basilisk/views/prompt_attachments_panel.py:508
+msgid "Paste (file or text)"
+msgstr "Colar (arquivo ou texto)"
+
+#. Translators: This is a label for remove selected attachment in the context
+#. menu
+#: basilisk/views/prompt_attachments_panel.py:490
+msgid "Remove selected attachment"
+msgstr "Remover anexo selecionado"
+
+#. Translators: This is a label for copy location in the context menu
+#: basilisk/views/prompt_attachments_panel.py:499
+msgid "Copy location"
+msgstr "Copiar localização"
+
+#. Translators: This is a label for add files in the context menu
+#: basilisk/views/prompt_attachments_panel.py:517
+msgid "Add files..."
+msgstr "Adicionar arquivos..."
+
+#. Translators: This is a label for add attachment URL in the context menu
+#: basilisk/views/prompt_attachments_panel.py:526
+msgid "Add attachment URL..."
+msgstr "Adicionar URL de anexo..."
+
+#: basilisk/views/prompt_attachments_panel.py:624
+msgid "MIME type"
+msgstr "Tipo MIME"
+
+#: basilisk/views/prompt_attachments_panel.py:626
+msgid "Dimensions"
+msgstr "Dimensões"
+
+#: basilisk/views/prompt_attachments_panel.py:629
+#, python-format
+msgid "%s: %s"
+msgstr ""
+
+#: basilisk/views/prompt_attachments_panel.py:633
+msgid "Attachment details"
+msgstr "Detalhes do anexo"
+
+#. Translators: Search dialog title
+#: basilisk/views/search_dialog.py:24
+msgid "Search"
+msgstr "Pesquisar"
+
+#. Translators: Search dialog label
+#: basilisk/views/search_dialog.py:52
+msgid "&Search for:"
+msgstr "&Pesquisar por:"
+
+#. Translators: Search dialog label
+#: basilisk/views/search_dialog.py:64
+msgid "Direction"
+msgstr "Direção"
+
+#. Translators: Search dialog label
+#: basilisk/views/search_dialog.py:71
+msgid "&Backward"
+msgstr "&Para trás"
+
+#. Translators: Search dialog label
+#: basilisk/views/search_dialog.py:77
+msgid "&Forward"
+msgstr "&Para frente"
+
+#. Translators: Search dialog label
+#: basilisk/views/search_dialog.py:88
+msgid "Mode"
+msgstr "Modo"
+
+#. Translators: Search dialog label
+#: basilisk/views/search_dialog.py:95
+msgid "&Plain Text"
+msgstr "&Texto simples"
+
+#. Translators: Search dialog label
+#. Translators: Search dialog label; \n, \t, \r are escape sequences
+#: basilisk/views/search_dialog.py:102
+msgid "E&xtended (\\n, \\t, \\r...)"
+msgstr ""
+
+#. Translators: Search dialog label
+#: basilisk/views/search_dialog.py:107
+msgid "Re&gular Expression"
+msgstr "Expressão Re&gular"
+
+#. Translators: Search dialog label
+#: basilisk/views/search_dialog.py:119
+msgid "Dot matches &all (.)"
+msgstr "Ponto corresponde a &tudo (.)"
+
+#. Translators: Search dialog label
+#: basilisk/views/search_dialog.py:129
+msgid "&Case Sensitive"
+msgstr "&Diferenciar maiúsculas/minúsculas"
+
+#. Translators: Search dialog message when text is not found
+#: basilisk/views/search_dialog.py:242
+#, python-format
+msgid "\"%s\" not found."
+msgstr "* \"%s\" não disponível."
+
+#. Translators: Search dialog result title
+#: basilisk/views/search_dialog.py:244
+msgid "Search Result"
+msgstr "Resultado da pesquisa"
+
+#: basilisk/views/taskbar_icon.py:48
+msgid "Show"
+msgstr "Mostrar"
+
+#: basilisk/views/taskbar_icon.py:48
+msgid "Hide"
+msgstr "Ocultar"
+
+#: basilisk/views/taskbar_icon.py:51
+msgid "About"
+msgstr "Sobre"
+
+#: basilisk/views/taskbar_icon.py:53
+msgid "Quit"
+msgstr "Sair"
+
+#: basilisk/views/update_dialog.py:38
+#, python-format
+msgid "Release Notes for basiliskLLM %s"
+msgstr "Notas de lançamento para basiliskLLM %s"
+
+#: basilisk/views/update_dialog.py:75
+msgid "Downloading update..."
+msgstr "Baixando atualização..."
+
+#: basilisk/views/update_dialog.py:82 basilisk/views/update_dialog.py:245
+msgid "Update &now"
+msgstr "Atualizar &agora"
+
+#: basilisk/views/update_dialog.py:87 basilisk/views/update_dialog.py:250
+msgid "&Release notes"
+msgstr "&Notas de lançamento"
+
+#: basilisk/views/update_dialog.py:99
+msgid "Update download finished"
+msgstr "Download da atualização concluído"
+
+#. Translators: Error message shown when update download fails
+#: basilisk/views/update_dialog.py:154
+#, python-format
+msgid "Error downloading update: %s"
+msgstr "Erro ao baixar atualização: %s"
+
+#: basilisk/views/update_dialog.py:219
+msgid "Checking for updates..."
+msgstr "Verificando atualizações..."
+
+#: basilisk/views/update_dialog.py:229
+msgid "A new version of basiliskLLM is available. Do you want to update?"
+msgstr "Uma nova versão do basiliskLLM está disponível. Deseja atualizar?"
+
+#: basilisk/views/update_dialog.py:236
+msgid "Current version: "
+msgstr "Versão atual: "
+
+#: basilisk/views/update_dialog.py:241
+msgid "New version: "
+msgstr "Nova versão: "
+
+#: basilisk/views/update_dialog.py:284 basilisk/views/update_dialog.py:311
+#, python-format
+msgid "Current version: %s"
+msgstr "Versão atual: %s"
+
+#: basilisk/views/update_dialog.py:314
+#, python-format
+msgid "New version: %s"
+msgstr "Nova versão: %s"
+
+#. Translators: Shown when the application is up to date
+#: basilisk/views/update_dialog.py:330
+msgid "You are using the latest version of basiliskLLM"
+msgstr "Você está usando a versão mais recente do basiliskLLM"
+
+#. Translators: Error message shown when update check fails
+#: basilisk/views/update_dialog.py:344
+#, python-format
+msgid "Error checking for updates: %s"
+msgstr "Erro ao verificar atualizações: %s"

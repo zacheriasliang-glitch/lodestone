@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+"""Launch one installed preview workspace; no model call occurs at startup."""
+import argparse
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import sys
+import tempfile
+import traceback
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--root", type=Path, required=True)
+    parser.add_argument("--verify-startup", action="store_true")
+    args = parser.parse_args()
+    os.umask(0o077)
+    root = args.root.resolve()
+    from install import recover
+    recover(root)
+    lifecycle = (root / ".lifecycle.lock").open("a+")
+    try:
+        fcntl.flock(lifecycle, fcntl.LOCK_SH | fcntl.LOCK_NB)
+    except BlockingIOError:
+        raise SystemExit("Lodestone setup or recovery is running. Open the preview after it finishes.")
+    active = json.loads((root / "ACTIVE.json").read_text())
+    release = Path(active["release"])
+    source = release / "gui"
+    sys.path[:0] = [str(release), str(source), str(release / "runtime/src")]
+    os.chdir(source)
+    for key in list(os.environ):
+        if key.startswith("BASILISK_") or key.endswith("_API_KEY"):
+            os.environ.pop(key, None)
+    os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+    from bootstrap_learning import reconcile
+    reconciliation = reconcile(root, release / "runtime", Path(active["worker_python"]))
+    from basilisk import global_vars, consts
+    from lodestone_machinery.loom_runtime import LoomBridge
+    global_vars.user_data_path = root / "Loom/data"
+    global_vars.loom_bridge = LoomBridge(root / "Loom/runtime.json")
+    global_vars.args = argparse.Namespace(language="en", log_level="INFO",
+        no_env_account=True, minimize=False, bskc_file=None)
+    identity = hashlib.sha256(str(root).encode()).hexdigest()[:16]
+    consts.APP_NAME = "Lodestone Preview"
+    consts.IPC_NAME = "lodestone_preview_" + identity
+    consts.TMP_DIR = str(Path(tempfile.gettempdir()) / ("lodestone-preview-" + identity))
+    consts.FILE_LOCK_PATH = str(Path(consts.TMP_DIR) / "app.lock")
+    consts.FOCUS_FILE = str(Path(consts.TMP_DIR) / "focus_file")
+    consts.OPEN_BSKC_FILE = str(Path(consts.TMP_DIR) / "open_bskc_file")
+    from basilisk.singleton_instance import SingletonInstance
+    singleton = SingletonInstance()
+    if not singleton.acquire():
+        from basilisk.send_signal import send_focus_signal
+        send_focus_signal()
+        return
+    try:
+        from basilisk.main_app import MainApp
+        app = MainApp()
+        if args.verify_startup:
+            import wx
+            def verify():
+                report = {"schema": "lodestone-desktop-startup/v1", "shown": app.frame.IsShown(),
+                          "title": app.frame.GetTitle(), "models": global_vars.loom_bridge.models(),
+                          "release_id": active["release_id"], "reconciliation": reconciliation,
+                          "model_calls": 0}
+                (root / "startup-verification.json").write_text(json.dumps(report, indent=2) + "\n")
+                app.frame.Close()
+            wx.CallLater(1500, verify)
+        app.MainLoop()
+    except BaseException:
+        (root / "startup-error.txt").write_text(traceback.format_exc())
+        raise
+    finally:
+        global_vars.loom_bridge.cancel_all()
+        singleton.release()
+
+
+if __name__ == "__main__":
+    main()

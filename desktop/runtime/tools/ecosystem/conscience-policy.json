@@ -1,0 +1,148 @@
+{
+  "schema": "lodestone-conscience-policy/v1",
+  "name": "Portable local Conscience policy",
+  "actor_default": "local-user",
+  "sealed_patterns": [
+    "sealed-store",
+    "sealed-scorer"
+  ],
+  "writers": [],
+  "record_roots": [],
+  "launch_patterns": [
+    "transformer_training",
+    "transformer-training",
+    "run_training",
+    "train.py"
+  ],
+  "heavy_patterns": [
+    {
+      "all": [
+        "find",
+        "sha256sum"
+      ]
+    },
+    {
+      "all": [
+        "find",
+        "shasum"
+      ]
+    },
+    {
+      "all": [
+        "rclone",
+        "copy"
+      ]
+    },
+    {
+      "all": [
+        "rclone",
+        "sync"
+      ]
+    }
+  ],
+  "writable_roots_by_actor": {},
+  "interpreter": {
+    "isolation_flags": [
+      "-I",
+      "-B"
+    ]
+  },
+  "enotherm": {
+    "hot_load_per_core": 1.0,
+    "hot_free_bytes": 5000000000
+  },
+  "schedule": {
+    "budget_per_wake": 3
+  },
+  "checks": [
+    "source_files_present",
+    "runtime_workspace_writable",
+    "interpreter_supported"
+  ],
+  "context_documents": [
+    "README.md",
+    "docs/conscience.md"
+  ],
+  "phase_two": {
+    "action_relevant_fields": [
+      "doctor_status",
+      "restart_readme.sha256",
+      "context_pins",
+      "temperature"
+    ]
+  },
+  "git_read_only": [
+    "log",
+    "show",
+    "ls-tree",
+    "rev-parse",
+    "diff",
+    "cat-file",
+    "for-each-ref",
+    "ls-remote",
+    "rev-list",
+    "status",
+    "branch",
+    "worktree",
+    "show-ref",
+    "describe",
+    "blame"
+  ],
+  "git_write_flags_by_subcommand": {
+    "branch": [
+      "-d",
+      "-D",
+      "-m",
+      "-M",
+      "-c",
+      "-C",
+      "--delete",
+      "--move",
+      "--copy",
+      "-u",
+      "--set-upstream-to",
+      "--unset-upstream",
+      "--edit-description",
+      "-f",
+      "--force",
+      "--track",
+      "--no-track"
+    ],
+    "worktree": [
+      "add",
+      "remove",
+      "prune",
+      "move",
+      "lock",
+      "unlock",
+      "repair"
+    ],
+    "status": [],
+    "log": [],
+    "diff": [],
+    "show": [],
+    "ls-tree": [],
+    "rev-parse": [],
+    "cat-file": [],
+    "for-each-ref": [],
+    "ls-remote": [],
+    "rev-list": [],
+    "show-ref": [],
+    "describe": [],
+    "blame": []
+  },
+  "git_branch_list_flags": [
+    "--list",
+    "-l",
+    "-a",
+    "--all",
+    "-r",
+    "--remotes",
+    "--contains",
+    "--no-contains",
+    "--merged",
+    "--no-merged",
+    "--points-at"
+  ],
+  "policy_note": "The selected workspace and current directory are local write scopes; existing workspace organ records stay protected. Customize writers and writable_roots_by_actor for multiple actors. No authority is granted by an ALLOW verdict."
+}

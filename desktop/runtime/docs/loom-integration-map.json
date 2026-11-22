@@ -1,0 +1,810 @@
+{
+  "accounting": {
+    "catalogue_families": 15,
+    "note": "Inventory coverage only, not a claim that these operations are connected, tested, or semantically learned. Original statuses and criteria preserved verbatim.",
+    "programme_components": 31
+  },
+  "current_connections": "See planning/integration-audit.md; direct native retention/admission/capture is distinct from all-toolkit routing.",
+  "date": "2026-11-15",
+  "engineering_update_20261116": {
+    "checked_gui_origami_handoff": "IMPLEMENTED_HUMAN_CURATED",
+    "historical_criteria_changed": false,
+    "porcelain_report": "CONDITIONAL_OPTIONAL_ENVIRONMENT",
+    "reader_artifact_identity": "IMPLEMENTED_NO_FITTED_ADAPTER_ACTIVATED",
+    "semantic_learning": "NOT_ESTABLISHED",
+    "status": "IMPLEMENTED_SCOPED_INTERFACES_SYNTHETIC_VERIFICATION",
+    "tool_operation_descriptors": 25,
+    "toolkit_families": 15,
+    "training": "NOT_STARTED_LOW_LEVEL_SUPERVISOR_ONLY",
+    "yggdrasil_learning_closure": "IMPLEMENTED"
+  },
+  "programme_map_sha256": "8c1546dcc70c27d81423a0e9b236ffde962963d4e27a338f771f491e3aa473a7",
+  "programme_rows": [
+    {
+      "component": "Nurarihyon",
+      "existing_interface": "nurarihyon --home STATE init|submit|approve|status|run|serve|stop|recover|verify|export; restore and prepare take explicit packages",
+      "existing_limit": "Whole-organ coordination and useful retained learning remain unfinished; no source document can approve or register code.",
+      "id": "H01",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_EVIDENCE_PRESENT",
+        "classification": "PARTIAL",
+        "criteria": [
+          "queue/approval/priority/stop/recovery per 129 baseline",
+          "prepare: no live access, STOP preserved, plan_sha equals submit, full census unchanged, R1-R6 behaviours"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_nurarihyon/controller.py",
+        "src/lodestone_nurarihyon/policy.py",
+        "src/lodestone_nurarihyon/portable.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Machinery Engine / Builder",
+      "existing_interface": "machinery submit|run|recover|resume; Engine",
+      "existing_limit": "Durable job execution is not autonomous general reasoning.",
+      "id": "H02",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_GROUP_PASSED",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "submit/run/recover/resume idempotent under duplicate delivery and restart",
+          "mandatory source gate refuses unanchored input",
+          "events/artifacts append-only"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/engine.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Source anchor and expansion",
+      "existing_interface": "anchor(root, relative_path); expand(root, passage)",
+      "existing_limit": "Handles authenticate retained source bytes, not the truth of source claims.",
+      "id": "H03",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_GROUP_PASSED",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "strict UTF-8 and byte bounds",
+          "line/hash handle reopens exact bytes",
+          "changed source reported stale"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/organs/sources.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Literal selection / fold",
+      "existing_interface": "fold(root, paths, query, max_passages)",
+      "existing_limit": "Fixed ranking is not a learned selector; failed adaptive selection is not promoted.",
+      "id": "H04",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_GROUP_PASSED",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "deterministic ranking and tie order",
+          "every passage has a valid handle",
+          "omissions and insufficiency reported"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/organs/selection.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Brief builder / mechanical Auditor",
+      "existing_interface": "build_brief; audit_brief; brief-check",
+      "existing_limit": "Mechanical source agreement does not establish semantic truth.",
+      "id": "H05",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_GROUP_PASSED",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "tampered literal rejected",
+          "identity/handle mismatch rejected",
+          "valid brief accepted"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/organs/brief.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Ruler / measurement",
+      "existing_interface": "measure(observed, criteria)",
+      "existing_limit": "Measurement criteria are caller-declared, not inferred scientific validation.",
+      "id": "H06",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_GROUP_PASSED",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "eq is exact typed comparison: same type, or both int/float; so eq(True, 1) is FAIL (measurement.py:39-41)",
+          "le/ge on a boolean criterion or observation raises ValueError (measurement.py:23,43-44)",
+          "a missing observed value or unit, or a unit mismatch, gives UNKNOWN (measurement.py:32-35)",
+          "verdict: any FAIL gives FAIL, else any UNKNOWN or no rows gives UNKNOWN, else PASS"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/organs/measurement.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Pressure and residual retention",
+      "existing_interface": "pressure; residue",
+      "existing_limit": "No production fault injection or automatic correction.",
+      "id": "H07",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_GROUP_PASSED",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "faults injected only into derived copies",
+          "residual equals exact prediction/observation difference"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/organs/pressure.py",
+        "src/lodestone_machinery/organs/residuals.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "RecordStore / NodeStore",
+      "existing_interface": "RecordStore; NodeStore.put/link/invalidate_dependents",
+      "existing_limit": "Freshness invalidation requires the explicit caller operation; put alone does not propagate it.",
+      "id": "H08",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_GROUP_PASSED",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "publish never overwrites",
+          "link traversal verified, capped at 256",
+          "an explicit caller call to invalidate_dependents after put appends freshness revisions to transitive dependents only, excluding the seed; non-dependency edges do not propagate (nodes.py:222-226)",
+          "put alone does not invalidate (nodes.py:178-183)"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/records.py",
+        "src/lodestone_machinery/nodes.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Paired pressure transport",
+      "existing_interface": "run_pair",
+      "existing_limit": "No paired-model result is inherited and no provider is called automatically.",
+      "id": "H09",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_GROUP_PASSED",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "stub pair: isolated first payloads, bounded cross-reads",
+          "packet hashes verify"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/pressure_pair.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Origami semantic runtime",
+      "existing_interface": "origami question/epoch/provider/re-entry interfaces; inspect --help",
+      "existing_limit": "The historical criterion is file exchange only. Semantic folding in the daemon and mechanistic model interpretability remain unproved.",
+      "id": "H10",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_INDIVIDUAL_IN_FAILED_GROUP",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "host-file exchange only: question/epoch persist, bindings and bounded reads verified, exact re-entry, usage recorded; no model call"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/origami.py",
+        "src/lodestone_machinery/origami_cli.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Pando",
+      "existing_interface": "pando --home BOARD init|ingest|post|eat|digest|mutate|apply-profile|verify|export|serve",
+      "existing_limit": "Historical HTTP UI remains UNCHECKED; installed lab board, posts and identities are excluded.",
+      "id": "H11",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_INDIVIDUAL_IN_FAILED_GROUP",
+        "classification": "PARTIAL",
+        "criteria": [
+          "EAT/DIGEST/MUTATE versioned",
+          "verify INTACT",
+          "apply_profile changes exactly one operator",
+          "UI loopback-only binding: checked ONLY by the separately bounded UI test, which allows a 127.0.0.1 ephemeral server and its local client, blocks external network, and leaves no persistent service or settings. If that test is excluded, the UI is reported UNCHECKED."
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_pando/store.py",
+        "src/lodestone_pando/__main__.py",
+        "src/lodestone_pando/server.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Bezoar / Plumber / INGEST-EAT-MUTATE",
+      "existing_interface": "bezoar ingest|eat-request|eat|mutate|hold|show|export-profile; Plumber",
+      "existing_limit": "DIGEST validates a supplied structural proposal; no automatic semantic understanding or candidate activation is implied.",
+      "id": "H12",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_GROUP_PASSED",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "fabricated/altered quotation rejected",
+          "source text never executed",
+          "one operator per versioned mutation"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/bezoar.py",
+        "src/lodestone_machinery/organs/ingest.py",
+        "src/lodestone_machinery/organs/eat.py",
+        "src/lodestone_machinery/organs/mutate.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Legacy Bezoar SEED/NACRE registry",
+      "existing_interface": "registry-check; parse_registry/check",
+      "existing_limit": "No lab registry or its historical resolutions are copied.",
+      "id": "H13",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_GROUP_PASSED",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "check_bezoar passes on current registry",
+          "six-law violations in a copy rejected"
+        ]
+      },
+      "source_paths": [
+        "tools/machinery/check_bezoar.py",
+        "src/lodestone_machinery/bezoar_registry.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Watcher",
+      "existing_interface": "watcher observe; Plumber.watch/hold",
+      "existing_limit": "Observation does not repair or approve. Relocated historical source paths may need explicit remapping.",
+      "id": "H14",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_GROUP_PASSED",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "findings retained without repair/approval",
+          "bounded foreground run",
+          "unremapped legacy path after restore reported (documented limitation)"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/organs/watcher.py",
+        "src/lodestone_machinery/bezoar_cli.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Yggdrasil lineage / macro-voxel canon",
+      "existing_interface": "yggdrasil findings/canon/pack/reenter; reconciliation reads exact captured reports",
+      "existing_limit": "Reconciliation connects structural findings to Bezoar. It does not supply semantic Origami integration or erase disagreement.",
+      "id": "H15",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_PASS_INDIVIDUAL_IN_FAILED_GROUP",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "pack/inspect/expand/re-entry exact",
+          "lineage-law violation detected",
+          "findings never erased"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/yggdrasil.py",
+        "src/lodestone_machinery/yggdrasil_runtime.py",
+        "src/lodestone_machinery/macro_voxel.py",
+        "src/lodestone_machinery/bezoar_reconciliation.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Origami/Yggdrasil file archives",
+      "existing_interface": "origami archive pack|verify|restore; nurarihyon export|restore",
+      "existing_limit": "Generic file archives permit validated relative symlink members; Nurarihyon selected-state restore forbids all code/state symlinks. A new narrow pass cannot erase the closed historical guard.",
+      "id": "H16",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "UNVERIFIED_HARNESS_INCOMPATIBILITY",
+        "classification": "CLOSED_GUARD",
+        "criteria": [
+          "all members/blobs verified",
+          "archive_restore restores validated relative symlink MEMBERS (archive_restore.py:392-402) but refuses symlinked archive/input/destination parents, existing destinations and over-bound input",
+          "Nurarihyon portable restore separately rejects every code/state symlink entry (portable.py restore_package)"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/archive_pack.py",
+        "src/lodestone_machinery/archive_restore.py",
+        "src/lodestone_nurarihyon/portable.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "CrystalStore and claim/mutation extensions",
+      "existing_interface": "origami crystal; CrystalStore",
+      "existing_limit": "Exact storage and claim bookkeeping do not demonstrate useful learned compression.",
+      "id": "H17",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "UNVERIFIED_NOT_RUN",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "literal/zlib/recursive exact round trip",
+          "freshness/integrity failures detected"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/crystals.py",
+        "src/lodestone_machinery/crystal_claims.py",
+        "src/lodestone_machinery/crystal_mutations.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Crystal codec policy and routing",
+      "existing_interface": "Experimental library interfaces only; no new admission or routing activation",
+      "existing_limit": "Tests that import closed experiment machinery remain outside this release evaluation; raw-storage/no-full-proposer decision is retained.",
+      "id": "H18",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NOT_RUN_FROZEN_BOUNDARY",
+        "classification": "FROZEN",
+        "criteria": [
+          "none runnable. Per Codex static mapping (not re-observed by Claude; test bodies not in the guest), the H18 test modules import closed Genepool experiment code at import time. Running even a selected subset would breach the frozen boundary."
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/crystal_policy.py",
+        "src/lodestone_machinery/crystal_routing.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Latent supplied-candidate storage",
+      "existing_interface": "origami crystal latent put; yggdrasil crystal latent get; explicit store_source/restore_source and supplied-candidate catalog API",
+      "existing_limit": "Candidate rows, model provenance bytes and table are supplied and pinned by the caller. No automatic proposer/model invocation, useful learned-transfer claim, frozen-study reopening or Nurarihyon toolkit registration.",
+      "id": "H19",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "UNVERIFIED_NOT_RUN",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "pinned inputs validated",
+          "exact representation/restore",
+          "no model execution"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/latent/cli.py",
+        "src/lodestone_machinery/latent/store_adapter.py",
+        "src/lodestone_machinery/latent/candidate_inputs.py",
+        "src/lodestone_machinery/latent/compact_layout.py",
+        "src/lodestone_machinery/latent/artifact_storage.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Tiny transformer inference and training",
+      "existing_interface": "origami transformer; bounded inference/training libraries",
+      "existing_limit": "Existing transformer numerical APIs remain available; the imported latent dependency includes explicit optional numerical functions, but supplied-candidate storage does not invoke them. No new neural training/inference or useful-learning result is claimed.",
+      "id": "H20",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "UNVERIFIED_NOT_RUN",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "finite-difference gradient agreement",
+          "head mode leaves other parameters bit-identical",
+          "bounds refused",
+          "same seed gives same model hash",
+          "TIME_LIMIT keeps complete updates only"
+        ]
+      },
+      "source_paths": [
+        "src/lodestone_machinery/transformer.py",
+        "src/lodestone_machinery/transformer_training.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Genepool",
+      "existing_interface": "No newly supported public execution interface",
+      "existing_limit": "Genepool remnants do not establish an integrated evolution loop.",
+      "id": "H21",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "PINS_ONLY",
+        "classification": "STATIC_PINS",
+        "criteria": [
+          "five remnant files hash-pinned; not executed"
+        ]
+      },
+      "source_paths": [],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Conscience",
+      "existing_interface": "conscience; user-owned sealed binding; worker_intent/assess_worker",
+      "existing_limit": "Advisory assessment can hold this fixed worker route. It is not authority or a universal sandbox; controller queue/publication effects are outside the mapped worker assessment.",
+      "id": "H22",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "UNVERIFIED_NOT_RUN",
+        "classification": "ASSERTIONS_PASSED_GUARD_FAILED",
+        "criteria": [
+          "deterministic assessment on a policy copy under a temporary HOME",
+          "append-only history",
+          "golden checks",
+          "never grants authority"
+        ]
+      },
+      "source_paths": [
+        "tools/ecosystem/conscience.py",
+        "tools/ecosystem/conscience_targets.py",
+        "src/lodestone_nurarihyon/conscience_binding.py",
+        "src/lodestone_nurarihyon/reconciliation_intent.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Local memory",
+      "existing_interface": "memory; nurarihyon remember/context; submit --memory",
+      "existing_limit": "Context/remember bridge is bounded, explicit and profile-oriented. Retention/retrieval is not learned utility or proof of avoided work.",
+      "id": "H23",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "NARROW_EVIDENCE_PRESENT",
+        "classification": "PARTIAL",
+        "criteria": [
+          "content-hash records",
+          "supersession preserves the original",
+          "deterministic search",
+          "packet bounds (documented)",
+          "tamper detected (documented)"
+        ]
+      },
+      "source_paths": [
+        "tools/local-memory/src/lodestone_memory.py",
+        "src/lodestone_nurarihyon/outcome_memory.py",
+        "src/lodestone_nurarihyon/context.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Corpus fold and frozen Origami fold",
+      "existing_interface": "yggdrasil corpus-fold; origami-fold",
+      "existing_limit": "No private frozen fold or corpus is copied; semantic abstraction guarantees are not inferred from a map.",
+      "id": "H24",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "UNVERIFIED_NOT_RUN",
+        "classification": "ASSERTIONS_PASSED_GUARD_FAILED",
+        "criteria": [
+          "drift detected",
+          "exact re-entry",
+          "frozen fold unchanged"
+        ]
+      },
+      "source_paths": [
+        "tools/corpus-fold/src/corpus_fold.py",
+        "tools/origami-fold/src/origami_fold.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Continuity checkpoints and receipt guard",
+      "existing_interface": "continuity checkpoint/verify/preserve; receipt",
+      "existing_limit": "Does not automatically compact model context or guarantee all future-relevant information survives.",
+      "id": "H25",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "UNVERIFIED_NOT_RUN",
+        "classification": "ASSERTIONS_PASSED_GUARD_FAILED",
+        "criteria": [
+          "exact-byte preflight",
+          "append-only",
+          "predecessor mismatch refused"
+        ]
+      },
+      "source_paths": [
+        "tools/continuity/checkpoint.py",
+        "tools/machinery/append_receipt.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Mailbox transport and existing login readiness",
+      "existing_interface": "mailbox explicit transport; optional user-owned macOS startup configuration",
+      "existing_limit": "No private mailbox, credential, receive/watch daemon or inherited login proof is shipped.",
+      "id": "H26",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "UNVERIFIED_NOT_RUN",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "transport on fixture repositories only; no receive/watch, no launch"
+        ]
+      },
+      "source_paths": [
+        "tools/mailbox/mailbox.py",
+        "src/lodestone_nurarihyon/startup.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Samsara / Saṃsāra and repository custody",
+      "existing_interface": "repository manifest/export/verify; selected-state export/restore; hosted publication remains lab provenance",
+      "existing_limit": "Git source publication is not a complete backup. Private workflow/account custody helpers and recovery archives are not public user state.",
+      "id": "H27",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "UNVERIFIED_NOT_RUN",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "custody/publication/export tools in an isolated dry run"
+        ]
+      },
+      "source_paths": [
+        "tools/repository/export.py",
+        "src/lodestone_nurarihyon/portable.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Bindle",
+      "existing_interface": "Reading-order/manifest contract; no implied runtime",
+      "existing_limit": "Bindle is the correct component name. The private packet and its contents are not bundled; no Bindu component is invented.",
+      "id": "H28",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "STATIC_VERIFIED",
+        "classification": "STATIC_PINS",
+        "criteria": [
+          "Six packet payloads match manifest byte sizes and SHA-256 hashes; the manifest itself is externally hash-pinned.",
+          "README -> START -> BINDLE/STATE reading order names only files present in that packet."
+        ]
+      },
+      "source_paths": [],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Kernel20 / Kernel21 / legacy orchestrator",
+      "existing_interface": "orchestrator; deterministic planning and typed custody helpers",
+      "existing_limit": "Legacy Node prototype and historical workstreams are excluded; planning does not automatically execute a task.",
+      "id": "H29",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "UNVERIFIED_NOT_RUN",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "reproducible K20 scoring",
+          "K21 rejects malformed contracts",
+          "no dispatch"
+        ]
+      },
+      "source_paths": [
+        "orchestrator/engine/kernel20_phenotype.py",
+        "orchestrator/bridge/contracts.py",
+        "orchestrator/bridge/transport.py"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Blackstone runtime",
+      "existing_interface": "Pinned kernel contract validation library; no public launcher route",
+      "existing_limit": "The Blackstone runtime is not present in the v0.2.3 public tree; this row is not silently counted as a public feature.",
+      "id": "H30",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "UNVERIFIED_NOT_RUN",
+        "classification": "NARROW_PASS",
+        "criteria": [
+          "strict contract accept/reject",
+          "expected-SHA mismatch rejected"
+        ]
+      },
+      "source_paths": [],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "component": "Porcelain",
+      "existing_interface": "porcelain overview/help and optional numerical tools from the existing public porcelain/ adaptation",
+      "existing_limit": "Historical absent checked environment is not a claim of absence on every machine. Illustrative coefficients are not calibrated science.",
+      "id": "H31",
+      "new_scientific_promotion": false,
+      "original_historical_lab": {
+        "base_status": "BLOCKED_ENVIRONMENT",
+        "classification": "OPTIONAL_ENVIRONMENT",
+        "criteria": [
+          "No numerical criterion was runnable in the historical check: its documented optional environment was absent at the checked location."
+        ]
+      },
+      "source_paths": [
+        "experiments/porcelain-simulator/porcelain"
+      ],
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    }
+  ],
+  "required_operation_fields": [
+    "id",
+    "source_version",
+    "input_schema",
+    "result_schema",
+    "effects",
+    "authorization",
+    "supported_or_unavailable",
+    "fixture_evidence",
+    "actual_outcome_receipt",
+    "failure_recovery"
+  ],
+  "schema": "loom-training-integration-plan/v1",
+  "source_core_commit": "307321bb9ce45654dfc126d1f6a942e08255007e",
+  "status": "PLAN_NOT_IMPLEMENTED",
+  "toolkit_families": [
+    {
+      "command": "nurarihyon registry",
+      "id": "nurarihyon",
+      "path": "tools/nurarihyon",
+      "purpose": "Five approved task contracts, durable queue, bounded workers, independent acceptance, STOP, history and selected-state recovery",
+      "requirements": "Python 3.10+ on macOS/Linux; explicit state and user-owned policy; exact task approval; login startup is a separate opt-in",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "pando --home PATH --help",
+      "id": "pando",
+      "path": "tools/pando",
+      "purpose": "User-owned local board, sources and EAT/DIGEST/MUTATE lineage; optional explicit loopback UI",
+      "requirements": "Python 3.10+ on macOS/Linux; explicit board directory and attribution; no accounts or model calls",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "nurarihyon capture-corpus --help",
+      "id": "bezoar-reconciliation",
+      "path": "src/lodestone_machinery",
+      "purpose": "Recompute captured lineage and finding coverage while retaining discrepancies and unresolved historical declarations",
+      "requirements": "Explicit source bytes/manifests and Conscience-bound controller policy; no automatic repair or learning",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "machinery --help",
+      "id": "machinery",
+      "path": "tools/machinery",
+      "purpose": "Core jobs, exact receipt preflight, brief/registry checks and lineage findings",
+      "requirements": "Core plus POSIX/Git for receipts; explicit project receipts and formats for advanced checks",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "doctor",
+      "id": "ecosystem",
+      "path": "tools/ecosystem",
+      "purpose": "Launcher, context, Conscience and toolkit discovery",
+      "requirements": "Python 3.10+; Conscience is advisory",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "yggdrasil corpus-fold --help",
+      "id": "corpus-fold",
+      "path": "tools/corpus-fold",
+      "purpose": "Source-bound reading maps and declared correction lineage",
+      "requirements": "POSIX; caller-selected corpus; maps do not replace sources",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "memory --help",
+      "id": "local-memory",
+      "path": "tools/local-memory",
+      "purpose": "Explicit note records, typed links, lexical retrieval and bounded packets",
+      "requirements": "Single writer; caller-selected store; no private memory included",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "origami-fold --help",
+      "id": "origami-fold",
+      "path": "tools/origami-fold",
+      "purpose": "Persistent source handles, freshness, expansion and explicit rebinding",
+      "requirements": "Caller-selected fold/root; invented example replaces historical workstream",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "continuity --help",
+      "id": "continuity",
+      "path": "tools/continuity",
+      "purpose": "Task checkpoints, pinned verification, evidence preservation and compact-context skill",
+      "requirements": "Explicit regular files; no native context-window control or background service",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "mailbox --help",
+      "id": "mailbox",
+      "path": "tools/mailbox",
+      "purpose": "Git-backed file transport, observation and explicitly admitted worker code",
+      "requirements": "POSIX and Git; own remote/branch/state; worker requires separate explicit job admission",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "repository --help",
+      "id": "repository",
+      "path": "tools/repository",
+      "purpose": "Explicit Git export allowlist, local history backup and isolated recovery verification",
+      "requirements": "Git; source archive requires committed UTF-8 text; private bundle is not for publication; no historical manifest supplied",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "orchestrator --help",
+      "id": "orchestrator",
+      "path": "orchestrator",
+      "purpose": "Kernel20/legacy plans and Kernel21 custody/preflight tools",
+      "requirements": "Explicit project root and configuration; proposals do not execute changes",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "porcelain --help",
+      "id": "porcelain",
+      "path": "experiments/porcelain-simulator",
+      "purpose": "Optional synthetic teaching simulator",
+      "requirements": "Overview help needs no optional packages; subcommand help and execution require the numerical environment; no automatic run",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "python3 -B tools/release/package.py --help",
+      "id": "release",
+      "path": "tools/release",
+      "purpose": "Deterministic ZIP/tar distribution builder and onboarding checks",
+      "requirements": "Git for build; no Git needed to use downloaded core",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    },
+    {
+      "command": "origami crystal latent --help",
+      "id": "supplied-candidates",
+      "path": "src/lodestone_machinery/latent",
+      "purpose": "Experimental exact storage with opaque caller-supplied candidate tables and literal fallback",
+      "requirements": "POSIX; explicit candidate pins and contracts; no candidate generation, model call or demonstrated learning advantage",
+      "unified_loom_integration": "PLANNED_OPERATION_INVENTORY_AND_VERIFICATION"
+    }
+  ],
+  "verified_gap": "Yggdrasil rejects learning-enriched answer; see planning/yggdrasil-learning-compatibility.json",
+  "recursive_improvement_update_20261116": {
+    "status": "IMPLEMENTED_SCOPED_ENGINEERING_CHECKS_PASS",
+    "tool_operation_descriptors": 30,
+    "toolkit_families": 15,
+    "programme_criteria_preserved": true,
+    "automatic_installation": false,
+    "training": "NOT_STARTED",
+    "semantic_learning": "NOT_ESTABLISHED"
+  }
+}
