@@ -4,6 +4,8 @@
 Run with the installed worker Python. All encounters and failed attempts remain
 in the selected preview's native history. This is an installation check, not a
 semantic evaluation, training run or permission to retry a failed generation.
+The default 512-token output budget matches ordinary application practice;
+completion still requires a real stop, never an output-limit cutoff.
 """
 from __future__ import annotations
 
@@ -167,7 +169,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--max-tokens", type=int, choices=(128, 256), default=256)
+    parser.add_argument("--max-tokens", type=int, choices=(128, 256, 512), default=512)
     args = parser.parse_args()
     os.umask(0o077)
     result = run(args.root, args.output, args.max_tokens)

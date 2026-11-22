@@ -110,7 +110,7 @@ jobs:
         run: |
           set -euo pipefail
           "$WORKER_PYTHON" -B "$ACTIVE_RELEASE/smoke.py" \
-            --root "$PREVIEW_ROOT" --output "$EVIDENCE_ROOT/local-smoke.json" --max-tokens 256 \
+            --root "$PREVIEW_ROOT" --output "$EVIDENCE_ROOT/local-smoke.json" --max-tokens 512 \
             2>&1 | tee "$EVIDENCE_ROOT/logs/local-smoke.log"
 
       - name: Check idempotent reinstall without losing practice
