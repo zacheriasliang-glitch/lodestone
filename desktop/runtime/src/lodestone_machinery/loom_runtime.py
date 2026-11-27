@@ -30,6 +30,22 @@ STATUSES = {"COMPLETED", "FAILED", "ABSTAINED", "REFUSED", "INTERRUPTED"}
 _MAX_FILE = 2 * 1024 * 1024
 
 
+def _native_inspection_details(exc):
+    """Retain bounded native sampling facts, never arbitrary exception text."""
+    api = getattr(exc, "native_api", None)
+    if api not in ("GetProcessMemoryInfo", "QueryFullProcessImageNameW"):
+        return None
+    details = {"api": api, "pid": getattr(exc, "native_pid", None),
+               "errno": getattr(exc, "errno", None), "winerror": getattr(exc, "winerror", None),
+               "wait_result": getattr(exc, "native_wait_result", None)}
+    if hasattr(exc, "native_wait_winerror"):
+        details["wait_winerror"] = exc.native_wait_winerror
+    if any(type(value) is not int or not 0 <= value <= 0xffffffff
+           for key, value in details.items() if key != "api"):
+        return None
+    return details
+
+
 def _json(path, limit=_MAX_FILE):
     return strict_json(read_bytes(path, limit), limit)
 
@@ -628,6 +644,7 @@ class LoomBridge:
         valid_sample_count = 0
         last_valid_sample_seconds = None
         reason = None
+        native_inspection_error = None
         job_observation = {}
         cleanup = {"confirmed_stopped": True, "kill_escalated": False, "zombie_pids": []}
         try:
@@ -683,6 +700,7 @@ class LoomBridge:
                     time.sleep(0.05)
         except (OSError, ValueError, subprocess.SubprocessError) as exc:
             reason = "supervisor_error:" + type(exc).__name__
+            native_inspection_error = _native_inspection_details(exc)
         finally:
             if child is not None:
                 try:
@@ -715,6 +733,8 @@ class LoomBridge:
                        "rss_consecutive_errors_at_exit": consecutive_sample_errors,
                        "rss_max_consecutive_errors": maximum_consecutive_sample_errors,
                        "stop": cleanup, "artifacts_dir": str(directory), **job_observation}
+        if native_inspection_error is not None:
+            observation["native_inspection_error"] = native_inspection_error
         if reason is None and cancelled():
             reason = "cancelled"
         if reason is None and child.returncode != 0:
