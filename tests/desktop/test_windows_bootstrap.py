@@ -1,5 +1,6 @@
 """Windows user-entrypoint checks use corrupt local cache fixtures, never network."""
 import hashlib
+import json
 import os
 from pathlib import Path
 import re
@@ -44,6 +45,17 @@ class WindowsBootstrapNative(unittest.TestCase):
         self.payload.mkdir()
         self.script = self.payload / BOOTSTRAP.name
         shutil.copyfile(BOOTSTRAP, self.script)
+        # These fixtures stop at corrupt-cache validation, never provision real
+        # dependencies. Their explicit empty inventory is bound to a fixture lock.
+        lock = b'{"fixture":"corrupt-cache-only"}'
+        (self.payload / "dependencies.windows-x86_64.lock.json").write_bytes(lock)
+        inventory = {"schema": "lodestone-windows-path-budget/v1",
+                     "lock_sha256": hashlib.sha256(lock).hexdigest(), "token_widths": {},
+                     "scopes": {name: {"max_file_relative_utf16": 0,
+                        "max_directory_relative_utf16": 0, "longest_file_template": "",
+                        "longest_directory_template": ""}
+                        for name in ("root", "bootstrap_root", "cache", "payload")}}
+        (self.payload / "windows-path-budget.json").write_text(json.dumps(inventory))
         self.root = self.base / "application data λ"
         self.app = self.base / "launchers/Lodestone Preview.cmd"
         self.cache = self.base / "download cache λ"
@@ -74,6 +86,19 @@ class WindowsBootstrapNative(unittest.TestCase):
         self.assertFalse((self.root / "ACTIVE.json").exists())
         self.assertFalse(self.app.exists())
         self.assertEqual(list((self.root / "deps/bootstrap").glob("python-*")), [])
+
+    def test_path_budget_refuses_before_creating_root_or_changing_cache(self):
+        inventory_path = self.payload / "windows-path-budget.json"
+        inventory = json.loads(inventory_path.read_text())
+        inventory["scopes"]["bootstrap_root"].update(
+            max_file_relative_utf16=258, longest_file_template="pinned-too-deep-member")
+        inventory_path.write_text(json.dumps(inventory))
+        result = self.run_setup()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("LODESTONE_WINDOWS_PATH_TOO_LONG", result.stdout + result.stderr)
+        self.assertIn("pinned-too-deep-member", result.stdout + result.stderr)
+        self.assertFalse(self.root.exists())
+        self.assertEqual(list(self.cache.iterdir()), [self.archive])
 
     def test_shell_metacharacters_refuse_before_creating_root(self):
         for character in ("&", "!", "%", "(", ")", "^"):

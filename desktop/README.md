@@ -83,7 +83,8 @@ use the ZIP's **Properties → Unblock** option if present, then extract it.
 Double-click **Install Lodestone.cmd**. The console shows setup progress and stays
 open if setup fails. It downloads the pinned Python archive, checks its hash
 before extraction and execution, and retains failed download/staging files for
-inspection. Installation does not require administrator privileges.
+inspection. Application files install under your account. The Windows long-path
+prerequisite described below may require administrator approval.
 
 The `.cmd` entrypoint runs native Windows commands and small built-in PowerShell
 checks. It does not load a PowerShell script or change execution policy. From a
@@ -99,6 +100,23 @@ metacharacters such as `%`, `!`, `&`, `^` and parentheses in its extracted folde
 data root, launcher or cache path before creating files. Choose ordinary directory
 names if it reports this restriction. `--root`, `--app` and `--cache` accept
 absolute local-drive paths.
+
+Before downloading, setup checks these paths against the longest members of the
+pinned archives and wheels, including temporary and retained interrupted
+environments. It reports the deepest member and remaining UTF-16 path budget.
+The default data root usually requires Windows long-path support. If the check
+refuses, choose a shorter directory you own with `--root`, or explicitly run
+**Enable Windows Long Paths.cmd** from the verified download. That separate
+helper asks you to type `ENABLE` and may request administrator approval through
+UAC. It changes only `LongPathsEnabled` to `1`; it never changes execution policy
+and is never run automatically by setup. Managed-host policy still applies.
+
+The helper first saves the previous value, including whether it was absent, and
+an exact restore command under
+`%LOCALAPPDATA%\Lodestone Windows Setup\receipts`. Keep that receipt if you want
+to undo the setting later in an administrator terminal. Restart setup after the
+change. Extraction, cache, bootstrap and launcher paths must still fit their
+reported limits, even when long-path support is enabled.
 
 To reopen the installed application, press **Win+R**, enter `shell:programs`, and
 open **Lodestone Preview.cmd** in that folder. This uses the installed launcher

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Fresh, per-user Lodestone Desktop preview installation and recovery.
 
-No administrator privileges, inherited memories or installed Lodestone are needed.
+No inherited memories or installed Lodestone are needed. Windows long-path
+prerequisites may require a separate, explicit administrator-approved change.
 An immutable verified payload is prepared before the active pointer is replaced.
 """
 from __future__ import annotations
@@ -375,8 +376,16 @@ def launcher_source(release, platform_name):
 
 def install(root, payload, *, app=None, cache=None, provision=None, bootstrap=None, platform_name=None):
     platform_name = platform_name or host_platform()
+    app = app or default_locations(platform_name)[1]
+    if platform_name == "windows" and provision is None:
+        from windows_preflight import preflight
+        # Read-only: reject unsupported selected paths before locks, directories,
+        # release copying or dependency downloads. Fixture providers own their paths.
+        report = preflight(payload, Path(root).expanduser().absolute(),
+                           Path(app).expanduser().absolute(), cache)
+        print(json.dumps(report, indent=2), file=sys.stderr)
     root = checked_root(root)
-    app = checked_root(app or default_locations(platform_name)[1])
+    app = checked_root(app)
     extension = {"windows": ".cmd", "linux": ".desktop"}.get(platform_name)
     if extension and app.suffix.lower() != extension:
         raise ValueError("Application launcher must end with " + extension)

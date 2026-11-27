@@ -62,6 +62,8 @@ rem PowerShell is used for visible OS/path checks, not to load another script.
 "%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -NonInteractive -Command ^
  "$ErrorActionPreference='Stop'; if (-not [Environment]::Is64BitOperatingSystem -or $env:PROCESSOR_ARCHITECTURE -ne 'AMD64' -or [Environment]::OSVersion.Version.Build -lt 20348) { throw 'This download requires Windows 11 x86_64 or Windows Server 2022 or later.' }"
 if errorlevel 1 goto failed
+call :check_path_budget
+if errorlevel 1 goto failed
 call :check_paths
 if errorlevel 1 goto failed
 set "LODESTONE_SETUP_PATHS_VALIDATED=1"
@@ -124,6 +126,47 @@ if "%LODESTONE_SETUP_NO_OPEN%"=="1" exit /b 0
 start "Lodestone Preview" "%LODESTONE_SETUP_APP%"
 exit /b 0
 
+:check_path_budget
+rem BEGIN WINDOWS PATH PREFLIGHT
+"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -NonInteractive -Command ^
+ "$ErrorActionPreference='Stop'; $paths=@{root=$env:LODESTONE_SETUP_ROOT;bootstrap_root=$env:LODESTONE_SETUP_ROOT;cache=$env:LODESTONE_SETUP_CACHE;payload=$env:LODESTONE_SETUP_PAYLOAD;app=$env:LODESTONE_SETUP_APP};" ^
+ "$budgetPath=Join-Path $paths.payload 'windows-path-budget.json'; $lockPath=Join-Path $paths.payload 'dependencies.windows-x86_64.lock.json';" ^
+ "$budget=Get-Content -LiteralPath $budgetPath -Raw | ConvertFrom-Json;" ^
+ "$lockHash=(Get-FileHash -LiteralPath $lockPath -Algorithm SHA256).Hash.ToLowerInvariant();" ^
+ "if ($budget.schema -ne 'lodestone-windows-path-budget/v1' -or $budget.lock_sha256 -ne $lockHash) { throw 'Windows path inventory does not match this download dependency lock.' };" ^
+ "$enabled=$false; $key=$null;" ^
+ "try { $key=[Microsoft.Win32.Registry]::LocalMachine.OpenSubKey('SYSTEM\CurrentControlSet\Control\FileSystem'); if ($null -ne $key -and $key.GetValueNames() -contains 'LongPathsEnabled') { $enabled=$key.GetValueKind('LongPathsEnabled').ToString() -eq 'DWord' -and $key.GetValue('LongPathsEnabled') -eq 1 } } catch { $enabled=$false } finally { if ($null -ne $key) { $key.Close() } };" ^
+ "function Get-BudgetBase([string]$value) {" ^
+ "if ($value -notmatch '^[A-Za-z]:[\\/]' -or $value.Substring(2).Contains(':')) { throw 'Use absolute local-drive setup paths.' };" ^
+ "foreach ($part in ($value.Substring(3) -split '[\\/]')) { if ($part -eq '..') { throw 'Setup paths cannot contain parent traversal.' }; if ($part.Length -gt 255) { throw 'LODESTONE_WINDOWS_PATH_TOO_LONG: A path component exceeds 255 UTF-16 units.' } };" ^
+ "return [IO.Path]::GetFullPath($value).TrimEnd('\');" ^
+ "};" ^
+ "$rows=@();" ^
+ "foreach ($scope in @('root','bootstrap_root','cache','payload')) {" ^
+ "$base=Get-BudgetBase $paths[$scope]; $entry=$budget.scopes.$scope;" ^
+ "foreach ($kind in @('file','directory')) {" ^
+ "$count=$entry.('max_'+$kind+'_relative_utf16'); $template=$entry.('longest_'+$kind+'_template');" ^
+ "if (($count -isnot [int] -and $count -isnot [long]) -or $count -lt 0 -or $count -ge 32767 -or $template -isnot [string]) { throw 'Invalid Windows path inventory bound.' };" ^
+ "$rendered=[regex]::Replace($template.Replace('/','\').TrimStart('\'),'\{([a-zA-Z0-9_]+)\}',{ param($m) $width=$budget.token_widths.($m.Groups[1].Value); if (($width -isnot [int] -and $width -isnot [long]) -or $width -le 0 -or $width -ge 32767) { throw 'Invalid Windows path inventory token.' }; return ('x' * $width) });" ^
+ "$sample=if ($rendered) { 1+$rendered.Length } else { 0 }; if ($sample -gt $count) { throw 'Windows path inventory understates its example.' };" ^
+ "$limit=if ($scope -eq 'root' -and $enabled) { 32766 } elseif ($kind -eq 'file') { 259 } else { 247 };" ^
+ "$rows+=@{scope=$scope;kind=$kind;required=($base.Length+$count);limit=$limit;remaining=($limit-$base.Length-$count);maximum_base=($limit-$count);member=$template};" ^
+ "};" ^
+ "};" ^
+ "$appPath=Get-BudgetBase $paths.app; $appName=[IO.Path]::GetFileName($appPath);" ^
+ "if ($appName.Length -gt 245) { throw 'LODESTONE_WINDOWS_PATH_TOO_LONG: Choose a launcher filename of at most 245 UTF-16 units.' };" ^
+ "$rows+=@{scope='app';kind='file';required=($appPath.Length+10);limit=259;remaining=(249-$appPath.Length);maximum_base=249;member=('.'+$appName+'.xxxxxxxx')};" ^
+ "$appParent=[IO.Path]::GetDirectoryName($appPath).TrimEnd('\'); $rows+=@{scope='app';kind='directory';required=$appParent.Length;limit=247;remaining=(247-$appParent.Length);maximum_base=247;member=''};" ^
+ "foreach ($row in $rows) { Write-Host ($row.scope+' '+$row.kind+': '+$row.required+' UTF-16 units; '+$row.remaining+' remaining; deepest member: '+$row.member) };" ^
+ "$failed=@($rows | Where-Object { $_.remaining -lt 0 });" ^
+ "if ($failed.Count) {" ^
+ "foreach ($row in $failed) { Write-Host ($row.scope+' '+$row.kind+': choose a base path no longer than '+$row.maximum_base+' UTF-16 units.') };" ^
+ "throw 'LODESTONE_WINDOWS_PATH_TOO_LONG: Setup stopped before downloads or installation changes. Choose shorter paths with --root, --cache or --app, or extract into a shorter directory. For managed root paths, explicitly run Enable Windows Long Paths.cmd and approve its administrator request, then restart setup. Host bootstrap, cache, extraction and launcher limits still apply. The installer never changes this setting.';" ^
+ "};" ^
+ "Write-Host ('LODESTONE_WINDOWS_PATHS_ACCEPTED: LongPathsEnabled='+$enabled);"
+rem END WINDOWS PATH PREFLIGHT
+exit /b %errorlevel%
+
 :check_paths
 rem Values are read from the environment, never interpolated into PowerShell code.
 rem Batch cannot safely carry every legal Windows filename. Refuse those cases
@@ -151,7 +194,7 @@ exit /b %errorlevel%
 :usage
 echo Install Lodestone.cmd [--root PATH] [--app PATH] [--cache PATH] [--no-open]
 echo Paths must be absolute local-drive paths without command-shell metacharacters.
-echo Spaces and Unicode are supported. No administrator or API key is required.
+echo Spaces and Unicode are supported. An administrator may be needed only for the optional long-path prerequisite.
 exit /b 0
 
 :staging_conflict
