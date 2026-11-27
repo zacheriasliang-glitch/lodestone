@@ -19,7 +19,7 @@ ROOT_FILES = ("install.py", "run_loom.py", "bootstrap_learning.py", "dependencie
               "dependencies.lock.json", "dependencies.ubuntu-24.04-x86_64.lock.json",
               "dependencies.windows-x86_64.lock.json", "platform_support.py",
               "Install Lodestone.command", "Install Lodestone.sh", "Install Lodestone.ps1",
-              "Install Lodestone.cmd", "README.md",
+              "Install Lodestone.cmd", "Enable Linux Command Fence.sh", "README.md",
               "THIRD_PARTY.md", "SOURCE_PROVENANCE.json", "LICENSE", "smoke.py",
               "build.py", "verify_payload.py")
 
@@ -83,7 +83,7 @@ def build(source, destination, target="macos-x86_64"):
     with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
         for name in sorted([*files, "MANIFEST.json"]):
             item = zipfile.ZipInfo(prefix + "/" + name, date_time=(2026, 1, 1, 0, 0, 0))
-            executable = name in ("Install Lodestone.command", "Install Lodestone.sh") or (name in files and files[name].stat().st_mode & 0o111)
+            executable = name in ("Install Lodestone.command", "Install Lodestone.sh", "Enable Linux Command Fence.sh") or (name in files and files[name].stat().st_mode & 0o111)
             item.external_attr = (0o100755 if executable else 0o100644) << 16
             item.compress_type = zipfile.ZIP_DEFLATED
             z.writestr(item, data if name == "MANIFEST.json" else contents[name])
