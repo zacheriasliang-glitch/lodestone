@@ -1697,7 +1697,7 @@
     "runtime/src/lodestone_machinery/loom_operations.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_operations.py",
-      "sha256": "220360b97a15e6adb223b1624a0abda3676295fd481f51a944d650a31ec4fe90",
+      "sha256": "1e2dcc73912730c07303490d409ee2711bede73467c89f9428c6745cc2aa5f79",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     "runtime/src/lodestone_machinery/loom_optional_operations.py": {
@@ -2483,6 +2483,8 @@
   },
   "implementation_commits": {
     "about_payload_version": "7c4f208cce8adaf95c2991ad702465ba822fa248",
+    "catalogue_exit_race_regression": "8881a298a4ff87a78ccd2a168b44829ca6301466",
+    "catalogue_native_exit_race": "44aed1f491375225f5589c9d1bfc7b54c1c7ac9a",
     "desktop_release_scope": "6904def44a65e93bce3d24fb0dbc601bef7b1f87",
     "gui_frame_timer_lifetime": "2624d992c7df92457f1a4cc138f873099ac8a87a",
     "gui_migration_engine_lifetime": "70377a70bb9291474112193b335e67dfdb7f5a50",
@@ -2779,8 +2781,8 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_operations.py",
-      "reason": "Own explicit trusted catalogue subprocesses with Windows Jobs or POSIX process groups, bounded output and elapsed time; preserve selected Windows names for native custody; expose only the sixteen reviewed catalogue closures and disclose notebook read-lock metadata. Job ownership is not filesystem/network confinement. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "220360b97a15e6adb223b1624a0abda3676295fd481f51a944d650a31ec4fe90",
+      "reason": "Own explicit trusted catalogue subprocesses with Windows Jobs or POSIX process groups, bounded output and elapsed time; preserve selected Windows names for native custody; expose only the sixteen reviewed catalogue closures and disclose notebook read-lock metadata. Job ownership is not filesystem/network confinement. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes. Confirm a denied POSIX stop signal only after a fresh native group inspection and direct-child reap; preserve unconfirmed live, inaccessible or unreaped outcomes.",
+      "sha256": "1e2dcc73912730c07303490d409ee2711bede73467c89f9428c6745cc2aa5f79",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     {
