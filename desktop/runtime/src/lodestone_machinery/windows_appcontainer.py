@@ -233,7 +233,14 @@ def run(argv, *, workspace, readable):
     c, w, k = api.c, api.w, api.kernel
     sweep(api)
     workspace = _no_reparse(Path(workspace).resolve(strict=True))
-    readable = [_no_reparse(Path(item).resolve(strict=True)) for item in readable]
+    # One grant per path: the workspace already has modify, and repeated paths
+    # (an argument that is also the source root) are granted once.
+    unique = []
+    for item in readable:
+        path = _no_reparse(Path(item).resolve(strict=True))
+        if path != workspace and path not in unique:
+            unique.append(path)
+    readable = unique
     name = PREFIX + uuid.uuid4().hex
     # The ledger exists and is locked before any host state changes, so an
     # interrupted run is undone by the next sweep rather than left in place.
@@ -377,7 +384,8 @@ def run(argv, *, workspace, readable):
         for item in reversed(record["granted"]):
             try:
                 security.restore(item["path"], item["sddl"], sid)
-            except OSError:
+            except OSError as exc:
+                print("Fence grant restore failed for " + item["path"] + ": " + str(exc), file=sys.stderr)
                 failures.append(item["path"])
         api.advapi.FreeSid(sid_pointer)
         deleted = api.userenv.DeleteAppContainerProfile(name) == 0
