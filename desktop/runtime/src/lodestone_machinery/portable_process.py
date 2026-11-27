@@ -154,7 +154,227 @@ class _MemoryCounters(ctypes.Structure):
         "QuotaPeakNonPagedPoolUsage", "QuotaNonPagedPoolUsage", "PagefileUsage", "PeakPagefileUsage")]
 
 
-class WindowsJobProcess:
+class WindowsJobCompletion:
+    """Bounded completion tracker borrowing one Job and direct-process handle.
+
+    The caller owns those two handles and must keep them open until close().
+    Only identity-pinned descendant handles opened by this tracker are closed
+    here. Construct after Job assignment and before resuming the root process.
+    Strict history is for cleanup that must account for every lifetime member;
+    an unseen, already-exited child keeps that cleanup unconfirmed.
+    """
+    def __init__(self, job, process, pid, *, api=None, command="owned Windows command",
+                 require_complete_history=False):
+        if not job or not process or type(pid) is not int or pid <= 0:
+            raise ValueError("An assigned Job and direct-process handle/PID are required")
+        self.api = api or _WindowsAPI()
+        self._job, self._process, self.pid = job, process, pid
+        self.command, self.returncode = command, None
+        self._member_handles = {}
+        self._stop_unconfirmed = False
+        belongs = self.api.w.BOOL()
+        self.api.check(self.api.kernel.IsProcessInJob(process, job, ctypes.byref(belongs)))
+        if not belongs.value:
+            raise OSError("The direct process is not assigned to the supplied Job")
+        identity = self._member_identity(process, pid)
+        self._lifetime_identities = {identity} if require_complete_history else None
+
+    def observe_members(self):
+        """Retain current members without querying images, RSS or memory limits."""
+        self._release_completed_members()
+        if not self._capture_stop_members(self.pids(), time.monotonic() + 1):
+            raise subprocess.TimeoutExpired("Windows Job member capture", 1)
+
+    def close(self):
+        """Release private descendant handles; borrowed root/Job remain open."""
+        self._close_member_handles()
+
+    def poll(self):
+        if self.returncode is None:
+            state = self.api.kernel.WaitForSingleObject(self._process, 0)
+            if state == 0:
+                code = self.api.w.DWORD()
+                self.api.check(self.api.kernel.GetExitCodeProcess(self._process, ctypes.byref(code)))
+                self.returncode = code.value
+            elif state != 258:  # WAIT_TIMEOUT
+                raise ctypes.WinError(ctypes.get_last_error())
+        return self.returncode
+
+    def wait(self, timeout=None):
+        milliseconds = 0xffffffff if timeout is None else min(0xfffffffe, max(0, math.ceil(timeout * 1000)))
+        state = self.api.kernel.WaitForSingleObject(self._process, milliseconds)
+        if state == 258:
+            raise subprocess.TimeoutExpired(self.command, timeout)
+        if state != 0:
+            raise ctypes.WinError(ctypes.get_last_error())
+        return self.poll()
+
+    def pids(self):
+        # JOBOBJECT_BASIC_PROCESS_ID_LIST: two DWORDs then ULONG_PTR entries.
+        for capacity in (64, 256, 1024, 4096):
+            class Pids(ctypes.Structure):
+                _fields_ = [("assigned", ctypes.c_uint32), ("count", ctypes.c_uint32),
+                            ("values", ctypes.c_size_t * capacity)]
+            result = Pids()
+            if self.api.kernel.QueryInformationJobObject(self._job, 3, ctypes.byref(result), ctypes.sizeof(result), None):
+                if result.count > capacity or result.assigned > result.count:
+                    continue
+                return list(result.values[:result.count])
+            if ctypes.get_last_error() != 234:  # ERROR_MORE_DATA
+                raise ctypes.WinError(ctypes.get_last_error())
+        raise OSError("Windows Job member enumeration exceeded its bound")
+
+    def _member_identity(self, process, pid):
+        if self.api.check(self.api.kernel.GetProcessId(process)) != pid:
+            raise OSError("Windows Job member handle has a different PID")
+        times = [self.api.w.FILETIME() for _ in range(4)]
+        self.api.check(self.api.kernel.GetProcessTimes(process, *(ctypes.byref(value) for value in times)))
+        created = (times[0].dwHighDateTime << 32) | times[0].dwLowDateTime
+        return pid, created
+
+    def _retain_member(self, process, pid):
+        # The caller has verified IsProcessInJob on this exact handle. A PID
+        # alone cannot distinguish an exiting process from later PID reuse.
+        identity = self._member_identity(process, pid)
+        if identity in self._member_handles:
+            return False
+        history = getattr(self, "_lifetime_identities", None)
+        if history is not None and identity not in history and len(history) >= 4096:
+            raise OSError("Windows verified lifetime member identities exceeded their bound")
+        if len(self._member_handles) >= 4096:
+            raise OSError("Windows retained Job member handles exceeded their bound")
+        self._member_handles[identity] = process
+        if history is not None:
+            history.add(identity)
+        return True
+
+    def _release_completed_members(self):
+        for identity, process in list(self._member_handles.items()):
+            state = self.api.kernel.WaitForSingleObject(process, 0)
+            if state == 0:
+                self.api.kernel.CloseHandle(process)
+                del self._member_handles[identity]
+            elif state != 258:
+                raise ctypes.WinError(ctypes.get_last_error())
+
+    def _close_member_handles(self):
+        for process in self._member_handles.values():
+            self.api.kernel.CloseHandle(process)
+        self._member_handles.clear()
+
+    def _total_processes(self):
+        accounting = _BasicAccounting()
+        self.api.check(self.api.kernel.QueryInformationJobObject(
+            self._job, 1, ctypes.byref(accounting), ctypes.sizeof(accounting), None))
+        return accounting.TotalProcesses
+
+    def _capture_stop_members(self, pids, deadline):
+        retained_by_pid = {}
+        for (pid, _), process in self._member_handles.items():
+            retained_by_pid.setdefault(pid, []).append(process)
+        for pid in pids:
+            if time.monotonic() >= deadline:
+                return False
+            if getattr(self, "_lifetime_identities", None) is not None and pid == self.pid:
+                # Strict tracking already verified this borrowed root handle
+                # before resume. It remains the completion proof even when a
+                # short-lived root can no longer be reopened by PID. Any unseen
+                # replacement identity still fails full lifetime accounting.
+                state = self.api.kernel.WaitForSingleObject(self._process, 0)
+                if state not in (0, 258):
+                    raise ctypes.WinError(ctypes.get_last_error())
+                continue
+            observed_running = False
+            for process in retained_by_pid.get(pid, []):
+                state = self.api.kernel.WaitForSingleObject(process, 0)
+                if state not in (0, 258):
+                    raise ctypes.WinError(ctypes.get_last_error())
+                observed_running |= state == 258
+            if observed_running:
+                # An unsignaled process still owns this PID; the previously
+                # verified handle remains valid even while access is closing.
+                continue
+            process = self.api.kernel.OpenProcess(0x100000 | 0x1000, False, pid)
+            if not process:
+                error = ctypes.get_last_error()
+                # An inaccessible selected PID cannot establish which process
+                # object it denoted, even if an older PID match was retained.
+                raise ctypes.WinError(error)
+            retained = False
+            try:
+                belongs = self.api.w.BOOL()
+                self.api.check(self.api.kernel.IsProcessInJob(process, self._job, ctypes.byref(belongs)))
+                if not belongs.value:
+                    raise OSError("Windows stop cannot bind a listed member to its owned Job")
+                retained = self._retain_member(process, pid)
+            finally:
+                if not retained:
+                    self.api.kernel.CloseHandle(process)
+        return True
+
+    def stop(self):
+        # TerminateJobObject is asynchronous. An empty PID list can precede
+        # descendant handle teardown, even after the direct parent has exited.
+        # Wait on identity-bound process handles, including sampled members
+        # that disappeared from the current list before termination began.
+        deadline = time.monotonic() + 6
+        previously_unconfirmed = self._stop_unconfirmed
+        self._stop_unconfirmed = True
+        result = {"confirmed_stopped": False, "kill_escalated": True, "zombie_pids": []}
+        try:
+            try:
+                before = self._total_processes()
+                if not self._capture_stop_members(self.pids(), deadline):
+                    result["reason"] = "member_capture_timeout"
+                    return result
+            finally:
+                # Inspection failures must still request termination; they
+                # cannot become a successful stop or leave a running Job.
+                self.api.check(self.api.kernel.TerminateJobObject(self._job, 1))
+            if not self._capture_stop_members(self.pids(), deadline):
+                result["reason"] = "member_capture_timeout"
+                return result
+            waits = {}
+            for (pid, created), process in self._member_handles.items():
+                milliseconds = max(0, min(6000, math.ceil((deadline - time.monotonic()) * 1000)))
+                state = self.api.kernel.WaitForSingleObject(process, milliseconds)
+                if state not in (0, 258):
+                    raise ctypes.WinError(ctypes.get_last_error())
+                waits[(pid, created)] = state
+            milliseconds = max(0, min(6000, math.ceil((deadline - time.monotonic()) * 1000)))
+            parent_state = self.api.kernel.WaitForSingleObject(self._process, milliseconds)
+            if parent_state not in (0, 258):
+                raise ctypes.WinError(ctypes.get_last_error())
+            remaining = self.pids()
+            after = self._total_processes()
+            result.update(member_pids=remaining, waited_member_count=len(waits), parent_signaled=parent_state == 0,
+                          unsignaled_member_pids=sorted(pid for (pid, _), state in waits.items() if state != 0),
+                          total_processes_before=before, total_processes_after=after)
+            # Lifetime accounting detects a child created and removed between
+            # capture and termination, even when it never appears in a later
+            # PID list. Its unobserved completion must remain unconfirmed.
+            history = getattr(self, "_lifetime_identities", None)
+            if history is not None:
+                result["verified_lifetime_member_count"] = len(history)
+            if previously_unconfirmed:
+                # A prior failed attempt released its retained handles. A
+                # later empty PID list cannot recover that missing proof.
+                result["reason"] = "previous_stop_unconfirmed"
+            elif after != before:
+                result["reason"] = "membership_changed_during_stop"
+            elif history is not None and after != len(history):
+                result["reason"] = "unobserved_lifetime_member"
+            elif remaining or parent_state != 0 or any(state != 0 for state in waits.values()) or self.poll() is None:
+                result["reason"] = "process_completion_unconfirmed"
+            else:
+                result["confirmed_stopped"] = True
+                self._stop_unconfirmed = False
+            return result
+        finally:
+            self._close_member_handles()
+
+
+class WindowsJobProcess(WindowsJobCompletion):
     """Small Popen-compatible process with a non-inheritable owned Job handle.
 
     A setup failure terminates and reaps the suspended child. Closing the final
@@ -250,6 +470,7 @@ class WindowsJobProcess:
                     environment, str(cwd), ctypes.byref(startup), ctypes.byref(info)))
                 self._process, self.pid = info.hProcess, info.dwProcessId
                 self.api.check(k.AssignProcessToJobObject(self._job, self._process))
+                super().__init__(self._job, self._process, self.pid, api=self.api, command=command)
                 if k.ResumeThread(info.hThread) == 0xffffffff:
                     raise ctypes.WinError(ctypes.get_last_error())
         finally:
@@ -260,114 +481,6 @@ class WindowsJobProcess:
             for handle in duplicates:
                 k.CloseHandle(handle)
 
-    def poll(self):
-        if self.returncode is None:
-            state = self.api.kernel.WaitForSingleObject(self._process, 0)
-            if state == 0:
-                code = self.api.w.DWORD()
-                self.api.check(self.api.kernel.GetExitCodeProcess(self._process, ctypes.byref(code)))
-                self.returncode = code.value
-            elif state != 258:  # WAIT_TIMEOUT
-                raise ctypes.WinError(ctypes.get_last_error())
-        return self.returncode
-
-    def wait(self, timeout=None):
-        milliseconds = 0xffffffff if timeout is None else min(0xfffffffe, max(0, math.ceil(timeout * 1000)))
-        state = self.api.kernel.WaitForSingleObject(self._process, milliseconds)
-        if state == 258:
-            raise subprocess.TimeoutExpired(self.command, timeout)
-        if state != 0:
-            raise ctypes.WinError(ctypes.get_last_error())
-        return self.poll()
-
-    def pids(self):
-        # JOBOBJECT_BASIC_PROCESS_ID_LIST: two DWORDs then ULONG_PTR entries.
-        for capacity in (64, 256, 1024, 4096):
-            class Pids(ctypes.Structure):
-                _fields_ = [("assigned", ctypes.c_uint32), ("count", ctypes.c_uint32),
-                            ("values", ctypes.c_size_t * capacity)]
-            result = Pids()
-            if self.api.kernel.QueryInformationJobObject(self._job, 3, ctypes.byref(result), ctypes.sizeof(result), None):
-                if result.count > capacity or result.assigned > result.count:
-                    continue
-                return list(result.values[:result.count])
-            if ctypes.get_last_error() != 234:  # ERROR_MORE_DATA
-                raise ctypes.WinError(ctypes.get_last_error())
-        raise OSError("Windows Job member enumeration exceeded its bound")
-
-    def _member_identity(self, process, pid):
-        if self.api.check(self.api.kernel.GetProcessId(process)) != pid:
-            raise OSError("Windows Job member handle has a different PID")
-        times = [self.api.w.FILETIME() for _ in range(4)]
-        self.api.check(self.api.kernel.GetProcessTimes(process, *(ctypes.byref(value) for value in times)))
-        created = (times[0].dwHighDateTime << 32) | times[0].dwLowDateTime
-        return pid, created
-
-    def _retain_member(self, process, pid):
-        # The caller has verified IsProcessInJob on this exact handle. A PID
-        # alone cannot distinguish an exiting process from later PID reuse.
-        identity = self._member_identity(process, pid)
-        if identity in self._member_handles:
-            return False
-        if len(self._member_handles) >= 4096:
-            raise OSError("Windows retained Job member handles exceeded their bound")
-        self._member_handles[identity] = process
-        return True
-
-    def _release_completed_members(self):
-        for identity, process in list(self._member_handles.items()):
-            state = self.api.kernel.WaitForSingleObject(process, 0)
-            if state == 0:
-                self.api.kernel.CloseHandle(process)
-                del self._member_handles[identity]
-            elif state != 258:
-                raise ctypes.WinError(ctypes.get_last_error())
-
-    def _close_member_handles(self):
-        for process in self._member_handles.values():
-            self.api.kernel.CloseHandle(process)
-        self._member_handles.clear()
-
-    def _total_processes(self):
-        accounting = _BasicAccounting()
-        self.api.check(self.api.kernel.QueryInformationJobObject(
-            self._job, 1, ctypes.byref(accounting), ctypes.sizeof(accounting), None))
-        return accounting.TotalProcesses
-
-    def _capture_stop_members(self, pids, deadline):
-        retained_by_pid = {}
-        for (pid, _), process in self._member_handles.items():
-            retained_by_pid.setdefault(pid, []).append(process)
-        for pid in pids:
-            if time.monotonic() >= deadline:
-                return False
-            observed_running = False
-            for process in retained_by_pid.get(pid, []):
-                state = self.api.kernel.WaitForSingleObject(process, 0)
-                if state not in (0, 258):
-                    raise ctypes.WinError(ctypes.get_last_error())
-                observed_running |= state == 258
-            if observed_running:
-                # An unsignaled process still owns this PID; the previously
-                # verified handle remains valid even while access is closing.
-                continue
-            process = self.api.kernel.OpenProcess(0x100000 | 0x1000, False, pid)
-            if not process:
-                error = ctypes.get_last_error()
-                # An inaccessible selected PID cannot establish which process
-                # object it denoted, even if an older PID match was retained.
-                raise ctypes.WinError(error)
-            retained = False
-            try:
-                belongs = self.api.w.BOOL()
-                self.api.check(self.api.kernel.IsProcessInJob(process, self._job, ctypes.byref(belongs)))
-                if not belongs.value:
-                    raise OSError("Windows stop cannot bind a listed member to its owned Job")
-                retained = self._retain_member(process, pid)
-            finally:
-                if not retained:
-                    self.api.kernel.CloseHandle(process)
-        return True
 
     def _require_sampled_exit(self, process, pid, api, error, deadline):
         # Called only after this exact handle passed Job membership and
@@ -461,61 +574,6 @@ class WindowsJobProcess:
                 "windows_job_peak_scope": "Native PeakJobMemoryUsed telemetry; a denied allocation may still raise this counter. It is not an RSS ceiling.",
                 "windows_job_memory_limit_notified": self.memory_limit_seen}
 
-    def stop(self):
-        # TerminateJobObject is asynchronous. An empty PID list can precede
-        # descendant handle teardown, even after the direct parent has exited.
-        # Wait on identity-bound process handles, including sampled members
-        # that disappeared from the current list before termination began.
-        deadline = time.monotonic() + 6
-        previously_unconfirmed = self._stop_unconfirmed
-        self._stop_unconfirmed = True
-        result = {"confirmed_stopped": False, "kill_escalated": True, "zombie_pids": []}
-        try:
-            try:
-                before = self._total_processes()
-                if not self._capture_stop_members(self.pids(), deadline):
-                    result["reason"] = "member_capture_timeout"
-                    return result
-            finally:
-                # Inspection failures must still request termination; they
-                # cannot become a successful stop or leave a running Job.
-                self.api.check(self.api.kernel.TerminateJobObject(self._job, 1))
-            if not self._capture_stop_members(self.pids(), deadline):
-                result["reason"] = "member_capture_timeout"
-                return result
-            waits = {}
-            for (pid, created), process in self._member_handles.items():
-                milliseconds = max(0, min(6000, math.ceil((deadline - time.monotonic()) * 1000)))
-                state = self.api.kernel.WaitForSingleObject(process, milliseconds)
-                if state not in (0, 258):
-                    raise ctypes.WinError(ctypes.get_last_error())
-                waits[(pid, created)] = state
-            milliseconds = max(0, min(6000, math.ceil((deadline - time.monotonic()) * 1000)))
-            parent_state = self.api.kernel.WaitForSingleObject(self._process, milliseconds)
-            if parent_state not in (0, 258):
-                raise ctypes.WinError(ctypes.get_last_error())
-            remaining = self.pids()
-            after = self._total_processes()
-            result.update(member_pids=remaining, waited_member_count=len(waits), parent_signaled=parent_state == 0,
-                          unsignaled_member_pids=sorted(pid for (pid, _), state in waits.items() if state != 0),
-                          total_processes_before=before, total_processes_after=after)
-            # Lifetime accounting detects a child created and removed between
-            # capture and termination, even when it never appears in a later
-            # PID list. Its unobserved completion must remain unconfirmed.
-            if previously_unconfirmed:
-                # A prior failed attempt released its retained handles. A
-                # later empty PID list cannot recover that missing proof.
-                result["reason"] = "previous_stop_unconfirmed"
-            elif after != before:
-                result["reason"] = "membership_changed_during_stop"
-            elif remaining or parent_state != 0 or any(state != 0 for state in waits.values()) or self.poll() is None:
-                result["reason"] = "process_completion_unconfirmed"
-            else:
-                result["confirmed_stopped"] = True
-                self._stop_unconfirmed = False
-            return result
-        finally:
-            self._close_member_handles()
 
     def close(self):
         # Closing the Job remains a kill-on-close fallback even if stop failed.

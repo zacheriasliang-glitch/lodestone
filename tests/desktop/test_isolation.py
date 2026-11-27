@@ -412,28 +412,108 @@ class RealAppContainerTests(unittest.TestCase):
             self.assertEqual(self._sddl(target / "w"), before)
             self.assertEqual(self._pending(), [])
 
-    def test_interrupted_launcher_is_undone_by_the_next_sweep(self):
+    def test_interrupted_launcher_requires_completion_proof_before_sweep(self):
         from lodestone_machinery import windows_appcontainer as wac
+        from lodestone_machinery.portable_process import WindowsJobProcess
         with tempfile.TemporaryDirectory() as raw:
             work, source = Path(raw) / "w", Path(raw) / "s"
             work.mkdir(), source.mkdir()
             before = self._sddl(source)
             argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", "import time; time.sleep(60)"],
                                         work, source, None, None)
-            launcher = subprocess.Popen(argv, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            deadline = time.monotonic() + 60
-            while not list(wac._ledger_directory().glob(wac.PREFIX + "*.journal")) and time.monotonic() < deadline:
-                time.sleep(0.2)
-            time.sleep(5)  # let the grants be applied
-            launcher.kill()  # no cleanup runs in the launcher
-            launcher.wait(timeout=30)
-            # Windows releases a dead process's byte-range lock after an unspecified
-            # delay; until then the sweep correctly treats the run as live.
-            deadline = time.monotonic() + 60
-            while True:
-                wac.sweep()
-                if not list(wac._ledger_directory().glob(wac.PREFIX + "*.journal")) or time.monotonic() > deadline:
-                    break
-                time.sleep(1)
+            with open(os.devnull, "wb") as output:
+                owner = WindowsJobProcess(argv, cwd=str(work), env=dict(os.environ), stdout=output,
+                                          stderr=output, max_memory_bytes=512 * 1024 * 1024)
+            try:
+                deadline = time.monotonic() + 60
+                while True:
+                    journals = self._pending()
+                    owner.snapshot()
+                    covered = {owner._member_identity(owner._process, owner.pid), *owner._member_handles}
+                    if (journals and any(entry.get("process_may_exist") is True
+                                         for entry in wac._Journal.entries(journals[0]))
+                            and len(covered) >= 2 and owner._total_processes() == len(covered)):
+                        break
+                    self.assertLess(time.monotonic(), deadline, "Started fence identities were not captured")
+                    time.sleep(.02)
+                # This outer fixture owns and waits every actual process; the
+                # killed launcher itself gets no opportunity to mark completion.
+                stopped = owner.stop()
+                self.assertTrue(stopped["confirmed_stopped"], stopped)
+                self.assertEqual(stopped["total_processes_before"], len(covered))
+                self.assertEqual(stopped["total_processes_after"], len(covered))
+            finally:
+                owner.close()
+            api = wac._Api()
+            with wac._GlobalLock(wac._wait_seconds()):
+                self.assertEqual(wac._sweep(api), 1)
+                self.assertTrue(journals[0].exists())
+                self.assertNotEqual(self._sddl(source), before)
+                # Only the test's verified external completion permits recovery;
+                # the product sweep never invents this missing evidence.
+                journal = wac._Journal(journals[0], create=False)
+                try:
+                    journal.append({"completion_confirmed": True, "completion": stopped})
+                finally:
+                    journal.close()
+                self.assertEqual(wac._sweep(api), 0)
             self.assertEqual(self._sddl(source), before)
-            self.assertEqual(list(wac._ledger_directory().glob(wac.PREFIX + "*.journal")), [])
+            self.assertEqual(self._pending(), [])
+
+    def test_parent_exit_waits_descendant_files_before_acl_and_profile_cleanup(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        child_code = r"""
+import ctypes, sys, time
+from ctypes import wintypes as w
+from pathlib import Path
+root, index = Path(sys.argv[1]), sys.argv[2]
+kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+kernel.CreateFileW.argtypes = [w.LPCWSTR,w.DWORD,w.DWORD,ctypes.c_void_p,w.DWORD,w.DWORD,w.HANDLE]
+kernel.CreateFileW.restype = w.HANDLE
+kernel.GetCurrentProcess.restype = w.HANDLE
+kernel.DuplicateHandle.argtypes = [w.HANDLE,w.HANDLE,w.HANDLE,ctypes.POINTER(w.HANDLE),w.DWORD,w.BOOL,w.DWORD]
+kernel.DuplicateHandle.restype = w.BOOL
+handle = kernel.CreateFileW(str(root / ('held-' + index)),0x40000000,0,None,2,0x80,None)
+if handle == ctypes.c_void_p(-1).value:
+    raise ctypes.WinError(ctypes.get_last_error())
+handles = [handle]
+current = kernel.GetCurrentProcess()
+for _ in range(8192):
+    copied = w.HANDLE()
+    if not kernel.DuplicateHandle(current,handle,current,ctypes.byref(copied),0,False,2):
+        raise ctypes.WinError(ctypes.get_last_error())
+    handles.append(copied.value)
+(root / ('ready-' + index)).write_bytes(b'ready')
+while True:
+    time.sleep(.01)
+"""
+        with tempfile.TemporaryDirectory() as raw:
+            work = Path(raw) / "work"
+            work.mkdir()
+            before = self._sddl(work)
+            code = ("import subprocess,sys,time\nfrom pathlib import Path\n"
+                    + "root=Path(" + repr(str(work)) + ")\n"
+                    + "code=" + repr(child_code) + "\n"
+                    + "children=[subprocess.Popen([sys.executable,'-I','-B','-c',code,str(root),str(i)]) for i in range(2)]\n"
+                    + "deadline=time.monotonic()+20\n"
+                    + "while not all((root/('ready-'+str(i))).exists() for i in range(2)):\n"
+                    + "    assert time.monotonic()<deadline, 'descendants not ready'\n    time.sleep(.01)\n")
+            original_undo = wac._undo
+            order = []
+            def checked_undo(security, entries, sid, **kwargs):
+                self.assertTrue(wac._completion_recorded(entries))
+                proof = next(entry["completion"] for entry in entries if entry.get("completion_confirmed"))
+                self.assertTrue(proof["confirmed_stopped"], proof)
+                self.assertEqual(proof["verified_lifetime_member_count"], proof["total_processes_after"])
+                # These denied sharing while held. No sleep or deletion retry.
+                for index in range(2):
+                    (work / ("held-" + str(index))).unlink()
+                order.append("files_released_before_acl")
+                return original_undo(security, entries, sid, **kwargs)
+            with patch.object(wac, "_undo", side_effect=checked_undo):
+                result = wac.run([sys.executable, "-I", "-B", "-c", code], workspace=work,
+                                 readable=[Path(sys.prefix)])
+            self.assertEqual(result, 0)
+            self.assertEqual(order, ["files_released_before_acl"])
+            self.assertEqual(self._sddl(work), before)
+            self.assertEqual(self._pending(), [])

@@ -31,6 +31,7 @@ SOURCE_TESTS = (
     'test_portable_process.py',
     'test_windows_stop_completion.py',
     'test_windows_snapshot_exit.py',
+    'test_appcontainer_completion.py',
     'test_portable_listener.py',
     'test_portable_storage.py',
     'test_platform_install.py',
