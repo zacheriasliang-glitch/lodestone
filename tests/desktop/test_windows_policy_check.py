@@ -246,6 +246,50 @@ class PolicyFixtureTests(unittest.TestCase):
         self.assertEqual(report["release_id"], self.args.release_id)
         self.assertFalse(report["registry_restored"])
 
+    def test_slow_cache_verification_exhausts_original_budget_before_registry_access(self):
+        manifest = {"fixture": "bound payload"}
+        self.args.release_id = hashlib.sha256(json.dumps(
+            manifest, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+        clock = [100.0]
+        def slow_cache(*args):
+            clock[0] += 1201
+            return {"verified_objects": 1, "downloads": 0}
+        with mock.patch.object(policy.time, "monotonic", side_effect=lambda: clock[0]), \
+                mock.patch.object(policy, "require_public_runner"), \
+                mock.patch.object(policy.mechanical, "checkout_commit"), \
+                mock.patch.object(policy.mechanical, "payload_files", return_value=(b"", manifest)), \
+                mock.patch.object(policy, "verify_cache", side_effect=slow_cache), \
+                mock.patch.object(policy, "Exercise") as exercise, \
+                mock.patch.object(policy, "NativeRegistry") as registry, \
+                mock.patch("sys.stdout", new=io.StringIO()):
+            self.assertEqual(policy.main(self.arguments()), 1)
+        exercise.assert_not_called()
+        registry.assert_not_called()
+        report = policy.read(Path(self.args.evidence) / "windows-long-path-policy.json")
+        self.assertEqual(report["status"], "FAILED")
+        self.assertEqual(report["error"]["type"], "TimeoutError")
+        self.assertIsNone(report["original_policy"])
+        self.assertEqual(report["policy_zero"], {})
+
+    def test_cache_work_does_not_restart_exercise_deadline(self):
+        manifest = {"fixture": "bound payload"}
+        self.args.release_id = hashlib.sha256(json.dumps(
+            manifest, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+        clock = [100.0]
+        def slow_cache(*args):
+            clock[0] += 800
+            return {"verified_objects": 1, "downloads": 0}
+        with mock.patch.object(policy.time, "monotonic", side_effect=lambda: clock[0]), \
+                mock.patch.object(policy, "require_public_runner"), \
+                mock.patch.object(policy.mechanical, "checkout_commit"), \
+                mock.patch.object(policy.mechanical, "payload_files", return_value=(b"", manifest)), \
+                mock.patch.object(policy, "verify_cache", side_effect=slow_cache), \
+                mock.patch.object(policy, "Exercise", side_effect=ValueError("stop before registry")) as exercise, \
+                mock.patch("sys.stdout", new=io.StringIO()):
+            self.assertEqual(policy.main(self.arguments()), 1)
+        self.assertEqual(exercise.call_args.kwargs["deadline"], 1300.0)
+        self.assertEqual(exercise.call_args.kwargs["deadline"] - clock[0], 400.0)
+
     def test_batch_quoting_preserves_special_helper_folder_as_one_quoted_value(self):
         helper = r"C:\runner\O'Brien & (paths)\Enable Windows Long Paths.cmd"
         with mock.patch.dict(os.environ, {"SystemRoot": r"C:\Windows"}):

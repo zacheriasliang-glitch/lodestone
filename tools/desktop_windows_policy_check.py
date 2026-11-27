@@ -152,8 +152,16 @@ def batch_command(script, arguments=()):
     return '"' + executable + '" /d /v:off /s /c "' + " ".join('"' + value + '"' for value in values) + '"'
 
 
+def remaining_work_time(deadline):
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise TimeoutError("Policy work budget exhausted; preserving original registry state")
+    return remaining
+
+
 class Exercise:
-    def __init__(self, args, report):
+    def __init__(self, args, report, *, deadline):
+        remaining_work_time(deadline)
         import ctypes
         if not ctypes.windll.shell32.IsUserAnAdmin():
             raise ValueError("Disposable policy exercise requires the already elevated hosted runner")
@@ -161,7 +169,7 @@ class Exercise:
         self.evidence = Path(args.evidence)
         self.registry = NativeRegistry()
         self.owned = []
-        self.deadline = time.monotonic() + 1200
+        self.deadline = deadline
         location = Path(args.source) / "desktop/runtime/src/lodestone_machinery/portable_process.py"
         spec = importlib.util.spec_from_file_location("policy_native_process", location)
         module = importlib.util.module_from_spec(spec)
@@ -175,10 +183,7 @@ class Exercise:
         receipt = {"command": command, "status": "FAILED"}
         env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", UV_OFFLINE="1", PIP_NO_INDEX="1")
         try:
-            remaining = self.deadline - time.monotonic()
-            if remaining <= 0:
-                raise TimeoutError("Policy work budget exhausted; restoring original registry state")
-            timeout = min(timeout, remaining)
+            timeout = min(timeout, remaining_work_time(self.deadline))
             with log.open("w", encoding="utf-8") as output:
                 # The Python shim preserves raw cmd quoting while the native
                 # Job owns it and every installer child before they can run.
@@ -271,6 +276,7 @@ class Exercise:
                 and root_units + budget["max_directory_relative_utf16"] <= 247):
             raise ValueError("Normal installed root does not exercise paths beyond the legacy limit")
         self.report["normal_root_requires_long_paths"] = True
+        remaining_work_time(self.deadline)
         self.registry.disable()
         if self.registry.read() != {"present": True, "type": 4, "value": 0}:
             raise ValueError("Policy zero could not be confirmed")
@@ -366,6 +372,9 @@ class Exercise:
 
 
 def main(argv=None):
+    # The caller's 1,800-second timeout also includes cache hashing. Start the
+    # 1,200-second work budget here, retaining its restoration/cleanup reserve.
+    deadline = time.monotonic() + 1200
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("source", "source-commit", "payload", "root", "app", "cache", "evidence", "release-id"):
         parser.add_argument("--" + name, required=True)
@@ -384,7 +393,8 @@ def main(argv=None):
         if hashlib.sha256(canonical).hexdigest() != args.release_id:
             raise ValueError("Payload differs from the expected installed release")
         report["cache"] = verify_cache(args.payload, args.cache)
-        exercise = Exercise(args, report)
+        remaining_work_time(deadline)
+        exercise = Exercise(args, report, deadline=deadline)
         restore_after(exercise.registry, report, exercise.perform)
         report["status"] = "PASSED"
     except BaseException as exc:
