@@ -145,7 +145,7 @@ WINDOWS_OPERATIONS = frozenset({"ecosystem.doctor", "ecosystem.context",
     "mailbox.validate-envelope", "release.verify-download", "loom.inference-memory-assess",
     "loom.inference-memory-skill", "bezoar.ingest", "bezoar.show",
     "memory.add", "memory.search", "memory.verify",
-    "continuity.create", "continuity.verify", "repository.check"})
+    "continuity.create", "continuity.verify", "repository.check", "pando.init", "pando.verify"})
 
 
 def _availability(root):

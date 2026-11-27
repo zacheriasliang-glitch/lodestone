@@ -286,9 +286,9 @@ from lodestone_machinery import loom_runtime_worker, loom_runtime
             bridge = OperationBridge(RUNTIME, Path(root) / "receipts")
             with patch.object(sys, "platform", "win32"), patch.object(subprocess, "Popen") as launch:
                 with self.assertRaisesRegex(OSError, "unavailable on Windows"):
-                    bridge.prepare("pando.init", {}, root)
+                    bridge.prepare("nurarihyon.registry", {}, root)
                 with self.assertRaisesRegex(OSError, "unavailable on Windows"):
-                    bridge.run({"operation": "pando.init", "inputs": {}, "workspace": root,
+                    bridge.run({"operation": "nurarihyon.registry", "inputs": {}, "workspace": root,
                                 "id": "a" * 32, "digest": "fixture"}, approved_digest="fixture")
             launch.assert_not_called()
 

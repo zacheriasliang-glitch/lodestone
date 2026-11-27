@@ -176,7 +176,7 @@ def main(argv=None):
             from lodestone_machinery.loom_operations import main as operations_main
             return operations_main(args, root=root, workspace=workspace)
         if command in ("nurarihyon", "pando"):
-            if platform.system() not in ("Darwin", "Linux"):
+            if platform.system() not in ("Darwin", "Linux") and command != "pando":
                 raise ValueError(command + " requires Linux or macOS POSIX process/resource controls; native Windows is not supported")
             script = "tools/" + command + "/run"
             # Keep explicit state selection; never attach to an installed board.

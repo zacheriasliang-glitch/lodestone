@@ -921,7 +921,7 @@
     "runtime/docs/pando.md": {
       "origin": "public-core",
       "path": "docs/pando.md",
-      "sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a",
+      "sha256": "313a32639d6c51c09780ccb6446efd5cec6b4a125b405eefdd24b225864d0566",
       "source_sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a"
     },
     "runtime/docs/porcelain.md": {
@@ -1691,7 +1691,7 @@
     "runtime/src/lodestone_machinery/loom_operations.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_operations.py",
-      "sha256": "84c618c5308910e6d0ab6f7843eda44b3d879d04395d5939c567231b1afe589d",
+      "sha256": "220360b97a15e6adb223b1624a0abda3676295fd481f51a944d650a31ec4fe90",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     "runtime/src/lodestone_machinery/loom_optional_operations.py": {
@@ -2171,7 +2171,7 @@
     "runtime/src/lodestone_pando/__main__.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_pando/__main__.py",
-      "sha256": "9f57dfd36ee844c6eeb8e30935bbe374fbbaced60e0bf1d80b0a5a30074818cd",
+      "sha256": "080d7c7fc6916f62d47fd7aef77f1728be70572c551c287d5c0a15c363ffa004",
       "source_sha256": "9f57dfd36ee844c6eeb8e30935bbe374fbbaced60e0bf1d80b0a5a30074818cd"
     },
     "runtime/src/lodestone_pando/server.py": {
@@ -2189,7 +2189,7 @@
     "runtime/src/lodestone_pando/store.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_pando/store.py",
-      "sha256": "a75df102e7ffc706b09d8a2abb60e340c365703f84793e1f4c31bc0d16a192aa",
+      "sha256": "fb5eb7d92e9ffc3271d3b25884e922f54621d008db66409d20ff72f63f4db412",
       "source_sha256": "a75df102e7ffc706b09d8a2abb60e340c365703f84793e1f4c31bc0d16a192aa"
     },
     "runtime/tools/continuity/README.md": {
@@ -2213,7 +2213,7 @@
     "runtime/tools/ecosystem/cli.py": {
       "origin": "unified-runtime",
       "path": "tools/ecosystem/cli.py",
-      "sha256": "c6ceada603131f43e9fcb838aa07ce3da18476aa7bd0a4bb191a0324d8496d98",
+      "sha256": "483a8ed0bc615f100015c2982c3dac8126ea656d3224bac99a7e24e4f5ac1a06",
       "source_sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e"
     },
     "runtime/tools/ecosystem/conscience-policy.json": {
@@ -2405,7 +2405,7 @@
     "runtime/tools/pando/run": {
       "origin": "unified-runtime",
       "path": "tools/pando/run",
-      "sha256": "862b85e6fb9f2e7f0a43219ecf628edb3141e1e5c29fbb4a5ffe71af747b69c8",
+      "sha256": "f3214bc6bea1de6ad750c5f44e5821c230a0d9780d305f618723b3819b6ce6ee",
       "source_sha256": "862b85e6fb9f2e7f0a43219ecf628edb3141e1e5c29fbb4a5ffe71af747b69c8"
     },
     "runtime/tools/release/nurarihyon_smoke.py": {
@@ -2492,6 +2492,8 @@
     "portable_local_memory": "e778bf6758bcc4e87207c56c71afc54d56f753e5",
     "portable_loopback_reuse": "c7f354186bd319d9418de87f7693bf35008e4d16",
     "portable_native_ci": "5bd383a2d80ff8c5d05bff4c01df536350f3281d",
+    "portable_pando_database_aliases": "269c48ce8b82613e92860805c3d6d196f7a897ca",
+    "portable_pando_init_verify": "a5e4b35176910c41f585c87006ac992257f9f7c9",
     "portable_process": "35b2754ec1235c2205aba78f3cee3034c9788752",
     "portable_process_review_fix": "6fe42109ddde02a7d9dce05f799214d7c1a01c34",
     "portable_reader_raw_windows_paths": "b9902cf0d11c7803b6c670f0ae66d7c225149905",
@@ -2607,14 +2609,14 @@
     },
     {
       "path": "gui/basilisk/views/conversation_tab.py",
-      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Pass Windows file-picker source paths without resolving aliases so the runtime can reject junctions before handoff publication.",
+      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings.",
       "sha256": "b931981a2bec3fb967329f536275cb4fc6d4b2fd8c65ab2fbef4522dc6454800",
       "source_sha256": "5d8dfb817cfacd9ae7602ada1531f4f8159f8b90a82b52cd0a56706c19de3ae1"
     },
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/learning_context.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Place optional voxel teaching after retained history and immediately before the encounter, with or without an explicit history window. Guard Windows policy and dispatch-intent reads with bounded native identity custody before admitting retained learning.",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Place optional voxel teaching after retained history and immediately before the encounter, with or without an explicit history window.",
       "sha256": "0adcfe78b199f6014ecd5e66e16d2c3c54e49060067e694a33e01e33c6ae75e3",
       "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
     },
@@ -2721,8 +2723,8 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_operations.py",
-      "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "84c618c5308910e6d0ab6f7843eda44b3d879d04395d5939c567231b1afe589d",
+      "reason": "Own explicit trusted catalogue subprocesses with Windows Jobs or POSIX process groups, bounded output and elapsed time; preserve Windows path aliases for custody checks and enable only reviewed operation dependencies. No filesystem/network confinement claim.",
+      "sha256": "220360b97a15e6adb223b1624a0abda3676295fd481f51a944d650a31ec4fe90",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     {
@@ -2751,7 +2753,7 @@
     },
     {
       "path": "runtime/src/lodestone_nurarihyon/portable_files.py",
-      "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes. Reject raw Windows dot/space/device/stream names before path normalization can conceal them.",
+      "reason": "Use native file and directory custody on Windows/POSIX; reject raw Windows ambiguous names before absolute-path normalization can conceal them.",
       "sha256": "560da88edc9a372533026a3559393341566af8a456885fb3092b417c7606d3c3",
       "source_sha256": "b6713120dcd974ef3bfe6c100349e20f5d004884b4d94684a92041da3c713966"
     },
@@ -2763,7 +2765,7 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_handoff.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets. Enable fixed in-process human curation on Windows using native submission locking, immutable durable records and bounded custody reads; preserve failed and interrupted submissions without replay.",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
       "sha256": "fd91f3384c76762bd144aa156aa6c98f5feb36e52c36353a1db17e923143112d",
       "source_sha256": "c3f9fb64a73f2d18a8695c217e64c8ea12407799626bc1144b175ca2ba526df5"
     },
@@ -2775,7 +2777,7 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/origami.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets. Use native Windows locks and file custody for callable Origami state, source snapshots and answer artifacts while preserving POSIX behavior and the separate command-provider fence.",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
       "sha256": "bd4869ade7e82e25fc6c24fb64e783a787dfe3c3471beae93ee0f7da2539704a",
       "source_sha256": "519004864947824b9a5ca38d7017c774cbe4a6dcacb8dc85ae3e523a1bd30d80"
     },
@@ -2847,8 +2849,8 @@
     },
     {
       "path": "runtime/tools/ecosystem/cli.py",
-      "reason": "Preserve lexical Windows package and workspace selections before native loom-tools custody checks.",
-      "sha256": "c6ceada603131f43e9fcb838aa07ce3da18476aa7bd0a4bb191a0324d8496d98",
+      "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
+      "sha256": "483a8ed0bc615f100015c2982c3dac8126ea656d3224bac99a7e24e4f5ac1a06",
       "source_sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e"
     },
     {
@@ -2898,6 +2900,30 @@
       "reason": "Preserve POSIX repository checks while bounding native Windows Markdown traversal and local-target custody, rejecting raw ambiguous names and reparse aliases before filesystem access.",
       "sha256": "1381c9cd88ce975729bc378fe5873c4d995d0d32ce26d413c0c379e7fa22929d",
       "source_sha256": "1e576b5a027bf6752845e59ef3c8c08ef12b12a1181d15afd8912fc9293bf57a"
+    },
+    {
+      "path": "runtime/docs/pando.md",
+      "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
+      "sha256": "313a32639d6c51c09780ccb6446efd5cec6b4a125b405eefdd24b225864d0566",
+      "source_sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a"
+    },
+    {
+      "path": "runtime/src/lodestone_pando/__main__.py",
+      "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
+      "sha256": "080d7c7fc6916f62d47fd7aef77f1728be70572c551c287d5c0a15c363ffa004",
+      "source_sha256": "9f57dfd36ee844c6eeb8e30935bbe374fbbaced60e0bf1d80b0a5a30074818cd"
+    },
+    {
+      "path": "runtime/tools/pando/run",
+      "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
+      "sha256": "f3214bc6bea1de6ad750c5f44e5821c230a0d9780d305f618723b3819b6ce6ee",
+      "source_sha256": "862b85e6fb9f2e7f0a43219ecf628edb3141e1e5c29fbb4a5ffe71af747b69c8"
+    },
+    {
+      "path": "runtime/src/lodestone_pando/store.py",
+      "reason": "Reject existing aliased native Windows SQLite database and journal files before connect, preserving trusted local SQLite semantics.",
+      "sha256": "fb5eb7d92e9ffc3271d3b25884e922f54621d008db66409d20ff72f63f4db412",
+      "source_sha256": "a75df102e7ffc706b09d8a2abb60e340c365703f84793e1f4c31bc0d16a192aa"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"
