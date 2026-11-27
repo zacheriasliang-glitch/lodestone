@@ -2249,7 +2249,7 @@
     "runtime/tools/local-memory/README.md": {
       "origin": "public-core",
       "path": "tools/local-memory/README.md",
-      "sha256": "00f53c0c7e940359a0a0dfcd488ffef367d9edd9f5fde79402b7b8bd7cbf806a",
+      "sha256": "541b990c97a4f17d9adfbdfec75adcca965873af9dbf3b4a66372c51cb1e220e",
       "source_sha256": "00f53c0c7e940359a0a0dfcd488ffef367d9edd9f5fde79402b7b8bd7cbf806a"
     },
     "runtime/tools/local-memory/schemas/record.schema.json": {
@@ -2261,7 +2261,7 @@
     "runtime/tools/local-memory/src/lodestone_memory.py": {
       "origin": "unified-runtime",
       "path": "tools/local-memory/src/lodestone_memory.py",
-      "sha256": "13feb8ff9a5d34d926a0c43f7fbcbbe22a0267b00feb2d123955f030198d43cf",
+      "sha256": "a5a76f6f7bfc865b3d76ea350d5de125fdf4121ae39072d9cf314d93e2e660a3",
       "source_sha256": "13feb8ff9a5d34d926a0c43f7fbcbbe22a0267b00feb2d123955f030198d43cf"
     },
     "runtime/tools/local-memory/src/source_addresses.py": {
@@ -2486,6 +2486,7 @@
     "portable_catalogue_raw_windows_paths": "38dac1e6914bda5ab733bae2fd116ca78da3a297",
     "portable_catalogue_selected_path_custody": "e5ea6121c2e1d42fb2b302330620adc99aeb8e22",
     "portable_installer": "93217426f4db532166ca26e6d55604a5f2eb9027",
+    "portable_local_memory": "e778bf6758bcc4e87207c56c71afc54d56f753e5",
     "portable_loopback_reuse": "c7f354186bd319d9418de87f7693bf35008e4d16",
     "portable_native_ci": "5bd383a2d80ff8c5d05bff4c01df536350f3281d",
     "portable_process": "35b2754ec1235c2205aba78f3cee3034c9788752",
@@ -2808,6 +2809,18 @@
       "reason": "Choose an available native locale while preserving the requested application translation.",
       "sha256": "40e1b651c9cf42e9b95c6845c22ce87497f7e92eb7d2684d01aca4f45f1d64cd",
       "source_sha256": "e529d84f29f4c5d04febb5a48b1fb0e70422f1e65d3aae24ec6adc6b80ce7a7e"
+    },
+    {
+      "path": "runtime/tools/local-memory/README.md",
+      "reason": "Add bounded native Windows notebook custody with a shared OS lock, exact retained-prefix durable publication and Unicode CLI output; preserve POSIX behavior and notebook schema. Source attribution remains inert text.",
+      "sha256": "541b990c97a4f17d9adfbdfec75adcca965873af9dbf3b4a66372c51cb1e220e",
+      "source_sha256": "00f53c0c7e940359a0a0dfcd488ffef367d9edd9f5fde79402b7b8bd7cbf806a"
+    },
+    {
+      "path": "runtime/tools/local-memory/src/lodestone_memory.py",
+      "reason": "Add bounded native Windows notebook custody with a shared OS lock, exact retained-prefix durable publication and Unicode CLI output; preserve POSIX behavior and notebook schema. Source attribution remains inert text.",
+      "sha256": "a5a76f6f7bfc865b3d76ea350d5de125fdf4121ae39072d9cf314d93e2e660a3",
+      "source_sha256": "13feb8ff9a5d34d926a0c43f7fbcbbe22a0267b00feb2d123955f030198d43cf"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"
