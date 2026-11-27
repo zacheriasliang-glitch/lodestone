@@ -10,6 +10,9 @@ native checks have been completed; use the exact release's verification record.
 Apple Silicon, other Linux distributions, ARM Windows and mobile platforms are
 outside this target set.
 
+The public [native verification guide](https://github.com/zacheriasliang-glitch/lodestone/blob/main/docs/desktop-validation/portable-preview.md)
+describes the release checks, retained evidence and local inference smoke.
+
 This is a preview. A retained correction is made available to a later encounter;
 the reader can still misunderstand or misapply it. Local practice does not update
 model weights. The preserved 31-component programme map includes experimental and
