@@ -291,10 +291,12 @@ retained refusal before retrying.
 
 On stock Ubuntu 24.04, AppArmor restricts unprivileged user namespaces, so
 bubblewrap cannot start and those optional command routes refuse. An
-administrator may opt in with `sudo "./Enable Linux Command Fence.sh"`, which
-loads a profile granting user namespaces to `/usr/bin/bwrap` only (Ubuntu's own
-`bwrap-userns-restrict` profile when the system ships it) and leaves the global
-restriction unchanged; `--remove` undoes it. The normal installer never runs it.
+administrator may opt in with `sudo "./Enable Linux Command Fence.sh"`. It loads
+upstream AppArmor's `bwrap-userns-restrict` policy, byte-for-byte and pinned by
+hash (the policy Ubuntu 25.04 enables by default): `/usr/bin/bwrap` may use user
+namespaces, and every program it starts runs without capabilities. The global
+restriction stays on; `--remove` unloads and deletes it; it refuses to touch any
+profile it did not write. The normal installer never runs it.
 
 The GUI uses native wx controls. The optional `accessible-output3` speech/braille
 plugin is not bundled because the target dependency sets lack pinned compatible
