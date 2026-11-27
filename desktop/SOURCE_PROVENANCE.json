@@ -921,7 +921,7 @@
     "runtime/docs/pando.md": {
       "origin": "public-core",
       "path": "docs/pando.md",
-      "sha256": "80e725ff96f8f3f5fa428cf94b45bea3cea6b4ad20f051150b762fddb9d29851",
+      "sha256": "313a32639d6c51c09780ccb6446efd5cec6b4a125b405eefdd24b225864d0566",
       "source_sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a"
     },
     "runtime/docs/porcelain.md": {
@@ -2189,7 +2189,7 @@
     "runtime/src/lodestone_pando/store.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_pando/store.py",
-      "sha256": "a75df102e7ffc706b09d8a2abb60e340c365703f84793e1f4c31bc0d16a192aa",
+      "sha256": "fb5eb7d92e9ffc3271d3b25884e922f54621d008db66409d20ff72f63f4db412",
       "source_sha256": "a75df102e7ffc706b09d8a2abb60e340c365703f84793e1f4c31bc0d16a192aa"
     },
     "runtime/tools/continuity/README.md": {
@@ -2488,6 +2488,7 @@
     "portable_installer": "93217426f4db532166ca26e6d55604a5f2eb9027",
     "portable_loopback_reuse": "c7f354186bd319d9418de87f7693bf35008e4d16",
     "portable_native_ci": "5bd383a2d80ff8c5d05bff4c01df536350f3281d",
+    "portable_pando_database_aliases": "269c48ce8b82613e92860805c3d6d196f7a897ca",
     "portable_pando_init_verify": "a5e4b35176910c41f585c87006ac992257f9f7c9",
     "portable_process": "35b2754ec1235c2205aba78f3cee3034c9788752",
     "portable_process_review_fix": "6fe42109ddde02a7d9dce05f799214d7c1a01c34",
@@ -2813,7 +2814,7 @@
     {
       "path": "runtime/docs/pando.md",
       "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
-      "sha256": "80e725ff96f8f3f5fa428cf94b45bea3cea6b4ad20f051150b762fddb9d29851",
+      "sha256": "313a32639d6c51c09780ccb6446efd5cec6b4a125b405eefdd24b225864d0566",
       "source_sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a"
     },
     {
@@ -2833,6 +2834,12 @@
       "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
       "sha256": "f3214bc6bea1de6ad750c5f44e5821c230a0d9780d305f618723b3819b6ce6ee",
       "source_sha256": "862b85e6fb9f2e7f0a43219ecf628edb3141e1e5c29fbb4a5ffe71af747b69c8"
+    },
+    {
+      "path": "runtime/src/lodestone_pando/store.py",
+      "reason": "Reject existing aliased native Windows SQLite database and journal files before connect, preserving trusted local SQLite semantics.",
+      "sha256": "fb5eb7d92e9ffc3271d3b25884e922f54621d008db66409d20ff72f63f4db412",
+      "source_sha256": "a75df102e7ffc706b09d8a2abb60e340c365703f84793e1f4c31bc0d16a192aa"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"
