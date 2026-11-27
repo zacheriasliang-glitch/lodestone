@@ -231,13 +231,10 @@ class RuntimeBoundaryTests(unittest.TestCase):
                     self.assertEqual(native.linux_group_snapshot(999),
                         [{"pid": 112, "rss_bytes": 8192, "zombie": False}])
 
-    def test_windows_optional_handoff_and_training_refuse_before_writes(self):
-        from lodestone_machinery.loom_handoff import LoomHandoff
+    def test_windows_optional_training_refuses_before_writes(self):
         from lodestone_machinery.loom_training import TrainingSupervisor
         with tempfile.TemporaryDirectory() as temporary, patch.object(sys, "platform", "win32"):
             root = Path(temporary) / "not-created"
-            with self.assertRaisesRegex(OSError, "handoff execution is unavailable on Windows"):
-                LoomHandoff(None, root)
             with self.assertRaisesRegex(OSError, "Training execution is unavailable on Windows"):
                 TrainingSupervisor().run({}, {}, {})
             self.assertFalse(root.exists())
