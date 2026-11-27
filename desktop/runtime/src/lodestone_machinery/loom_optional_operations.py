@@ -20,6 +20,8 @@ import sqlite3
 import sys
 import zipfile
 
+from lodestone_nurarihyon.portable_files import read_bytes, absolute_path, guarded_directory
+
 MAX_INPUT_BYTES = 2 * 1024 * 1024
 
 
@@ -77,23 +79,17 @@ def availability(package_root):
 
 
 def _read(path, maximum=MAX_INPUT_BYTES):
-    path = Path(path)
-    if path.is_symlink() or not path.is_file():
-        raise ValueError("Select a regular input file, not a symbolic link")
-    with path.open("rb") as stream:
-        raw = stream.read(maximum + 1)
-    if len(raw) > maximum:
-        raise ValueError("Selected input exceeds the bounded local-operation limit")
-    return raw
+    return read_bytes(path, maximum)
 
 
 def _load(root, relative, name):
     path = root / relative
-    if path.is_symlink() or not path.is_file():
-        raise ValueError("Trusted native validator is unavailable")
+    source = _read(path)
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    # Execute exactly the source bytes held and checked by native custody,
+    # without reopening the pathname through an import loader or bytecode cache.
+    exec(compile(source, str(path), "exec"), module.__dict__)
     return module
 
 
@@ -147,7 +143,10 @@ def _cwd(path):
 
 
 def execute(operation, inputs, *, root, workspace):
-    root = Path(root).resolve()
+    root = absolute_path(root) if os.name == "nt" else Path(root).resolve()
+    if os.name == "nt":
+        with guarded_directory(root):
+            pass
     if operation not in EXTRA_SPECS or type(inputs) is not dict or set(inputs) != set(EXTRA_SPECS[operation]["inputs"]):
         raise ValueError("Supply exactly the selected native operation's named inputs")
     state = availability(root)[operation]

@@ -146,9 +146,17 @@ def main(argv=None):
     try:
         if sys.version_info < (3, 10):
             raise ValueError("Python 3.10 or later is required")
-        root = options.repo.expanduser().resolve()
-        workspace = options.workspace.expanduser().resolve()
         command, args = options.command, options.args
+        if os.name == "nt" and command == "loom-tools":
+            # Use this dispatcher's trusted custody helper before importing code
+            # from the selected package; resolving first would hide junctions.
+            sys.path.insert(0, str(ROOT / "src"))
+            from lodestone_machinery.loom_operations import _selected_path
+            root = _selected_path(options.repo, directory=True)
+            workspace = _selected_path(options.workspace, directory=True)
+        else:
+            root = options.repo.expanduser().resolve()
+            workspace = options.workspace.expanduser().resolve()
         if command in LOCAL_HELP and (args in (["--help"], ["-h"]) or
                                        (command == "porcelain" and not args)):
             print(f"usage: lodestone.py [--repo PACKAGE] [--workspace DIR] {command}" +
