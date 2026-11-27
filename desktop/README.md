@@ -1,7 +1,8 @@
 # Lodestone Desktop preview
 
-Unified Loom provides a local Qwen3 reader, retained encounters and corrections,
-Origami handoffs and a catalogue of the supported toolkit operations.
+Unified Loom provides a local Qwen3 reader and retained encounters and corrections.
+Origami handoffs and toolkit execution have additional platform restrictions,
+listed below.
 
 The `0.4.0-preview.6` cross-platform preview targets Intel macOS, Ubuntu 24.04
 x86_64 and Windows x86_64. The
@@ -17,6 +18,37 @@ This is a preview. A retained correction is made available to a later encounter;
 the reader can still misunderstand or misapply it. Local practice does not update
 model weights. The preserved 31-component programme map includes experimental and
 unfinished research; installing the application does not complete that research.
+
+## Current platform and function availability
+
+This matrix describes desktop preview.6. Its local reader and retained-practice
+workflow are available on all three targets; the full set of desktop functions
+does not yet have platform parity.
+
+| Function | Intel macOS | Ubuntu 24.04 x86_64 | Windows x86_64 |
+|---|---|---|---|
+| Local Qwen3 reader, owned worker cancellation and timeout | Verified in release checks | Verified in release checks | Verified in release checks |
+| Retain an unresolved correction and deliver it to a later encounter | Verified in release checks | Verified in release checks | Verified in release checks |
+| Save/reopen conversations, projects and unsent drafts | Verified in release checks | Verified in release checks | Verified in release checks |
+| Install, reinstall, upgrade, roll back and remove the application while preserving retained records | Verified in release checks | Verified in release checks | Verified in release checks |
+| Human-curated Origami handoff from a retained encounter | Implemented with POSIX custody | Implemented with POSIX custody | Unavailable; preparation and completion refuse |
+| Execute an operation from the desktop toolkit catalogue | Explicitly approved trusted subprocesses; operation prerequisites apply | Explicitly approved trusted subprocesses; operation prerequisites apply | Unavailable for every catalogue operation; process and operation portability remain unfinished |
+
+The release checks cover native installation, GUI behavior, process supervision
+and two local-reader encounters per target. They establish actual generation and
+exact correction delivery, not whether the reader understands or applies that
+correction. The handoff and toolkit rows describe implementation and prerequisites;
+the release's two-encounter smoke does not exercise every toolkit operation.
+
+Windows toolkit refusal includes deterministic memory, board and source-inspection
+operations. The current POSIX catalogue runs trusted subprocesses with bounded
+output, timeouts and owned process groups. This does not provide filesystem or
+network isolation. A Windows port needs equivalent process ownership and an audit
+of each operation's dependencies; a kernel sandbox is not a prerequisite imposed
+by this catalogue. Human-curated Origami handoffs have a separate POSIX custody
+requirement and also remain unavailable on Windows. These are product portability
+gaps. The historical 31-component programme map and its research criteria remain
+unchanged.
 
 ## Install
 
@@ -323,16 +355,21 @@ must be inspected before another attempt. Some machines will respond slowly.
 
 Conscience assesses the supported practice contract. Nurarihyon records actual
 dispatch outcomes and reconciles interrupted work. Bezoar retains evidence and
-corrections; Origami provides curated handoffs; the toolkit catalogue reports each
-operation's requirements. Optional research/training tools are not dependencies
+corrections; Origami provides curated handoffs on macOS and Linux; the toolkit
+catalogue reports each operation's requirements. Optional research/training tools are not dependencies
 of the installed local reader and are not run by installation.
 
-Toolkit availability also depends on host isolation. Windows toolkit command
-execution and external command providers that require the POSIX isolation fence
-refuse until an equivalent isolation mechanism is available. The local Loom
-reader and its retained learning lifecycle are separate from those optional
-command routes. Linux command routes that require bubblewrap refuse when host
-policy or kernel restrictions prevent its isolation from starting; installing
+Every toolkit catalogue operation is currently unavailable on Windows because
+its process and operation portability is unfinished. The POSIX catalogue executes
+explicitly approved trusted subprocesses without a kernel sandbox. Human-curated
+Origami handoffs separately refuse on Windows because their custody path requires
+POSIX. The local Loom reader and its retained learning lifecycle remain available
+there.
+
+External Origami command providers and garden execution have a separate kernel
+confinement requirement. Those routes refuse on Windows until an equivalent
+isolation mechanism is available. On Linux they require working bubblewrap and
+refuse when host policy or kernel restrictions prevent it from starting; installing
 `bubblewrap` does not override such restrictions. Inspect the catalogue and the
 retained refusal before retrying.
 
