@@ -1,6 +1,7 @@
 """Explicit JSON commands for INGEST/EAT/MUTATE, Watcher, and Bezoar."""
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -114,7 +115,7 @@ def main(argv=None, *, watcher_only=False):
             print(json.dumps({'source_handle': handle, 'path': str(Path(args.output).resolve()),
                               'sha256': hashlib.sha256(raw).hexdigest(), 'activation': 'NONE'}))
             return 0
-        print(json.dumps({'handle': handle, 'record': record}, indent=2, ensure_ascii=False))
+        print(json.dumps({'handle': handle, 'record': record}, indent=2, ensure_ascii=os.name == 'nt'))
         return 2 if record['payload'].get('status') in ('HELD', 'REVIEWED_FAIL', 'REVIEWED_UNKNOWN') else 0
     except (ValueError, OSError) as exc:
         print(json.dumps({'error': type(exc).__name__, 'message': str(exc)[:1500]}), file=sys.stderr)
