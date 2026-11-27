@@ -11,6 +11,9 @@ import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
+
+from sqlalchemy import Engine, event
 
 ROOT = Path(__file__).resolve().parents[2]
 PAYLOAD = Path(os.environ.get("LODESTONE_DESKTOP_TEST_PAYLOAD", ROOT / "desktop")).resolve()
@@ -39,6 +42,51 @@ def block(text="Unsent inspection checklist", purpose="Keep the inspection date 
     return MessageBlock(request=Message(role=MessageRoleEnum.USER, content=text),
                         model=AIModelInfo(provider_id="loom", model_id="loom-qwen3-base"),
                         max_tokens=512, loom_purpose=purpose)
+
+
+class DatabaseConnectionLifetimeTests(unittest.TestCase):
+    def assert_migration_releases_connections(self, *, interrupted):
+        with tempfile.TemporaryDirectory(prefix="lodestone-db-lifetime-") as directory:
+            previous_root = global_vars.user_data_path
+            global_vars.user_data_path = Path(directory)
+            connections = []
+            database = None
+
+            def connected(connection, record):
+                # Retain the real DBAPI handle so garbage collection cannot
+                # hide a pooled connection that still owns the SQLite file.
+                connections.append(connection)
+
+            event.listen(Engine, "connect", connected)
+            try:
+                path = Path(directory) / "conversations.db"
+                if interrupted:
+                    with patch("alembic.runtime.migration.MigrationContext.run_migrations",
+                               side_effect=RuntimeError("migration interrupted")):
+                        with self.assertRaisesRegex(RuntimeError, "migration interrupted"):
+                            ConversationDatabase(path)
+                else:
+                    database = ConversationDatabase(path)
+                    database.close()
+                self.assertTrue(connections, "The fixture must open a real SQLite connection")
+                for connection in connections:
+                    with self.assertRaises(sqlite3.ProgrammingError):
+                        connection.execute("SELECT 1")
+                # Windows refuses this unlink if any migration handle remains.
+                path.unlink()
+            finally:
+                event.remove(Engine, "connect", connected)
+                if database is not None:
+                    database.close()
+                for connection in connections:
+                    connection.close()
+                global_vars.user_data_path = previous_root
+
+    def test_successful_migration_releases_database_file_after_close(self):
+        self.assert_migration_releases_connections(interrupted=False)
+
+    def test_interrupted_migration_releases_database_file(self):
+        self.assert_migration_releases_connections(interrupted=True)
 
 
 class ConversationPersistenceTests(unittest.TestCase):
