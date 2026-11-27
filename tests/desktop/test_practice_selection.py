@@ -19,6 +19,7 @@ SECOND = "bezoar:" + "2" * 64
 
 class PracticeSelectionTests(unittest.TestCase):
     def bridge(self, directory):
+        directory = Path(directory).resolve()
         active_path = Path(directory) / "active.json"
         active_path.write_text(json.dumps({"schema": "lodestone-learning-active/v1",
             "required": True, "memory_workspace": str(Path(directory) / "memory"),

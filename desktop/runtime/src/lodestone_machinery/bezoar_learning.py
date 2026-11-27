@@ -7,11 +7,11 @@ checks verify custody and declarations, not a reviewer's identity or truth.
 There are no model calls, weight updates, permission grants or implicit actions.
 Callers serialize prepare/dispatch/finish with their existing execution lock.
 """
+from contextlib import nullcontext
 from datetime import datetime, timezone
 from functools import wraps
 import hashlib
 import json
-import os
 from pathlib import Path
 import uuid
 
@@ -77,8 +77,14 @@ def _operation(method):
     """
     @wraps(method)
     def wrapped(self, *args, **kwargs):
-        with guarded_directory(self.workspace):
-            outer = not hasattr(self, "_validated_records")
+        outer = not hasattr(self, "_validated_records")
+        if self.workspace is None:
+            _require(getattr(self, "_read_only_capture", False) is True,
+                     "Only an explicit read-only capture may omit filesystem custody")
+        # One lexical directory lease covers nested validation and cached reads.
+        # Captured archives have no attributed filesystem workspace to open.
+        custody = guarded_directory(self.workspace) if outer and self.workspace is not None else nullcontext()
+        with custody:
             if outer:
                 self._validated_records = {}
                 self._catalog_rows = None
@@ -148,15 +154,10 @@ class LearningMemory:
         return cls(workspace, history_references=mode == "lodestone-learning-active/v2")
 
     def _publish(self, kind, body, links=()):
+        _require(self.workspace is not None, "Captured learning archives are read-only")
         payload = {"schema": PREFIX + kind + "/v1", **_copy(body), "authority": "NONE"}
         result = self.store.publish("bezoar", "learning-" + kind, payload, links=sorted(set(links)))
-        # RecordStore syncs the file before its atomic link. Persist that link
-        # too: a completed learning write must survive loss of the host process.
-        descriptor = os.open(self.store.path(result).parent, os.O_RDONLY)
-        try:
-            os.fsync(descriptor)
-        finally:
-            os.close(descriptor)
+        # RecordStore publishes and flushes with the native platform backend.
         rows = getattr(self, "_catalog_rows", None)
         if rows is not None:
             # This operation already checked the complete catalogue. Validate
