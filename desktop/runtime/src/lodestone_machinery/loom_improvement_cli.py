@@ -23,6 +23,7 @@ def add_parser(subparsers):
     command.add_argument("--provider-command", required=True, help="JSON argv for a trusted local evaluator, given the native packet on stdin; no shell or default provider")
     command.add_argument("--timeout", type=int, default=120)
     command.add_argument("--artifact-directory", help="Verify exact materialized candidate files before and after the trial; required for function candidates")
+    command.add_argument("--voxel-context", help="Optional canonical voxel context JSON file for this attempt")
     command.add_argument("--pack-tool-context", action="store_true", help="Losslessly pack the complete snapshot envelope for a trusted tool evaluator that decodes it; not a model-readable prompt")
     command = commands.add_parser("review", help="Return an attributed correction to Bezoar for later attempts; does not promote a learning fold")
     command.add_argument("attempt")
@@ -97,5 +98,7 @@ def dispatch(args, memory, config):
                     observed["artifact_error_type"] = type(exc).__name__
             return returned
 
-        return cycle.run(args.attempt, provider=trial, pack_tool_context=args.pack_tool_context)
+        from lodestone_nurarihyon.common import read_bytes
+        voxel = read_bytes(args.voxel_context, 262144).decode("utf-8") if args.voxel_context else None
+        return cycle.run(args.attempt, provider=trial, pack_tool_context=args.pack_tool_context, voxel=voxel)
     raise ValueError("Unknown improvement operation")

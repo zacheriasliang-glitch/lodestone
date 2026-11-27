@@ -115,6 +115,21 @@ together while the application is closed. Keep the newer workspace intact: its
 outcomes and corrections are not rewritten for the old reader. Use this release's
 installer for the compatibility check; an older installer does not gain it.
 
+## Optional voxel teaching in practice
+
+The runtime API and configured `loom-practice packet` command can carry an
+explicit canonical `voxel_context` beside retained practice. Use
+`--voxel-context voxel.json` on an adapter packet, or `voxel=...` on
+`UnifiedLoom.run` / `LoomBridge.run`. See
+[runtime voxel instructions](runtime/docs/loom-voxels.md) for the exact format and
+improvement-command route. This release adds no voxel control to the GUI.
+
+The optional section preserves the history selected without it. If the combined
+input is too large, the attempt refuses instead of discarding additional history.
+Advice tied to an earlier purpose remains labelled as history. Ordinary requests
+without this option keep their existing prompts. This connection does not run the
+probability probe, train weights, or establish improved decisions.
+
 ## Bounds and components
 
 The default reader is the quantized Qwen3-0.6B base. It has a small model capacity,

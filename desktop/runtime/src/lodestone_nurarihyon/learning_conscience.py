@@ -90,7 +90,7 @@ def assess(memory, prepared, packet):
                 reference = strict_json(packet["context"].encode(), MAX_PACKET_BYTES)
             except (ValueError, UnicodeError):
                 reference = None
-            if type(reference) is dict and "reader_history_window" in reference:
+            if type(reference) is dict and ("reader_history_window" in reference or "voxel" in reference):
                 from lodestone_machinery.learning_context import validate_practice_packet
                 validate_practice_packet(memory, checked, packet, "adapter")
         if reference_history and not (type(reference) is dict and "reader_history_window" in reference):

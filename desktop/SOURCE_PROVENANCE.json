@@ -876,6 +876,12 @@
       "sha256": "5acdc7f8e0e89b0cf2b1df498b3af3288cad94056c2824c5743b23e0a6516eb6",
       "source_sha256": "5acdc7f8e0e89b0cf2b1df498b3af3288cad94056c2824c5743b23e0a6516eb6"
     },
+    "runtime/docs/loom-voxels.md": {
+      "origin": "unified-runtime",
+      "path": "docs/loom-voxels.md",
+      "sha256": "78ae7abcd4bdd2a5e9cb8d1ce2b35c9ab16e1e1f18e7023ba204331dc7ac3651",
+      "source_sha256": "3175c9519e91c019f0dc5fdcad22b414b8486d5ae43d469f8da47b4bb24c27d6"
+    },
     "runtime/docs/mailbox.md": {
       "origin": "public-core",
       "path": "docs/mailbox.md",
@@ -1577,13 +1583,13 @@
     "runtime/src/lodestone_machinery/learning_cli.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/learning_cli.py",
-      "sha256": "d80aeb5c245459cf062bf4c7f0b4c821a3464ecc3434dfeb24d0a6df7aa55540",
+      "sha256": "dcdbe9fd0fb1c958baec285dc1836954355dffcf435ce516c90373034a6b7aa5",
       "source_sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315"
     },
     "runtime/src/lodestone_machinery/learning_context.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/learning_context.py",
-      "sha256": "dc6691e2fe55bd2947f72f84ba513c49e317bd57e3104cc6da9a764735007f85",
+      "sha256": "9cb1e210fc1c9e3c07f8db2ac51f53ccb15f968d6fee8b7109ef3524ab905ed6",
       "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
     },
     "runtime/src/lodestone_machinery/learning_reader.py": {
@@ -1649,13 +1655,13 @@
     "runtime/src/lodestone_machinery/loom_improvement.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_improvement.py",
-      "sha256": "bcbec6c662b33c16dc62284a39fe197952b538e69d614f735e1cfe5c3b133f2f",
+      "sha256": "99f933e2b38beda530c1cd094eb2a2ea81c783a6df2f8d50716ac7b611bff2ac",
       "source_sha256": "bcbec6c662b33c16dc62284a39fe197952b538e69d614f735e1cfe5c3b133f2f"
     },
     "runtime/src/lodestone_machinery/loom_improvement_cli.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_improvement_cli.py",
-      "sha256": "41f130866549d44d8112b80e694f50ed02979c3fb08934910def325bb12fb1ae",
+      "sha256": "9122aac7e750b4231e57d4f6fe4d67b08f9d072933179eefde5dc47879e67cf2",
       "source_sha256": "41f130866549d44d8112b80e694f50ed02979c3fb08934910def325bb12fb1ae"
     },
     "runtime/src/lodestone_machinery/loom_inference_memory.py": {
@@ -1691,7 +1697,7 @@
     "runtime/src/lodestone_machinery/loom_runtime.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_runtime.py",
-      "sha256": "68cbd5ea1e1b16e3452a78495515ac504c91d30a09f0de294776d3e1b3036efc",
+      "sha256": "70ae1db3b6f54966c64fdb6b48264916cc5fd307f22663e57203407c25d8c250",
       "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
     },
     "runtime/src/lodestone_machinery/loom_runtime_worker.py": {
@@ -1751,13 +1757,13 @@
     "runtime/src/lodestone_machinery/loom_unified.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_unified.py",
-      "sha256": "90cd301393d4349e3ef52be3c6c86b37f6fa91930cee4a37b516dc17bd2ef6cf",
+      "sha256": "ec12126707ac8636c50e82ab8c3a5c3be12f27bdd7775966333add5578d4111f",
       "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
     },
     "runtime/src/lodestone_machinery/loom_voxels.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_voxels.py",
-      "sha256": "9af2cead9f119dbe0d8d7108ac6f78ed0118d30ddd735a1c3eb146bf3c2a1c67",
+      "sha256": "41893b44ecebe38eeb2c435612b8127474606d315eedfe52cdc9edd89dd12cd3",
       "source_sha256": "9af2cead9f119dbe0d8d7108ac6f78ed0118d30ddd735a1c3eb146bf3c2a1c67"
     },
     "runtime/src/lodestone_machinery/loom_would_probe.py": {
@@ -2057,7 +2063,7 @@
     "runtime/src/lodestone_nurarihyon/learning_conscience.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_nurarihyon/learning_conscience.py",
-      "sha256": "e3531716543d841f555b3d2a61c78c8daadcf0362cbd784453c5e11efb8314c9",
+      "sha256": "fe1b1e3ac0a617f390f0674aa54db05a496e181301ed583b5e393a2f0d52639a",
       "source_sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9"
     },
     "runtime/src/lodestone_nurarihyon/learning_recurrence.py": {
@@ -2447,10 +2453,11 @@
   },
   "implementation_commits": {
     "native_reference_history": "40e6672dd3403bae357345d7eb3016dd075e660d",
+    "practice_voxel_integration": "5c36f68dc5a17a1224257e0cb3adf93e5a2712e5",
     "previous_desktop_release": "22703ca5c0b4e800acd2f1b1903514577f00a33e",
     "reference_history_installer": "f3b28acdc2d2abc77813376445616b200fd3b609",
     "reference_history_installer_cherry_picked_from": "1a32a87ccad4dd7c596df31a911fd0c4ebf08527",
-    "scope": "Implementation commits identify the native history and installer changes. Original export origins and source_sha256 values remain preserved; release packaging and documentation are tracked by the enclosing release commit."
+    "scope": "Implementation commits identify the native history and installer changes. Original export origins and source_sha256 values remain preserved; release packaging and documentation are tracked by the enclosing release commit. Optional practice/voxel integration identifies its lab source commit; the public port preserves its distinct history-window and tokenizer-candidate paths."
   },
   "public_base_commit": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
   "public_repository": "https://github.com/zacheriasliang-glitch/lodestone",
@@ -2545,8 +2552,8 @@
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/learning_context.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
-      "sha256": "dc6691e2fe55bd2947f72f84ba513c49e317bd57e3104cc6da9a764735007f85",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
+      "sha256": "9cb1e210fc1c9e3c07f8db2ac51f53ccb15f968d6fee8b7109ef3524ab905ed6",
       "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
     },
     {
@@ -2564,21 +2571,21 @@
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/learning_cli.py",
-      "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
-      "sha256": "d80aeb5c245459cf062bf4c7f0b4c821a3464ecc3434dfeb24d0a6df7aa55540",
+      "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
+      "sha256": "dcdbe9fd0fb1c958baec285dc1836954355dffcf435ce516c90373034a6b7aa5",
       "source_sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315"
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_unified.py",
-      "reason": "Add source-bound decision format and saved review, explicit reader history selection, and compatibility with valid reason/checks-only native reviews.",
-      "sha256": "90cd301393d4349e3ef52be3c6c86b37f6fa91930cee4a37b516dc17bd2ef6cf",
+      "reason": "Add source-bound decision format and saved review, explicit reader history selection, and compatibility with valid reason/checks-only native reviews. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
+      "sha256": "ec12126707ac8636c50e82ab8c3a5c3be12f27bdd7775966333add5578d4111f",
       "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
     },
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/loom_runtime.py",
-      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
-      "sha256": "68cbd5ea1e1b16e3452a78495515ac504c91d30a09f0de294776d3e1b3036efc",
+      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
+      "sha256": "70ae1db3b6f54966c64fdb6b48264916cc5fd307f22663e57203407c25d8c250",
       "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
     },
     {
@@ -2597,8 +2604,8 @@
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_nurarihyon/learning_conscience.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
-      "sha256": "e3531716543d841f555b3d2a61c78c8daadcf0362cbd784453c5e11efb8314c9",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
+      "sha256": "fe1b1e3ac0a617f390f0674aa54db05a496e181301ed583b5e393a2f0d52639a",
       "source_sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9"
     },
     {
@@ -2625,6 +2632,30 @@
       "reason": "Keep retained-lesson loading responsive with asynchronous validation and safe cancellation; display correction conditions and current replacements.",
       "sha256": "5e4cbdbe12feff23b440927ea19033880037f0a6e82b09193014b669dc4ec243",
       "source_sha256": "d17bef1628d39b77f00d536e3da417ee8b5b3f598412265d0bd4d358a03e4d62"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_improvement.py",
+      "reason": "Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
+      "sha256": "99f933e2b38beda530c1cd094eb2a2ea81c783a6df2f8d50716ac7b611bff2ac",
+      "source_sha256": "bcbec6c662b33c16dc62284a39fe197952b538e69d614f735e1cfe5c3b133f2f"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_improvement_cli.py",
+      "reason": "Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
+      "sha256": "9122aac7e750b4231e57d4f6fe4d67b08f9d072933179eefde5dc47879e67cf2",
+      "source_sha256": "41f130866549d44d8112b80e694f50ed02979c3fb08934910def325bb12fb1ae"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_voxels.py",
+      "reason": "Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
+      "sha256": "41893b44ecebe38eeb2c435612b8127474606d315eedfe52cdc9edd89dd12cd3",
+      "source_sha256": "9af2cead9f119dbe0d8d7108ac6f78ed0118d30ddd735a1c3eb146bf3c2a1c67"
+    },
+    {
+      "path": "runtime/docs/loom-voxels.md",
+      "reason": "Include voxel format documentation and the explicit retained-practice API and command route; no GUI control or inference is added.",
+      "sha256": "78ae7abcd4bdd2a5e9cb8d1ce2b35c9ab16e1e1f18e7023ba204331dc7ac3651",
+      "source_sha256": "3175c9519e91c019f0dc5fdcad22b414b8486d5ae43d469f8da47b4bb24c27d6"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"

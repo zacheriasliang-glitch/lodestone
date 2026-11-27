@@ -458,7 +458,7 @@ class ImprovementCycle:
         validate_practice_packet(self.memory, prepared, packet, "adapter", historical=historical)
         return attempt
 
-    def run(self, attempt_handle, *, provider, pack_tool_context=False):
+    def run(self, attempt_handle, *, provider, pack_tool_context=False, voxel=None):
         """Dispatch once through Conscience/Nurarihyon using explicit trusted evaluation."""
         _require(type(pack_tool_context) is bool, "Tool packing requires an explicit boolean")
         with learning.locked(self.memory):
@@ -475,7 +475,7 @@ class ImprovementCycle:
                 literal = self.trial_context(attempt_handle, pack_tool_context=pack_tool_context)
                 binding = saved["binding"]
                 packet = build_adapter_request(self.memory, saved, request_id=saved["run_id"], context=literal,
-                                               encounter=binding["encounter"], purpose=binding["purpose"])
+                                               encounter=binding["encounter"], purpose=binding["purpose"], voxel=voxel)
                 self.validate_trial_packet(packet)
                 return packet
 

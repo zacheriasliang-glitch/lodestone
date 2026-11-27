@@ -106,6 +106,7 @@ def main(argv=None):
     c.add_argument("run_handle")
     c.add_argument("--kind", choices=("adapter", "subscription"), required=True)
     c.add_argument("--context", required=True, help="UTF-8 literal account file")
+    c.add_argument("--voxel-context", help="Optional canonical voxel context JSON file for adapter practice")
     c.add_argument("--response-schema", help="Required JSON schema file for subscription packet")
     c.add_argument("--history-window", type=int, help="Explicit adapter history window (1..32); required for reference-history workspaces")
     c = sub.add_parser("run")
@@ -171,10 +172,13 @@ def main(argv=None):
             prepared = memory.read_prepared(a.run_handle)
             context = read_bytes(a.context, 32768).decode("utf-8")
             b = prepared["binding"]
+            voxel = read_bytes(a.voxel_context, 262144).decode("utf-8") if a.voxel_context else None
             if a.kind == "adapter":
                 result = build_adapter_request(memory, prepared, request_id=prepared["run_id"],
-                                               context=context, encounter=b["encounter"], purpose=b["purpose"], history_window=getattr(a, "history_window", None))
+                                               context=context, encounter=b["encounter"], purpose=b["purpose"], history_window=getattr(a, "history_window", None), voxel=voxel)
             else:
+                if voxel is not None:
+                    raise ValueError("Voxel sections require the adapter practice route")
                 if not a.response_schema:
                     raise ValueError("A subscription response schema is required")
                 result = build_subscription_packet(memory, prepared, task=b["encounter"],

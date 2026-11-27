@@ -205,10 +205,15 @@ def _check_should(row):
     if set(body) != {"schema", "intention", "act", "unless", "purpose", "would_seal"} \
             or _sha(body) != row.get("should_sha256"):
         raise ValueError("should record was changed")
+    for name in ("intention", "act", "unless", "purpose"):
+        _text(row[name], name)
+    if row["would_seal"] is not None and (type(row["would_seal"]) is not str
+            or re.fullmatch(r"[0-9a-f]{64}", row["would_seal"]) is None):
+        raise ValueError("would_seal must be a SHA-256 digest")
     return row
 
 
-def render_voxel_request(request):
+def render_voxel_sections(context, purpose):
     """Readable sections for a voxel context; None for any other context.
 
     Earlier shoulds pass through ``carry_should`` against this request's purpose:
@@ -216,7 +221,7 @@ def render_voxel_request(request):
     history, labelled as not current. Its act never enters the room as advice.
     """
     try:
-        value = json.loads(request["context"])
+        value = json.loads(context)
     except (ValueError, TypeError, KeyError):
         return None
     if type(value) is not dict or value.get("schema") != CONTEXT_SCHEMA:
@@ -226,12 +231,13 @@ def render_voxel_request(request):
     keys = set(value)
     if (keys not in ({"schema", "teaching", "named_knots", "shoulds"}, {"schema", "teaching", "named_knots"})
             or type(value["named_knots"]) is not list or type(value.get("shoulds", [])) is not list
-            or canonical(value).decode("utf-8") != request["context"]):
+            or canonical(value).decode("utf-8") != context
+            or len(value["named_knots"]) > MAX_KNOTS or len(value.get("shoulds", [])) > MAX_KNOTS):
         raise ValueError("invalid voxel context")
     _text(value["teaching"], "teaching", 16384)
     current, history = [], []
     for row in value.get("shoulds", []):
-        carried = carry_should(_check_should(row), request["purpose"])
+        carried = carry_should(_check_should(row), purpose)
         if carried["status"] == "CURRENT":
             current.append("- " + row["act"] + " (to " + row["intention"] + "; unless " + row["unless"] + ")")
         else:
@@ -245,6 +251,13 @@ def render_voxel_request(request):
     if history:
         sections.append("Earlier advice, kept as history; its purpose has changed, so it is not "
                         "current advice:\n" + "\n".join(history))
-    sections.append("Encounter:\n" + request["encounter"].strip())
-    sections.append("Purpose:\n" + request["purpose"].strip())
     return "\n\n".join(sections)
+
+
+def render_voxel_request(request):
+    """Render standalone voxel advice and the request without changing old bytes."""
+    sections = render_voxel_sections(request.get("context"), request["purpose"])
+    if sections is None:
+        return None
+    return (sections + "\n\nEncounter:\n" + request["encounter"].strip()
+            + "\n\nPurpose:\n" + request["purpose"].strip())
