@@ -4,6 +4,9 @@ Fail closed: a command provider or trial checker runs only inside a kernel
 fence this platform actually has. There is no unfenced fallback.
 
 - macOS: ``sandbox-exec`` with Origami's Seatbelt profile (unchanged).
+- Windows: a fresh per-run AppContainer with no capabilities (no network),
+  workspace-only writes and per-run read grants (windows_appcontainer.py),
+  when a probe shows it actually starts.
 - Linux: bubblewrap (``bwrap``) in fresh namespaces, with read-only binds for
   the system, the program, the source root and any declared auth directory;
   the workspace is the one writable place; no network.
@@ -18,12 +21,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import functools
+import os
 import shutil
 import subprocess
 import sys
 
 SEATBELT = "sandbox-exec"
 BWRAP = "bwrap"
+APPCONTAINER = "appcontainer"
 # Linux system prefixes a fenced program may read so that an interpreter can start.
 LINUX_READ_PREFIXES = ("/usr", "/bin", "/sbin", "/lib", "/lib32", "/lib64", "/etc", "/opt")
 
@@ -51,6 +56,22 @@ def _bwrap_starts(path):
     return done.returncode == 0
 
 
+@functools.lru_cache(maxsize=None)
+def _appcontainer_starts(launcher):
+    """Prove a no-capability AppContainer starts here before relying on it."""
+    import tempfile
+    system = os.environ.get("SystemRoot", r"C:\Windows")
+    try:
+        with tempfile.TemporaryDirectory(prefix="lodestone-fence-probe-") as workspace:
+            done = subprocess.run([sys.executable, "-I", "-B", launcher, "--workspace", workspace, "--",
+                                   os.path.join(system, "System32", "cmd.exe"), "/c", "exit 0"],
+                                  stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                  stderr=subprocess.DEVNULL, timeout=60, check=False)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return done.returncode == 0
+
+
 def fence():
     """The kernel fence available here, or None."""
     if sys.platform == "darwin":
@@ -59,6 +80,9 @@ def fence():
     if sys.platform.startswith("linux"):
         path = shutil.which(BWRAP)
         return Fence(BWRAP, path) if path and _bwrap_starts(path) else None
+    if sys.platform == "win32":
+        launcher = os.path.join(os.path.dirname(os.path.abspath(__file__)), "windows_appcontainer.py")
+        return Fence(APPCONTAINER, launcher) if os.path.isfile(launcher) and _appcontainer_starts(launcher) else None
     return None
 
 
@@ -68,10 +92,21 @@ def require(kind_of_work, *, endpoints=()):
     if found is None:
         raise FenceUnavailable(kind_of_work + " needs a kernel fence and none is available on this platform "
                                "(macOS sandbox-exec, or Linux bubblewrap with user namespaces); refused")
-    if found.kind == BWRAP and endpoints:
-        raise FenceUnavailable(kind_of_work + " declares network endpoints; the Linux fence cannot admit only "
-                               "the local endpoint proxy, so it is refused")
+    if found.kind in (BWRAP, APPCONTAINER) and endpoints:
+        raise FenceUnavailable(kind_of_work + " declares network endpoints; this platform's fence cannot admit "
+                               "only the local endpoint proxy, so it is refused")
     return found
+
+
+def appcontainer_argv(launcher, argv, *, workspace, readable):
+    """Run argv through the out-of-container launcher; argv[0] must be absolute."""
+    program = shutil.which(argv[0]) or argv[0]
+    if not os.path.isabs(program):
+        raise FenceUnavailable("The Windows fence needs an absolute program path: " + str(argv[0]))
+    out = [sys.executable, "-I", "-B", launcher, "--workspace", str(workspace)]
+    for item in readable:
+        out += ["--read", str(item)]
+    return out + ["--", program, *argv[1:]]
 
 
 def bwrap_argv(path, argv, *, workspace, readable):

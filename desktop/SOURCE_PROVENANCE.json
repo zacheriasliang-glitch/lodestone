@@ -1523,8 +1523,8 @@
     "runtime/src/lodestone_machinery/isolation.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/isolation.py",
-      "sha256": "0d769cfb1a7741093caa884f5faddcb91eb129aef1065037ef3dbedfc5017d6b",
-      "source_sha256": "0d769cfb1a7741093caa884f5faddcb91eb129aef1065037ef3dbedfc5017d6b"
+      "sha256": "0ce9c04c54343f755dd98c7335a47f151e2f43e082bb762284d7240b35b3fece",
+      "source_sha256": "0ce9c04c54343f755dd98c7335a47f151e2f43e082bb762284d7240b35b3fece"
     },
     "runtime/src/lodestone_machinery/latent/__init__.py": {
       "origin": "unified-runtime",
@@ -1871,8 +1871,8 @@
     "runtime/src/lodestone_machinery/origami.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/origami.py",
-      "sha256": "c6faacb5238ebf66d456ba289cc9e6de79305b2acb69d2930f40560b43bf9f6b",
-      "source_sha256": "519004864947824b9a5ca38d7017c774cbe4a6dcacb8dc85ae3e523a1bd30d80"
+      "sha256": "c980c60c74d4bc65f1e99606392f890d402204229f3ba6ed8465e3d24807102a",
+      "source_sha256": "c980c60c74d4bc65f1e99606392f890d402204229f3ba6ed8465e3d24807102a"
     },
     "runtime/src/lodestone_machinery/origami_cli.py": {
       "origin": "unified-runtime",
@@ -1963,6 +1963,12 @@
       "path": "src/lodestone_machinery/usage.py",
       "sha256": "ee38e822f34c91d19d24c7a6299de485781afa486c143729d6f6cb3082b2a844",
       "source_sha256": "ee38e822f34c91d19d24c7a6299de485781afa486c143729d6f6cb3082b2a844"
+    },
+    "runtime/src/lodestone_machinery/windows_appcontainer.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/windows_appcontainer.py",
+      "sha256": "6885154c87eed1589dbc50f2e8c5a95d2ca35dde62a257ee4d4ce7b540e7d3b2",
+      "source_sha256": "6885154c87eed1589dbc50f2e8c5a95d2ca35dde62a257ee4d4ce7b540e7d3b2"
     },
     "runtime/src/lodestone_machinery/workers.py": {
       "origin": "unified-runtime",
@@ -2598,7 +2604,7 @@
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/learning_context.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Place optional voxel teaching after retained history and immediately before the encounter, with or without an explicit history window.",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1–32 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Place optional voxel teaching after retained history and immediately before the encounter, with or without an explicit history window.",
       "sha256": "f82c345f9e0d2212ad1c7821d5e1bb84d6840730befa71b261669c43c6fc931a",
       "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
     },
@@ -2617,7 +2623,7 @@
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/learning_cli.py",
-      "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
+      "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome. Add opt-in native reference-history inventories and validated explicit windows of 1–32 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
       "sha256": "dcdbe9fd0fb1c958baec285dc1836954355dffcf435ce516c90373034a6b7aa5",
       "source_sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315"
     },
@@ -2630,7 +2636,7 @@
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/loom_runtime.py",
-      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
+      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1–32 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
       "sha256": "109c837ca82d6577b65b35e7e61bc1d1ac17f1f052d1c63615f47b39413869a4",
       "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
     },
@@ -2643,14 +2649,14 @@
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/yggdrasil_learning.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1–32 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
       "sha256": "ee7338e7e8ee7d3fba48ec1984afd56eb040430653fa4519780d24c9ea49281a",
       "source_sha256": "f0bed09f43d31c2048f1554914d274ca7e014c00380dd2ee9e1a29dc92cabeda"
     },
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_nurarihyon/learning_conscience.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Reuse only the current admission reconstruction to avoid a second folded-packet rebuild; final native validation remains mandatory.",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1–32 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Reuse only the current admission reconstruction to avoid a second folded-packet rebuild; final native validation remains mandatory.",
       "sha256": "e2aa1fb28487c7130ef6fb765985bf032b363f385793d594ae3f50cfa3d8335a",
       "source_sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9"
     },
@@ -2663,7 +2669,7 @@
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/bezoar_learning.py",
-      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
+      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1–32 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
       "sha256": "eb64ecf565d55f38263036b663388e779d1c335774b8f15b3159c5d8a3bed39d",
       "source_sha256": "30836076bfb6c4dbf19f5c6d6dd5489db01edd67c67404cdc12f987026857322"
     },

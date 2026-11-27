@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 
@@ -24,7 +25,8 @@ def simulated(platform, tools, bwrap_starts=True):
     isolation._bwrap_starts.cache_clear()
     return [patch.object(isolation.sys, "platform", platform),
             patch.object(isolation.shutil, "which", lambda name: tools.get(name)),
-            patch.object(isolation, "_bwrap_starts", lambda path: bwrap_starts)]
+            patch.object(isolation, "_bwrap_starts", lambda path: bwrap_starts),
+            patch.object(isolation, "_appcontainer_starts", lambda path: tools.get("appcontainer", False))]
 
 
 class Simulated:
@@ -67,8 +69,36 @@ class FenceSelectionTests(unittest.TestCase):
         with Simulated(*simulated("linux", {})):
             self.assertIsNone(isolation.fence())
 
+    def test_windows_selects_appcontainer_only_when_it_starts(self):
+        with Simulated(*simulated("win32", {"appcontainer": True})):
+            found = isolation.fence()
+            self.assertEqual(found.kind, "appcontainer")
+            self.assertTrue(found.path.endswith("windows_appcontainer.py"))
+            with self.assertRaisesRegex(isolation.FenceUnavailable, "endpoint"):
+                isolation.require("A command", endpoints=("example.com:443",))
+        with Simulated(*simulated("win32", {"appcontainer": False})):
+            self.assertIsNone(isolation.fence())
+
+    def test_appcontainer_argv_uses_the_launcher_with_explicit_grants(self):
+        fence = isolation.Fence("appcontainer", "/x/windows_appcontainer.py")
+        with tempfile.TemporaryDirectory() as raw:
+            work, source = Path(raw) / "w", Path(raw) / "s"
+            work.mkdir(), source.mkdir()
+            argv = origami._fenced_argv(fence, [sys.executable, "-c", "pass"], work, source, None, None)
+            self.assertEqual(argv[1:4], ["-I", "-B", "/x/windows_appcontainer.py"])
+            self.assertEqual(argv[argv.index("--workspace") + 1], str(work))
+            reads = [argv[i + 1] for i, item in enumerate(argv) if item == "--read"]
+            self.assertIn(str(source), reads)
+            self.assertNotIn(str(work), reads)
+            self.assertEqual(argv[argv.index("--") + 1:], [sys.executable, "-c", "pass"])
+            with self.assertRaises(ValueError):
+                origami._fenced_argv(fence, [sys.executable], work, source, None, 8080)
+        constraints = origami._constraints("command", fence, (), None)
+        self.assertEqual((constraints["launcher"], constraints["no_network"], constraints["no_further_subprocesses"]),
+                         ("appcontainer", "ENFORCED", "DECLARED"))
+
     def test_other_platforms_have_no_fence_and_refuse(self):
-        for platform in ("win32", "cygwin", "freebsd14"):
+        for platform in ("cygwin", "freebsd14"):
             with self.subTest(platform=platform), Simulated(*simulated(platform, {"sandbox-exec": "/x", "bwrap": "/y"})):
                 self.assertIsNone(isolation.fence())
                 with self.assertRaisesRegex(isolation.FenceUnavailable, "refused"):
@@ -182,3 +212,83 @@ class RealBubblewrapTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RealAppContainerTests(unittest.TestCase):
+    """Windows only; CI sets LODESTONE_REQUIRE_APPCONTAINER=1 so a missing fence fails instead."""
+
+    def setUp(self):
+        required = os.environ.get("LODESTONE_REQUIRE_APPCONTAINER") == "1"
+        isolation._appcontainer_starts.cache_clear()
+        self.fence = isolation.fence() if sys.platform == "win32" else None
+        if self.fence is None or self.fence.kind != "appcontainer":
+            if required:
+                self.fail("A usable Windows AppContainer fence was required here and is absent")
+            self.skipTest("real Windows AppContainer is unavailable here")
+
+    def _icacls(self, path):
+        system = os.environ.get("SystemRoot", r"C:\\Windows")
+        return subprocess.run([os.path.join(system, "System32", "icacls.exe"), str(path)],
+                              capture_output=True, text=True, timeout=60).stdout
+
+    def test_fence_confines_writes_reads_and_network_and_cleans_up(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        ledger = wac._ledger_directory()
+        with tempfile.TemporaryDirectory() as raw:
+            base = Path(raw)
+            work, source, outside, private = base / "w", base / "s", base / "outside", base / "private"
+            for item in (work, source, outside, private):
+                item.mkdir()
+            (source / "input.txt").write_text("read me")
+            (private / "secret.txt").write_text("not for the fence")
+            before = {p: self._icacls(p) for p in (work, source, outside, private)}
+            program = (
+                "import pathlib, socket, sys\n"
+                "w, s, o, p = map(pathlib.Path, sys.argv[1:5])\n"
+                "assert (s / 'input.txt').read_text() == 'read me'\n"
+                "(w / 'ok.txt').write_text('inside')\n"
+                "for target in (s / 'x', o / 'x'):\n"
+                "    try:\n"
+                "        target.write_text('escape'); print('WROTE', target); sys.exit(3)\n"
+                "    except OSError:\n"
+                "        pass\n"
+                "try:\n"
+                "    (p / 'secret.txt').read_text(); print('READ PRIVATE'); sys.exit(5)\n"
+                "except OSError:\n"
+                "    pass\n"
+                "for address in (('1.1.1.1', 53), ('127.0.0.1', 445)):\n"
+                "    try:\n"
+                "        socket.create_connection(address, timeout=3); print('NET', address); sys.exit(4)\n"
+                "    except OSError:\n"
+                "        pass\n"
+                "print('CONFINED')\n")
+            argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", program, str(work), str(source),
+                                                     str(outside), str(private)], work, source, None, None)
+            done = subprocess.run(argv, capture_output=True, text=True, timeout=180)
+            self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+            self.assertIn("CONFINED", done.stdout)
+            self.assertEqual((work / "ok.txt").read_text(), "inside")
+            self.assertFalse((outside / "x").exists())
+            self.assertFalse((source / "x").exists())
+            # Every transient grant is gone and no recovery entry remains.
+            self.assertEqual({p: self._icacls(p) for p in (work, source, outside, private)}, before)
+            self.assertEqual(list(ledger.glob(wac.PREFIX + "*.json")), [])
+
+    def test_interrupted_launcher_is_undone_by_the_next_sweep(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        with tempfile.TemporaryDirectory() as raw:
+            work, source = Path(raw) / "w", Path(raw) / "s"
+            work.mkdir(), source.mkdir()
+            before = self._icacls(source)
+            argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", "import time; time.sleep(60)"],
+                                        work, source, None, None)
+            launcher = subprocess.Popen(argv, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            deadline = time.monotonic() + 60
+            while not list(wac._ledger_directory().glob(wac.PREFIX + "*.json")) and time.monotonic() < deadline:
+                time.sleep(0.2)
+            time.sleep(5)  # let the grants be applied
+            launcher.kill()  # no cleanup runs in the launcher
+            launcher.wait(timeout=30)
+            wac.sweep()
+            self.assertEqual(self._icacls(source), before)
+            self.assertEqual(list(wac._ledger_directory().glob(wac.PREFIX + "*.json")), [])
