@@ -311,6 +311,8 @@ class WindowsJobProcess:
         limits = _ExtendedLimits()
         self.api.check(self.api.kernel.QueryInformationJobObject(
             self._job, 9, ctypes.byref(limits), ctypes.sizeof(limits), None))
+        if not limits.BasicLimitInformation.LimitFlags & 0x200 or limits.JobMemoryLimit != self.memory_limit_bytes:
+            raise OSError("Windows Job committed-memory limit differs from its configured bound")
         self.peak_commit_bytes = max(self.peak_commit_bytes, limits.PeakJobMemoryUsed)
         # Notifications are evidence when present, not a guaranteed delivery API.
         for _ in range(8192):
@@ -324,8 +326,9 @@ class WindowsJobProcess:
                 self.memory_limit_seen = True
         else:
             raise OSError("Windows Job notification queue exceeded its bound")
-        return {"windows_job_commit_limit_bytes": self.memory_limit_bytes,
+        return {"windows_job_commit_limit_bytes": limits.JobMemoryLimit,
                 "windows_job_peak_commit_bytes": self.peak_commit_bytes,
+                "windows_job_peak_scope": "Native PeakJobMemoryUsed telemetry; a denied allocation may still raise this counter. It is not an RSS ceiling.",
                 "windows_job_memory_limit_notified": self.memory_limit_seen}
 
     def stop(self):

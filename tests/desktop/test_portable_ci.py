@@ -4,10 +4,12 @@ import io
 import json
 from pathlib import Path
 import stat
+import subprocess
 import sys
 import tempfile
 import unittest
 import zipfile
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -105,8 +107,26 @@ class PortableCITests(unittest.TestCase):
         self.assertNotIn("actions/upload-artifact", workflow)
         self.assertNotIn("actions/cache", workflow)
         self.assertNotIn("pull_request_target", workflow)
-        for name in ("test_dependencies.py", "test_build.py", "test_dependency_custody.py"):
+        self.assertIn("uses: actions/setup-python@v5", workflow)
+        self.assertIn("python-version: '3.12'", workflow)
+        for name in ("test_dependencies.py", "test_build.py", "test_dependency_custody.py", "test_dependency_archives.py"):
             self.assertIn(name, check.SOURCE_TESTS)
+
+    def test_source_checks_collect_independent_failures_before_refusing_install(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "tests/desktop").mkdir(parents=True)
+            for name in ("test_a.py", "test_b.py"):
+                (root / "tests/desktop" / name).write_text("# authored fixture")
+            driver = check.Check(root, root / "work", "macos-x86_64")
+            with patch.object(check, "SOURCE_TESTS", ("test_a.py", "test_b.py")), \
+                    patch.object(driver, "run", side_effect=[None, subprocess.CalledProcessError(1, "fixture"), None]) as called:
+                with self.assertRaisesRegex(ValueError, "source-test_a"):
+                    driver.source_checks()
+            self.assertEqual(called.call_count, 3)
+            outcome = json.loads((driver.evidence / "source-checks.json").read_text())
+            self.assertEqual(outcome["passed"], ["source-provenance", "source-test_b"])
+            self.assertEqual(outcome["failed"][0]["check"], "source-test_a")
 
 
 if __name__ == "__main__":

@@ -28,7 +28,8 @@ import desktop_prior_evidence as evidence_format
 TARGETS = {"macos-x86_64": "darwin", "ubuntu-24.04-x86_64": "linux", "windows-x86_64": "win32"}
 SOURCE_TESTS = ("test_portable_process.py", "test_portable_storage.py", "test_platform_install.py",
                 "test_portable_ci.py", "test_tokenizer_dependencies.py", "test_decision_format.py",
-                "test_dependencies.py", "test_build.py", "test_dependency_custody.py", "test_mechanical_preview.py")
+                "test_dependencies.py", "test_build.py", "test_dependency_custody.py", "test_dependency_archives.py",
+                "test_mechanical_preview.py")
 READERS = {"LODESTONE_OLD_GUI_SOURCE": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
            "LODESTONE_PREVIOUS_GUI_SOURCE": "655fa55672a4c3ae2d0284da881921b7bed97c78"}
 
@@ -158,12 +159,24 @@ class Check:
         print("PASS " + label, flush=True)
 
     def source_checks(self):
-        self.run("source-provenance", [sys.executable, "-B", "desktop/verify_payload.py"])
+        failures, completed = [], []
+        commands = [("source-provenance", [sys.executable, "-B", "desktop/verify_payload.py"])]
         for name in SOURCE_TESTS:
             if not (self.source / "tests/desktop" / name).is_file():
-                raise ValueError("Required native test suite is missing: " + name)
-            self.run("source-" + name.removesuffix(".py"), [sys.executable, "-B", "-m", "unittest",
-                "discover", "-s", "tests/desktop", "-p", name, "-v"], timeout=300)
+                failures.append({"check": name, "error": "Required native test suite is missing"})
+                continue
+            commands.append(("source-" + name.removesuffix(".py"), [sys.executable, "-B", "-m", "unittest",
+                "discover", "-s", "tests/desktop", "-p", name, "-v"]))
+        for label, command in commands:
+            try:
+                self.run(label, command, timeout=300)
+                completed.append(label)
+            except (OSError, subprocess.SubprocessError) as exc:
+                failures.append({"check": label, "error": type(exc).__name__})
+        mechanical.write(self.evidence / "source-checks.json", {
+            "status": "FAILED" if failures else "PASSED", "passed": completed, "failed": failures})
+        if failures:
+            raise ValueError("Native source checks failed: " + ", ".join(row["check"] for row in failures))
 
     def build(self):
         output = self.work / "download"

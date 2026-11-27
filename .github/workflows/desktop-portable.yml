@@ -58,6 +58,13 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Pin the CI orchestrator Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          # The installer still obtains its own pinned interpreters from the
+          # extracted download. No Actions package cache is allocated here.
+
       - name: Install Ubuntu native GUI, audio and confinement dependencies
         if: runner.os == 'Linux'
         shell: bash

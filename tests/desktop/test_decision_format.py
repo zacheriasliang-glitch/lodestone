@@ -185,6 +185,7 @@ class WorkerTransportTests(unittest.TestCase):
 
 class BridgeBindingTests(unittest.TestCase):
     def configured(self, directory, backend="ollama_qwen3_base"):
+        directory = Path(directory).resolve()
         active_path = Path(directory) / "active.json"
         active_path.write_text(json.dumps({"schema": "lodestone-learning-active/v1",
             "required": True, "memory_workspace": str(Path(directory) / "memory"),
