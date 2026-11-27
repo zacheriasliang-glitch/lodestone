@@ -319,7 +319,17 @@ class NativeFileOperations(unittest.TestCase):
         (root / "launch.py").write_text("from pathlib import Path\nPath(__file__).with_name('started').write_text('ok')\n")
         content, mode = install.launcher_files(root, app, {"worker_python": sys.executable}, "windows")[app]
         platform.atomic_write(app, content, mode)
-        subprocess.run(["cmd.exe", "/d", "/c", str(app)], check=True, timeout=15)
+        # cmd has its own outer-quote rules; list2cmdline quotes for the C
+        # runtime and lets /c strip the only pair around this batch path.
+        executable = os.environ.get("COMSPEC", "cmd.exe")
+        command = '"' + executable + '" /d /v:off /s /c ""' + str(app) + '""'
+        result = subprocess.run(command, capture_output=True, encoding="utf-8",
+                                errors="replace", timeout=15)
+        log = root / "launcher.log"
+        details = result.stdout + result.stderr
+        if log.exists():
+            details += log.read_text(encoding="utf-8", errors="replace")
+        self.assertEqual(result.returncode, 0, details)
         self.assertEqual((root / "started").read_text(), "ok")
 
 
