@@ -1,9 +1,11 @@
 """Native catalogue ownership, bounds and retention; no model or network calls."""
 import hashlib
+import errno
 import json
 import os
 from pathlib import Path
 import subprocess
+import signal
 import sys
 import tempfile
 import threading
@@ -89,6 +91,91 @@ class PortableOperationTests(unittest.TestCase):
             self.assertEqual(result["output_bytes"], 4096)
             self.assertEqual(result["output_sha256"], hashlib.sha256(b"x" * 4096).hexdigest())
             self.assert_closed(result)
+
+    @unittest.skipUnless(os.name == "posix", "Native POSIX process-group exit race")
+    def test_exit_between_group_snapshot_and_signal_requires_fresh_stop_proof(self):
+        self.check_exit_race(authored_denial=False)
+
+    @unittest.skipUnless(os.name == "posix", "POSIX denied-signal race contract")
+    def test_authored_permission_denial_after_exit_requires_fresh_stop_proof(self):
+        self.check_exit_race(authored_denial=True)
+
+    def check_exit_race(self, *, authored_denial):
+        child = subprocess.Popen([sys.executable, "-B", "-c",
+            "import sys; print('ready', flush=True); sys.stdin.buffer.read(1)"],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, start_new_session=True)
+        real_snapshot, real_signal = loom_runtime._group_snapshot, os.killpg
+        sampled, signal_errors = [], []
+        def snapshot(pgid):
+            rows = real_snapshot(pgid)
+            if not sampled:
+                self.assertTrue(any(not row["zombie"] for row in rows))
+                sampled.append(rows)
+                child.stdin.close()
+                child.stdout.read()  # EOF, without reaping the direct child.
+                deadline = time.monotonic() + 5
+                while any(not row["zombie"] for row in real_snapshot(pgid)):
+                    if time.monotonic() >= deadline:
+                        self.fail("Authored child did not exit before the signal")
+                    time.sleep(.01)
+                # Deliver the actual earlier live snapshot after the child exits.
+            return rows
+        def signal_group(pgid, signum):
+            try:
+                if authored_denial:
+                    raise PermissionError(errno.EPERM, "Authored exited-group signal denial")
+                return real_signal(pgid, signum)
+            except OSError as exc:
+                signal_errors.append(exc.errno)
+                raise
+        try:
+            self.assertEqual(child.stdout.readline(), b"ready\n")
+            with patch.object(loom_runtime, "_group_snapshot", side_effect=snapshot), \
+                    patch.object(operations.os, "killpg", side_effect=signal_group):
+                result = operations.OperationBridge._stop(child)
+            self.assertTrue(result["confirmed_stopped"], result)
+            self.assertEqual(child.returncode, 0)  # The direct child was reaped.
+            self.assertFalse(real_snapshot(child.pid))
+            if sys.platform == "darwin" or authored_denial:
+                self.assertEqual(signal_errors, [errno.EPERM])
+                self.assertFalse(result["termination_required"])
+        finally:
+            if child.stdin and not child.stdin.closed:
+                child.stdin.close()
+            if child.poll() is None:
+                child.kill()
+            child.wait(timeout=5)
+            child.stdout.close()
+
+    @unittest.skipUnless(os.name == "posix", "Native POSIX denied-signal stop proof")
+    def test_denied_signal_never_confirms_live_uninspectable_or_unreaped_group(self):
+        real_snapshot = loom_runtime._group_snapshot
+        for observation, error in (("live", "PermissionError"),
+                                   ("uninspectable", "OSError"), ("empty-but-live-child", "TimeoutExpired")):
+            with self.subTest(observation=observation):
+                child = subprocess.Popen([sys.executable, "-B", "-c",
+                    "import time; time.sleep(60)"], start_new_session=True)
+                samples = []
+                def snapshot(pgid):
+                    samples.append(pgid)
+                    if len(samples) > 1:
+                        if observation == "uninspectable":
+                            raise OSError("Authored second inspection failure")
+                        if observation == "empty-but-live-child":
+                            return []
+                    return real_snapshot(pgid)
+                try:
+                    with patch.object(loom_runtime, "_group_snapshot", side_effect=snapshot), \
+                            patch.object(operations.os, "killpg", side_effect=PermissionError(
+                                errno.EPERM, "Authored denial for an actually live owned group")):
+                        result = operations.OperationBridge._stop(child)
+                    self.assertFalse(result["confirmed_stopped"], result)
+                    self.assertEqual(result["error"], error)
+                    self.assertIsNone(child.poll())
+                    self.assertEqual(len(samples), 2)
+                finally:
+                    child.kill()
+                    child.wait(timeout=5)
 
     def test_native_child_grandchild_cancellation_stops_all_members(self):
         self.script.write_text(TREE, encoding="utf-8")
