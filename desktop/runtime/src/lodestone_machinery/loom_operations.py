@@ -505,6 +505,19 @@ class OperationBridge:
                         os.killpg(process.pid, signal.SIGKILL if signalled else signal.SIGTERM)
                     except ProcessLookupError:
                         pass
+                    except PermissionError:
+                        # Darwin excludes zombies when signalling a group and
+                        # can return EPERM if the last live member exited since
+                        # our snapshot. The denial itself proves nothing: require
+                        # a fresh native sample and reap the direct child. A live
+                        # or uninspectable group must remain STOP_UNCONFIRMED.
+                        members = _group_snapshot(process.pid)
+                        if any(not item["zombie"] for item in members):
+                            raise
+                        process.wait(timeout=0.1)
+                        return {"confirmed_stopped": True, "kill_escalated": escalated,
+                                "termination_required": signalled, "signal_error": "PermissionError",
+                                "confirmation": "fresh_group_snapshot_and_reaped_child"}
                     escalated = signalled
                     signalled = True
                     deadline = time.monotonic() + (1 if escalated else 0.5)
