@@ -6,13 +6,16 @@ local toolkit tasks with a record of what happened.**
 [Download v0.3.2](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.2)
 · [Quickstart](docs/quickstart.md) · [All tools](docs/toolkits.md)
 
-The [Lodestone Desktop preview](desktop/README.md) adds a fresh-machine Intel Mac
-installer for Unified Loom, a local model and user-owned correction history.
-It is a separate experimental distribution; the stable core download above remains available.
+The [Lodestone Desktop preview.6 candidate](desktop/README.md) targets Intel
+macOS, Ubuntu 24.04 x86_64 and Windows 11 / Windows Server 2022 x86_64, with
+per-user installers for Unified Loom, a local reader and retained outcomes and
+corrections. [PR #18](https://github.com/zacheriasliang-glitch/lodestone/pull/18)
+tracks the candidate's review and native validation; release publication is
+pending. The desktop preview is a separate experimental distribution.
 
-The release is available now. Python 3.10+ is all you need for the core; your
-notes and files stay on your computer. Use macOS or Linux for all workflows
-below. Local memory also works on native Windows, using `py -3` for `python3`.
+The stable core v0.3.2 download above is available now. Python 3.10+ is all you
+need for the core; your notes and files stay on your computer. Use macOS or Linux
+for all workflows below. Local memory also works on native Windows, using `py -3` for `python3`.
 
 ## Save a decision and hand it to your next AI session
 

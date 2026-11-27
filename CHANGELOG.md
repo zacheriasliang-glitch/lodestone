@@ -1,5 +1,43 @@
 # Release notes
 
+## 0.4.0-preview.6 — cross-platform desktop candidate (unreleased)
+
+Candidate review and native verification are tracked in
+[PR #18](https://github.com/zacheriasliang-glitch/lodestone/pull/18). Release
+publication is pending; use that review and the eventual release's exact
+artifact records for validation status. See the [desktop guide](desktop/README.md)
+for setup, management commands and platform limits.
+
+- Adds separate pinned installer/dependency sets for Intel macOS 12 or later,
+  Ubuntu 24.04 x86_64, and Windows 11 / Windows Server 2022 x86_64. Windows gains
+  a double-click `.cmd` bootstrap without execution-policy changes; Ubuntu gains
+  a shell bootstrap with explicit OS GUI/isolation prerequisites. The PowerShell
+  setup script remains an advanced Windows route.
+- Uses native per-user data locations and owned launchers: a Mac app bundle,
+  Linux desktop entry and Windows command launcher. Versioned activation,
+  rollback and removal retain recovery transactions and preserve drafts,
+  conversations, native learning records and correction history.
+- Ports bootstrap/import metadata, record publication and lifecycle locking to
+  native Windows and POSIX operations. Existing failed, refused and interrupted
+  attempts remain available; selected reference-history imports keep their
+  explicit history window and runtime-compatibility requirements.
+- Preserves the Loom GUI's encounter purpose, saved draft/model selection,
+  practice options, attributed correction controls and Origami handoffs across
+  the target packaging. Native wx controls remain; the optional
+  `accessible-output3` speech/braille plugin is not bundled, and no cross-platform
+  assistive-technology verification is claimed.
+- Adds Windows Job ownership of local inference workers and descendants, with
+  cancellation, timeout and a committed-memory limit. Resident-memory sampling
+  is reported separately; the configured 4 GiB Windows commit bound is not the
+  same measure as the macOS/Linux process-group RSS bound.
+- Keeps command execution dependent on actual host isolation. Windows toolkit
+  commands and external command-provider routes requiring POSIX isolation refuse;
+  Linux routes requiring bubblewrap refuse when that isolation cannot start.
+  The local reader and retention lifecycle remain separate from those routes.
+- Preserves all 31 programme criteria and earlier evidence. This candidate does
+  not establish improved semantic decisions, useful learned transfer or model
+  weight updates. Published stable core v0.3.2 artifacts remain separate.
+
 ## 0.4.0-preview.5 — reference-history import and compatibility
 
 - Adds opt-in `import-memory --history-references` and explicit selection of a
