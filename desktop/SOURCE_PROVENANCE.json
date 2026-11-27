@@ -1395,7 +1395,7 @@
     "runtime/src/lodestone_machinery/bezoar_learning.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/bezoar_learning.py",
-      "sha256": "85a9e329d84e71990e3247c9b0fe182e996a178ea7577bcdacd557be8d1bf5ec",
+      "sha256": "e9096dcc358ae1cbbcaf9bb533280cf4f66c2872543fb4ef4b3efd8fa0ce5dc7",
       "source_sha256": "30836076bfb6c4dbf19f5c6d6dd5489db01edd67c67404cdc12f987026857322"
     },
     "runtime/src/lodestone_machinery/bezoar_lessons.py": {
@@ -1500,6 +1500,14 @@
       "sha256": "79af4bb665e7c7bed84f6cd730ad254cde4c453240733e9cd5fb3feca6565366",
       "source_sha256": "79af4bb665e7c7bed84f6cd730ad254cde4c453240733e9cd5fb3feca6565366"
     },
+    "runtime/src/lodestone_machinery/history_inventory.py": {
+      "origin": "desktop-reference-history-extension",
+      "path": "src/lodestone_machinery/history_inventory.py",
+      "repository_path": "desktop/runtime/src/lodestone_machinery/history_inventory.py",
+      "sha256": "53cd0df873bb75ffea5ac04de21089dc627b9622309a7f436e43c7a732a8cf88",
+      "source_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
+      "source_sha256": "53cd0df873bb75ffea5ac04de21089dc627b9622309a7f436e43c7a732a8cf88"
+    },
     "runtime/src/lodestone_machinery/inspection.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/inspection.py",
@@ -1569,13 +1577,13 @@
     "runtime/src/lodestone_machinery/learning_cli.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/learning_cli.py",
-      "sha256": "ea3a98987f8640770f6e62794959b7761640139f54f7286f8e4b31d3d01b5ca6",
+      "sha256": "d80aeb5c245459cf062bf4c7f0b4c821a3464ecc3434dfeb24d0a6df7aa55540",
       "source_sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315"
     },
     "runtime/src/lodestone_machinery/learning_context.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/learning_context.py",
-      "sha256": "e1819a13e074029963c79ad5129de9c0517b4794970cd18b766ed10188dcd88e",
+      "sha256": "dc6691e2fe55bd2947f72f84ba513c49e317bd57e3104cc6da9a764735007f85",
       "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
     },
     "runtime/src/lodestone_machinery/learning_reader.py": {
@@ -1683,7 +1691,7 @@
     "runtime/src/lodestone_machinery/loom_runtime.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_runtime.py",
-      "sha256": "24bd9c9d12dd78d21ec2625a8e647a9e972a4b11c74f4a1b4d5c37306ee1da13",
+      "sha256": "68cbd5ea1e1b16e3452a78495515ac504c91d30a09f0de294776d3e1b3036efc",
       "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
     },
     "runtime/src/lodestone_machinery/loom_runtime_worker.py": {
@@ -1953,7 +1961,7 @@
     "runtime/src/lodestone_machinery/yggdrasil_learning.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/yggdrasil_learning.py",
-      "sha256": "39b952ce6983419705f1c1003e38299ae773ce07ca6ac7686b6f534a807a007a",
+      "sha256": "19fec9c3b33c5dbd4985aef62f1443e9c1c18c41bd236c13187fbeb53e3ab698",
       "source_sha256": "f0bed09f43d31c2048f1554914d274ca7e014c00380dd2ee9e1a29dc92cabeda"
     },
     "runtime/src/lodestone_machinery/yggdrasil_reuse.py": {
@@ -2049,7 +2057,7 @@
     "runtime/src/lodestone_nurarihyon/learning_conscience.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_nurarihyon/learning_conscience.py",
-      "sha256": "8ff39c3ce6c5c26c6c98b5ecd064a5bcc647c23694ef86d4770914fbda875102",
+      "sha256": "e3531716543d841f555b3d2a61c78c8daadcf0362cbd784453c5e11efb8314c9",
       "source_sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9"
     },
     "runtime/src/lodestone_nurarihyon/learning_recurrence.py": {
@@ -2437,6 +2445,13 @@
       "source_sha256": "65aa5b5d148e1ae1717a3412b0b6bcb6163e22e66001cd9886a5f01f68977502"
     }
   },
+  "implementation_commits": {
+    "native_reference_history": "40e6672dd3403bae357345d7eb3016dd075e660d",
+    "previous_desktop_release": "22703ca5c0b4e800acd2f1b1903514577f00a33e",
+    "reference_history_installer": "f3b28acdc2d2abc77813376445616b200fd3b609",
+    "reference_history_installer_cherry_picked_from": "1a32a87ccad4dd7c596df31a911fd0c4ebf08527",
+    "scope": "Implementation commits identify the native history and installer changes. Original export origins and source_sha256 values remain preserved; release packaging and documentation are tracked by the enclosing release commit."
+  },
   "public_base_commit": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
   "public_repository": "https://github.com/zacheriasliang-glitch/lodestone",
   "schema": "lodestone-desktop-source-provenance/v1",
@@ -2444,6 +2459,7 @@
     "basilisk-derived-gui": "Modified Basilisk GUI source and resources, including its GPL-2.0-only licence.",
     "desktop-decision-extension": "New public source-bound decision checker; no private records, model calls or semantic-learning claim.",
     "desktop-practice-extension": "New public per-encounter practice controls and validation; no private records or semantic-learning claim.",
+    "desktop-reference-history-extension": "Opt-in operational native history inventories and compatible installer selection; no private records, model calls or demonstrated semantic, memory or speed gain.",
     "public-core": "Previously public runtime, documentation and examples.",
     "unified-runtime": "Callable runtime code and generic integration catalogues from Unified Loom; no private records or experiment histories."
   },
@@ -2527,9 +2543,10 @@
       "source_sha256": "5d8dfb817cfacd9ae7602ada1531f4f8159f8b90a82b52cd0a56706c19de3ae1"
     },
     {
+      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/learning_context.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
-      "sha256": "e1819a13e074029963c79ad5129de9c0517b4794970cd18b766ed10188dcd88e",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
+      "sha256": "dc6691e2fe55bd2947f72f84ba513c49e317bd57e3104cc6da9a764735007f85",
       "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
     },
     {
@@ -2545,9 +2562,10 @@
       "source_sha256": "c661ab4aaafa8961341d8ee0aa8301118e8e6679b5eefadb34983f3518921486"
     },
     {
+      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/learning_cli.py",
-      "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome.",
-      "sha256": "ea3a98987f8640770f6e62794959b7761640139f54f7286f8e4b31d3d01b5ca6",
+      "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
+      "sha256": "d80aeb5c245459cf062bf4c7f0b4c821a3464ecc3434dfeb24d0a6df7aa55540",
       "source_sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315"
     },
     {
@@ -2557,9 +2575,10 @@
       "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
     },
     {
+      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/loom_runtime.py",
-      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings.",
-      "sha256": "24bd9c9d12dd78d21ec2625a8e647a9e972a4b11c74f4a1b4d5c37306ee1da13",
+      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
+      "sha256": "68cbd5ea1e1b16e3452a78495515ac504c91d30a09f0de294776d3e1b3036efc",
       "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
     },
     {
@@ -2569,15 +2588,17 @@
       "source_sha256": "0223c341b952f14d04003cc839462b01faeaf1b125bbe0240114f084b08c2697"
     },
     {
+      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/yggdrasil_learning.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
-      "sha256": "39b952ce6983419705f1c1003e38299ae773ce07ca6ac7686b6f534a807a007a",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
+      "sha256": "19fec9c3b33c5dbd4985aef62f1443e9c1c18c41bd236c13187fbeb53e3ab698",
       "source_sha256": "f0bed09f43d31c2048f1554914d274ca7e014c00380dd2ee9e1a29dc92cabeda"
     },
     {
+      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_nurarihyon/learning_conscience.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
-      "sha256": "8ff39c3ce6c5c26c6c98b5ecd064a5bcc647c23694ef86d4770914fbda875102",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
+      "sha256": "e3531716543d841f555b3d2a61c78c8daadcf0362cbd784453c5e11efb8314c9",
       "source_sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9"
     },
     {
@@ -2587,9 +2608,10 @@
       "source_sha256": "c98c8d1cc57c057c2aff65b051b17734d3903ec2f40372e9a8423ec50d0b2f88"
     },
     {
+      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/bezoar_learning.py",
-      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings.",
-      "sha256": "85a9e329d84e71990e3247c9b0fe182e996a178ea7577bcdacd557be8d1bf5ec",
+      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
+      "sha256": "e9096dcc358ae1cbbcaf9bb533280cf4f66c2872543fb4ef4b3efd8fa0ce5dc7",
       "source_sha256": "30836076bfb6c4dbf19f5c6d6dd5489db01edd67c67404cdc12f987026857322"
     },
     {

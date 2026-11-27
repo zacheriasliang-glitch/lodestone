@@ -64,6 +64,18 @@ jobs:
             --github-output "$GITHUB_OUTPUT" \
             --output "$RUNNER_TEMP/lodestone-desktop-evidence/verification-mode.json"
 
+      - name: Prepare the exact previous native reader for compatibility regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          prior_native="$RUNNER_TEMP/lodestone-preview4-native"
+          mkdir -p "$prior_native"
+          git fetch --no-tags --depth=1 origin 22703ca5c0b4e800acd2f1b1903514577f00a33e
+          git archive 22703ca5c0b4e800acd2f1b1903514577f00a33e desktop/runtime desktop/bootstrap_learning.py | tar -x -C "$prior_native"
+          test -f "$prior_native/desktop/runtime/src/lodestone_machinery/loom_runtime.py"
+          test -f "$prior_native/desktop/bootstrap_learning.py"
+          echo "LODESTONE_OLD_RUNTIME=$prior_native/desktop/runtime" >> "$GITHUB_ENV"
+
       - name: Verify source and installer regressions
         shell: bash
         run: |

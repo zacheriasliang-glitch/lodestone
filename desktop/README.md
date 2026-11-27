@@ -100,7 +100,7 @@ checks the actual runtime and workspace capability and saves both previous
 selection files under `learning/selection-history` before changing them.
 
 Every practice in that workspace needs an explicit **Practice options** history
-window: choose 1–32 recent runs, or 0 for selected teaching only. Omitted runs stay
+window: choose 1–32 recent runs. Omitted runs stay
 in the native archive and are named in the reader view; they are not delivered to
 the model. Selecting a window does not guarantee that the remaining input fits.
 The current non-windowed Origami route refuses this workspace. Ordinary imports
