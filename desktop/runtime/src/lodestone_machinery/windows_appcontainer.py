@@ -251,7 +251,10 @@ def run(argv, *, workspace, readable):
             startup.StartupInfo.hStdInput, startup.StartupInfo.hStdOutput, startup.StartupInfo.hStdError = duplicates
             startup.lpAttributeList = c.addressof(attributes)
             # Temporary files and caches stay inside the one writable place.
-            env = {key: os.environ[key] for key in ("SystemRoot", "WINDIR", "PATH", "LANG") if key in os.environ}
+            # Windows derives the container's own data folder from LOCALAPPDATA;
+            # CreateProcessW fails with ERROR_ENVVAR_NOT_FOUND without it.
+            env = {key: os.environ[key] for key in ("SystemRoot", "WINDIR", "PATH", "LANG", "LOCALAPPDATA", "APPDATA")
+                   if key in os.environ}
             env.update({"TEMP": str(workspace), "TMP": str(workspace), "USERPROFILE": str(workspace),
                         "HOME": str(workspace), "PYTHONDONTWRITEBYTECODE": "1"})
             block = c.create_unicode_buffer("\x00".join(key + "=" + value for key, value in
@@ -313,7 +316,9 @@ def main(arguments=None):
     try:
         return run(command, workspace=args.workspace, readable=args.read)
     except (OSError, ValueError, subprocess.SubprocessError) as exc:
+        import traceback
         print("Windows AppContainer fence refused: " + type(exc).__name__ + ": " + str(exc), file=sys.stderr)
+        traceback.print_exc(limit=4, file=sys.stderr)
         return EXIT_SETUP_FAILED
 
 
