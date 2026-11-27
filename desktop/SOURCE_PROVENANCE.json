@@ -1530,7 +1530,7 @@
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/isolation.py",
       "sha256": "0ce9c04c54343f755dd98c7335a47f151e2f43e082bb762284d7240b35b3fece",
-      "source_sha256": "0ce9c04c54343f755dd98c7335a47f151e2f43e082bb762284d7240b35b3fece"
+      "source_sha256": "0d769cfb1a7741093caa884f5faddcb91eb129aef1065037ef3dbedfc5017d6b"
     },
     "runtime/src/lodestone_machinery/latent/__init__.py": {
       "origin": "unified-runtime",
@@ -1878,7 +1878,7 @@
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/origami.py",
       "sha256": "5b324eb47f3cf36e93811965365064b404b53c9622df9287e0bb4212ae3c452a",
-      "source_sha256": "c980c60c74d4bc65f1e99606392f890d402204229f3ba6ed8465e3d24807102a"
+      "source_sha256": "519004864947824b9a5ca38d7017c774cbe4a6dcacb8dc85ae3e523a1bd30d80"
     },
     "runtime/src/lodestone_machinery/origami_cli.py": {
       "origin": "unified-runtime",
@@ -2710,6 +2710,12 @@
       "source_sha256": "2595fbd1767be2e88b053720c0f7efc03717dec7d4b71a20eed170ee504bc524"
     },
     {
+      "path": "runtime/src/lodestone_machinery/isolation.py",
+      "reason": "Preserve original runtime behavior and add native Windows AppContainer admission, temporary ACL custody and recovery; combine reviewed cross-platform storage and curated handoff where applicable.",
+      "sha256": "0ce9c04c54343f755dd98c7335a47f151e2f43e082bb762284d7240b35b3fece",
+      "source_sha256": "0d769cfb1a7741093caa884f5faddcb91eb129aef1065037ef3dbedfc5017d6b"
+    },
+    {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/learning_cli.py",
       "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
@@ -2834,7 +2840,7 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/origami.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "reason": "Preserve original runtime behavior and add native Windows AppContainer admission, temporary ACL custody and recovery; combine reviewed cross-platform storage and curated handoff where applicable.",
       "sha256": "5b324eb47f3cf36e93811965365064b404b53c9622df9287e0bb4212ae3c452a",
       "source_sha256": "519004864947824b9a5ca38d7017c774cbe4a6dcacb8dc85ae3e523a1bd30d80"
     },
