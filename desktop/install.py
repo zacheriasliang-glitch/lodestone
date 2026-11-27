@@ -341,7 +341,7 @@ def runtime_config(root, deps):
     }
 
 
-LAUNCHER = '''import json, os, sys
+LAUNCHER_BOOTSTRAP = '''import json, os, sys
 from pathlib import Path
 root = Path(__file__).resolve().parent
 sys.path.insert(0, RELEASE_PATH)
@@ -350,8 +350,27 @@ recover(root)
 if not (root / "ACTIVE.json").exists():
     raise SystemExit("Interrupted initial activation recovered. Run Install Lodestone.command again.")
 active = json.loads((root / "ACTIVE.json").read_text())
+'''
+
+LAUNCHER = LAUNCHER_BOOTSTRAP + '''\
 os.execv(active["gui_python"], [active["gui_python"], "-B", str(Path(active["release"]) / "run_loom.py"), "--root", str(root), *sys.argv[1:]])
 '''
+
+WINDOWS_LAUNCHER = LAUNCHER_BOOTSTRAP + '''\
+import subprocess
+raise SystemExit(subprocess.call([active["gui_python"], "-B", str(Path(active["release"]) / "run_loom.py"), "--root", str(root), *sys.argv[1:]]))
+'''
+
+
+def launcher_source(release, platform_name):
+    # Windows exec creates a separate process and ends the caller. Keep the
+    # launcher waiting for its GUI child and propagate that child's exit code.
+    # subprocess.call also reaps its own child if waiting is interrupted.
+    template = WINDOWS_LAUNCHER if platform_name == "windows" else LAUNCHER
+    source = template.replace("RELEASE_PATH", repr(str(release)))
+    if platform_name != "macos":
+        source = source.replace("Install Lodestone.command", "the Lodestone installer")
+    return source
 
 
 def install(root, payload, *, app=None, cache=None, provision=None, bootstrap=None, platform_name=None):
@@ -395,10 +414,7 @@ def install(root, payload, *, app=None, cache=None, provision=None, bootstrap=No
         if bootstrap is None:
             bootstrap = release_module(release, "bootstrap_learning").initialize
         learning = bootstrap(root, release / "runtime", Path(deps["worker_python"]))
-        launcher_source = LAUNCHER.replace("RELEASE_PATH", repr(str(release)))
-        if platform_name != "macos":
-            launcher_source = launcher_source.replace("Install Lodestone.command", "the Lodestone installer")
-        launcher = launcher_source.encode()
+        launcher = launcher_source(release, platform_name).encode()
         launch_files = launcher_files(root, app, deps, platform_name)
         healthy = all(p.is_file() for p in managed_paths(root, app, platform_name))
         if (already and healthy and (root / "launch.py").read_bytes() == launcher

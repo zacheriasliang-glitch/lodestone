@@ -7,6 +7,7 @@ import shlex
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 
@@ -215,6 +216,74 @@ class NativeFileOperations(unittest.TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+    def exercise_windows_python_launcher(self, *, batch):
+        root = self.root / "Loom λ percent% & bang!"
+        root.mkdir()
+        release = root / "release source"
+        release.mkdir()
+        (release / "install.py").write_text(
+            "def recover(root):\n    (root / 'recovered').write_text('yes')\n")
+        desktop = str(Path(install.__file__).parent)
+        (release / "run_loom.py").write_text(
+            "import json, sys, time\nfrom pathlib import Path\n"
+            "sys.path.insert(0, " + repr(desktop) + ")\n"
+            "from platform_support import file_lock\n"
+            "root = Path(sys.argv[2])\n"
+            "with file_lock(root / '.lifecycle.lock', shared=True):\n"
+            "    (root / 'ready').write_text('ready')\n"
+            "    deadline = time.monotonic() + 15\n"
+            "    while not (root / 'finish').exists():\n"
+            "        if time.monotonic() > deadline: raise SystemExit(99)\n"
+            "        time.sleep(0.01)\n"
+            "    (root / 'arguments.json').write_text(json.dumps(sys.argv[1:]))\n"
+            "raise SystemExit(42)\n", encoding="utf-8")
+        (root / "ACTIVE.json").write_text(json.dumps(
+            {"gui_python": sys.executable, "release": str(release)}))
+        launch = root / "launch.py"
+        launch.write_text(install.launcher_source(release, "windows"), encoding="utf-8")
+        arguments = ["--fixture-argument", "space λ"]
+        if batch:
+            app = root / "Lodestone.cmd"
+            body, mode = install.launcher_files(root, app, {"worker_python": sys.executable}, "windows")[app]
+            platform.atomic_write(app, body, mode)
+            executable = os.environ.get("COMSPEC", "cmd.exe")
+            inner = " ".join('"' + value + '"' for value in [str(app), *arguments])
+            command = '"' + executable + '" /d /v:off /s /c "' + inner + '"'
+        else:
+            command = [sys.executable, "-B", str(launch), *arguments]
+        child = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            deadline = time.monotonic() + 10
+            while not (root / "ready").exists() and child.poll() is None and time.monotonic() < deadline:
+                time.sleep(0.01)
+            self.assertTrue((root / "ready").exists(), "GUI child did not become ready")
+            self.assertIsNone(child.poll(), "Launcher returned while its GUI child was running")
+            self.assertEqual((root / "recovered").read_text(), "yes")
+            with self.assertRaisesRegex(ValueError, "Close this Lodestone"):
+                with install.locked(root):
+                    self.fail("Installer admitted while the GUI child's lease was held")
+            (root / "finish").write_text("finish")
+            stdout, stderr = child.communicate(timeout=15)
+            self.assertEqual(child.returncode, 42, repr((stdout, stderr)))
+            self.assertEqual(json.loads((root / "arguments.json").read_text()),
+                             ["--root", str(root), *arguments])
+            with install.locked(root):
+                pass
+        finally:
+            (root / "finish").write_text("finish")
+            try:
+                child.communicate(timeout=5)
+            except subprocess.TimeoutExpired:
+                child.kill()
+                child.communicate(timeout=5)
+
+    def test_windows_python_launcher_waits_for_gui_and_preserves_lease_and_exit(self):
+        self.exercise_windows_python_launcher(batch=False)
+
+    @unittest.skipUnless(os.name == "nt", "native Windows installed batch launcher")
+    def test_windows_batch_launcher_waits_for_gui_and_propagates_exit(self):
+        self.exercise_windows_python_launcher(batch=True)
 
     def test_shared_leases_exclude_installation_and_release_on_exit(self):
         path = self.root / ".lifecycle.lock"
