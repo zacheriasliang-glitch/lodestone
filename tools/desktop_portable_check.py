@@ -70,7 +70,9 @@ def extract_archive(archive, destination):
             raise ValueError("Source archive exceeds its extraction bounds")
         seen, roots = set(), set()
         for item in entries:
-            name = item.filename.rstrip("/")
+            if item.orig_filename != item.filename:
+                raise ValueError("Source archive member requires filename normalization")
+            name = item.orig_filename.rstrip("/")
             path = PurePosixPath(name)
             if (not name or path.is_absolute() or str(path) != name or ".." in path.parts
                     or ".git" in path.parts or "\\" in name or ":" in name

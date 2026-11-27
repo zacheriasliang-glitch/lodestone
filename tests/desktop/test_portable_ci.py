@@ -43,17 +43,21 @@ class PortableCITests(unittest.TestCase):
 
     def test_extraction_rejects_traversal_ads_git_symlink_and_case_aliases(self):
         cases = [["../escaped"], ["Payload/file:stream"], ["Payload/.git/config"],
-                 ["Payload/linked"], ["Payload/A", "Payload/a"]]
+                 ["Payload/linked"], ["Payload/A", "Payload/a"],
+                 ["Payload\\hidden"], ["Payload/file\x00hidden"]]
         for paths in cases:
             with self.subTest(paths=paths), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
                 archive = root / "bad.zip"
                 with zipfile.ZipFile(archive, "w") as output:
                     for name in paths:
-                        info = zipfile.ZipInfo(name)
+                        info = zipfile.ZipInfo("fixture")
+                        info.filename = name  # Keep the literal stored name on Windows too.
                         if name.endswith("linked"):
                             info.external_attr = (stat.S_IFLNK | 0o777) << 16
                         output.writestr(info, b"outside")
+                with zipfile.ZipFile(archive) as output:
+                    self.assertEqual([item.orig_filename for item in output.infolist()], paths)
                 with self.assertRaises(ValueError):
                     check.extract_archive(archive, root / "extracted")
                 self.assertFalse((root / "extracted").exists())

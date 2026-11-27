@@ -37,13 +37,20 @@ class ArchiveTests(unittest.TestCase):
 
     def test_zip_unsafe_names_aliases_links_and_expansion_are_refused(self):
         cases = [('../outside', 'safe'), ('C:/outside', 'safe'),
-                 ('folder\\outside', 'safe'), ('Tool.exe', 'tool.exe')]
+                 ('folder\\outside', 'safe'), ('folder\x00hidden', 'safe'),
+                 ('Tool.exe', 'tool.exe')]
         path = self.root / 'unsafe.zip'
         for names in cases:
             with self.subTest(names=names):
                 with zipfile.ZipFile(path, 'w') as z:
                     for name in names:
-                        z.writestr(name, b'fixture')
+                        member = zipfile.ZipInfo('fixture')
+                        # Bypass constructor normalization so Windows writes
+                        # the same malformed stored name as every other host.
+                        member.filename = name
+                        z.writestr(member, b'fixture')
+                with zipfile.ZipFile(path) as z:
+                    self.assertEqual(tuple(m.orig_filename for m in z.infolist()), names)
                 with self.assertRaises(ValueError):
                     d._archive_inventory(path)
         with zipfile.ZipFile(path, 'w') as z:

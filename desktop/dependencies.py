@@ -128,7 +128,11 @@ def _archive_stream_inventory(archive, *, maximum):
         with zipfile.ZipFile(archive) as stream:
             folded = set()
             for member in stream.infolist():
-                name = _relative(member.filename)
+                # ZipInfo normalizes Windows separators and truncates NULs.
+                # Validate the stored spelling before either can hide an alias.
+                if member.orig_filename != member.filename:
+                    raise ValueError("Archive member requires filename normalization")
+                name = _relative(member.orig_filename)
                 if name.casefold() in folded or name in names:
                     raise ValueError("Duplicate or case-aliased archive member")
                 names.add(name)
