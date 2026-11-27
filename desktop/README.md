@@ -289,6 +289,13 @@ policy or kernel restrictions prevent its isolation from starting; installing
 `bubblewrap` does not override such restrictions. Inspect the catalogue and the
 retained refusal before retrying.
 
+On stock Ubuntu 24.04, AppArmor restricts unprivileged user namespaces, so
+bubblewrap cannot start and those optional command routes refuse. An
+administrator may opt in with `sudo "./Enable Linux Command Fence.sh"`, which
+loads a profile granting user namespaces to `/usr/bin/bwrap` only (Ubuntu's own
+`bwrap-userns-restrict` profile when the system ships it) and leaves the global
+restriction unchanged; `--remove` undoes it. The normal installer never runs it.
+
 The GUI uses native wx controls. The optional `accessible-output3` speech/braille
 plugin is not bundled because the target dependency sets lack pinned compatible
 wheels. This does not establish screen-reader or braille accessibility on any
