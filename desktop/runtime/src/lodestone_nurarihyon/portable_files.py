@@ -38,24 +38,31 @@ def is_alias(info):
     return stat.S_ISLNK(info.st_mode) or bool(getattr(info, "st_file_attributes", 0) & 0x400)
 
 
+def _windows_names(path):
+    reserved = {"CON", "PRN", "AUX", "NUL", *("COM" + str(n) for n in range(1, 10)),
+                *("LPT" + str(n) for n in range(1, 10))}
+    for part in path.parts[1:] if path.anchor else path.parts:
+        if (":" in part or part.endswith((".", " ")) or
+                part.split(".")[0].upper() in reserved):
+            raise ValueError("Windows device, stream or ambiguous path is not admitted")
+
+
 def absolute_path(path):
     supplied = Path(path)
     if ".." in supplied.parts:
         raise ValueError("Parent traversal is not admitted")
+    if WINDOWS:
+        # GetFullPathNameW (used by abspath) can remove trailing periods/spaces.
+        # Reject the caller's names before normalization can conceal an alias.
+        _windows_names(supplied)
     path = Path(os.path.abspath(supplied))
     if WINDOWS:
         # Local drive paths only. UNC/device namespaces and ADS need different
         # custody guarantees; silently treating them as local files is unsafe.
         if len(path.drive) != 2 or path.drive[1] != ":" or not path.root:
             raise ValueError("A local absolute drive path is required")
-        reserved = {"CON", "PRN", "AUX", "NUL", *("COM" + str(n) for n in range(1, 10)),
-                    *("LPT" + str(n) for n in range(1, 10))}
-        for part in path.parts[1:]:
-            if (":" in part or part.endswith((".", " ")) or
-                    part.split(".")[0].upper() in reserved):
-                raise ValueError("Windows device, stream or ambiguous path is not admitted")
+        _windows_names(path)
     return path
-
 
 if WINDOWS:
     import ctypes

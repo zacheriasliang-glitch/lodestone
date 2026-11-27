@@ -1497,7 +1497,7 @@
     "runtime/src/lodestone_machinery/fold_export.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/fold_export.py",
-      "sha256": "fec043445e225062476d63604c1aad05235bb6693d990aa8802639ecec877383",
+      "sha256": "5f79af21e409fd887d5292ad4847d8ade016941007ef7129d3656dbf3b0ea6cd",
       "source_sha256": "2595fbd1767be2e88b053720c0f7efc03717dec7d4b71a20eed170ee504bc524"
     },
     "runtime/src/lodestone_machinery/fold_isolation.py": {
@@ -2111,7 +2111,7 @@
     "runtime/src/lodestone_nurarihyon/portable_files.py": {
       "origin": "lodestone-public",
       "path": "desktop/runtime/src/lodestone_nurarihyon/portable_files.py",
-      "sha256": "5ac0be8e75162cac46b9ae7959d4a56cf4737d420fa8600c2d6f6c5c3d579edc",
+      "sha256": "560da88edc9a372533026a3559393341566af8a456885fb3092b417c7606d3c3",
       "source_sha256": "b6713120dcd974ef3bfe6c100349e20f5d004884b4d94684a92041da3c713966"
     },
     "runtime/src/lodestone_nurarihyon/preparation.py": {
@@ -2483,6 +2483,7 @@
     "portable_archive_metadata": "e67c8fbf618ff9066d12c88dd641f414b37d935f",
     "portable_captured_archive": "0312c378b5ed498bd8d9757e498fef3c0da15422",
     "portable_catalogue_ownership": "4ef5e3e13e58eb4156f9731b65f2de1cf3271c11",
+    "portable_catalogue_raw_windows_paths": "38dac1e6914bda5ab733bae2fd116ca78da3a297",
     "portable_catalogue_readers": "05a6b8e23c080dabc3806f709bd324f44479e539",
     "portable_catalogue_selected_path_custody": "e5ea6121c2e1d42fb2b302330620adc99aeb8e22",
     "portable_installer": "93217426f4db532166ca26e6d55604a5f2eb9027",
@@ -2490,6 +2491,7 @@
     "portable_native_ci": "5bd383a2d80ff8c5d05bff4c01df536350f3281d",
     "portable_process": "35b2754ec1235c2205aba78f3cee3034c9788752",
     "portable_process_review_fix": "6fe42109ddde02a7d9dce05f799214d7c1a01c34",
+    "portable_reader_raw_windows_paths": "b9902cf0d11c7803b6c670f0ae66d7c225149905",
     "portable_smoke_receipt_preservation": "4f0c98f87cd7de1bbcb9f0b9a1682ac215a0593b",
     "portable_storage": "ea699f4f255aaf167b4daefc54d3242f7ad1a233",
     "portable_storage_path_work": "fe0cdadae5a33902db94c8c85b86bb2418e1d28a",
@@ -2499,6 +2501,7 @@
     "public_release_evidence_checker": "78b2463251ec2e1ecf2b39088a50b82449cd836b",
     "reference_history_installer": "f3b28acdc2d2abc77813376445616b200fd3b609",
     "reference_history_installer_cherry_picked_from": "1a32a87ccad4dd7c596df31a911fd0c4ebf08527",
+    "reviewed_raw_windows_path_fix": "f42a963fbc05ff2ed013ddfe87b6eee77d1d9c35",
     "scope": "Implementation commits identify the native history and installer changes. Original export origins and source_sha256 values remain preserved; release packaging and documentation are tracked by the enclosing release commit. Optional practice/voxel integration identifies its lab source commit; the public port preserves its distinct history-window and tokenizer-candidate paths.",
     "windows_batch_bytes": "0369bcbd0963579324abc51ff41e923b7981de6b",
     "windows_directory_custody_review": "2812c20c90a4d5bcd8cbf96bbb131b6f9ce32a16",
@@ -2707,12 +2710,6 @@
       "source_sha256": "3175c9519e91c019f0dc5fdcad22b414b8486d5ae43d469f8da47b4bb24c27d6"
     },
     {
-      "path": "runtime/src/lodestone_machinery/loom_operations.py",
-      "reason": "Own trusted catalogue subprocesses with bounded Windows Jobs or POSIX process groups; enable only reviewed doctor, context, mailbox-envelope validation and inference-planning routes, with native path custody and no filesystem/network sandbox claim.",
-      "sha256": "30bed9f3a0182f9c4cdfc6892b134443e7166e2c507cdfa2430dfe47f0e7c10f",
-      "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
-    },
-    {
       "path": "runtime/src/lodestone_machinery/portable_process.py",
       "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
       "sha256": "113914dffb67970fcfa8c76acf2a6acb3a231f3340cebc1b2ac19fbe2debc6e6",
@@ -2738,8 +2735,8 @@
     },
     {
       "path": "runtime/src/lodestone_nurarihyon/portable_files.py",
-      "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "5ac0be8e75162cac46b9ae7959d4a56cf4737d420fa8600c2d6f6c5c3d579edc",
+      "reason": "Use native file and directory custody on Windows/POSIX; reject raw Windows ambiguous names before absolute-path normalization can conceal them.",
+      "sha256": "560da88edc9a372533026a3559393341566af8a456885fb3092b417c7606d3c3",
       "source_sha256": "b6713120dcd974ef3bfe6c100349e20f5d004884b4d94684a92041da3c713966"
     },
     {
@@ -2810,8 +2807,8 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/fold_export.py",
-      "reason": "Use native regular-file custody for bounded retained-fold/planning reads while preserving single-link and size restrictions.",
-      "sha256": "fec043445e225062476d63604c1aad05235bb6693d990aa8802639ecec877383",
+      "reason": "Use native bounded single-link regular-file custody and reject raw Windows aliases before path normalization for retained-fold/planning reads.",
+      "sha256": "5f79af21e409fd887d5292ad4847d8ade016941007ef7129d3656dbf3b0ea6cd",
       "source_sha256": "2595fbd1767be2e88b053720c0f7efc03717dec7d4b71a20eed170ee504bc524"
     },
     {
@@ -2819,6 +2816,12 @@
       "reason": "Read bounded optional inputs and execute exact guarded trusted-validator source bytes without reopening source paths.",
       "sha256": "9e2a6444e42531331620d4b21835d4605d8cc66fbf5cb392cab4f44f80e73b82",
       "source_sha256": "21f70c48e6ec29d9f00dafe65975fdc55be71f4608b2be01cfcecd96311e8dbc"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_operations.py",
+      "reason": "Own trusted catalogue subprocesses with bounded Windows Jobs or POSIX process groups; enable only reviewed doctor, context, mailbox-envelope validation and inference-planning routes, with native path custody and no filesystem/network sandbox claim.",
+      "sha256": "30bed9f3a0182f9c4cdfc6892b134443e7166e2c507cdfa2430dfe47f0e7c10f",
+      "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     {
       "path": "runtime/tools/ecosystem/cli.py",
