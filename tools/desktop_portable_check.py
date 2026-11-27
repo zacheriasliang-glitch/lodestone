@@ -30,6 +30,10 @@ SOURCE_TESTS = ("test_portable_process.py", "test_portable_storage.py", "test_pl
                 "test_portable_ci.py", "test_tokenizer_dependencies.py", "test_decision_format.py",
                 "test_dependencies.py", "test_build.py", "test_dependency_custody.py", "test_dependency_archives.py", "test_windows_bootstrap.py",
                 "test_mechanical_preview.py")
+# Real local record publication, retained correction delivery, practice route
+# options and full-history preservation with scripted providers; no model calls.
+SOURCE_TESTS += ("test_learning_archive_custody.py", "test_decision_retention.py",
+                 "test_practice_selection.py", "test_practice_voxels.py", "test_reader_history_window.py")
 READERS = {"LODESTONE_OLD_GUI_SOURCE": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
            "LODESTONE_PREVIOUS_GUI_SOURCE": "655fa55672a4c3ae2d0284da881921b7bed97c78"}
 
@@ -99,7 +103,7 @@ def windows_batch_command(script, arguments):
     values = [str(script), *map(str, arguments)]
     if any(character in value for value in (executable, *values) for character in '&|<>^()%!"\r\n\x00'):
         raise ValueError("Unexpected command character in CI batch arguments")
-    return '"' + executable + '" /d /s /c "' + " ".join('"' + value + '"' for value in values) + '"'
+    return '"' + executable + '" /d /v:off /s /c "' + " ".join('"' + value + '"' for value in values) + '"'
 
 
 def bootstrap_command(payload, target, root, app, cache):

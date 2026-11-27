@@ -62,7 +62,7 @@ class PortableCITests(unittest.TestCase):
         root = Path(tempfile.gettempdir()) / "portable fixture"
         win = check.bootstrap_command(root, "windows-x86_64", root / "user data", root / "app.cmd", root / "cache")
         self.assertIsInstance(win, str)
-        self.assertIn(' /d /s /c ""' + str(root / "Install Lodestone.cmd") + '"', win)
+        self.assertIn(' /d /v:off /s /c ""' + str(root / "Install Lodestone.cmd") + '"', win)
         self.assertIn('"--root" "' + str(root / "user data") + '"', win)
         self.assertTrue(win.endswith('"--no-open""'))
         self.assertNotIn("-ExecutionPolicy", win)
@@ -126,6 +126,9 @@ class PortableCITests(unittest.TestCase):
         self.assertIn("uses: actions/setup-python@v5", workflow)
         self.assertIn("python-version: '3.12'", workflow)
         for name in ("test_dependencies.py", "test_build.py", "test_dependency_custody.py", "test_dependency_archives.py"):
+            self.assertIn(name, check.SOURCE_TESTS)
+        for name in ("test_learning_archive_custody.py", "test_decision_retention.py", "test_practice_selection.py",
+                     "test_practice_voxels.py", "test_reader_history_window.py"):
             self.assertIn(name, check.SOURCE_TESTS)
 
     def test_source_checks_collect_independent_failures_before_refusing_install(self):
