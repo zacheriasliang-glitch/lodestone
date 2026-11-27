@@ -25,6 +25,7 @@ WORKSPACE_OPS = {"submit", "run", "status", "maintain", "recover", "resume",
 ORIGAMI_OPS = {"ask", "start", "request", "advance", "run", "status", "inspect",
                "review-request", "review", "answer"}
 PUBLIC_YGGDRASIL = {"inspect", "expand", "crystal", "archive", "corpus-fold", "canon", "pack", "reenter", "reuse"}
+PORTABLE_BEZOAR_OPS = {"ingest", "show"}
 TOOL_SCRIPTS = {
     "memory": "tools/local-memory/src/lodestone_memory.py",
     "continuity": "tools/continuity/checkpoint.py",
@@ -114,10 +115,15 @@ def context(root):
             "coverage": "Bounded local documentation only; no external sources read"}
 
 
+def portable_bezoar(args):
+    return len(args) > 1 and args[0] == "bezoar" and args[1] in PORTABLE_BEZOAR_OPS
+
+
 def machinery_args(args, workspace, root):
     args = list(args)
-    if args and args[0] in {"origami", "yggdrasil", "bezoar", "watcher"} and platform.system() == "Windows":
-        raise ValueError("Origami and Yggdrasil routes require POSIX file-locking and directory APIs. Use Linux or macOS for these commands; native Windows preview supports doctor, machinery demo and Conscience.")
+    if (args and args[0] in {"origami", "yggdrasil", "bezoar", "watcher"}
+            and platform.system() == "Windows" and not portable_bezoar(args)):
+        raise ValueError("This route requires POSIX file-locking and directory APIs. Native Windows supports Bezoar ingest/show; other Origami, Yggdrasil, Bezoar and Watcher CLI routes require Linux or macOS.")
     if args and args[0] in WORKSPACE_OPS:
         args[1:1] = ["--workspace", str(workspace)]
     elif len(args) > 1 and args[0] == "origami" and args[1] in ORIGAMI_OPS:
@@ -147,9 +153,10 @@ def main(argv=None):
         if sys.version_info < (3, 10):
             raise ValueError("Python 3.10 or later is required")
         command, args = options.command, options.args
-        if os.name == "nt" and command == "loom-tools":
-            # Use this dispatcher's trusted custody helper before importing code
-            # from the selected package; resolving first would hide junctions.
+        route = args if command == "machinery" else [command, *args]
+        if os.name == "nt" and (command == "loom-tools" or portable_bezoar(route)):
+            # Preserve selected names before native custody, for both the
+            # catalogue and its reviewed direct Bezoar entry points.
             sys.path.insert(0, str(ROOT / "src"))
             from lodestone_machinery.loom_operations import _selected_path
             root = _selected_path(options.repo, directory=True)
