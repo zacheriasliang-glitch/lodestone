@@ -249,7 +249,7 @@
     "gui/basilisk/presenters/conversation_presenter.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/presenters/conversation_presenter.py",
-      "sha256": "2c9e98504e1c7c6065e2efd24dc2b0f2e1715fa6f30f5b7116aac1a4d409defe",
+      "sha256": "aa6957c81d05644ef00c54f8134c9637eec24e6fd9bcebbfa3bd621a107c4da6",
       "source_sha256": "a1a78bc8842c4b2844d2ae5b506c3cc88bd08864d56725b194789e040a39da37"
     },
     "gui/basilisk/presenters/conversation_profile_presenter.py": {
@@ -585,13 +585,13 @@
     "gui/basilisk/services/loom_practice.py": {
       "origin": "desktop-practice-extension",
       "path": "basilisk/services/loom_practice.py",
-      "sha256": "57be954048b67ff368d088386edd05fd0adb911433bc2e9174c5131438fde654",
+      "sha256": "07012070c61e2e7fdf5e92fa3c8572b7740315ae02e4eba4f233240bdb2ba9da",
       "source_sha256": "57be954048b67ff368d088386edd05fd0adb911433bc2e9174c5131438fde654"
     },
     "gui/basilisk/services/loom_records.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/services/loom_records.py",
-      "sha256": "70c518b1ffdabe3dfc5e1055882b762197c05f5133d02916b892327777d2a9b9",
+      "sha256": "6e53287344d8bcec09e236501e0af25f223c9d209a7712f47aa83c8e03f8d64f",
       "source_sha256": "9eb93b52fcb9dfa9de196db6b94362229da6e37af9f054eb80b28f9edd0a99b7"
     },
     "gui/basilisk/services/search_service.py": {
@@ -699,7 +699,7 @@
     "gui/basilisk/views/loom_correction_dialog.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/views/loom_correction_dialog.py",
-      "sha256": "82f4c4b1ad4422815a637d829d9376b7b5ea14b03fd9323afd8c2aa4388eb4d5",
+      "sha256": "2416714b7d448464335236f5f90a0b039755740795a6dff37d8119fa9650049f",
       "source_sha256": "080fee86d71436a1074f4e7d0d903996a30a7a6a81152ffb7b6a0416dcb8268e"
     },
     "gui/basilisk/views/loom_origami_dialog.py": {
@@ -711,7 +711,7 @@
     "gui/basilisk/views/loom_practice_dialog.py": {
       "origin": "desktop-practice-extension",
       "path": "basilisk/views/loom_practice_dialog.py",
-      "sha256": "5e4cbdbe12feff23b440927ea19033880037f0a6e82b09193014b669dc4ec243",
+      "sha256": "9e897c8c5e54f91abd450e5493891b4c8d6d5b5edb849499359de9c3bc81a3f9",
       "source_sha256": "d17bef1628d39b77f00d536e3da417ee8b5b3f598412265d0bd4d358a03e4d62"
     },
     "gui/basilisk/views/loom_toolkits_dialog.py": {
@@ -1476,6 +1476,12 @@
       "sha256": "c4eed7f06ddebe41e5cd33c3fa3f82ad2498baf1872b224bd7211ca12cebb451",
       "source_sha256": "c4eed7f06ddebe41e5cd33c3fa3f82ad2498baf1872b224bd7211ca12cebb451"
     },
+    "runtime/src/lodestone_machinery/decision_assessment.py": {
+      "origin": "lodestone-public",
+      "path": "desktop/runtime/src/lodestone_machinery/decision_assessment.py",
+      "sha256": "fecfc08138e23fa8fbd180a1bfbde546e13ac2c3e1f45fe11c5482594a82ef28",
+      "source_sha256": "fecfc08138e23fa8fbd180a1bfbde546e13ac2c3e1f45fe11c5482594a82ef28"
+    },
     "runtime/src/lodestone_machinery/decision_contract.py": {
       "origin": "desktop-decision-extension",
       "path": "src/lodestone_machinery/decision_contract.py",
@@ -1703,7 +1709,7 @@
     "runtime/src/lodestone_machinery/loom_runtime.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_runtime.py",
-      "sha256": "109c837ca82d6577b65b35e7e61bc1d1ac17f1f052d1c63615f47b39413869a4",
+      "sha256": "dec630d7b9e119ce4a150bef2762a90ca42a61fb8e84a04a1ee49536ac3365e7",
       "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
     },
     "runtime/src/lodestone_machinery/loom_runtime_worker.py": {
@@ -1763,7 +1769,7 @@
     "runtime/src/lodestone_machinery/loom_unified.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_unified.py",
-      "sha256": "ec12126707ac8636c50e82ab8c3a5c3be12f27bdd7775966333add5578d4111f",
+      "sha256": "87ffd6155a186de53dcfbfef97cd72c0eacb366f7fc5a94de74dda8c44d193b6",
       "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
     },
     "runtime/src/lodestone_machinery/loom_voxels.py": {
@@ -2478,6 +2484,7 @@
     "linux_gui_prerequisites": "87cdfc8b5e562938eaca6d6085729fadfd234db2",
     "linux_optional_command_fence": "9c0a9bb3a6259378710f60596f29264d43eaf525",
     "loom_only_gui_dependencies": "54d716fd225644c16eefabcf9ce306b80d2934d3",
+    "machine_decision_assessment": "9a049d1cbe6dc083e72320abf7e0483469f4c3ee",
     "native_locale_fallback": "586121e5fc82da2a1234db6689deff3f91dd2355",
     "native_reference_history": "40e6672dd3403bae357345d7eb3016dd075e660d",
     "portable_archive_metadata": "e67c8fbf618ff9066d12c88dd641f414b37d935f",
@@ -2538,7 +2545,7 @@
     {
       "path": "gui/basilisk/views/loom_correction_dialog.py",
       "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
-      "sha256": "82f4c4b1ad4422815a637d829d9376b7b5ea14b03fd9323afd8c2aa4388eb4d5",
+      "sha256": "2416714b7d448464335236f5f90a0b039755740795a6dff37d8119fa9650049f",
       "source_sha256": "080fee86d71436a1074f4e7d0d903996a30a7a6a81152ffb7b6a0416dcb8268e"
     },
     {
@@ -2568,7 +2575,7 @@
     {
       "path": "gui/basilisk/presenters/conversation_presenter.py",
       "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings.",
-      "sha256": "2c9e98504e1c7c6065e2efd24dc2b0f2e1715fa6f30f5b7116aac1a4d409defe",
+      "sha256": "aa6957c81d05644ef00c54f8134c9637eec24e6fd9bcebbfa3bd621a107c4da6",
       "source_sha256": "a1a78bc8842c4b2844d2ae5b506c3cc88bd08864d56725b194789e040a39da37"
     },
     {
@@ -2580,7 +2587,7 @@
     {
       "path": "gui/basilisk/services/loom_records.py",
       "reason": "Preserve first drafts and per-encounter purpose, restore configured routes, and reject stale model-list callbacks across normal project reopening.",
-      "sha256": "70c518b1ffdabe3dfc5e1055882b762197c05f5133d02916b892327777d2a9b9",
+      "sha256": "6e53287344d8bcec09e236501e0af25f223c9d209a7712f47aa83c8e03f8d64f",
       "source_sha256": "9eb93b52fcb9dfa9de196db6b94362229da6e37af9f054eb80b28f9edd0a99b7"
     },
     {
@@ -2624,14 +2631,14 @@
     {
       "path": "runtime/src/lodestone_machinery/loom_unified.py",
       "reason": "Add source-bound decision format and saved review, explicit reader history selection, and compatibility with valid reason/checks-only native reviews. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
-      "sha256": "ec12126707ac8636c50e82ab8c3a5c3be12f27bdd7775966333add5578d4111f",
+      "sha256": "87ffd6155a186de53dcfbfef97cd72c0eacb366f7fc5a94de74dda8c44d193b6",
       "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
     },
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/loom_runtime.py",
       "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "109c837ca82d6577b65b35e7e61bc1d1ac17f1f052d1c63615f47b39413869a4",
+      "sha256": "dec630d7b9e119ce4a150bef2762a90ca42a61fb8e84a04a1ee49536ac3365e7",
       "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
     },
     {
@@ -2676,7 +2683,7 @@
     {
       "path": "gui/basilisk/views/loom_practice_dialog.py",
       "reason": "Keep retained-lesson loading responsive with asynchronous validation and safe cancellation; display correction conditions and current replacements.",
-      "sha256": "5e4cbdbe12feff23b440927ea19033880037f0a6e82b09193014b669dc4ec243",
+      "sha256": "9e897c8c5e54f91abd450e5493891b4c8d6d5b5edb849499359de9c3bc81a3f9",
       "source_sha256": "d17bef1628d39b77f00d536e3da417ee8b5b3f598412265d0bd4d358a03e4d62"
     },
     {
@@ -2804,6 +2811,12 @@
       "reason": "Choose an available native locale while preserving the requested application translation.",
       "sha256": "40e1b651c9cf42e9b95c6845c22ce87497f7e92eb7d2684d01aca4f45f1d64cd",
       "source_sha256": "e529d84f29f4c5d04febb5a48b1fb0e70422f1e65d3aae24ec6adc6b80ce7a7e"
+    },
+    {
+      "path": "gui/basilisk/services/loom_practice.py",
+      "reason": "Record explicit source-bound machine structural findings separately from human corrections; select only definite rejections into voxel advice without changing original answers.",
+      "sha256": "07012070c61e2e7fdf5e92fa3c8572b7740315ae02e4eba4f233240bdb2ba9da",
+      "source_sha256": "57be954048b67ff368d088386edd05fd0adb911433bc2e9174c5131438fde654"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"
