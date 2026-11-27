@@ -1,5 +1,6 @@
 """Native owned-worker lifecycle fixtures; no model, network or paid API calls."""
 import json
+import hashlib
 import io
 import os
 from pathlib import Path
@@ -75,6 +76,13 @@ class OwnedProcessTests(unittest.TestCase):
         # Every fixture descendant must be present; every Job member must stop.
         self.assertTrue(pids <= {row["pid"] for row in self.snapshot(child)})
         self.assertGreater(sum(row["rss_bytes"] for row in self.snapshot(child)), 0)
+        if isinstance(child, native.WindowsJobProcess):
+            evidence = child.memory_observation()
+            image_digest = hashlib.sha256(os.path.normcase(os.path.normpath(sys.executable)).encode("utf-8")).hexdigest()
+            matching = {row["pid"] for row in evidence["windows_job_sampled_members"]
+                        if row["image_path_sha256"] == image_digest}
+            self.assertTrue(pids <= matching, evidence)
+            self.assertFalse(evidence["windows_job_member_evidence_truncated"])
         stopped = runtime._stop_group(child)
         self.assertTrue(stopped["confirmed_stopped"], stopped)
         self.assertIsNotNone(child.poll())

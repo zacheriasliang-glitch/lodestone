@@ -50,6 +50,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONUTF8: '1'
+      PYTHONFAULTHANDLER: '1'
       TARGET: ${{ matrix.target }}
       EXPECTED_HEAD: ${{ inputs.expected_head }}
       LOCAL_MODEL_SMOKE: ${{ inputs.local_model_smoke }}

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import ctypes
 import errno
+import hashlib
 import math
 import os
 from pathlib import Path
@@ -105,6 +106,7 @@ class _WindowsAPI:
             "GetExitCodeProcess": ([w.HANDLE, pointer], w.BOOL),
             "OpenProcess": ([w.DWORD, w.BOOL, w.DWORD], w.HANDLE),
             "IsProcessInJob": ([w.HANDLE, w.HANDLE, pointer], w.BOOL),
+            "QueryFullProcessImageNameW": ([w.HANDLE, w.DWORD, w.LPWSTR, pointer], w.BOOL),
             "GetWindowsDirectoryW": ([w.LPWSTR, w.UINT], w.UINT),
             "CreateIoCompletionPort": ([w.HANDLE, w.HANDLE, size, w.DWORD], w.HANDLE),
             "GetQueuedCompletionStatus": ([w.HANDLE, pointer, pointer, pointer, w.DWORD], w.BOOL),
@@ -161,6 +163,8 @@ class WindowsJobProcess:
         self.memory_limit_bytes = max_memory_bytes
         self.memory_limit_seen = False
         self.peak_commit_bytes = 0
+        self._sampled_members = {}
+        self._member_evidence_truncated = False
         try:
             self._job = self.api.check(self.api.kernel.CreateJobObjectW(None, None))
             limits = _ExtendedLimits()
@@ -302,6 +306,22 @@ class WindowsJobProcess:
                     if self.api.kernel.WaitForSingleObject(process, 0) == 0:
                         continue
                     raise ctypes.WinError(error)
+                image = ctypes.create_unicode_buffer(32768)
+                length = self.api.w.DWORD(len(image))
+                if not self.api.kernel.QueryFullProcessImageNameW(process, 0, image, ctypes.byref(length)):
+                    error = ctypes.get_last_error()
+                    if self.api.kernel.WaitForSingleObject(process, 0) == 0:
+                        continue
+                    raise ctypes.WinError(error)
+                # Bound retained membership evidence independently from the
+                # complete Job RSS sum. No executable path or command is run.
+                image_digest = hashlib.sha256(os.path.normcase(os.path.normpath(image.value)).encode("utf-8")).hexdigest()
+                identity = (pid, image_digest)
+                if identity in self._sampled_members or len(self._sampled_members) < 64:
+                    self._sampled_members[identity] = {"pid": pid, "image_name": Path(image.value).name[:64],
+                                                       "image_path_sha256": image_digest}
+                else:
+                    self._member_evidence_truncated = True
                 members.append({"pid": pid, "rss_bytes": counters.WorkingSetSize, "zombie": False})
             finally:
                 self.api.kernel.CloseHandle(process)
@@ -328,6 +348,9 @@ class WindowsJobProcess:
             raise OSError("Windows Job notification queue exceeded its bound")
         return {"windows_job_commit_limit_bytes": limits.JobMemoryLimit,
                 "windows_job_peak_commit_bytes": self.peak_commit_bytes,
+                "windows_job_sampled_members": sorted(self._sampled_members.values(), key=lambda row: (row["pid"], row["image_path_sha256"])),
+                "windows_job_member_evidence_truncated": self._member_evidence_truncated,
+                "windows_job_member_scope": "Native image path hash and IsProcessInJob membership at RSS sample time; bounded to 64 identities; display names at most 64 characters.",
                 "windows_job_peak_scope": "Native PeakJobMemoryUsed telemetry; a denied allocation may still raise this counter. It is not an RSS ceiling.",
                 "windows_job_memory_limit_notified": self.memory_limit_seen}
 

@@ -70,8 +70,36 @@ def check_run(result, root, config):
             "Worker did not report the expected local inference scope")
     require(observation.get("token_count_matches") is True and observation.get("done_reason") == "stop",
             "Token binding or terminal generation check failed")
-    require(supervisor["observation"]["supervisor"]["stop"].get("confirmed_stopped") is True,
+    supervision = supervisor["observation"]["supervisor"]
+    require(supervision["stop"].get("confirmed_stopped") is True,
             "Worker process group was not confirmed stopped")
+    if sys.platform == "win32" or worker.get("ownership") == "windows_job":
+        require(worker.get("ownership") == "windows_job" and worker.get("filesystem_network_sandbox") is False,
+                "Windows worker ownership receipt is missing")
+        require(supervision.get("windows_job_commit_limit_bytes") == config["max_rss_bytes"],
+                "Native Job committed-memory cap differs from the configured bound")
+        require(supervision.get("rss_accounting") == "sampled_entire_owned_windows_job"
+                and supervision.get("rss_valid_sample_count", 0) > 0
+                and supervision.get("observed_group_peak_rss_bytes", 0) > 0,
+                "Native Job resident-memory samples are missing")
+        require(supervision.get("windows_job_memory_limit_notified") is False
+                and supervision.get("windows_job_member_evidence_truncated") is False,
+                "Windows Job limits or bounded membership evidence did not pass")
+        members = supervision.get("windows_job_sampled_members", [])
+        server = observation.get("server_pid")
+        require(type(server) is int and server != worker["pid"], "Actual Ollama server PID is missing")
+        image_digest = hashlib.sha256(os.path.normcase(os.path.normpath(config["ollama_binary"])).encode("utf-8")).hexdigest()
+        owned_pids = {member["pid"] for member in members}
+        ollama_pids = {member["pid"] for member in members if member["image_path_sha256"] == image_digest}
+        require(worker["pid"] in owned_pids and server in ollama_pids,
+                "Worker and actual Ollama server were not sampled in the owned Job")
+        # The pinned Ollama 0.6.8 llm/server.go launches its own executable with
+        # the runner argument. Require a distinct, sampled same-image member.
+        runners = ollama_pids - {worker["pid"], server}
+        require(bool(runners), "Actual Ollama runner was not sampled in the owned Job")
+        summary["windows_job"] = {key: value for key, value in supervision.items() if key.startswith("windows_job_")}
+        summary["windows_job"].update(server_pid=server, sampled_runner_pids=sorted(runners),
+                                      confirmed_stopped=True)
     summary.update({"worker_pid": worker["pid"], "model_digest": observation["model_digest"],
                     "prompt_tokens": observation["prompt_tokens"], "generated_tokens": observation["eval_count"],
                     "rendered_prompt_sha256": observation["rendered_prompt_sha256"],

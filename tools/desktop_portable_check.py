@@ -32,7 +32,7 @@ SOURCE_TESTS = ("test_portable_process.py", "test_portable_storage.py", "test_pl
                 "test_mechanical_preview.py")
 # Real local record publication, retained correction delivery, practice route
 # options and full-history preservation with scripted providers; no model calls.
-SOURCE_TESTS += ("test_learning_archive_custody.py", "test_decision_retention.py",
+SOURCE_TESTS += ("test_smoke_evidence.py", "test_learning_archive_custody.py", "test_decision_retention.py",
                  "test_practice_selection.py", "test_practice_voxels.py", "test_reader_history_window.py")
 READERS = {"LODESTONE_OLD_GUI_SOURCE": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
            "LODESTONE_PREVIOUS_GUI_SOURCE": "655fa55672a4c3ae2d0284da881921b7bed97c78"}

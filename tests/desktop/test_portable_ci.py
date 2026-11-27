@@ -129,6 +129,7 @@ class PortableCITests(unittest.TestCase):
         self.assertNotIn("pull_request_target", workflow)
         self.assertIn("uses: actions/setup-python@v5", workflow)
         self.assertIn("python-version: '3.12'", workflow)
+        self.assertIn("PYTHONFAULTHANDLER: '1'", workflow)
         for name in ("test_dependencies.py", "test_build.py", "test_dependency_custody.py", "test_dependency_archives.py"):
             self.assertIn(name, check.SOURCE_TESTS)
         for name in ("test_learning_archive_custody.py", "test_decision_retention.py", "test_practice_selection.py",

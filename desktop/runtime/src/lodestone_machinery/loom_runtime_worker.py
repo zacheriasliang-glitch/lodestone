@@ -164,6 +164,8 @@ def run_ollama(config, request, partial_path, observation):
     text = ""
     try:
         process, opener, version = start_ollama(config, Path(partial_path).with_suffix(".server.log"))
+        if sys.platform == "win32":
+            observation["server_pid"] = process.pid
         tags = http_json(opener, "/api/tags")
         selected = [row for row in tags.get("models", [])
                     if row.get("name") == config["ollama_model"]]
