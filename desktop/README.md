@@ -1,12 +1,12 @@
-# Lodestone Desktop preview
+# Lodestone Desktop
 
 Unified Loom provides a local Qwen3 reader and retained encounters and corrections.
 Origami handoffs and toolkit execution have additional platform restrictions,
 listed below.
 
-The `0.4.0-preview.6` cross-platform preview targets Intel macOS, Ubuntu 24.04
+The `0.4.0` desktop release targets Intel macOS, Ubuntu 24.04
 x86_64 and Windows x86_64. The
-[named release page](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0-preview.6)
+[named release page](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0)
 provides downloads when published, with the exact source commit, checksums and
 native verification record. Apple Silicon, other Linux distributions, ARM Windows
 and mobile platforms are outside this target set.
@@ -14,45 +14,61 @@ and mobile platforms are outside this target set.
 The public [native verification guide](https://github.com/zacheriasliang-glitch/lodestone/blob/main/docs/desktop-validation/portable-preview.md)
 describes the release checks, retained evidence and local inference smoke.
 
-This is a preview. A retained correction is made available to a later encounter;
+Decision quality and semantic learning are not established. A retained correction is made available to a later encounter;
 the reader can still misunderstand or misapply it. Local practice does not update
 model weights. The preserved 31-component programme map includes experimental and
 unfinished research; installing the application does not complete that research.
 
 ## Current platform and function availability
 
-This matrix describes desktop preview.6. Its local reader and retained-practice
-workflow are available on all three targets; the full set of desktop functions
-does not yet have platform parity.
+This matrix describes desktop 0.4.0. Native release checks use clean GitHub-hosted
+Intel macOS, Ubuntu 24.04 and Windows Server 2022 runners. Windows end-user
+hardware has not been independently tested. All downloads are unsigned.
 
 | Function | Intel macOS | Ubuntu 24.04 x86_64 | Windows x86_64 |
 |---|---|---|---|
-| Local Qwen3 reader, owned worker cancellation and timeout | Verified in release checks | Verified in release checks | Verified in release checks |
-| Retain an unresolved correction and deliver it to a later encounter | Verified in release checks | Verified in release checks | Verified in release checks |
-| Save/reopen conversations, projects and unsent drafts | Verified in release checks | Verified in release checks | Verified in release checks |
-| Install, reinstall, upgrade, roll back and remove the application while preserving retained records | Verified in release checks | Verified in release checks | Verified in release checks |
-| Human-curated Origami handoff from a retained encounter | Implemented with POSIX custody | Implemented with POSIX custody | Unavailable; preparation and completion refuse |
-| Execute an operation from the desktop toolkit catalogue | Explicitly approved trusted subprocesses; operation prerequisites apply | Explicitly approved trusted subprocesses; operation prerequisites apply | Unavailable for every catalogue operation; process and operation portability remain unfinished |
+| Local Qwen3 reader, cancellation and timeout | Release checks | Release checks | Release checks |
+| Retain corrections and deliver them to a later encounter | Release checks | Release checks | Release checks |
+| Save/reopen conversations, projects and unsent drafts | Release checks | Release checks | Release checks |
+| Install, upgrade, roll back and remove the app while preserving records | Release checks | Release checks | Release checks |
+| Human-curated Origami handoff from a retained encounter | Native custody checks | Native custody checks | Native custody checks |
+| Selected toolkit catalogue operations | Trusted subprocesses with bounded output and process ownership | Trusted subprocesses with bounded output and process ownership | Reviewed subset below, with bounded output and Windows Job ownership |
+| External Origami command provider | macOS sandbox when available; otherwise refused | bubblewrap and host-policy opt-in required | AppContainer when its native probe passes; otherwise refused |
 
-The release checks cover native installation, GUI behavior, process supervision
-and two local-reader encounters per target. They establish actual generation and
-exact correction delivery, not whether the reader understands or applies that
-correction. The handoff and toolkit rows describe implementation and prerequisites;
-the release's two-encounter smoke does not exercise every toolkit operation.
+The Windows catalogue enables these operations:
 
-Windows toolkit refusal includes deterministic memory, board and source-inspection
-operations. The current POSIX catalogue runs trusted subprocesses with bounded
-output, timeouts and owned process groups. This does not provide filesystem or
-network isolation. A Windows port needs equivalent process ownership and an audit
-of each operation's dependencies; a kernel sandbox is not a prerequisite imposed
-by this catalogue. Human-curated Origami handoffs have a separate POSIX custody
-requirement and also remain unavailable on Windows. These are product portability
-gaps. The historical 31-component programme map and its research criteria remain
-unchanged.
+- `ecosystem.doctor` and `ecosystem.context`;
+- `bezoar.ingest` and `bezoar.show`;
+- `pando.init` and `pando.verify`;
+- `memory.add`, `memory.search` and `memory.verify`;
+- `continuity.create` and `continuity.verify`;
+- `repository.check` and `mailbox.validate-envelope`;
+- `loom.inference-memory-assess` and `loom.inference-memory-skill`;
+- `release.verify-download`.
+
+Every other Windows catalogue operation is explicitly unavailable. This includes
+historical machinery execution, corpus/fold verification, repository export
+manifests, and the candidate-improvement catalogue commands. Those optional
+routes are not silently replaced by weaker implementations. Other Pando command
+routes are also unavailable on Windows. Inspect the catalogue for additional
+per-operation prerequisites on macOS and Linux.
+
+The toolkit catalogue runs explicitly approved trusted local commands. Process
+ownership, timeouts and output bounds do not supply a filesystem/network sandbox.
+External command providers use a separate kernel confinement route. Neither
+route grants a model general execution authority or starts paid services.
+
+Release checks cover native installation, GUI behavior, process supervision,
+retention and two local-reader encounters per target. Targeted fixtures exercise
+the newly enabled operations and preserve failure outcomes. They establish actual
+generation and exact correction delivery, not improved judgment. The historical
+31-component programme map and all 15 toolkit families retain their existing
+research classifications; installation does not establish semantic learning or
+update model weights.
 
 ## Install
 
-Choose the ZIP for your operating system and architecture from the named preview
+Choose the ZIP for your operating system and architecture from the named
 release, and compare its SHA-256 with the release's `SHA256SUMS.txt` before running
 setup. Extract the entire ZIP; keep its files together. Setup obtains the pinned
 application runtimes, dependencies and local model and verifies their hashes.
@@ -76,13 +92,15 @@ verify their ownership throughout each operation.
 | Ubuntu 24.04, x86_64 | `Install Lodestone.sh` | Lodestone Preview in the desktop applications menu |
 | Windows 11 or Windows Server 2022, x86_64 | `Install Lodestone.cmd` | The installed `Lodestone Preview.cmd` launcher |
 
+Launcher names retain “Preview” for continuity with earlier installations; the installed release metadata identifies version 0.4.0.
+
 Windows Server needs a graphical Desktop Experience session. The Windows
-preview requires OS build 20348 or later; this is not a claim of verification
+release requires OS build 20348 or later; this is not a claim of verification
 on every later Windows release.
 
 ### Intel macOS
 
-Double-click **Install Lodestone.command** in the extracted folder. This preview
+Double-click **Install Lodestone.command** in the extracted folder. This release
 is unsigned and not Apple-notarized. If macOS blocks it, use Apple's
 [instructions for opening an app from an unidentified developer](https://support.apple.com/en-us/102445)
 after verifying the download. Setup does not change macOS security settings.
@@ -153,7 +171,7 @@ reported limits, even when long-path support is enabled.
 To reopen the installed application, press **Win+R**, enter `shell:programs`, and
 open **Lodestone Preview.cmd** in that folder. This uses the installed launcher
 directly and does not depend on Start-menu search or pinning.
-This preview's Windows launcher keeps a console window open alongside the GUI.
+The Windows launcher keeps a console window open alongside the GUI.
 Quit through the application's menu or main window so it can save normally.
 
 **Advanced PowerShell route:** the same pinned setup remains available as
@@ -166,7 +184,7 @@ This unblocks only that file and does not change execution policy. If host or
 organization policy prohibits unsigned scripts, that optional route remains
 blocked. Neither entrypoint changes the host's security policy.
 
-## Use the preview
+## Use the application
 
 Open Lodestone Preview, enter an encounter and its purpose, then send it to the
 local reader. Use the feedback controls to retain a correction and inspect what
@@ -355,23 +373,24 @@ must be inspected before another attempt. Some machines will respond slowly.
 
 Conscience assesses the supported practice contract. Nurarihyon records actual
 dispatch outcomes and reconciles interrupted work. Bezoar retains evidence and
-corrections; Origami provides curated handoffs on macOS and Linux; the toolkit
+corrections; Origami provides curated handoffs on all three declared targets; the toolkit
 catalogue reports each operation's requirements. Optional research/training tools are not dependencies
 of the installed local reader and are not run by installation.
 
-Every toolkit catalogue operation is currently unavailable on Windows because
-its process and operation portability is unfinished. The POSIX catalogue executes
-explicitly approved trusted subprocesses without a kernel sandbox. Human-curated
-Origami handoffs separately refuse on Windows because their custody path requires
-POSIX. The local Loom reader and its retained learning lifecycle remain available
-there.
+The Windows catalogue admits only the operations in the availability matrix.
+Its Job object stops the owned process tree; POSIX uses owned process groups.
+Both execute trusted explicit commands without a kernel sandbox.
 
 External Origami command providers and garden execution have a separate kernel
-confinement requirement. Those routes refuse on Windows until an equivalent
-isolation mechanism is available. On Linux they require working bubblewrap and
-refuse when host policy or kernel restrictions prevent it from starting; installing
-`bubblewrap` does not override such restrictions. Inspect the catalogue and the
-retained refusal before retrying.
+confinement requirement. Windows uses a fresh AppContainer with no network
+capabilities, narrow source-read/workspace-write grants and a kill-on-close Job.
+A flushed recovery journal and serialized launcher restore temporary grants;
+unconfirmed recovery blocks new fenced runs. User permission edits are retained.
+This assumes a trusted host directory tree, not a hostile process racing host
+path changes. On Linux the routes require working bubblewrap and refuse when
+host policy or kernel restrictions prevent it from starting. Inspect retained
+refusals before retrying. Installation does not enable optional provider routes
+or start an external provider.
 
 On stock Ubuntu 24.04, AppArmor restricts unprivileged user namespaces, so
 bubblewrap cannot start and those optional command routes refuse. An

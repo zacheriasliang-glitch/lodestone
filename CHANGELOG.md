@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.4.0 — three-target desktop release
+
+Unsigned installers target Intel macOS 12+, Ubuntu 24.04 x86_64 and Windows 11 / Server 2022 x86_64. Native Windows evidence comes from clean GitHub-hosted Server 2022 runners. See the [platform/function matrix](desktop/README.md#current-platform-and-function-availability) for the exact optional routes and setup prerequisites. Decision quality and semantic learning are not established.
+
+- Adds Windows curated handoff custody and a reviewed toolkit subset for retained memory, source capture, continuity, board integrity and inference-memory planning. Original source bytes and failed outcomes remain intact.
+- Adds a probed Windows AppContainer route for optional external commands, with no network capability, serialized temporary grants and recoverable interrupted cleanup. Toolkit process ownership remains distinct from this kernel fence.
+- Retains source-bound machine decision findings separately from human corrections and original responses. Explicitly selected definite findings can enter later practice; unresolved findings do not become advice.
+- Preserves all 31 programme criteria and 15 toolkit families. No weight training, automatic paid provider use or claim of improved semantic decisions.
+
+The [named release](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0) records the exact tested source, checksums and native installation/reader/correction evidence. Earlier preview assets remain unchanged.
+
 ## 0.4.0-preview.6 — cross-platform desktop preview
 
 Source review is recorded in

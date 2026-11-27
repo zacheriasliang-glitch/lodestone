@@ -127,6 +127,7 @@ def knot_voxel(memory, handles):
             except ValueError:
                 answer = None
             # These are contract conventions, not a post-hoc invented model bet.
+            # selected_evidence_id is the contract target, not the model's citation.
             expected = {"target": case["target"], "case_id": case["case_id"],
                 "evidence_id": assessment["selected_evidence_id"],
                 "transition_rule": "HOLD iff chosen action equals recorded prior action",

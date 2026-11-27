@@ -80,7 +80,7 @@ class LoomPracticeDialog(wx.Dialog):
 		self.strategy.SetSelection(1 if options and options["decision_strategy"] == "evidence_first" else 0)
 		fields.Add(self.strategy, 0, wx.ALL | wx.EXPAND, 8)
 		fields.Add(wx.StaticText(body, label="Optional: machine finding handles from Structured case review (one per line). "
-			"Only definite rejections can enter this encounter as named knots."), 0, wx.ALL, 8)
+			"Select a few: each uses context space. Only definite rejections can enter this encounter as named knots."), 0, wx.ALL, 8)
 		self.knot_handles = wx.TextCtrl(body,
 			value="\n".join(options.get("decision_knot_handles", []) or []) if options else "",
 			style=wx.TE_MULTILINE, size=(-1, 65))
