@@ -10,7 +10,7 @@ import unittest
 RUNTIME = Path(__file__).resolve().parents[2] / "desktop/runtime"
 sys.path.insert(0, str(RUNTIME / "src"))
 from lodestone_machinery.loom_operations import OperationBridge
-from lodestone_pando.store import Board
+from lodestone_pando.store import Board, validate_database_files
 
 
 class PortablePandoTests(unittest.TestCase):
@@ -103,6 +103,24 @@ class PortablePandoTests(unittest.TestCase):
         board = Board(self.home)
         self.assertEqual({p["title"] for p in board.state()["posts"]}, {"first", "second"})
         self.assertEqual(board.verify()["posts"], 2)
+
+    def test_database_preflight_refuses_existing_aliases_and_sidecars(self):
+        other = Board(self.base / "other board")
+        before = other.db.read_bytes()
+        self.home.mkdir()
+        for suffix in ("", "-journal", "-wal", "-shm"):
+            alias = self.home / ("pando.sqlite3" + suffix)
+            os.link(other.db, alias)
+            try:
+                with self.assertRaisesRegex(ValueError, "aliases or hardlinks"):
+                    validate_database_files(self.home)
+                if sys.platform == "win32":
+                    done = self.cli("verify")
+                    self.assertEqual(done.returncode, 2, done.stdout + done.stderr)
+                    self.assertIn("aliases or hardlinks", done.stderr)
+                self.assertEqual(other.db.read_bytes(), before)
+            finally:
+                alias.unlink()
 
     @unittest.skipUnless(sys.platform == "win32", "Native Windows path and scope semantics")
     def test_windows_rejects_unported_routes_and_raw_ambiguous_names(self):
