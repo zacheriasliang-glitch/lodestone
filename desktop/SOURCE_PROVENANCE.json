@@ -2201,7 +2201,7 @@
     "runtime/tools/continuity/checkpoint.py": {
       "origin": "unified-runtime",
       "path": "tools/continuity/checkpoint.py",
-      "sha256": "1cb9c4cd8abef300f3f47d03fcaac627618b37039247590ef43a3d3c9c728572",
+      "sha256": "7320d435427f736f7b76b2f3903ea8fe47acfb5cece293800c3d8cb4db339b6a",
       "source_sha256": "1cb9c4cd8abef300f3f47d03fcaac627618b37039247590ef43a3d3c9c728572"
     },
     "runtime/tools/corpus-fold/src/corpus_fold.py": {
@@ -2499,6 +2499,7 @@
     "scope": "Implementation commits identify the native history and installer changes. Original export origins and source_sha256 values remain preserved; release packaging and documentation are tracked by the enclosing release commit. Optional practice/voxel integration identifies its lab source commit; the public port preserves its distinct history-window and tokenizer-candidate paths.",
     "windows_ambiguous_path_rejection": "f42a963fbc05ff2ed013ddfe87b6eee77d1d9c35",
     "windows_batch_bytes": "0369bcbd0963579324abc51ff41e923b7981de6b",
+    "windows_continuity_custody": "d8a6fa6efbe8dcd8ccfc71df185dfa97e4ced8aa",
     "windows_curated_handoff": "7379bcb130f09c4c918121461524b0f13154ff05",
     "windows_directory_custody_review": "2812c20c90a4d5bcd8cbf96bbb131b6f9ce32a16",
     "windows_file_timestamp_contract": "da26134b75de18d0fdf49822dd3c930ad4b009f9",
@@ -2819,6 +2820,12 @@
       "reason": "Guard Windows support evidence and user-selected review reads without hiding aliases; retain existing schema, byte and total-size checks.",
       "sha256": "806e4d6ecf41ceda7d9d751f6d99905e3f460d9f53fc7ecfea8e44ca635785ca",
       "source_sha256": "df07f7e3d4b2c5b01d8710e952553142c410635cce55205a6bacc7bb5eca00ad"
+    },
+    {
+      "path": "runtime/tools/continuity/checkpoint.py",
+      "reason": "Use native Windows streaming source and checkpoint custody, retain lexical roots and publish immutable flushed checkpoints without changing the v1 byte/schema or preservation semantics.",
+      "sha256": "7320d435427f736f7b76b2f3903ea8fe47acfb5cece293800c3d8cb4db339b6a",
+      "source_sha256": "1cb9c4cd8abef300f3f47d03fcaac627618b37039247590ef43a3d3c9c728572"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"
