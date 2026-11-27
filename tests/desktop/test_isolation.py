@@ -353,8 +353,18 @@ class RealAppContainerTests(unittest.TestCase):
             argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", "import time; time.sleep(8)"],
                                         work, source, None, None)
             launcher = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            time.sleep(4)
+            # Edit only after the run has confirmed its grant on the source.
+            deadline = time.monotonic() + 60
+            while time.monotonic() < deadline:
+                journals = self._pending()
+                if journals and any('"granted": ' + json.dumps(str(source)) in line
+                                    for line in journals[0].read_text().splitlines()):
+                    break
+                time.sleep(0.2)
+            else:
+                self.fail("The run never confirmed its source grant")
             current = self._sddl(source)
+            self.assertIn("S-1-15-2-", current)
             security.write(source, "D:P" + current[2:].lstrip("AIR"))  # a user's protection-only edit
             out, err = launcher.communicate(timeout=120)
             self.assertEqual(launcher.returncode, 0, err)
