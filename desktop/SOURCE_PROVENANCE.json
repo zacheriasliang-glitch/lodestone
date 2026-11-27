@@ -2111,7 +2111,7 @@
     "runtime/src/lodestone_nurarihyon/portable_files.py": {
       "origin": "lodestone-public",
       "path": "desktop/runtime/src/lodestone_nurarihyon/portable_files.py",
-      "sha256": "5ac0be8e75162cac46b9ae7959d4a56cf4737d420fa8600c2d6f6c5c3d579edc",
+      "sha256": "560da88edc9a372533026a3559393341566af8a456885fb3092b417c7606d3c3",
       "source_sha256": "b6713120dcd974ef3bfe6c100349e20f5d004884b4d94684a92041da3c713966"
     },
     "runtime/src/lodestone_nurarihyon/preparation.py": {
@@ -2497,6 +2497,7 @@
     "reference_history_installer": "f3b28acdc2d2abc77813376445616b200fd3b609",
     "reference_history_installer_cherry_picked_from": "1a32a87ccad4dd7c596df31a911fd0c4ebf08527",
     "scope": "Implementation commits identify the native history and installer changes. Original export origins and source_sha256 values remain preserved; release packaging and documentation are tracked by the enclosing release commit. Optional practice/voxel integration identifies its lab source commit; the public port preserves its distinct history-window and tokenizer-candidate paths.",
+    "windows_ambiguous_path_rejection": "f42a963fbc05ff2ed013ddfe87b6eee77d1d9c35",
     "windows_batch_bytes": "0369bcbd0963579324abc51ff41e923b7981de6b",
     "windows_curated_handoff": "7379bcb130f09c4c918121461524b0f13154ff05",
     "windows_directory_custody_review": "2812c20c90a4d5bcd8cbf96bbb131b6f9ce32a16",
@@ -2737,8 +2738,8 @@
     },
     {
       "path": "runtime/src/lodestone_nurarihyon/portable_files.py",
-      "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "5ac0be8e75162cac46b9ae7959d4a56cf4737d420fa8600c2d6f6c5c3d579edc",
+      "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes. Reject raw Windows dot/space/device/stream names before path normalization can conceal them.",
+      "sha256": "560da88edc9a372533026a3559393341566af8a456885fb3092b417c7606d3c3",
       "source_sha256": "b6713120dcd974ef3bfe6c100349e20f5d004884b4d94684a92041da3c713966"
     },
     {
