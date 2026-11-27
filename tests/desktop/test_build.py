@@ -67,6 +67,8 @@ class BuildTests(unittest.TestCase):
                 self.assertEqual(hashlib.sha256(archive.read(prefix + name)).hexdigest(), expected)
             for name in ("build.py", "verify_payload.py", "gui-dependencies.json"):
                 self.assertEqual(archive.read(prefix + name), (DESKTOP / name).read_bytes())
+            for name in ("windows-path-budget.json", "windows_preflight.py", "Enable Windows Long Paths.cmd"):
+                self.assertEqual(archive.read(prefix + name), (self.source / name).read_bytes())
             installer = archive.getinfo(prefix + "Install Lodestone.command")
             self.assertTrue(installer.external_attr >> 16 & 0o111)
 
