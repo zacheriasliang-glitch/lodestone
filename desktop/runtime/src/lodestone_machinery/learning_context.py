@@ -9,13 +9,15 @@ correction into demonstrated learning.
 """
 from copy import deepcopy
 from collections import Counter
-from contextlib import nullcontext
+from contextlib import ExitStack, nullcontext
 import hashlib
 import json
 from pathlib import Path
 
+from lodestone_nurarihyon import portable_files as _files
 from .records import HANDLE, canonical
 
+_WINDOWS = _files.WINDOWS
 POLICY_SCHEMA = "origami-learning-policy/v1"
 PRACTICE_SCHEMA = "loom-practice-context/v1"
 EXPOSURE = "EXPOSED_PRACTICE"
@@ -102,11 +104,25 @@ def _text(value, name, maximum=32768):
 def read_learning_policy(workspace):
     """Read an explicitly installed local policy; absence preserves old workflows."""
     path = Path(workspace) / POLICY_FILE
-    if path.is_symlink():
-        raise ValueError("Learning policy must not be a symlink")
-    if not path.exists():
-        return None
-    raw = path.read_bytes()
+    if _WINDOWS:
+        with ExitStack() as custody:
+            try:
+                custody.enter_context(_files.guarded_directory(path.parent))
+            except FileNotFoundError:
+                return None
+            try:
+                path.lstat()
+            except FileNotFoundError:
+                return None
+            # Once observed, disappearance/replacement is a custody failure,
+            # not an absent optional policy.
+            raw = _files.read_bytes(path, 32768)
+    else:
+        if path.is_symlink():
+            raise ValueError("Learning policy must not be a symlink")
+        if not path.exists():
+            return None
+        raw = path.read_bytes()
     if len(raw) > 32768:
         raise ValueError("Learning policy exceeds its byte bound")
     policy = json.loads(raw)
@@ -118,6 +134,9 @@ def read_learning_policy(workspace):
     memory_path = Path(_text(policy["memory_workspace"], "Learning memory path", 4096))
     if not memory_path.is_absolute() or memory_path.resolve(strict=True) != memory_path:
         raise ValueError("Learning memory workspace must be an existing resolved absolute path")
+    if _WINDOWS:
+        with _files.guarded_directory(memory_path):
+            pass
     seeds = policy["seed_handles"]
     if (type(seeds) is not list or not seeds or len(seeds) > 16
             or any(type(h) is not str for h in seeds) or len(set(seeds)) != len(seeds)):
@@ -717,11 +736,17 @@ def check_origami_dispatch(workspace, prepared, dispatch, *, run_id, call_limit)
     payload = record["payload"]
     source = payload["source"]
     intent = Path(workspace) / "origami" / run_id / "intent.json"
+    def intent_bytes():
+        if _WINDOWS:
+            # Match the bound used by Nurarihyon when creating the dispatch.
+            from lodestone_nurarihyon.learning_conscience import MAX_PACKET_BYTES
+            return _files.read_bytes(intent, MAX_PACKET_BYTES)
+        return intent.read_bytes()
     if (dispatch["learning_run_handle"] != prepared["run_handle"]
             or payload["run_handle"] != prepared["run_handle"]
             or payload["provider_call_limit"] != call_limit
             or source["workspace"] != str(Path(workspace).resolve()) or source["run_id"] != run_id
-            or source["intent_sha256"] != hashlib.sha256(intent.read_bytes()).hexdigest()):
+            or source["intent_sha256"] != hashlib.sha256(intent_bytes()).hexdigest()):
         raise ValueError("Retained Origami dispatch differs from this learning encounter")
     return dispatch["dispatch_handle"]
 

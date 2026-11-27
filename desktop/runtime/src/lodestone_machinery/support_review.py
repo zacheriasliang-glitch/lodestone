@@ -13,10 +13,12 @@ from pathlib import Path
 import re
 import stat
 
+from lodestone_nurarihyon import portable_files as _files
 from .origami import (MAX_JSON, STATE_VERSIONS, ROLES, _keys, _passage, _roles,
                       _snapshot, _validate_response, render_answer)
 from .records import RecordStore, canonical
 
+_WINDOWS = _files.WINDOWS
 SCHEMA = "origami-support-review/v1"
 REQUEST_SCHEMA = "origami-support-request/v1"
 MAX_JSON_DEPTH = 64
@@ -86,6 +88,10 @@ def _no_links(path, root):
     # root is an already resolved workspace/source scope. Reject links within it,
     # including links that happen to point to another file inside the same scope.
     relative = path.relative_to(root)
+    if _WINDOWS:
+        with _files.guarded_directory(root), _files.open_regular(path):
+            pass
+        return
     current = root
     for part in relative.parts:
         current = current / part
@@ -94,11 +100,16 @@ def _no_links(path, root):
 
 
 def _read_file(path, root, total, *, json_file=True, max_bytes=MAX_JSON):
-    _no_links(path, root)
-    if not stat.S_ISREG(path.stat().st_mode):
-        raise ValueError("Support evidence must be a regular file")
-    with path.open("rb") as stream:
-        raw = stream.read(max_bytes + 1)
+    if _WINDOWS:
+        path.relative_to(root)
+        with _files.guarded_directory(root):
+            raw = _files.read_bytes(path, max_bytes)
+    else:
+        _no_links(path, root)
+        if not stat.S_ISREG(path.stat().st_mode):
+            raise ValueError("Support evidence must be a regular file")
+        with path.open("rb") as stream:
+            raw = stream.read(max_bytes + 1)
     total[0] += len(raw)
     if len(raw) > max_bytes or total[0] > MAX_JSON:
         raise ValueError("Support evidence exceeds its byte bound")
@@ -123,6 +134,10 @@ def read_review_file(path, *, max_bytes=MAX_JSON):
     if type(max_bytes) is not int or not 1 <= max_bytes <= MAX_JSON:
         raise ValueError("JSON input byte limit must be between 1 and 16 MiB")
     path = Path(path).expanduser()
+    if _WINDOWS:
+        path = _files.absolute_path(path)
+        value, _ = _read_file(path, path.parent, [0], max_bytes=max_bytes)
+        return value
     if path.is_symlink():
         raise ValueError("Review input must not be a symlink")
     path = path.parent.resolve(strict=True) / path.name
