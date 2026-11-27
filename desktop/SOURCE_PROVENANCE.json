@@ -1401,7 +1401,7 @@
     "runtime/src/lodestone_machinery/bezoar_learning.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/bezoar_learning.py",
-      "sha256": "6edaad7ac69e2808fdef993b1978d5a7329a613cd0e752420b88684a237f320b",
+      "sha256": "eb64ecf565d55f38263036b663388e779d1c335774b8f15b3159c5d8a3bed39d",
       "source_sha256": "30836076bfb6c4dbf19f5c6d6dd5489db01edd67c67404cdc12f987026857322"
     },
     "runtime/src/lodestone_machinery/bezoar_lessons.py": {
@@ -1979,7 +1979,7 @@
     "runtime/src/lodestone_machinery/yggdrasil_learning.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/yggdrasil_learning.py",
-      "sha256": "19fec9c3b33c5dbd4985aef62f1443e9c1c18c41bd236c13187fbeb53e3ab698",
+      "sha256": "ee7338e7e8ee7d3fba48ec1984afd56eb040430653fa4519780d24c9ea49281a",
       "source_sha256": "f0bed09f43d31c2048f1554914d274ca7e014c00380dd2ee9e1a29dc92cabeda"
     },
     "runtime/src/lodestone_machinery/yggdrasil_reuse.py": {
@@ -2625,7 +2625,7 @@
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/yggdrasil_learning.py",
       "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
-      "sha256": "19fec9c3b33c5dbd4985aef62f1443e9c1c18c41bd236c13187fbeb53e3ab698",
+      "sha256": "ee7338e7e8ee7d3fba48ec1984afd56eb040430653fa4519780d24c9ea49281a",
       "source_sha256": "f0bed09f43d31c2048f1554914d274ca7e014c00380dd2ee9e1a29dc92cabeda"
     },
     {
@@ -2645,7 +2645,7 @@
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/bezoar_learning.py",
       "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "6edaad7ac69e2808fdef993b1978d5a7329a613cd0e752420b88684a237f320b",
+      "sha256": "eb64ecf565d55f38263036b663388e779d1c335774b8f15b3159c5d8a3bed39d",
       "source_sha256": "30836076bfb6c4dbf19f5c6d6dd5489db01edd67c67404cdc12f987026857322"
     },
     {
