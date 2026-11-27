@@ -1,7 +1,10 @@
 """Read bounded UTF-8 sources and reopen exact passage handles."""
 from __future__ import annotations
 
+import os
 from pathlib import Path, PurePosixPath
+
+from lodestone_nurarihyon.portable_files import absolute_path, read_bytes
 
 from ._values import _hash
 
@@ -17,6 +20,12 @@ def _source_path(root: Path, relative_path: str) -> Path:
     path = PurePosixPath(relative_path)
     if path.is_absolute() or any(part in ("", ".", "..") for part in relative_path.split("/")):
         raise ValueError("Absolute paths and traversal are forbidden")
+    if os.name == "nt":
+        if ":" in relative_path:
+            raise ValueError("Windows drive and stream source names are forbidden")
+        # Leave aliases visible to the pinned, no-reparse reader. POSIX keeps
+        # its historical in-root source-link behavior.
+        return absolute_path(absolute_path(root) / relative_path)
     try:
         resolved_root = root.resolve(strict=True)
         if not resolved_root.is_dir():
@@ -34,8 +43,11 @@ def anchor(root: Path, relative_path: str) -> dict:
     """Inspect a bounded UTF-8 file and return its exact byte identity and text."""
     path = _source_path(root, relative_path)
     try:
-        with path.open("rb") as stream:
-            data = stream.read(MAX_SOURCE_BYTES + 1)
+        if os.name == "nt":
+            data = read_bytes(path, MAX_SOURCE_BYTES)
+        else:
+            with path.open("rb") as stream:
+                data = stream.read(MAX_SOURCE_BYTES + 1)
         if len(data) > MAX_SOURCE_BYTES:
             raise ValueError(f"Source exceeds {MAX_SOURCE_BYTES} bytes: {relative_path}")
         text = data.decode("utf-8", errors="strict")

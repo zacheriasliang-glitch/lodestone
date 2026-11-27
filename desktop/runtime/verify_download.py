@@ -7,12 +7,14 @@ from pathlib import Path, PurePosixPath
 import re
 
 
-def verify(root):
-    root = Path(root).resolve()
+def verify(root, *, read_file=None):
+    # The desktop catalogue supplies native bounded custody. Standalone
+    # downloads retain the original standard-library reader and CLI contract.
+    root = Path(root) if read_file is not None else Path(root).resolve()
     manifest = root / "CONTENT_SHA256.json"
     if manifest.is_symlink():
         raise ValueError("Checksum manifest must not be a symbolic link")
-    checksums = json.loads(manifest.read_text(encoding="utf-8"))
+    checksums = json.loads(read_file(manifest) if read_file is not None else manifest.read_text(encoding="utf-8"))
     if not isinstance(checksums, dict) or not checksums:
         raise ValueError("Empty or invalid checksum manifest")
     failures = []
@@ -29,15 +31,25 @@ def verify(root):
             path = path / part
             if path.is_symlink():
                 raise ValueError("Symbolic link in checksum path: " + name)
-        if not path.is_file():
+        if read_file is not None:
+            try:
+                raw = read_file(path)
+            except FileNotFoundError:
+                failures.append({"path": name, "reason": "missing regular file"})
+                continue
+            total += len(raw)
+            actual = hashlib.sha256(raw).hexdigest()
+        elif not path.is_file():
             failures.append({"path": name, "reason": "missing regular file"})
             continue
-        digest = hashlib.sha256()
-        with path.open("rb") as stream:
-            for block in iter(lambda: stream.read(1024 * 1024), b""):
-                total += len(block)
-                digest.update(block)
-        if digest.hexdigest() != expected:
+        else:
+            digest = hashlib.sha256()
+            with path.open("rb") as stream:
+                for block in iter(lambda: stream.read(1024 * 1024), b""):
+                    total += len(block)
+                    digest.update(block)
+            actual = digest.hexdigest()
+        if actual != expected:
             failures.append({"path": name, "reason": "SHA-256 mismatch"})
     return {"status": "VERIFIED" if not failures else "MISMATCH",
             "files": len(checksums), "bytes_read": total, "failures": failures,

@@ -1,6 +1,9 @@
 """INGEST captures explicitly scoped kernel/source bytes as inert evidence."""
+from contextlib import nullcontext
 from pathlib import Path
 import hashlib
+import os
+from lodestone_nurarihyon.portable_files import absolute_path, guarded_directory
 from .sources import anchor
 from ._kernel import require, fields, text
 
@@ -9,12 +12,16 @@ def ingest(store, root, paths):
     require(type(paths) is list and 1 <= len(paths) <= 8
             and all(type(p) is str for p in paths) and len(set(paths)) == len(paths),
             'INGEST requires 1..8 distinct relative source paths')
-    sources = [anchor(Path(root), path) for path in paths]
-    require(sum(s['bytes'] for s in sources) <= 2 * 1024 * 1024, 'INGEST total exceeds 2 MiB')
-    payload = {'schema': 'kernel-ingest/v1', 'root': str(Path(root).resolve()),
-               'sources': sources, 'source_truth': 'UNASSESSED',
-               'source_instructions_executed': False, 'identity_transfer': False}
-    return store.publish('ingest', 'ingested_sources', payload)
+    root = absolute_path(root) if os.name == 'nt' else Path(root)
+    # Keep one root attribution across all source reads and record publication.
+    # Resolving after reads could conceal a replaced Windows ancestor.
+    with guarded_directory(root) if os.name == 'nt' else nullcontext():
+        sources = [anchor(root, path) for path in paths]
+        require(sum(s['bytes'] for s in sources) <= 2 * 1024 * 1024, 'INGEST total exceeds 2 MiB')
+        payload = {'schema': 'kernel-ingest/v1', 'root': str(root if os.name == 'nt' else root.resolve()),
+                   'sources': sources, 'source_truth': 'UNASSESSED',
+                   'source_instructions_executed': False, 'identity_transfer': False}
+        return store.publish('ingest', 'ingested_sources', payload)
 
 
 def read_ingest(store, handle, consumer):

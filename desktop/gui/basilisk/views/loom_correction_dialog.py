@@ -68,6 +68,9 @@ class LoomCorrectionDialog(wx.Dialog):
 		layout.Add(note, 0, wx.ALL | wx.EXPAND, 8)
 		self.native_status = wx.StaticText(page, label="Native record is loaded when this tab opens.")
 		layout.Add(self.native_status, 0, wx.ALL | wx.EXPAND, 8)
+		layout.Add(wx.StaticText(page, label="Automatic machine findings (separate from human corrections)"), 0, wx.LEFT, 8)
+		self.machine_findings = wx.TextCtrl(page, style=wx.TE_MULTILINE | wx.TE_READONLY, size=(-1, 145))
+		layout.Add(self.machine_findings, 0, wx.ALL | wx.EXPAND, 8)
 		layout.Add(wx.StaticText(page, label="Retained reviews for this exact encounter"), 0, wx.LEFT, 8)
 		self.review_selection = wx.Choice(page, choices=["New review"])
 		self.review_selection.SetSelection(0)
@@ -112,6 +115,10 @@ class LoomCorrectionDialog(wx.Dialog):
 				if context["outcome_handle"] != self.receipt["outcome_handle"]:
 					raise ValueError("Native history belongs to another outcome.")
 				self.review_context = deepcopy(context)
+				findings = context.get("machine_assessments", [])
+				self.machine_findings.SetValue(json.dumps(findings, ensure_ascii=False, indent=2)
+					if findings else "No machine assessment retained. "
+					+ json.dumps(self.receipt.get("decision_assessment", {}), ensure_ascii=False))
 				self.original_encounter.SetValue(context["encounter"])
 				self.original_response.SetValue(context["response"] if context["response"] is not None else "")
 				self.native_status.SetLabel("Native status: " + context["native_status"]

@@ -10,6 +10,8 @@ import hashlib
 import json
 from pathlib import Path
 import sqlite3
+import stat
+import sys
 import uuid
 
 from lodestone_machinery.bezoar import Plumber
@@ -69,6 +71,23 @@ def read_file(path, limit=MAX_SOURCE):
     return data
 
 
+def validate_database_files(home):
+    """Refuse existing redirected SQLite files in the selected trusted directory.
+
+    SQLite creates/deletes its own journals and holds its own locks. These checks
+    do not claim custody against a hostile process racing the SQLite opens.
+    """
+    from lodestone_nurarihyon.portable_files import is_alias
+    for suffix in ("", "-journal", "-wal", "-shm"):
+        path = Path(home) / ("pando.sqlite3" + suffix)
+        try:
+            info = path.lstat()
+        except FileNotFoundError:
+            continue
+        if is_alias(info) or not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+            raise ValueError("Pando SQLite files must be regular files without aliases or hardlinks")
+
+
 class Board:
     def __init__(self, home, *, participants=None):
         supplied_participants = validate_participants(participants) if participants is not None else None
@@ -107,6 +126,8 @@ class Board:
 
     @contextmanager
     def connection(self):
+        if sys.platform == "win32":
+            validate_database_files(self.home)
         db = sqlite3.connect(self.db, timeout=10)
         db.row_factory = sqlite3.Row
         db.execute("PRAGMA foreign_keys=ON")

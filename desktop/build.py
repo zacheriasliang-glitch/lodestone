@@ -9,7 +9,7 @@ import shutil
 import tempfile
 import zipfile
 
-VERSION = "0.4.0-preview.6"
+VERSION = "0.4.0"
 TARGETS = {
     "macos-x86_64": ("macOS", "dependencies.lock.json"),
     "ubuntu-24.04-x86_64": ("Linux", "dependencies.ubuntu-24.04-x86_64.lock.json"),

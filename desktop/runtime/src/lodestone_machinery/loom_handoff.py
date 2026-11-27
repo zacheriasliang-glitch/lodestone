@@ -5,23 +5,36 @@ Origami's ordinary Conscience/Nurarihyon lifecycle with the named human curator
 as provider. Prior Loom text is advice in learning history, never source evidence.
 """
 from copy import deepcopy
-import errno
 import hashlib
 import json
 from pathlib import Path
 import re
-import sys
+import os
 import uuid
 from lodestone_nurarihyon import learning
+from lodestone_nurarihyon.common import BusyError, file_lock
+from lodestone_nurarihyon.portable_files import absolute_path, durable_write, read_bytes
 
-from .origami import Origami, _snapshot, _initial_evidence
+from .origami import Origami, MAX_JSON, _new_directory, _snapshot, _initial_evidence
 from .records import canonical
 from .source_seeds import SEED_FIELDS
 
 
 def _write(path, value):
-    with path.open("xb") as stream:
-        stream.write(canonical(value))
+    data = canonical(value)
+    if os.name == "nt":
+        if len(data) > MAX_JSON:
+            raise ValueError("Handoff record exceeds its byte bound")
+        durable_write(path, data, replace=False)
+    else:
+        with path.open("xb") as stream:
+            stream.write(data)
+
+
+def _read(path):
+    if os.name == "nt":
+        return json.loads(read_bytes(path, MAX_JSON))
+    return json.loads(path.read_text())
 
 
 def _text(value, name, maximum=8192):
@@ -32,10 +45,9 @@ def _text(value, name, maximum=8192):
 
 class LoomHandoff:
     def __init__(self, loom, workspace):
-        if sys.platform == "win32":
-            raise OSError(errno.ENOTSUP, "Origami handoff execution is unavailable on Windows; its POSIX custody contract is required")
         self.loom = loom
-        self.workspace = Path(workspace).expanduser().resolve()
+        supplied = Path(workspace).expanduser()
+        self.workspace = absolute_path(supplied) if os.name == "nt" else supplied.resolve()
 
     def _advice(self):
         memory = self.loom.memory
@@ -50,6 +62,8 @@ class LoomHandoff:
         if type(handoff_id) is not str or not re.fullmatch(r"[a-f0-9]{32}", handoff_id):
             raise ValueError("Invalid handoff identifier")
         directory = self.workspace / handoff_id
+        if os.name == "nt":
+            return absolute_path(directory)
         if directory.is_symlink() or directory.resolve() != directory:
             raise ValueError("Handoff directory must not be a symbolic link")
         return directory
@@ -64,7 +78,8 @@ class LoomHandoff:
         advice = self._advice()
         if not any(row.get("outcome_handle") == outcome_handle for row in advice["history"]):
             raise ValueError("This encounter is outside the explicitly selected learning practice")
-        root = Path(root).expanduser().resolve(strict=True)
+        supplied = Path(root).expanduser()
+        root = absolute_path(supplied) if os.name == "nt" else supplied.resolve(strict=True)
         if self.workspace.is_relative_to(root):
             raise ValueError("Choose source files in a root outside the handoff workspace")
         if (type(paths) is not list or not 1 <= len(paths) <= 100
@@ -86,11 +101,18 @@ class LoomHandoff:
                     "authority": "NONE", "weight_update": False}
         proposal["proposal_sha256"] = hashlib.sha256(canonical(proposal)).hexdigest()
         directory = self._directory(handoff_id)
-        directory.mkdir(parents=True, exist_ok=False)
-        _write(directory / "proposal.json", proposal)
+        with _new_directory(directory):
+            _write(directory / "proposal.json", proposal)
         return proposal
 
     def complete(self, handoff_id, curation):
+        if os.name == "nt":
+            directory = self._directory(handoff_id)
+            try:
+                with file_lock(directory / "submission.lock"), learning.locked(self.loom.memory):
+                    return self._complete(directory, curation)
+            except BusyError as exc:
+                raise ValueError("Handoff submission is busy") from exc
         import fcntl
         directory = self._directory(handoff_id)
         # One submission per proposal; an uncertain interruption is never retried.
@@ -100,7 +122,7 @@ class LoomHandoff:
                 return self._complete(directory, curation)
 
     def _complete(self, directory, curation):
-        proposal = json.loads((directory / "proposal.json").read_text())
+        proposal = _read(directory / "proposal.json")
         digest = proposal.pop("proposal_sha256")
         if hashlib.sha256(canonical(proposal)).hexdigest() != digest:
             raise ValueError("Handoff proposal changed")
@@ -109,7 +131,7 @@ class LoomHandoff:
         curation_digest = hashlib.sha256(canonical(curation)).hexdigest()
         result_path = directory / "result.json"
         if result_path.exists():
-            result = json.loads(result_path.read_text())
+            result = _read(result_path)
             if result["curation_sha256"] != curation_digest:
                 raise ValueError("A different curation cannot reuse this handoff")
             return result
@@ -160,11 +182,11 @@ class LoomHandoff:
         if self._advice() != proposal["learning_advice"]:
             raise ValueError("Learning advice or correction reviews changed after preview; prepare a new handoff")
         workspace = directory / "origami"
-        workspace.mkdir()
-        _write(workspace / "learning-policy.json", {
-            "schema": "origami-learning-policy/v1", "required": True,
-            "memory_workspace": str(self.loom.memory.workspace),
-            "purpose": proposal["purpose"], "seed_handles": proposal["seed_handles"]})
+        with _new_directory(workspace):
+            _write(workspace / "learning-policy.json", {
+                "schema": "origami-learning-policy/v1", "required": True,
+                "memory_workspace": str(self.loom.memory.workspace),
+                "purpose": proposal["purpose"], "seed_handles": proposal["seed_handles"]})
         organ = Origami(workspace)
         started = organ.start(proposal["root"], proposal["paths"], proposal["question"],
             "current explicitly selected source snapshot", "Explicit Loom handoff submission",

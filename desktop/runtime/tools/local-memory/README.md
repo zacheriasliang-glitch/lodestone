@@ -20,6 +20,16 @@ do not automatically ingest the named files. Store selected notes, not credentia
 `packet --output` writes its chosen destination; select a new path if preserving
 an earlier packet. The engine is a local single-writer store, not a shared database.
 
+On Windows, notebook access uses a native interprocess lock in
+`.local-memory.lock`; the first search or verification may create this lock file.
+Adding a note publishes the complete flushed JSONL file atomically and preserves
+the exact existing bytes as its prefix. Reads reject junctions, symlinks and
+files that change while being read. Each catalogue file is limited to 32 MiB;
+exceeding the bound refuses the operation without truncation. The record schema
+and source-attribution meaning are unchanged. POSIX retains its existing file
+behavior. The desktop catalogue exposes add, search and verify after native
+validation; this does not extend the separate source-binding manifest contract.
+
 ## Reopen the source behind a note
 
 `source-bind` records an exact passage from an existing UTF-8 source capture.

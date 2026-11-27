@@ -30,6 +30,22 @@ STATUSES = {"COMPLETED", "FAILED", "ABSTAINED", "REFUSED", "INTERRUPTED"}
 _MAX_FILE = 2 * 1024 * 1024
 
 
+def _native_inspection_details(exc):
+    """Retain bounded native sampling facts, never arbitrary exception text."""
+    api = getattr(exc, "native_api", None)
+    if api not in ("GetProcessMemoryInfo", "QueryFullProcessImageNameW"):
+        return None
+    details = {"api": api, "pid": getattr(exc, "native_pid", None),
+               "errno": getattr(exc, "errno", None), "winerror": getattr(exc, "winerror", None),
+               "wait_result": getattr(exc, "native_wait_result", None)}
+    if hasattr(exc, "native_wait_winerror"):
+        details["wait_winerror"] = exc.native_wait_winerror
+    if any(type(value) is not int or not 0 <= value <= 0xffffffff
+           for key, value in details.items() if key != "api"):
+        return None
+    return details
+
+
 def _json(path, limit=_MAX_FILE):
     return strict_json(read_bytes(path, limit), limit)
 
@@ -202,7 +218,7 @@ def _execution_binding(config, identity, *, encounter, purpose, context, voxel=N
              "loom_adapter_local.py", "loom_adapter_torch.py", "loom_inference_memory.py",
              "learning_context.py", "learning_reader.py")
     if config.get("decision_format") is not None:
-        names += ("decision_format.py", "decision_contract.py")
+        names += ("decision_format.py", "decision_contract.py", "decision_assessment.py")
     if voxel is not None:
         names += ("loom_voxels.py",)
     sources = {name: hashlib.sha256(read_bytes(root / name, _MAX_FILE)).hexdigest()
@@ -470,7 +486,7 @@ class LoomBridge:
 
     def run(self, *, encounter, purpose, context="", route=None, max_tokens=None,
             temperature=0, top_p=1, cancel_event=None, decision_case_json=None, history_window=None,
-            seed_handles=None, decision_strategy="flat", voxel=None):
+            seed_handles=None, decision_strategy="flat", voxel=None, decision_knot_handles=None):
         # Keep a failed reread of configuration inside the durable local error
         # boundary. The constructor's validated config supplies only the ledger.
         profile_error = None
@@ -541,6 +557,10 @@ class LoomBridge:
             if cancelled():
                 raise InterruptedError("Cancelled before native preparation")
             native = _native(config)
+            if decision_knot_handles is not None:
+                if voxel is not None:
+                    raise ValueError("Select machine knots or a supplied voxel context, not both")
+                voxel = native.decision_knot_voxel(decision_knot_handles)
             stage = "PREPARATION_OR_NATIVE_DISPATCH"
             reader = ("Loom/Qwen3-0.6B/ollama-quantized-base/" + config["ollama_model_digest"]
                       if config["backend"] == "ollama_qwen3_base" else
@@ -569,7 +589,8 @@ class LoomBridge:
                 provider=provide, execution_binding=binding,
                 wait=TURN_WAIT_SECONDS, cancelled=cancelled,
                 failure_classifier=lambda returned: _resource_failure(returned, owned_result, config),
-                history_window=history_window)
+                history_window=history_window,
+                structural_contract=config.get("decision_format", {}).get("source_contract"))
             result = dict(native_result, artifacts_dir=str(directory), reader_identity=identity)
             _save(directory / "receipt.json", result)
             return result
@@ -623,6 +644,7 @@ class LoomBridge:
         valid_sample_count = 0
         last_valid_sample_seconds = None
         reason = None
+        native_inspection_error = None
         job_observation = {}
         cleanup = {"confirmed_stopped": True, "kill_escalated": False, "zombie_pids": []}
         try:
@@ -678,6 +700,7 @@ class LoomBridge:
                     time.sleep(0.05)
         except (OSError, ValueError, subprocess.SubprocessError) as exc:
             reason = "supervisor_error:" + type(exc).__name__
+            native_inspection_error = _native_inspection_details(exc)
         finally:
             if child is not None:
                 try:
@@ -710,6 +733,8 @@ class LoomBridge:
                        "rss_consecutive_errors_at_exit": consecutive_sample_errors,
                        "rss_max_consecutive_errors": maximum_consecutive_sample_errors,
                        "stop": cleanup, "artifacts_dir": str(directory), **job_observation}
+        if native_inspection_error is not None:
+            observation["native_inspection_error"] = native_inspection_error
         if reason is None and cancelled():
             reason = "cancelled"
         if reason is None and child.returncode != 0:

@@ -93,7 +93,57 @@ def engine():
     return result
 
 
+class HandoffSourcePathTests(unittest.TestCase):
+    def test_picker_passes_windows_alias_to_runtime_without_resolving_it(self):
+        from basilisk.views.conversation_tab import ConversationTab
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            source = root / "sources"
+            source.mkdir()
+            (source / "note.txt").write_text("Authored source fixture", encoding="utf-8")
+            alias = root / "selected alias"
+            if os.name == "nt":
+                completed = subprocess.run(["cmd.exe", "/d", "/c", "mklink", "/J", str(alias), str(source)],
+                    capture_output=True, text=True, timeout=15)
+                self.assertEqual(completed.returncode, 0, completed.stderr)
+            else:
+                alias.symlink_to(source, target_is_directory=True)
+            try:
+                selected = alias / "note.txt"
+                calls = []
+                def preview(receipt, **kwargs):
+                    calls.append(kwargs)
+                    raise ValueError("Stop after the real picker-to-runtime boundary")
+                tab = SimpleNamespace(completion_handler=SimpleNamespace(is_running=lambda: False),
+                    conversation=object(), current_account=SimpleNamespace(provider=SimpleNamespace(id="loom")),
+                    current_engine=SimpleNamespace(preview_origami=preview))
+                with patch("basilisk.views.conversation_tab.latest_receipt", return_value={"outcome_handle": HANDLE}), \
+                        patch("basilisk.views.conversation_tab.wx.FileDialog") as chooser, \
+                        patch("basilisk.views.conversation_tab.wx.MessageBox") as message:
+                    chooser.return_value.__enter__.return_value.ShowModal.return_value = wx.ID_OK
+                    chooser.return_value.__enter__.return_value.GetPaths.return_value = [str(selected)]
+                    with self.assertLogs("basilisk.views.conversation_tab", level="ERROR"):
+                        ConversationTab.on_loom_origami(tab, None)
+                    message.assert_called_once()
+                self.assertEqual(calls, [{"root": str(alias if os.name == "nt" else source),
+                                         "paths": ["note.txt"]}])
+            finally:
+                alias.rmdir() if os.name == "nt" else alias.unlink()
+
+
 class PracticeOptionsTests(unittest.TestCase):
+    def test_machine_knot_selection_is_explicit_bound_and_persistable(self):
+        chosen = bind_options(TEXT, PURPOSE, decision_knot_handles=[HANDLE])
+        self.assertEqual(bridge_options(chosen, TEXT, PURPOSE), {"decision_knot_handles": [HANDLE]})
+        self.assertIn("machine finding", summary(chosen, TEXT, PURPOSE))
+        with self.assertRaises(ValueError):
+            bridge_options(chosen, TEXT + " changed", PURPOSE)
+        with self.assertRaises(ValueError):
+            bind_options(TEXT, PURPOSE, decision_knot_handles=[HANDLE, HANDLE])
+        original = block(chosen)
+        restored = MessageBlock.model_validate_json(original.model_dump_json())
+        self.assertEqual(restored.loom_practice_options, chosen)
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory(prefix="lodestone-practice-fixture-")
         self.addCleanup(temporary.cleanup)
@@ -129,7 +179,7 @@ class PracticeOptionsTests(unittest.TestCase):
         kwargs = dict(calls[0]); target = kwargs.pop("engine"); kwargs.pop("stream")
         target.completion(**kwargs)
         request = target.client.calls[0]
-        for key in ("seed_handles", "history_window", "decision_case_json", "decision_strategy"):
+        for key in ("seed_handles", "history_window", "decision_case_json", "decision_strategy", "decision_knot_handles"):
             self.assertNotIn(key, request)
         self.assertIsNone(bind_options(TEXT, PURPOSE))
         self.assertEqual(request["encounter"], TEXT)

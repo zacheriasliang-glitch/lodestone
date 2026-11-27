@@ -46,6 +46,11 @@ def save_receipt(block, result: dict, purpose: str) -> dict:
 		"terminal_handle": result.get("terminal_handle"),
 		"reader": result.get("reader"),
 	}
+	if "decision_assessment" in result:
+		finding = result["decision_assessment"]
+		receipt["decision_assessment"] = {key: finding[key] for key in
+			("evidence_handle", "retention", "advice_delivery", "error") if key in finding}
+		receipt["decision_assessment"]["status"] = finding.get("assessment", {}).get("status", finding.get("status"))
 	directory = _root() / key
 	directory.mkdir(mode=0o700, parents=True, exist_ok=True)
 	identity = hashlib.sha256(result["outcome_handle"].encode()).hexdigest()

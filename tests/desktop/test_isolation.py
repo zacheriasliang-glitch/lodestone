@@ -4,11 +4,13 @@ Platforms are simulated for the selection and refusal checks; the real-fence
 checks run only where that fence exists. No model or network call.
 """
 from pathlib import Path
+import json
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 
@@ -24,7 +26,8 @@ def simulated(platform, tools, bwrap_starts=True):
     isolation._bwrap_starts.cache_clear()
     return [patch.object(isolation.sys, "platform", platform),
             patch.object(isolation.shutil, "which", lambda name: tools.get(name)),
-            patch.object(isolation, "_bwrap_starts", lambda path: bwrap_starts)]
+            patch.object(isolation, "_bwrap_starts", lambda path: bwrap_starts),
+            patch.object(isolation, "_appcontainer_starts", lambda path: tools.get("appcontainer", False))]
 
 
 class Simulated:
@@ -41,6 +44,7 @@ class Simulated:
 
 
 class FenceSelectionTests(unittest.TestCase):
+    @unittest.skipUnless(os.name == "posix", "Seatbelt profiles express POSIX paths")
     def test_macos_selects_seatbelt_and_keeps_the_exact_earlier_invocation(self):
         with Simulated(*simulated("darwin", {"sandbox-exec": "/usr/bin/sandbox-exec"})):
             fence = isolation.fence()
@@ -67,8 +71,36 @@ class FenceSelectionTests(unittest.TestCase):
         with Simulated(*simulated("linux", {})):
             self.assertIsNone(isolation.fence())
 
+    def test_windows_selects_appcontainer_only_when_it_starts(self):
+        with Simulated(*simulated("win32", {"appcontainer": True})):
+            found = isolation.fence()
+            self.assertEqual(found.kind, "appcontainer")
+            self.assertTrue(found.path.endswith("windows_appcontainer.py"))
+            with self.assertRaisesRegex(isolation.FenceUnavailable, "endpoint"):
+                isolation.require("A command", endpoints=("example.com:443",))
+        with Simulated(*simulated("win32", {"appcontainer": False})):
+            self.assertIsNone(isolation.fence())
+
+    def test_appcontainer_argv_uses_the_launcher_with_explicit_grants(self):
+        fence = isolation.Fence("appcontainer", "/x/windows_appcontainer.py")
+        with tempfile.TemporaryDirectory() as raw:
+            work, source = Path(raw) / "w", Path(raw) / "s"
+            work.mkdir(), source.mkdir()
+            argv = origami._fenced_argv(fence, [sys.executable, "-c", "pass"], work, source, None, None)
+            self.assertEqual(argv[1:4], ["-I", "-B", "/x/windows_appcontainer.py"])
+            self.assertEqual(argv[argv.index("--workspace") + 1], str(work))
+            reads = [argv[i + 1] for i, item in enumerate(argv) if item == "--read"]
+            self.assertIn(str(source), reads)
+            self.assertNotIn(str(work), reads)
+            self.assertEqual(argv[argv.index("--") + 1:], [sys.executable, "-c", "pass"])
+            with self.assertRaises(ValueError):
+                origami._fenced_argv(fence, [sys.executable], work, source, None, 8080)
+        constraints = origami._constraints("command", fence, (), None)
+        self.assertEqual((constraints["launcher"], constraints["no_network"], constraints["no_further_subprocesses"]),
+                         ("appcontainer", "ENFORCED", "DECLARED"))
+
     def test_other_platforms_have_no_fence_and_refuse(self):
-        for platform in ("win32", "cygwin", "freebsd14"):
+        for platform in ("cygwin", "freebsd14"):
             with self.subTest(platform=platform), Simulated(*simulated(platform, {"sandbox-exec": "/x", "bwrap": "/y"})):
                 self.assertIsNone(isolation.fence())
                 with self.assertRaisesRegex(isolation.FenceUnavailable, "refused"):
@@ -116,6 +148,7 @@ class RefusalTests(unittest.TestCase):
             with self.assertRaises(isolation.FenceUnavailable):
                 loom_garden.sandboxed(["/bin/echo"], "/tmp", "/tmp")
 
+    @unittest.skipUnless(os.name == "posix", "Seatbelt profiles express POSIX paths")
     def test_garden_trial_records_the_fence_kind(self):
         with Simulated(*simulated("darwin", {"sandbox-exec": "/usr/bin/sandbox-exec"})):
             argv, kind = loom_garden.sandboxed(["/bin/echo"], "/tmp", "/tmp")
@@ -132,7 +165,7 @@ class HostOutcomeTests(unittest.TestCase):
                 isolation.require("A command")
             outcome = "REFUSED"
         else:
-            self.assertIn(found.kind, ("sandbox-exec", "bwrap"))
+            self.assertIn(found.kind, ("sandbox-exec", "bwrap", "appcontainer"))
             outcome = "FENCED:" + found.kind
         print("ISOLATION_HOST_OUTCOME", sys.platform, outcome)
         expected = os.environ.get("LODESTONE_EXPECT_ISOLATION")
@@ -182,3 +215,312 @@ class RealBubblewrapTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RealAppContainerTests(unittest.TestCase):
+    """Windows only; CI sets LODESTONE_REQUIRE_APPCONTAINER=1 so a missing fence fails instead."""
+    maxDiff = None
+
+    def setUp(self):
+        required = os.environ.get("LODESTONE_REQUIRE_APPCONTAINER") == "1"
+        isolation._appcontainer_starts.cache_clear()
+        self.fence = isolation.fence() if sys.platform == "win32" else None
+        if self.fence is None or self.fence.kind != "appcontainer":
+            if required:
+                self.fail("A usable Windows AppContainer fence was required here and is absent")
+            self.skipTest("real Windows AppContainer is unavailable here")
+
+    def _sddl(self, path):
+        from lodestone_machinery import windows_appcontainer as wac
+        return wac._Security(wac._Api()).read(path)
+
+    def _icacls(self, path):
+        system = os.environ.get("SystemRoot", r"C:\\Windows")
+        return subprocess.run([os.path.join(system, "System32", "icacls.exe"), str(path)],
+                              capture_output=True, text=True, timeout=60).stdout
+
+    def test_fence_confines_writes_reads_and_network_and_cleans_up(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        ledger = wac._ledger_directory()
+        with tempfile.TemporaryDirectory() as raw:
+            base = Path(raw)
+            work, source, outside, private = base / "w", base / "s", base / "outside", base / "private"
+            for item in (work, source, outside, private):
+                item.mkdir()
+            (source / "input.txt").write_text("read me")
+            (private / "secret.txt").write_text("not for the fence")
+            # Absolute argument paths are deliberately readable inside every fence,
+            # so the private location reaches the program only through a source file.
+            (source / "private-path.txt").write_text(str(private))
+            before = {p: self._sddl(p) for p in (work, source, outside, private)}
+            program = (
+                "import pathlib, socket, sys\n"
+                "w, s, o = map(pathlib.Path, sys.argv[1:4])\n"
+                "p = pathlib.Path((s / 'private-path.txt').read_text())\n"
+                "assert (s / 'input.txt').read_text() == 'read me'\n"
+                "(w / 'ok.txt').write_text('inside')\n"
+                "for target in (s / 'x', o / 'x'):\n"
+                "    try:\n"
+                "        target.write_text('escape'); print('WROTE', target); sys.exit(3)\n"
+                "    except OSError:\n"
+                "        pass\n"
+                "try:\n"
+                "    (p / 'secret.txt').read_text(); print('READ PRIVATE'); sys.exit(5)\n"
+                "except OSError:\n"
+                "    pass\n"
+                "for address in (('1.1.1.1', 53), ('127.0.0.1', 445)):\n"
+                "    try:\n"
+                "        socket.create_connection(address, timeout=3); print('NET', address); sys.exit(4)\n"
+                "    except OSError:\n"
+                "        pass\n"
+                "print('CONFINED')\n")
+            argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", program, str(work), str(source),
+                                                     str(outside)], work, source, None, None)
+            done = subprocess.run(argv, capture_output=True, text=True, timeout=180)
+            self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+            self.assertIn("CONFINED", done.stdout)
+            self.assertEqual((work / "ok.txt").read_text(), "inside")
+            self.assertFalse((outside / "x").exists())
+            self.assertFalse((source / "x").exists())
+            # Every transient grant is gone and no recovery entry remains.
+            self.assertEqual({p: self._sddl(p) for p in (work, source, outside, private)}, before,
+                             "stderr:\n" + done.stderr)
+            self.assertEqual(list(ledger.glob(wac.PREFIX + "*.journal")), [])
+
+    def _launch(self, work, source, code, **env):
+        argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", code], work, source, None, None)
+        return subprocess.run(argv, capture_output=True, text=True, timeout=300, env={**os.environ, **env})
+
+    def _pending(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        return list(wac._ledger_directory().glob(wac.PREFIX + "*.journal"))
+
+    def test_interruption_after_one_real_acl_mutation_is_recovered_exactly(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        with tempfile.TemporaryDirectory() as raw:
+            work, source = Path(raw) / "w", Path(raw) / "s"
+            work.mkdir(), source.mkdir()
+            before = {p: self._sddl(p) for p in (work, source)}
+            done = self._launch(work, source, "pass", LODESTONE_FENCE_TEST_CRASH_AFTER_FIRST_GRANT="1")
+            self.assertEqual(done.returncode, 99, done.stderr)
+            self.assertNotEqual(self._sddl(work), before[work])  # the mutation really happened
+            self.assertEqual(len(self._pending()), 1)
+            wac.sweep()
+            self.assertEqual({p: self._sddl(p) for p in (work, source)}, before)
+            self.assertEqual(self._pending(), [])
+
+    def test_cleanup_failure_is_reported_and_retried_not_hidden(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        with tempfile.TemporaryDirectory() as raw:
+            work, source = Path(raw) / "w", Path(raw) / "s"
+            work.mkdir(), source.mkdir()
+            before = {p: self._sddl(p) for p in (work, source)}
+            done = self._launch(work, source, "pass", LODESTONE_FENCE_TEST_FAIL_RESTORE="1")
+            self.assertEqual(done.returncode, wac.EXIT_CLEANUP_UNCONFIRMED, done.stderr)
+            self.assertIn("cleanup unconfirmed", done.stderr)
+            self.assertEqual(len(self._pending()), 1)
+            wac.sweep()
+            self.assertEqual({p: self._sddl(p) for p in (work, source)}, before)
+            self.assertEqual(self._pending(), [])
+
+    def test_overlapping_runs_on_one_tree_serialize_and_restore_exactly(self):
+        with tempfile.TemporaryDirectory() as raw:
+            base = Path(raw)
+            source, work_a, work_b = base / "s", base / "a", base / "b"
+            for item in (source, work_a, work_b):
+                item.mkdir()
+            (source / "input.txt").write_text("shared")
+            before = {p: self._sddl(p) for p in (source, work_a, work_b)}
+            code = ("import pathlib, sys, time\n"
+                    "assert (pathlib.Path(sys.argv[1]) / 'input.txt').read_text() == 'shared'\n"
+                    "time.sleep(3)\n")
+            runs = [subprocess.Popen(origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", code, str(source)],
+                                                         work, source, None, None),
+                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    for work in (work_a, work_b)]
+            results = [run.communicate(timeout=300) for run in runs]
+            self.assertEqual([run.returncode for run in runs], [0, 0], results)
+            self.assertEqual({p: self._sddl(p) for p in (source, work_a, work_b)}, before)
+            self.assertEqual(self._pending(), [])
+
+    def test_a_protection_change_made_during_the_run_is_kept(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        security = wac._Security(wac._Api())
+        with tempfile.TemporaryDirectory() as raw:
+            work, source = Path(raw) / "w", Path(raw) / "s"
+            work.mkdir(), source.mkdir()
+            self.assertFalse(wac._protected(self._sddl(source)))
+            argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", "import time; time.sleep(8)"],
+                                        work, source, None, None)
+            launcher = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            # Edit only after the run has confirmed its grant on the source.
+            deadline = time.monotonic() + 60
+            while time.monotonic() < deadline:
+                journals = self._pending()
+                if journals and any('"granted": ' + json.dumps(str(source)) in line
+                                    for line in journals[0].read_text().splitlines()):
+                    break
+                time.sleep(0.2)
+            else:
+                self.fail("The run never confirmed its source grant")
+            current = self._sddl(source)
+            self.assertIn("S-1-15-2-", current)
+            security.write(source, "D:P" + current[2:].lstrip("AIR"))  # a user's protection-only edit
+            out, err = launcher.communicate(timeout=120)
+            self.assertEqual(launcher.returncode, 0, err)
+            self.assertIn("removed_own_entry_only", err)
+            final = self._sddl(source)
+            self.assertTrue(wac._protected(final), final)
+            self.assertNotIn("S-1-15-2-", final)
+            self.assertEqual(self._pending(), [])
+
+    def test_unresolved_earlier_recovery_refuses_new_runs_until_swept(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        with tempfile.TemporaryDirectory() as raw:
+            work, source = Path(raw) / "w", Path(raw) / "s"
+            work.mkdir(), source.mkdir()
+            stale = wac._ledger_directory() / (wac.PREFIX + "synthetic-unresolved.journal")
+            # A recorded grant whose identity cannot be confirmed: recovery must keep it.
+            entries = [{"profile": wac.PREFIX + "synthetic-unresolved"}, {"sid": "S-1-15-2-1-2-3-4-5-6-7"},
+                       {"grant": str(work), "sddl": self._sddl(work), "id": [0, 0]}]
+            stale.write_text("".join(json.dumps(e) + "\n" for e in entries))
+            try:
+                done = self._launch(work, source, "pass")
+                self.assertEqual(done.returncode, wac.EXIT_SETUP_FAILED, done.stderr)
+                self.assertIn("recovery is unresolved", done.stderr)
+                self.assertTrue(stale.exists())
+            finally:
+                stale.unlink(missing_ok=True)
+            self.assertEqual(self._launch(work, source, "pass").returncode, 0)
+
+    def test_paths_through_a_junction_are_refused_before_any_grant(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        with tempfile.TemporaryDirectory() as raw:
+            base = Path(raw)
+            target, link = base / "target", base / "link"
+            (target / "w").mkdir(parents=True)
+            (base / "s").mkdir()
+            system = os.environ.get("SystemRoot", r"C:\\Windows")
+            subprocess.run([os.path.join(system, "System32", "cmd.exe"), "/c", "mklink", "/J", str(link), str(target)],
+                           check=True, capture_output=True, timeout=60)
+            before = self._sddl(target / "w")
+            for work, source in ((link / "w", base / "s"), (base / "s", link / "w")):
+                with self.subTest(work=str(work)):
+                    done = self._launch(work, source, "pass")
+                    self.assertEqual(done.returncode, wac.EXIT_SETUP_FAILED, done.stdout + done.stderr)
+                    self.assertIn("reparse point", done.stderr)
+            self.assertEqual(self._sddl(target / "w"), before)
+            self.assertEqual(self._pending(), [])
+
+    def test_interrupted_launcher_requires_completion_proof_before_sweep(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        from lodestone_machinery.portable_process import WindowsJobProcess
+        with tempfile.TemporaryDirectory() as raw:
+            work, source = Path(raw) / "w", Path(raw) / "s"
+            work.mkdir(), source.mkdir()
+            before = self._sddl(source)
+            command = ("import os,time; from pathlib import Path; "
+                       "Path('fenced-started').write_text(str(os.getpid()),encoding='ascii'); time.sleep(60)")
+            argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", command],
+                                        work, source, None, None)
+            with open(os.devnull, "wb") as output:
+                owner = WindowsJobProcess(argv, cwd=str(work), env=dict(os.environ), stdout=output,
+                                          stderr=output, max_memory_bytes=512 * 1024 * 1024)
+            try:
+                deadline = time.monotonic() + 60
+                while True:
+                    journals = self._pending()
+                    owner.snapshot()
+                    covered = {owner._member_identity(owner._process, owner.pid), *owner._member_handles}
+                    try:
+                        started_pid = int((work / "fenced-started").read_text(encoding="ascii"))
+                    except (FileNotFoundError, ValueError):
+                        started_pid = None
+                    if (started_pid in {pid for pid, _ in covered}
+                            and journals and any(entry.get("process_may_exist") is True
+                                         for entry in wac._Journal.entries(journals[0]))
+                            and len(covered) >= 2 and owner._total_processes() == len(covered)):
+                        break
+                    self.assertLess(time.monotonic(), deadline, "Started fence identities were not captured")
+                    time.sleep(.02)
+                # This outer fixture owns and waits every actual process; the
+                # killed launcher itself gets no opportunity to mark completion.
+                stopped = owner.stop()
+                self.assertTrue(stopped["confirmed_stopped"], stopped)
+                self.assertEqual(stopped["total_processes_before"], len(covered))
+                self.assertEqual(stopped["total_processes_after"], len(covered))
+            finally:
+                owner.close()
+            api = wac._Api()
+            with wac._GlobalLock(wac._wait_seconds()):
+                self.assertEqual(wac._sweep(api), 1)
+                self.assertTrue(journals[0].exists())
+                self.assertNotEqual(self._sddl(source), before)
+                # Only the test's verified external completion permits recovery;
+                # the product sweep never invents this missing evidence.
+                journal = wac._Journal(journals[0], create=False)
+                try:
+                    journal.append({"completion_confirmed": True, "completion": stopped})
+                finally:
+                    journal.close()
+                self.assertEqual(wac._sweep(api), 0)
+            self.assertEqual(self._sddl(source), before)
+            self.assertEqual(self._pending(), [])
+
+    def test_parent_exit_waits_descendant_files_before_acl_and_profile_cleanup(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        child_code = r"""
+import ctypes, sys, time
+from ctypes import wintypes as w
+from pathlib import Path
+root, index = Path(sys.argv[1]), sys.argv[2]
+kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+kernel.CreateFileW.argtypes = [w.LPCWSTR,w.DWORD,w.DWORD,ctypes.c_void_p,w.DWORD,w.DWORD,w.HANDLE]
+kernel.CreateFileW.restype = w.HANDLE
+kernel.GetCurrentProcess.restype = w.HANDLE
+kernel.DuplicateHandle.argtypes = [w.HANDLE,w.HANDLE,w.HANDLE,ctypes.POINTER(w.HANDLE),w.DWORD,w.BOOL,w.DWORD]
+kernel.DuplicateHandle.restype = w.BOOL
+handle = kernel.CreateFileW(str(root / ('held-' + index)),0x40000000,0,None,2,0x80,None)
+if handle == ctypes.c_void_p(-1).value:
+    raise ctypes.WinError(ctypes.get_last_error())
+handles = [handle]
+current = kernel.GetCurrentProcess()
+for _ in range(8192):
+    copied = w.HANDLE()
+    if not kernel.DuplicateHandle(current,handle,current,ctypes.byref(copied),0,False,2):
+        raise ctypes.WinError(ctypes.get_last_error())
+    handles.append(copied.value)
+(root / ('ready-' + index)).write_bytes(b'ready')
+while True:
+    time.sleep(.01)
+"""
+        with tempfile.TemporaryDirectory() as raw:
+            work = Path(raw) / "work"
+            work.mkdir()
+            before = self._sddl(work)
+            code = ("import subprocess,sys,time\nfrom pathlib import Path\n"
+                    + "root=Path(" + repr(str(work)) + ")\n"
+                    + "code=" + repr(child_code) + "\n"
+                    + "children=[subprocess.Popen([sys.executable,'-I','-B','-c',code,str(root),str(i)]) for i in range(2)]\n"
+                    + "deadline=time.monotonic()+20\n"
+                    + "while not all((root/('ready-'+str(i))).exists() for i in range(2)):\n"
+                    + "    assert time.monotonic()<deadline, 'descendants not ready'\n    time.sleep(.01)\n")
+            original_undo = wac._undo
+            order = []
+            def checked_undo(security, entries, sid, **kwargs):
+                self.assertTrue(wac._completion_recorded(entries))
+                proof = next(entry["completion"] for entry in entries if entry.get("completion_confirmed"))
+                self.assertTrue(proof["confirmed_stopped"], proof)
+                self.assertEqual(proof["verified_lifetime_member_count"], proof["total_processes_after"])
+                # These denied sharing while held. No sleep or deletion retry.
+                for index in range(2):
+                    (work / ("held-" + str(index))).unlink()
+                order.append("files_released_before_acl")
+                return original_undo(security, entries, sid, **kwargs)
+            with patch.object(wac, "_undo", side_effect=checked_undo):
+                result = wac.run([sys.executable, "-I", "-B", "-c", code], workspace=work,
+                                 readable=[Path(sys.prefix)])
+            self.assertEqual(result, 0)
+            self.assertEqual(order, ["files_released_before_acl"])
+            self.assertEqual(self._sddl(work), before)
+            self.assertEqual(self._pending(), [])

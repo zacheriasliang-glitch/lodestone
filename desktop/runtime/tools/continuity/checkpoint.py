@@ -8,6 +8,7 @@ it does not infer semantic resolution, authorization, or a new baseline.
 from __future__ import annotations
 
 import argparse
+from contextlib import nullcontext
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -15,6 +16,12 @@ import os
 from pathlib import Path
 import stat
 import sys
+
+if os.name == "nt":
+    # This bundled script runs directly as a CLI child, without runtime/src on
+    # sys.path. Load custody code only from its own reviewed runtime package.
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+    from lodestone_nurarihyon import portable_files as _files
 
 SCHEMA = "lodestone-checkpoint/v1"
 MAX_SOURCES = 256
@@ -36,7 +43,12 @@ def relative_name(name):
 
 
 def project_root(root):
-    root = Path(root).expanduser().resolve(strict=True)
+    supplied = Path(root).expanduser()
+    if os.name == "nt":
+        root = _files.absolute_path(supplied)
+        with _files.guarded_directory(root):
+            return root
+    root = supplied.resolve(strict=True)
     if not root.is_dir():
         raise ValueError("--root must be an existing directory")
     return root
@@ -44,6 +56,16 @@ def project_root(root):
 
 def no_symlinks(path):
     """Reject both the selected leaf and symlink ancestors before opening."""
+    if os.name == "nt":
+        path = _files.absolute_path(path)
+        with _files.guarded_directory(path.parent):
+            try:
+                metadata = path.lstat()
+            except FileNotFoundError:
+                return
+            if _files.is_alias(metadata):
+                raise ValueError("Reparse paths are not supported: " + str(path))
+        return
     for candidate in (path, *path.parents):
         if candidate.is_symlink():
             raise ValueError(f"Symlink paths are not supported: {candidate}")
@@ -51,6 +73,17 @@ def no_symlinks(path):
 
 def fingerprint(root, name):
     path = root / relative_name(name)
+    if os.name == "nt":
+        digest, count = hashlib.sha256(), 0
+        with _files.open_regular(path) as fd:
+            if os.fstat(fd).st_size > MAX_SOURCE_BYTES:
+                raise ValueError(f"Source exceeds the {MAX_SOURCE_BYTES}-byte read bound: {name}")
+            while chunk := os.read(fd, 1024 * 1024):
+                count += len(chunk)
+                if count > MAX_SOURCE_BYTES:
+                    raise ValueError(f"Source exceeds the {MAX_SOURCE_BYTES}-byte read bound: {name}")
+                digest.update(chunk)
+        return {"path": name, "bytes": count, "sha256": digest.hexdigest()}
     # The resolved root is user-selected. Every component below it is checked.
     current = root
     for part in name.split("/"):
@@ -105,33 +138,38 @@ def text_list(values, field):
 
 def create(root, output, task, status, next_action, sources, notes=None, unresolved=None):
     root = project_root(root)
-    output = Path(os.path.abspath(Path(output).expanduser()))
-    no_symlinks(output)
-    if not output.parent.is_dir():
-        raise ValueError("Checkpoint output parent must already exist")
-    if output.exists():
-        raise FileExistsError(f"Checkpoint output already exists; choose a new filename: {output}")
-    if not sources or len(sources) > MAX_SOURCES or len(set(sources)) != len(sources):
-        raise ValueError(f"Select 1 to {MAX_SOURCES} distinct source files")
-    payload = {"schema": SCHEMA, "created_at": datetime.now(timezone.utc).isoformat(),
-               "task": short_text(task, "task"), "status": short_text(status, "status"),
-               "next_action": short_text(next_action, "next_action"),
-               "notes": text_list(notes or [], "notes"),
-               "unresolved": text_list(unresolved or [], "unresolved"),
-               "sources": [fingerprint(root, name) for name in sorted(sources)]}
-    payload["checkpoint_sha256"] = hashlib.sha256(canonical(payload)).hexdigest()
-    raw = json.dumps(payload, indent=2, ensure_ascii=True, allow_nan=False).encode("ascii") + b"\n"
-    if len(raw) > MAX_CHECKPOINT_BYTES:
-        raise ValueError("Checkpoint exceeds the 1 MiB size bound; shorten the notes")
-    # Exclusive creation is the immutability contract: never replace earlier bytes.
-    fd = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0), 0o600)
-    with os.fdopen(fd, "wb") as stream:
-        stream.write(raw)
-        stream.flush()
-        os.fsync(stream.fileno())
-    return {"status": "CREATED", "path": str(output), "bytes": len(raw),
-            "sha256": hashlib.sha256(raw).hexdigest(),
-            "checkpoint_sha256": payload["checkpoint_sha256"], "sources": len(payload["sources"])}
+    with _files.guarded_directory(root) if os.name == "nt" else nullcontext():
+        output = (_files.absolute_path(Path(output).expanduser()) if os.name == "nt"
+                  else Path(os.path.abspath(Path(output).expanduser())))
+        no_symlinks(output)
+        if not output.parent.is_dir():
+            raise ValueError("Checkpoint output parent must already exist")
+        if output.exists():
+            raise FileExistsError(f"Checkpoint output already exists; choose a new filename: {output}")
+        if not sources or len(sources) > MAX_SOURCES or len(set(sources)) != len(sources):
+            raise ValueError(f"Select 1 to {MAX_SOURCES} distinct source files")
+        payload = {"schema": SCHEMA, "created_at": datetime.now(timezone.utc).isoformat(),
+                   "task": short_text(task, "task"), "status": short_text(status, "status"),
+                   "next_action": short_text(next_action, "next_action"),
+                   "notes": text_list(notes or [], "notes"),
+                   "unresolved": text_list(unresolved or [], "unresolved"),
+                   "sources": [fingerprint(root, name) for name in sorted(sources)]}
+        payload["checkpoint_sha256"] = hashlib.sha256(canonical(payload)).hexdigest()
+        raw = json.dumps(payload, indent=2, ensure_ascii=True, allow_nan=False).encode("ascii") + b"\n"
+        if len(raw) > MAX_CHECKPOINT_BYTES:
+            raise ValueError("Checkpoint exceeds the 1 MiB size bound; shorten the notes")
+        # Exclusive creation is the immutability contract: never replace earlier bytes.
+        if os.name == "nt":
+            _files.durable_write(output, raw, replace=False)
+        else:
+            fd = os.open(output, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0), 0o600)
+            with os.fdopen(fd, "wb") as stream:
+                stream.write(raw)
+                stream.flush()
+                os.fsync(stream.fileno())
+        return {"status": "CREATED", "path": str(output), "bytes": len(raw),
+                "sha256": hashlib.sha256(raw).hexdigest(),
+                "checkpoint_sha256": payload["checkpoint_sha256"], "sources": len(payload["sources"])}
 
 
 def unique_object(pairs):
@@ -153,12 +191,16 @@ def expected_pin(value, field="Expected checkpoint SHA-256"):
 def _checkpoint_bytes(path, expected_sha256=None):
     if expected_sha256 is not None:
         expected_pin(expected_sha256)
-    path = Path(os.path.abspath(Path(path).expanduser()))
-    no_symlinks(path)
-    if not path.is_file():
-        raise ValueError("Checkpoint must be a regular file")
-    with path.open("rb") as stream:
-        raw = stream.read(MAX_CHECKPOINT_BYTES + 1)
+    path = (_files.absolute_path(Path(path).expanduser()) if os.name == "nt"
+            else Path(os.path.abspath(Path(path).expanduser())))
+    if os.name == "nt":
+        raw = _files.read_bytes(path, MAX_CHECKPOINT_BYTES)
+    else:
+        no_symlinks(path)
+        if not path.is_file():
+            raise ValueError("Checkpoint must be a regular file")
+        with path.open("rb") as stream:
+            raw = stream.read(MAX_CHECKPOINT_BYTES + 1)
     if len(raw) > MAX_CHECKPOINT_BYTES:
         raise ValueError("Checkpoint exceeds the 1 MiB size bound")
     actual_sha256 = hashlib.sha256(raw).hexdigest()
@@ -206,19 +248,20 @@ def read_checkpoint(path, *, expected_sha256=None):
 
 def _verify_sources(value, root):
     root = project_root(root)
-    comparisons = []
-    for expected in value["sources"]:
-        row = {"path": expected["path"], "expected": expected}
-        try:
-            actual = fingerprint(root, expected["path"])
-            row.update(status="MATCH" if actual == expected else "CHANGED", actual=actual)
-        except FileNotFoundError:
-            row.update(status="MISSING")
-        except (OSError, ValueError) as exc:
-            row.update(status="UNREADABLE", error=str(exc)[:1000])
-        comparisons.append(row)
-    failures = sum(row["status"] != "MATCH" for row in comparisons)
-    return comparisons, failures
+    with _files.guarded_directory(root) if os.name == "nt" else nullcontext():
+        comparisons = []
+        for expected in value["sources"]:
+            row = {"path": expected["path"], "expected": expected}
+            try:
+                actual = fingerprint(root, expected["path"])
+                row.update(status="MATCH" if actual == expected else "CHANGED", actual=actual)
+            except FileNotFoundError:
+                row.update(status="MISSING")
+            except (OSError, ValueError) as exc:
+                row.update(status="UNREADABLE", error=str(exc)[:1000])
+            comparisons.append(row)
+        failures = sum(row["status"] != "MATCH" for row in comparisons)
+        return comparisons, failures
 
 
 def verify(checkpoint, root, *, expected_sha256=None):

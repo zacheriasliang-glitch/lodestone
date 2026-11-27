@@ -554,7 +554,9 @@ class ConversationTab(wx.Panel, BaseConversation, ErrorDisplayMixin):
 			style=wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST) as chooser:
 			if chooser.ShowModal() != wx.ID_OK:
 				return
-			paths = [Path(path).resolve() for path in chooser.GetPaths()]
+			# Preserve Windows aliases for the runtime's held-handle source check.
+			paths = [Path(path).absolute() if os.name == "nt" else Path(path).resolve()
+				for path in chooser.GetPaths()]
 		try:
 			root = Path(os.path.commonpath([str(path.parent) for path in paths]))
 			proposal = self.current_engine.preview_origami(receipt, root=str(root),

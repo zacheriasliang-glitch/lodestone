@@ -10,10 +10,15 @@ Standard library only.
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
+from functools import wraps
 import hashlib
+import io
 import json
+import os
 import re
 import sys
+import threading
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,6 +29,85 @@ VALID_LINK_TYPES = {
     "explicit", "similar", "supersedes",
     "contradicts", "supports", "questions"
 }
+_WINDOWS = os.name == "nt"
+MAX_CATALOGUE_BYTES = 32 * 1024 * 1024
+LOCK_NAME = ".local-memory.lock"
+_SCOPES = threading.local()
+
+
+def _native_files():
+    # The standalone CLI is launched directly, without importing the runtime
+    # package first. Its bundled helper is stdlib-only; never fall back to an
+    # unguarded Windows open when the complete package is unavailable.
+    source = str(Path(__file__).resolve().parents[3] / "src")
+    if source not in sys.path:
+        sys.path.insert(0, source)
+    from lodestone_nurarihyon import portable_files
+    return portable_files
+
+
+@contextmanager
+def _windows_scope(root: Path, *, create=False):
+    files = _native_files()
+    root = files.absolute_path(root)
+    held = getattr(_SCOPES, "held", ())
+    if root in held:
+        yield root
+        return
+    if create:
+        files.ensure_directory(root)
+    from lodestone_nurarihyon.common import file_lock
+    with files.guarded_directory(root), file_lock(root / LOCK_NAME, timeout=30):
+        _SCOPES.held = (*held, root)
+        try:
+            yield root
+        finally:
+            _SCOPES.held = held
+
+
+def _windows_operation(*, create=False):
+    def decorate(function):
+        @wraps(function)
+        def operation(root, *args, **kwargs):
+            if not _WINDOWS:
+                return function(root, *args, **kwargs)
+            with _windows_scope(root, create=create) as selected:
+                return function(selected, *args, **kwargs)
+        return operation
+    return decorate
+
+
+def _optional_bytes(path):
+    # Called within the parent's directory/lock scope. Absence is optional;
+    # disappearance or replacement after observing a file is a custody failure.
+    try:
+        path.lstat()
+    except FileNotFoundError:
+        return None
+    return _native_files().read_bytes(path, MAX_CATALOGUE_BYTES)
+
+
+def _jsonl_rows(path, raw):
+    # Universal CR/LF handling matches the original text stream. splitlines()
+    # would incorrectly split valid JSON strings containing Unicode U+2028.
+    for line_no, line in enumerate(io.StringIO(raw.decode("utf-8"), newline=None), 1):
+        if not line.strip():
+            continue
+        try:
+            yield json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"{path}:{line_no}: invalid JSON: {exc}") from exc
+
+
+def _print(value="", *, end="\n", file=None):
+    stream = sys.stdout if file is None else file
+    if _WINDOWS and hasattr(stream, "buffer"):
+        # Search is human-readable text, not JSON. Preserve Unicode exactly on
+        # redirected Windows streams even when the console locale is legacy.
+        stream.buffer.write((str(value) + end).encode("utf-8"))
+        stream.buffer.flush()
+    else:
+        print(value, end=end, file=stream)
 
 
 def utc_now() -> str:
@@ -57,8 +141,19 @@ def paths(root: Path) -> tuple[Path, Path, Path, Path]:
     )
 
 
+@_windows_operation(create=True)
 def ensure_root(root: Path) -> None:
     records, links, state, packets = paths(root)
+    if _WINDOWS:
+        files = _native_files()
+        files.ensure_directory(packets)
+        for path in (records, links, state):
+            existing = _optional_bytes(path)
+            if existing is None:
+                raw = ((json.dumps({"version": "1.0.0", "created_at": utc_now()}, indent=2)
+                        + "\n").replace("\n", "\r\n").encode("utf-8") if path == state else b"")
+                files.durable_write(path, raw, replace=False)
+        return
     root.mkdir(parents=True, exist_ok=True)
     packets.mkdir(parents=True, exist_ok=True)
     records.touch(exist_ok=True)
@@ -71,6 +166,13 @@ def ensure_root(root: Path) -> None:
 
 
 def read_jsonl(path: Path) -> Iterator[dict]:
+    if _WINDOWS:
+        path = _native_files().absolute_path(path)
+        with _windows_scope(path.parent):
+            raw = _optional_bytes(path)
+            if raw is not None:
+                yield from _jsonl_rows(path, raw)
+        return
     if not path.exists():
         return
     with path.open("r", encoding="utf-8") as handle:
@@ -84,12 +186,38 @@ def read_jsonl(path: Path) -> Iterator[dict]:
 
 
 def write_jsonl(path: Path, items: Iterable[dict]) -> None:
+    if _WINDOWS:
+        path = _native_files().absolute_path(path)
+        with _windows_scope(path.parent):
+            body = bytearray()
+            for item in items:
+                body.extend((json.dumps(item, ensure_ascii=False, sort_keys=True) + "\r\n").encode("utf-8"))
+                if len(body) > MAX_CATALOGUE_BYTES:
+                    raise ValueError("Local memory catalogue exceeds the 32 MiB file bound")
+            _native_files().durable_write(path, bytes(body), replace=True)
+        return
     with path.open("w", encoding="utf-8") as handle:
         for item in items:
             handle.write(json.dumps(item, ensure_ascii=False, sort_keys=True) + "\n")
 
 
 def append_jsonl(path: Path, item: dict) -> None:
+    if _WINDOWS:
+        path = _native_files().absolute_path(path)
+        with _windows_scope(path.parent):
+            before = _optional_bytes(path)
+            existed = before is not None
+            before = b"" if before is None else before
+            # Validate the retained prefix, and never normalize or rewrite it.
+            for _ in _jsonl_rows(path, before):
+                pass
+            separator = b"" if not before or before.endswith((b"\n", b"\r")) else b"\r\n"
+            row = (json.dumps(item, ensure_ascii=False, sort_keys=True) + "\r\n").encode("utf-8")
+            body = before + separator + row
+            if len(body) > MAX_CATALOGUE_BYTES:
+                raise ValueError("Local memory catalogue exceeds the 32 MiB file bound")
+            _native_files().durable_write(path, body, replace=existed)
+        return
     with path.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(item, ensure_ascii=False, sort_keys=True) + "\n")
 
@@ -135,6 +263,7 @@ def make_record(
     }
 
 
+@_windows_operation(create=True)
 def add_record(root: Path, record: dict) -> tuple[str, bool]:
     ensure_root(root)
     records_path, _, _, _ = paths(root)
@@ -146,6 +275,7 @@ def add_record(root: Path, record: dict) -> tuple[str, bool]:
     return record["id"], True
 
 
+@_windows_operation(create=True)
 def add_link(root: Path, source_id: str, target_id: str, relation: str, note: str = "") -> None:
     ensure_root(root)
     if relation not in VALID_LINK_TYPES:
@@ -168,6 +298,7 @@ def add_link(root: Path, source_id: str, target_id: str, relation: str, note: st
     append_jsonl(links_path, link)
 
 
+@_windows_operation()
 def supersede(root: Path, old_id: str, new_id: str) -> None:
     if old_id == new_id:
         raise ValueError("record cannot supersede itself")
@@ -190,6 +321,7 @@ class Scored:
     record: dict
 
 
+@_windows_operation()
 def search(root: Path, query: str, limit: int = 10, include_superseded: bool = False) -> list[Scored]:
     if not query.strip():
         return []
@@ -239,6 +371,7 @@ def search_records(records: list[dict], links: list[dict], query: str,
     return scored[:limit]
 
 
+@_windows_operation()
 def related(root: Path, record_id: str, limit: int = 10) -> list[Scored]:
     records = load_records(root)
     links = load_links(root)
@@ -284,6 +417,7 @@ def render_entry(record: dict, score: float | None = None) -> str:
     return "\n".join(lines)
 
 
+@_windows_operation()
 def build_packet(root: Path, query: str, max_words: int) -> str:
     if type(max_words) is not int or max_words < 1:
         raise ValueError("max_words must be a positive integer")
@@ -307,6 +441,7 @@ def build_packet(root: Path, query: str, max_words: int) -> str:
     return "\n".join(chunks).rstrip() + "\n"
 
 
+@_windows_operation()
 def verify(root: Path) -> list[str]:
     errors: list[str] = []
     records = load_records(root)
@@ -344,11 +479,11 @@ def verify(root: Path) -> list[str]:
 
 def print_results(results: list[Scored]) -> None:
     if not results:
-        print("No matching records.")
+        _print("No matching records.")
         return
     for result in results:
-        print(render_entry(result.record, result.score))
-        print()
+        _print(render_entry(result.record, result.score))
+        _print()
 
 
 def parse_tags(value: str) -> list[str]:
@@ -433,20 +568,20 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "init":
             ensure_root(args.root)
-            print(f"Initialized {args.root}")
+            _print(f"Initialized {args.root}")
         elif args.command == "add":
             record = make_record(
                 args.title, args.body, args.source, args.kind,
                 parse_tags(args.tags), args.confidence
             )
             record_id, created = add_record(args.root, record)
-            print(json.dumps({"id": record_id, "created": created}))
+            _print(json.dumps({"id": record_id, "created": created}))
         elif args.command == "link":
             add_link(args.root, args.source_id, args.target_id, args.type, args.note)
-            print("Link stored.")
+            _print("Link stored.")
         elif args.command == "supersede":
             supersede(args.root, args.old_id, args.new_id)
-            print("Supersession stored.")
+            _print("Supersession stored.")
         elif args.command == "search":
             print_results(search(args.root, args.query, args.limit, args.include_superseded))
         elif args.command == "source-bind":
@@ -471,18 +606,18 @@ def main(argv: list[str] | None = None) -> int:
             if args.output:
                 args.output.parent.mkdir(parents=True, exist_ok=True)
                 args.output.write_text(packet, encoding="utf-8")
-                print(f"Wrote {args.output}")
+                _print(f"Wrote {args.output}")
             else:
-                print(packet, end="")
+                _print(packet, end="")
         elif args.command == "verify":
             errors = verify(args.root)
             if errors:
-                print("\n".join(errors), file=sys.stderr)
+                _print("\n".join(errors), file=sys.stderr)
                 return 1
-            print("Memory store verified.")
+            _print("Memory store verified.")
         return 0
     except (ValueError, OSError) as exc:
-        print(f"error: {exc}", file=sys.stderr)
+        _print(f"error: {exc}", file=sys.stderr)
         return 2
 
 

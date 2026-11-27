@@ -31,7 +31,7 @@ if str(Path(__file__).resolve().parent) not in sys.path:
 from platform_support import (atomic_write, check_path, default_locations, durable_move,
                               file_lock, guarded_directory, host_platform, read_file, remove_file)
 
-VERSION = "0.4.0-preview.6"
+VERSION = "0.4.0"
 DEFAULT_ROOT, DEFAULT_APP = default_locations()
 SCHEMA = "lodestone-desktop-active/v1"
 
