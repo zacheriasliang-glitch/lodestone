@@ -23,6 +23,9 @@ import zipfile
 from lodestone_nurarihyon.portable_files import read_bytes, absolute_path, guarded_directory
 
 MAX_INPUT_BYTES = 2 * 1024 * 1024
+MAX_RELEASE_FILE_BYTES = 32 * 1024 * 1024
+MAX_RELEASE_TOTAL_BYTES = 128 * 1024 * 1024
+MAX_RELEASE_FILES = 10000
 
 
 def _spec(family, description, operation, inputs, effects):
@@ -41,7 +44,7 @@ EXTRA_SPECS = {
         "Read selected project and carrier files through native B_RETURN; no planning, host approval, task execution or state advancement"),
     "release.verify-download": _spec("release", "Verify the listed files of an already extracted release",
         "release.verify-download", {"package": ("directory", "--package"), "manifest": ("file", "--manifest")},
-        "Read explicit release root and CONTENT_SHA256.json with the trusted native verifier; no packaging, download, installation or publication"),
+        "Read explicit release root and CONTENT_SHA256.json with the trusted native verifier; manifest at most 2 MiB, 10000 listed files at most 32 MiB each, 128 MiB total including manifest; no packaging, download, installation or publication"),
     "supplied-candidates.get": _spec("supplied-candidates", "Recover bytes from a pinned supplied-candidate store",
         "supplied-candidates.get", {"store": ("file", "--store"), "receipt": ("file", "--receipt"),
                                    "output": ("new-file", "--output")},
@@ -198,11 +201,24 @@ def execute(operation, inputs, *, root, workspace):
             sys.path.pop(0)
 
     if operation == "release.verify-download":
-        package = Path(inputs["package"]).resolve()
-        if Path(inputs["manifest"]).resolve() != package / "CONTENT_SHA256.json":
+        from .loom_operations import _selected_path
+        package = _selected_path(inputs["package"], directory=True)
+        if _selected_path(inputs["manifest"]) != package / "CONTENT_SHA256.json":
             raise ValueError("Select this release's exact CONTENT_SHA256.json")
         native = _load(root, "verify_download.py", "_loom_release_validator")
-        return native.verify(package)
+        total, files = 0, 0
+        def read_release(path):
+            nonlocal total, files
+            files += 1
+            if files > MAX_RELEASE_FILES + 1:  # The manifest is one additional read.
+                raise ValueError("Release verification exceeds its listed-file bound")
+            raw = _read(path, MAX_RELEASE_FILE_BYTES)
+            total += len(raw)
+            if total > MAX_RELEASE_TOTAL_BYTES:
+                raise ValueError("Release verification exceeds its total byte bound")
+            return raw
+        with guarded_directory(package):
+            return native.verify(package, read_file=read_release)
 
     if operation == "supplied-candidates.get":
         from .latent.cli import get

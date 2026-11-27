@@ -141,7 +141,7 @@ UNAVAILABLE = {
 # The catalogue runs trusted explicit commands; Job ownership is not a sandbox.
 WINDOWS_OPERATIONS = frozenset({"ecosystem.doctor", "ecosystem.context",
                                "mailbox.validate-envelope", "loom.inference-memory-assess",
-                               "loom.inference-memory-skill"})
+                               "loom.inference-memory-skill", "release.verify-download"})
 
 
 def _availability(root):
