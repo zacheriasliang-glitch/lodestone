@@ -369,7 +369,27 @@ class WindowsJobProcess:
                     self.api.kernel.CloseHandle(process)
         return True
 
+    def _require_sampled_exit(self, process, pid, api, error, deadline):
+        # Called only after this exact handle passed Job membership and
+        # PID/creation-time verification. Inspection can become unavailable
+        # just before exit signals the process object. PID disappearance alone
+        # is not completion, and live/unknown states still refuse the sample.
+        milliseconds = min(100, max(0, int((deadline - time.monotonic()) * 1000)))
+        state = self.api.kernel.WaitForSingleObject(process, milliseconds)
+        if state == 0:  # WAIT_OBJECT_0 on this process, never on the Job.
+            return
+        wait_error = ctypes.get_last_error() if state == 0xffffffff else None
+        failure = ctypes.WinError(error)  # Preserve the original API's errno/winerror.
+        failure.native_api, failure.native_pid = api, pid
+        failure.native_wait_result = state
+        if wait_error is not None:
+            failure.native_wait_winerror = wait_error
+        failure.add_note(f"{api} failed for owned PID {pid}; completion wait returned {state}")
+        raise failure
+
     def snapshot(self):
+        # One short completion grace for the whole sample, not per member.
+        exit_deadline = time.monotonic() + .1
         self._release_completed_members()
         members = []
         for pid in self.pids():
@@ -391,16 +411,14 @@ class WindowsJobProcess:
                 counters.cb = ctypes.sizeof(counters)
                 if not self.api.psapi.GetProcessMemoryInfo(process, ctypes.byref(counters), counters.cb):
                     error = ctypes.get_last_error()
-                    if self.api.kernel.WaitForSingleObject(process, 0) == 0:
-                        continue
-                    raise ctypes.WinError(error)
+                    self._require_sampled_exit(process, pid, "GetProcessMemoryInfo", error, exit_deadline)
+                    continue
                 image = ctypes.create_unicode_buffer(32768)
                 length = self.api.w.DWORD(len(image))
                 if not self.api.kernel.QueryFullProcessImageNameW(process, 0, image, ctypes.byref(length)):
                     error = ctypes.get_last_error()
-                    if self.api.kernel.WaitForSingleObject(process, 0) == 0:
-                        continue
-                    raise ctypes.WinError(error)
+                    self._require_sampled_exit(process, pid, "QueryFullProcessImageNameW", error, exit_deadline)
+                    continue
                 # Bound retained membership evidence independently from the
                 # complete Job RSS sum. No executable path or command is run.
                 image_digest = hashlib.sha256(os.path.normcase(os.path.normpath(image.value)).encode("utf-8")).hexdigest()
