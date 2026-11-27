@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Native public-runner installation checks; local inference requires explicit opt-in.
 
-All installed state and evidence belong to a new RUNNER_TEMP directory. Evidence
+Installed state and evidence belong to a new RUNNER_TEMP directory, apart from
+the Windows policy check's uniquely owned temporary short drive-root install. Evidence
 uses the existing bounded tar.gz/base64 log envelope, with no artifact/cache
 storage action. Scripted lifecycle checks are not semantic learning evidence.
 """
@@ -34,6 +35,7 @@ SOURCE_TESTS = ("test_portable_process.py", "test_portable_storage.py", "test_pl
 # options and full-history preservation with scripted providers; no model calls.
 SOURCE_TESTS += ("test_linux_command_fence.py", "test_smoke_evidence.py", "test_learning_archive_custody.py", "test_decision_retention.py",
                  "test_practice_selection.py", "test_practice_voxels.py", "test_reader_history_window.py")
+SOURCE_TESTS += ("test_windows_path_budget.py", "test_windows_preflight.py", "test_windows_policy_check.py")
 READERS = {"LODESTONE_OLD_GUI_SOURCE": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
            "LODESTONE_PREVIOUS_GUI_SOURCE": "655fa55672a4c3ae2d0284da881921b7bed97c78"}
 
@@ -224,6 +226,20 @@ class Check:
             env[name] = str(old / "gui")
         return env
 
+    def windows_policy(self, source_commit):
+        if self.target != "windows-x86_64":
+            return
+        self.run("windows-long-path-policy-command", [sys.executable, "-B", "tools/desktop_windows_policy_check.py",
+            "--source", str(self.source), "--source-commit", source_commit,
+            "--payload", str(self.payload), "--root", str(self.root), "--app", str(self.app),
+            "--cache", str(self.cache), "--evidence", str(self.evidence),
+            "--release-id", self.active["release_id"]], timeout=1800)
+        report = read(self.evidence / "windows-long-path-policy.json")
+        if (report.get("schema") != "lodestone-windows-long-path-policy/v1"
+                or report.get("status") != "PASSED" or report.get("source_commit") != source_commit
+                or report.get("release_id") != self.active["release_id"]):
+            raise ValueError("Windows path policy proof failed or belongs to another source/release")
+
     def gui(self):
         self.run("gui-save-reopen", [self.active["gui_python"], "-B", "tools/desktop_mechanical_check.py", "gui",
             "--tests", "tests/desktop_gui", "--payload", self.active["release"], "--evidence", str(self.evidence)],
@@ -391,6 +407,7 @@ def main():
         mechanical.write(check.evidence / "installed-active.json", check.active)
         mechanical.write(check.evidence / "current-installed-identity.json", mechanical.installed_identity(
             check.source, check.payload, check.root, args.source_commit, target=check.target))
+        check.windows_policy(args.source_commit)
         check.gui()
         if mode == "local_inference_smoke":
             report["model_smoke_invoked"] = True

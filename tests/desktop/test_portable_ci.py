@@ -240,6 +240,40 @@ class PortableCITests(unittest.TestCase):
                 self.assertEqual(command_receipt["returncode"], returncode)
                 self.assertEqual(command_receipt["status"], detail["status"])
 
+    def test_windows_policy_keeps_detail_receipt_and_rejects_wrong_release_binding(self):
+        for returncode, reported_commit in ((0, "a" * 40), (1, "a" * 40), (0, "b" * 40)):
+            with self.subTest(returncode=returncode, commit=reported_commit), tempfile.TemporaryDirectory() as temporary:
+                driver = check.Check(temporary, Path(temporary) / "work", "windows-x86_64")
+                driver.active = {"release_id":"c" * 64}
+                driver.payload = Path(temporary) / "payload"
+                detail = {"schema":"lodestone-windows-long-path-policy/v1",
+                          "status":"PASSED" if returncode == 0 else "FAILED",
+                          "source_commit":reported_commit, "release_id":"c" * 64,
+                          "registry_restored":True}
+                def authored(command, **kwargs):
+                    destination = Path(command[command.index("--evidence") + 1])
+                    (destination / "windows-long-path-policy.json").write_text(json.dumps(detail))
+                    return subprocess.CompletedProcess(command, returncode)
+                with patch.object(check.subprocess, "run", side_effect=authored), redirect_stdout(io.StringIO()):
+                    if returncode:
+                        with self.assertRaises(subprocess.CalledProcessError):
+                            driver.windows_policy("a" * 40)
+                    elif reported_commit != "a" * 40:
+                        with self.assertRaisesRegex(ValueError, "another source/release"):
+                            driver.windows_policy("a" * 40)
+                    else:
+                        driver.windows_policy("a" * 40)
+                self.assertEqual(json.loads((driver.evidence / "windows-long-path-policy.json").read_text()), detail)
+                receipt = json.loads((driver.evidence / "windows-long-path-policy-command.json").read_text())
+                self.assertEqual(receipt["returncode"], returncode)
+
+    def test_non_windows_policy_step_never_runs_a_command(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            driver = check.Check(temporary, Path(temporary) / "work", "macos-x86_64")
+            with patch.object(driver, "run") as run:
+                driver.windows_policy("a" * 40)
+            run.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()
