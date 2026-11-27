@@ -144,7 +144,8 @@ UNAVAILABLE = {
 WINDOWS_OPERATIONS = frozenset({"ecosystem.doctor", "ecosystem.context",
     "mailbox.validate-envelope", "release.verify-download", "loom.inference-memory-assess",
     "loom.inference-memory-skill", "bezoar.ingest", "bezoar.show",
-    "memory.add", "memory.search", "memory.verify"})
+    "memory.add", "memory.search", "memory.verify",
+    "continuity.create", "continuity.verify", "repository.check"})
 
 
 def _availability(root):
