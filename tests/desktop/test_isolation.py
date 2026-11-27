@@ -229,6 +229,10 @@ class RealAppContainerTests(unittest.TestCase):
                 self.fail("A usable Windows AppContainer fence was required here and is absent")
             self.skipTest("real Windows AppContainer is unavailable here")
 
+    def _sddl(self, path):
+        from lodestone_machinery import windows_appcontainer as wac
+        return wac._Security(wac._Api()).read(path)
+
     def _icacls(self, path):
         system = os.environ.get("SystemRoot", r"C:\\Windows")
         return subprocess.run([os.path.join(system, "System32", "icacls.exe"), str(path)],
@@ -247,7 +251,7 @@ class RealAppContainerTests(unittest.TestCase):
             # Absolute argument paths are deliberately readable inside every fence,
             # so the private location reaches the program only through a source file.
             (source / "private-path.txt").write_text(str(private))
-            before = {p: self._icacls(p) for p in (work, source, outside, private)}
+            before = {p: self._sddl(p) for p in (work, source, outside, private)}
             program = (
                 "import pathlib, socket, sys\n"
                 "w, s, o = map(pathlib.Path, sys.argv[1:4])\n"
@@ -278,7 +282,8 @@ class RealAppContainerTests(unittest.TestCase):
             self.assertFalse((outside / "x").exists())
             self.assertFalse((source / "x").exists())
             # Every transient grant is gone and no recovery entry remains.
-            self.assertEqual({p: self._icacls(p) for p in (work, source, outside, private)}, before)
+            self.assertEqual({p: self._sddl(p) for p in (work, source, outside, private)}, before,
+                             "stderr:\n" + done.stderr)
             self.assertEqual(list(ledger.glob(wac.PREFIX + "*.json")), [])
 
     def test_interrupted_launcher_is_undone_by_the_next_sweep(self):
@@ -286,7 +291,7 @@ class RealAppContainerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             work, source = Path(raw) / "w", Path(raw) / "s"
             work.mkdir(), source.mkdir()
-            before = self._icacls(source)
+            before = self._sddl(source)
             argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", "import time; time.sleep(60)"],
                                         work, source, None, None)
             launcher = subprocess.Popen(argv, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -304,5 +309,5 @@ class RealAppContainerTests(unittest.TestCase):
                 if not list(wac._ledger_directory().glob(wac.PREFIX + "*.json")) or time.monotonic() > deadline:
                     break
                 time.sleep(1)
-            self.assertEqual(self._icacls(source), before)
+            self.assertEqual(self._sddl(source), before)
             self.assertEqual(list(wac._ledger_directory().glob(wac.PREFIX + "*.json")), [])
