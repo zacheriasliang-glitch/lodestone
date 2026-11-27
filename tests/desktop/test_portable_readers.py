@@ -134,6 +134,19 @@ raise SystemExit(main(['assess', '--file', sys.argv[2]]))
             optional._read(oversized, 65536)
 
     @unittest.skipUnless(os.name == "nt", "Native Windows reader custody")
+    def test_windows_direct_planning_cli_rejects_raw_dot_space_and_stream_names(self):
+        before = self.specification.read_bytes()
+        for suffix in (".", " ", ":stream"):
+            command = [sys.executable, "-B", str(RUNTIME / "lodestone.py"), "--repo", str(RUNTIME),
+                       "--workspace", str(self.workspace), "loom-tools", "inference-memory", "assess",
+                       "--file", str(self.specification) + suffix]
+            result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertIn("ambiguous path", result.stderr)
+        self.assertEqual(self.specification.read_bytes(), before)
+        self.assertFalse(self.workspace.exists())
+
+    @unittest.skipUnless(os.name == "nt", "Native Windows reader custody")
     def test_windows_direct_cli_does_not_resolve_selected_package_or_workspace_junction(self):
         for name, target in (("package alias", RUNTIME), ("workspace alias", self.root)):
             junction = self.root / name

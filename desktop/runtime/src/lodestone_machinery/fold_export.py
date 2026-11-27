@@ -21,7 +21,7 @@ from .origami import DECISIONS, RESPONSE_SCHEMA, _keys, _text, _validate_respons
 from .support_review import REQUEST_SCHEMA, ATTRIBUTION
 from .yggdrasil_sources import binding_payload
 from .yggdrasil_runtime import _lesson_refs, _check_packet_lesson
-from lodestone_nurarihyon.portable_files import open_regular
+from lodestone_nurarihyon.portable_files import open_regular, absolute_path
 
 SCHEMA = "origami-fold-export/v1"
 SCHEMA_V2 = "origami-fold-export/v2"
@@ -51,7 +51,7 @@ def plain_path(value, *, directory=False, new=False):
     supplied = Path(value)
     if ".." in supplied.parts:
         raise ValueError("Parent traversal is forbidden")
-    path = Path(os.path.abspath(supplied))
+    path = absolute_path(supplied) if os.name == "nt" else Path(os.path.abspath(supplied))
     for part in (path, *path.parents):
         if part.is_symlink():
             raise ValueError("Symlink path is forbidden: " + str(part))
