@@ -5,11 +5,12 @@ Origami's ordinary Conscience/Nurarihyon lifecycle with the named human curator
 as provider. Prior Loom text is advice in learning history, never source evidence.
 """
 from copy import deepcopy
-import fcntl
+import errno
 import hashlib
 import json
 from pathlib import Path
 import re
+import sys
 import uuid
 from lodestone_nurarihyon import learning
 
@@ -31,6 +32,8 @@ def _text(value, name, maximum=8192):
 
 class LoomHandoff:
     def __init__(self, loom, workspace):
+        if sys.platform == "win32":
+            raise OSError(errno.ENOTSUP, "Origami handoff execution is unavailable on Windows; its POSIX custody contract is required")
         self.loom = loom
         self.workspace = Path(workspace).expanduser().resolve()
 
@@ -88,6 +91,7 @@ class LoomHandoff:
         return proposal
 
     def complete(self, handoff_id, curation):
+        import fcntl
         directory = self._directory(handoff_id)
         # One submission per proposal; an uncertain interruption is never retried.
         with (directory / "submission.lock").open("a+b") as lock:

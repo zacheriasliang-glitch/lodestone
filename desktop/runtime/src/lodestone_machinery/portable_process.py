@@ -39,6 +39,18 @@ def linux_group_snapshot(pgid):
                     raw = stream.read(4097)
             except (FileNotFoundError, ProcessLookupError):
                 continue  # A process exited during enumeration.
+            except PermissionError:
+                # procfs hidepid=1 can deny stat records for unrelated users.
+                # Only a native directory owner different from this worker's
+                # euid permits omission. An inaccessible own-user process or
+                # an uninspectable owner still makes the whole sample fail.
+                try:
+                    owner = entry.stat(follow_symlinks=False).st_uid
+                except (FileNotFoundError, ProcessLookupError):
+                    continue
+                if owner != os.geteuid():
+                    continue
+                raise
             # comm may contain spaces, newlines and ')' characters.
             end = raw.rfind(b") ")
             fields = raw[end + 2:].split()

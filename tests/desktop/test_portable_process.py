@@ -1,5 +1,6 @@
 """Native owned-worker lifecycle fixtures; no model, network or paid API calls."""
 import json
+import io
 import os
 from pathlib import Path
 import subprocess
@@ -8,6 +9,7 @@ import tempfile
 import threading
 import time
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 RUNTIME = Path(__file__).resolve().parents[2] / "desktop/runtime"
@@ -182,6 +184,43 @@ else:
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_linux_hidepid_foreign_record_is_skipped_but_own_denial_fails(self):
+        from unittest.mock import MagicMock
+        fields = ["S", "1", "999"] + ["0"] * 18 + ["2"]
+        visible = ("112 (fixture with spaces) " + " ".join(fields)).encode()
+        for owner in (1000, 1001):
+            entries = [SimpleNamespace(name="111", path="/proc/111",
+                       stat=lambda **kwargs: SimpleNamespace(st_uid=owner)),
+                       SimpleNamespace(name="112", path="/proc/112")]
+            enumeration = MagicMock()
+            enumeration.__enter__.return_value = iter(entries)
+            def opened(path, *args):
+                if path == "/proc/111/stat":
+                    raise PermissionError("Authored hidepid fixture")
+                return io.BytesIO(visible)
+            with self.subTest(owner=owner), patch.object(sys, "platform", "linux"), \
+                    patch.object(native.os, "scandir", return_value=enumeration), \
+                    patch.object(native.os, "geteuid", return_value=1001, create=True), \
+                    patch.object(native.os, "sysconf", return_value=4096, create=True), \
+                    patch("builtins.open", side_effect=opened):
+                if owner == 1001:
+                    with self.assertRaises(PermissionError):
+                        native.linux_group_snapshot(999)
+                else:
+                    self.assertEqual(native.linux_group_snapshot(999),
+                        [{"pid": 112, "rss_bytes": 8192, "zombie": False}])
+
+    def test_windows_optional_handoff_and_training_refuse_before_writes(self):
+        from lodestone_machinery.loom_handoff import LoomHandoff
+        from lodestone_machinery.loom_training import TrainingSupervisor
+        with tempfile.TemporaryDirectory() as temporary, patch.object(sys, "platform", "win32"):
+            root = Path(temporary) / "not-created"
+            with self.assertRaisesRegex(OSError, "handoff execution is unavailable on Windows"):
+                LoomHandoff(None, root)
+            with self.assertRaisesRegex(OSError, "Training execution is unavailable on Windows"):
+                TrainingSupervisor().run({}, {}, {})
+            self.assertFalse(root.exists())
+
     def test_default_worker_imports_without_resource(self):
         code = '''
 import sys

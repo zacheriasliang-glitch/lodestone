@@ -5,13 +5,14 @@ practice command, scheduler, or native learning store. A future pilot caller mus
 provide Conscience admission, capture/recovery and outcome/correction retention.
 Importing it performs no training. It never automatically retries or deploys.
 """
-import fcntl
+import errno
 import hashlib
 import math
 import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import time
 import uuid
 
@@ -180,6 +181,9 @@ class TrainingSupervisor:
     """Explicit low-level invocation only; caller owns admission and retention."""
 
     def run(self, job, dataset, split_manifest, *, cancel_event=None):
+        if sys.platform == "win32":
+            raise OSError(errno.ENOTSUP, "Training execution is unavailable on Windows; its POSIX supervision contract is required")
+        import fcntl
         validate_job(job)
         validate_training_dataset(dataset, split_manifest)
         if any(len(canonical(value)) > LIMIT for value in (job, dataset, split_manifest)):
