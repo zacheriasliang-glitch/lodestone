@@ -77,7 +77,7 @@ jobs:
             libsdl2-2.0-0 libgl1 libegl1 \
             libportaudio2 libasound2t64 libpulse0 libxtst6 \
             libgstreamer1.0-0 gstreamer1.0-plugins-base \
-            xvfb xauth dbus-x11 bubblewrap
+            xvfb xauth dbus-x11 bubblewrap gdb
 
       - name: Verify source, download, fresh installation, GUI and lifecycle
         shell: bash

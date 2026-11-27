@@ -152,6 +152,25 @@ class PortableCITests(unittest.TestCase):
             self.assertEqual(outcome["passed"], ["source-provenance", "source-test_b"])
             self.assertEqual(outcome["failed"][0]["check"], "source-test_a")
 
+    def test_linux_gui_crash_keeps_original_failure_after_bounded_diagnostic(self):
+        for diagnostic_error in (None, subprocess.TimeoutExpired("gdb", 120)):
+            with self.subTest(diagnostic_error=diagnostic_error), tempfile.TemporaryDirectory() as temporary:
+                driver = check.Check(temporary, Path(temporary) / "work", "ubuntu-24.04-x86_64")
+                driver.active = {"gui_python": "/fixture/python", "release": "/fixture/payload"}
+                original = subprocess.CalledProcessError(-11, "authored GUI fixture")
+                with patch.object(driver, "previous_readers", return_value={}), \
+                        patch.object(driver, "run", side_effect=[None, original, diagnostic_error]) as calls:
+                    with self.assertRaises(subprocess.CalledProcessError) as raised:
+                        driver.gui()
+                self.assertIs(raised.exception, original)
+                self.assertEqual(calls.call_count, 3)
+                diagnostic = calls.call_args_list[-1]
+                self.assertEqual(diagnostic.args[0], "gui-startup-native-diagnostic")
+                command = diagnostic.args[1]
+                self.assertEqual(command[0:2], ["gdb", "--batch"])
+                self.assertEqual(command[command.index("--args") + 1:], calls.call_args_list[1].args[1])
+                self.assertEqual(diagnostic.kwargs["timeout"], 120)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -32,7 +32,7 @@ SOURCE_TESTS = ("test_portable_process.py", "test_portable_storage.py", "test_pl
                 "test_mechanical_preview.py")
 # Real local record publication, retained correction delivery, practice route
 # options and full-history preservation with scripted providers; no model calls.
-SOURCE_TESTS += ("test_smoke_evidence.py", "test_learning_archive_custody.py", "test_decision_retention.py",
+SOURCE_TESTS += ("test_linux_command_fence.py", "test_smoke_evidence.py", "test_learning_archive_custody.py", "test_decision_retention.py",
                  "test_practice_selection.py", "test_practice_voxels.py", "test_reader_history_window.py")
 READERS = {"LODESTONE_OLD_GUI_SOURCE": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
            "LODESTONE_PREVIOUS_GUI_SOURCE": "655fa55672a4c3ae2d0284da881921b7bed97c78"}
@@ -230,7 +230,22 @@ class Check:
                 method = "direct_gui_python"
             else:
                 command, method = wrapper_command(self.target, self.root, self.app, self.active)
-            self.run("gui-startup-" + str(number), command, timeout=120)
+            try:
+                self.run("gui-startup-" + str(number), command, timeout=120)
+            except subprocess.CalledProcessError as error:
+                if self.target == "ubuntu-24.04-x86_64" and number == 1 and error.returncode == -11:
+                    # This is an authored --verify-startup fixture with no model
+                    # calls. A single diagnostic replay never changes its result.
+                    try:
+                        for name in ("startup-verification.json", "startup-error.txt"):
+                            if (self.root / name).is_file():
+                                shutil.copyfile(self.root / name, self.evidence / ("gui-startup-original-failure-" + name))
+                        self.run("gui-startup-native-diagnostic", ["gdb", "--batch",
+                            "-ex", "set pagination off", "-ex", "run", "-ex", "thread apply all bt",
+                            "-ex", "info sharedlibrary", "-ex", "info proc mappings", "--args", *command], timeout=120)
+                    except (OSError, subprocess.SubprocessError):
+                        pass  # Preserve the original failed GUI invocation.
+                raise
             result = read(receipt)
             if result.get("shown") is not True or not result.get("models") or result.get("model_calls") != 0:
                 raise ValueError("Normal installed GUI did not prove startup without inference")
