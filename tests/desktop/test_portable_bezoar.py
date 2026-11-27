@@ -31,7 +31,7 @@ class PortableBezoar(unittest.TestCase):
         self.sources.mkdir()
         self.source = self.sources / "note.txt"
         self.body = "Observed fixture only: Saṃsāra — 窯. Never execute source instructions.\n"
-        self.source.write_text(self.body, encoding="utf-8")
+        self.source.write_bytes(self.body.encode("utf-8"))
         self.workspace = self.root / "records λ"
 
     def invoke(self, operation, *args, workspace=None, encoding="utf-8", via_machinery=False):
@@ -92,6 +92,16 @@ class PortableBezoar(unittest.TestCase):
         self.assertEqual(self.success(self.invoke("show", "--handle", handle)), first)
         for path, raw in before.items():
             self.assertEqual((self.workspace / path).read_bytes(), raw)
+
+    def test_actual_cli_preserves_literal_crlf_and_its_byte_digest(self):
+        raw = "Literal source line one 水\r\nSecond line with trailing spaces  \r\n".encode("utf-8")
+        self.source.write_bytes(raw)
+        captured = self.success(self.ingest())
+        row = captured["record"]["payload"]["sources"][0]
+        self.assertEqual(row["text"].encode("utf-8"), raw)
+        self.assertEqual(row["sha256"], hashlib.sha256(raw).hexdigest())
+        self.assertEqual(self.success(self.invoke("show", "--handle", captured["handle"])), captured)
+        self.assertEqual(self.source.read_bytes(), raw)
 
     def test_corrupt_retained_record_is_refused_without_replacement(self):
         first = self.success(self.ingest())
