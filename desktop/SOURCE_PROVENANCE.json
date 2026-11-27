@@ -2063,7 +2063,7 @@
     "runtime/src/lodestone_nurarihyon/learning_conscience.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_nurarihyon/learning_conscience.py",
-      "sha256": "fe1b1e3ac0a617f390f0674aa54db05a496e181301ed583b5e393a2f0d52639a",
+      "sha256": "e2aa1fb28487c7130ef6fb765985bf032b363f385793d594ae3f50cfa3d8335a",
       "source_sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9"
     },
     "runtime/src/lodestone_nurarihyon/learning_recurrence.py": {
@@ -2453,6 +2453,7 @@
   },
   "implementation_commits": {
     "native_reference_history": "40e6672dd3403bae357345d7eb3016dd075e660d",
+    "practice_voxel_admission_reuse": "ab51ab797878784a942a4e8d87d4f063fbcc0121",
     "practice_voxel_integration": "5c36f68dc5a17a1224257e0cb3adf93e5a2712e5",
     "previous_desktop_release": "22703ca5c0b4e800acd2f1b1903514577f00a33e",
     "reference_history_installer": "f3b28acdc2d2abc77813376445616b200fd3b609",
@@ -2604,8 +2605,8 @@
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_nurarihyon/learning_conscience.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
-      "sha256": "fe1b1e3ac0a617f390f0674aa54db05a496e181301ed583b5e393a2f0d52639a",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Reuse only the current admission reconstruction to avoid a second folded-packet rebuild; final native validation remains mandatory.",
+      "sha256": "e2aa1fb28487c7130ef6fb765985bf032b363f385793d594ae3f50cfa3d8335a",
       "source_sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9"
     },
     {

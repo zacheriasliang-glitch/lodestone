@@ -91,10 +91,26 @@ class PracticeVoxelTests(unittest.TestCase):
             provider=lambda packet: {"status":"FAILED", "response":"actual incomplete return", "observation":{}})
         self.loom.correct(first["outcome_handle"], author="Fixture", correction="Measure before choosing.")
         seen = []
+        def provide(packet):
+            seen.append(deepcopy(packet))
+            reference = json.loads(packet["context"])
+            projection = lc.expand_learning_projection(reference["learning_context"])
+            prepared = self.memory.read_prepared(projection["run_handle"])
+            with patch.object(lc, "validate_practice_packet", wraps=lc.validate_practice_packet) as rebuild:
+                verdict = assess(self.memory, prepared, packet)
+                self.assertIn(verdict["context_delivery"], ("RULE_FOLDED_NATIVE_READER_PROJECTION",
+                                                           "RULE_DEPARTED_NATIVE_READER_PROJECTION"))
+                self.assertEqual(verdict["verdict"], "ALLOW")
+                self.assertEqual(rebuild.call_count, 1)
+                reference["voxel"] = "{}"
+                changed = dict(packet, context=canonical(reference).decode())
+                changed["context_sha256"] = hashlib.sha256(changed["context"].encode()).hexdigest()
+                self.assertEqual(assess(self.memory, prepared, changed)["verdict"], "REFUSE")
+                self.assertEqual(rebuild.call_count, 2)
+            return "scripted return"
         result = self.loom.run(encounter=self.encounter, purpose=self.purpose, reader="Scripted fixture",
-            voxel=self.voxel, history_window=1,
-            provider=lambda packet: seen.append(deepcopy(packet)) or "scripted return")
-        self.assertEqual(result["status"], "COMPLETED")
+            voxel=self.voxel, history_window=1, provider=provide)
+        self.assertEqual(result["status"], "COMPLETED", self.memory.read_outcome(result["outcome_handle"]))
         self.assertEqual(result["semantic_learning"], "NOT_ESTABLISHED")
         self.assertFalse(result["weight_update"])
         body = json.loads(seen[0]["context"])
