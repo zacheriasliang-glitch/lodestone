@@ -17,9 +17,11 @@ on:
       - 'desktop/**'
       - 'tests/desktop/**'
       - 'tests/desktop_gui/**'
+      - 'tests/desktop_gui_linux/**'
       - 'tools/desktop_portable_check.py'
       - 'tools/desktop_mechanical_check.py'
       - 'tools/desktop_prior_evidence.py'
+      - 'tools/desktop_release_evidence.py'
       - '.github/workflows/desktop-portable.yml'
 
 permissions:

@@ -14,7 +14,7 @@ Actions cache or artifact-storage upload. The workflow runs these checks:
 
 1. Validate exported source, dependency custody, native storage/process behavior
    and scripted practice retention. Scripted responses are identified as fixtures.
-2. Build a deterministic source-complete ZIP, check its digest, extract it into
+2. Build a source-complete ZIP with canonical metadata, check its digest, extract it into
    a new directory without Git metadata, and run its normal installer.
 3. Bind the installed files and selected dependency lock to that archive and
    the exact checked-out source commit.
@@ -85,3 +85,28 @@ repository. The combined desktop distribution is GPL-2.0-only; its separately
 attributed runtime remains MIT. See [third-party notices](../../desktop/THIRD_PARTY.md).
 Pinned external runtimes and model files are downloaded during setup under their
 own licenses; private lab research and user records are not bundled.
+
+## Assemble a release verification record
+
+The public `tools/desktop_release_evidence.py` tool validates the three recovered
+native bundles against the exact source commit and their retained ZIP bytes. It
+refuses mechanical-only runs, failed or missing steps, mismatched source files,
+missing correction delivery and incomplete Windows process-ownership evidence.
+It does not run a model or access the network. Run it from the source checkout:
+
+```sh
+python3 -B tools/desktop_release_evidence.py \
+  --source . --expected-commit "<exact release commit>" \
+  --target macos-x86_64 mac-evidence mac-evidence/download/BUILD.json \
+    mac-evidence/download/Lodestone-Desktop-0.4.0-preview.6-macos-x86_64.zip "<Mac job URL>" \
+  --target ubuntu-24.04-x86_64 linux-evidence linux-evidence/download/BUILD.json \
+    linux-evidence/download/Lodestone-Desktop-0.4.0-preview.6-ubuntu-24.04-x86_64.zip "<Linux job URL>" \
+  --target windows-x86_64 windows-evidence windows-evidence/download/BUILD.json \
+    windows-evidence/download/Lodestone-Desktop-0.4.0-preview.6-windows-x86_64.zip "<Windows job URL>" \
+  --output RELEASE_VERIFICATION.json
+```
+
+Supply completed jobs from the same manual workflow run. The output file must be
+new. This checks byte bindings and recorded outcomes; reviewers must also verify
+the linked public run, exact commit and job completion on GitHub. It is not a
+cryptographic attestation from GitHub.

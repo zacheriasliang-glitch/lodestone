@@ -29,7 +29,7 @@ TARGETS = {"macos-x86_64": "darwin", "ubuntu-24.04-x86_64": "linux", "windows-x8
 SOURCE_TESTS = ("test_portable_process.py", "test_portable_storage.py", "test_platform_install.py",
                 "test_portable_ci.py", "test_tokenizer_dependencies.py", "test_decision_format.py",
                 "test_dependencies.py", "test_build.py", "test_dependency_custody.py", "test_dependency_archives.py", "test_windows_bootstrap.py",
-                "test_mechanical_preview.py")
+                "test_mechanical_preview.py", "test_release_evidence.py")
 # Real local record publication, retained correction delivery, practice route
 # options and full-history preservation with scripted providers; no model calls.
 SOURCE_TESTS += ("test_linux_command_fence.py", "test_smoke_evidence.py", "test_learning_archive_custody.py", "test_decision_retention.py",
