@@ -218,11 +218,17 @@ def run(argv, *, workspace, readable):
         api.check(k.SetInformationJobObject(job, 9, c.byref(limits), c.sizeof(limits)))
 
         capabilities = Capabilities(sid_pointer, None, 0, 0)
-        duplicates = []
-        for standard in (-10, -11, -12):
+        import msvcrt
+        duplicates, null_streams = [], []
+        for standard, mode in ((-10, "rb"), (-11, "wb"), (-12, "wb")):
             copied = w.HANDLE()
             source = k.GetStdHandle(standard & 0xFFFFFFFF)
-            api.check(source and source != c.c_void_p(-1).value)
+            if not source or source == c.c_void_p(-1).value:
+                # A launcher started without this stream (for example by a
+                # service) gives the child the null device, never a stale handle.
+                stream = open(os.devnull, mode)
+                null_streams.append(stream)
+                source = msvcrt.get_osfhandle(stream.fileno())
             api.check(k.DuplicateHandle(k.GetCurrentProcess(), source, k.GetCurrentProcess(),
                                         c.byref(copied), 0, True, 2))
             duplicates.append(copied.value)
@@ -265,6 +271,8 @@ def run(argv, *, workspace, readable):
                 k.DeleteProcThreadAttributeList(attributes)
             for handle in duplicates:
                 k.CloseHandle(handle)
+            for stream in null_streams:
+                stream.close()
         k.WaitForSingleObject(process, 0xFFFFFFFF)
         code = w.DWORD()
         api.check(k.GetExitCodeProcess(process, c.byref(code)))
