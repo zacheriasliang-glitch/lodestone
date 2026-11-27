@@ -177,13 +177,13 @@
     "gui/basilisk/logger.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/logger.py",
-      "sha256": "5756c86a50c97746a8473d77082aff27dedd215e0e595dbc276cad5e540c7e31",
+      "sha256": "aa2c2bcfacd3461e9029f9c788273eeacabab4b374715e66341348f698197d84",
       "source_sha256": "5756c86a50c97746a8473d77082aff27dedd215e0e595dbc276cad5e540c7e31"
     },
     "gui/basilisk/main_app.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/main_app.py",
-      "sha256": "56c12447c9b6c825c851a69099d57afdecbd477dd163093d2524ba0aab6b8776",
+      "sha256": "cbcc2ef3e5e1db864fa0e1306934f7a099117f507f1d455e92e0ca3def9a5ab9",
       "source_sha256": "56c12447c9b6c825c851a69099d57afdecbd477dd163093d2524ba0aab6b8776"
     },
     "gui/basilisk/message_segment_manager.py": {
@@ -2470,14 +2470,20 @@
     }
   },
   "implementation_commits": {
+    "gui_frame_timer_lifetime": "2624d992c7df92457f1a4cc138f873099ac8a87a",
+    "gui_migration_engine_lifetime": "70377a70bb9291474112193b335e67dfdb7f5a50",
+    "gui_nonmodal_diagnostics": "d9defb2182255a6a59d06b8d892d078593ddc5d9",
     "isolation_fail_closed": "51fd3b577a9fe2da8d73b26337a2337c4ca01286",
+    "linux_gui_prerequisites": "87cdfc8b5e562938eaca6d6085729fadfd234db2",
     "linux_optional_command_fence": "9c0a9bb3a6259378710f60596f29264d43eaf525",
     "native_reference_history": "40e6672dd3403bae357345d7eb3016dd075e660d",
+    "portable_archive_metadata": "e67c8fbf618ff9066d12c88dd641f414b37d935f",
     "portable_captured_archive": "0312c378b5ed498bd8d9757e498fef3c0da15422",
     "portable_installer": "93217426f4db532166ca26e6d55604a5f2eb9027",
     "portable_native_ci": "5bd383a2d80ff8c5d05bff4c01df536350f3281d",
     "portable_process": "35b2754ec1235c2205aba78f3cee3034c9788752",
     "portable_process_review_fix": "6fe42109ddde02a7d9dce05f799214d7c1a01c34",
+    "portable_smoke_receipt_preservation": "4f0c98f87cd7de1bbcb9f0b9a1682ac215a0593b",
     "portable_storage": "ea699f4f255aaf167b4daefc54d3242f7ad1a233",
     "portable_storage_path_work": "fe0cdadae5a33902db94c8c85b86bb2418e1d28a",
     "practice_voxel_admission_reuse": "ab51ab797878784a942a4e8d87d4f063fbcc0121",
@@ -2489,6 +2495,7 @@
     "windows_batch_bytes": "0369bcbd0963579324abc51ff41e923b7981de6b",
     "windows_directory_custody_review": "2812c20c90a4d5bcd8cbf96bbb131b6f9ce32a16",
     "windows_file_timestamp_contract": "da26134b75de18d0fdf49822dd3c930ad4b009f9",
+    "windows_gui_wait_and_status": "6aa49ce5b39d6c43aad0cdb93ce39e15be96d0f2",
     "windows_job_membership_evidence": "a4b8b897234c4f481c19f4caac97c1f060fb740d",
     "windows_visible_bootstrap": "1bd796fb852d902b7f19241ef5a0def3b6a23fad"
   },
@@ -2765,15 +2772,27 @@
     },
     {
       "path": "gui/basilisk/res/alembic/env.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "reason": "Dispose the dedicated migration engine after success or failure so SQLite handles do not outlive migration and block native Windows file custody.",
       "sha256": "fe98e3b284658ca6a23810a054e9751f3abc49f00f7f025268ff5eae629c926a",
       "source_sha256": "3f1cfe2027d6c0dfc608ad0c910dca806496cb1ac4949e2177ef1df76e0475c3"
     },
     {
       "path": "gui/basilisk/views/main_frame.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets. Stop and detach each frame-owned timer before native window destruction so a surviving modal loop cannot dispatch to a deleted frame.",
       "sha256": "2d0cb39d62cd185b609adc1990e80f1d39c99704867ad169c6c1961db2d6359e",
       "source_sha256": "19dc9d5d2664df73bdd90f859d70bcf8c7a79d29f1492454f31ba09e21ce3567"
+    },
+    {
+      "path": "gui/basilisk/logger.py",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "sha256": "aa2c2bcfacd3461e9029f9c788273eeacabab4b374715e66341348f698197d84",
+      "source_sha256": "5756c86a50c97746a8473d77082aff27dedd215e0e595dbc276cad5e540c7e31"
+    },
+    {
+      "path": "gui/basilisk/main_app.py",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "sha256": "cbcc2ef3e5e1db864fa0e1306934f7a099117f507f1d455e92e0ca3def9a5ab9",
+      "source_sha256": "56c12447c9b6c825c851a69099d57afdecbd477dd163093d2524ba0aab6b8776"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"

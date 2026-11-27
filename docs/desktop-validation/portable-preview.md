@@ -75,6 +75,11 @@ identity must agree. After publication, download each public asset and verify
 its digest again. Dispatch acceptance, a green unrelated workflow, a source
 hash or an existing installation alone cannot establish release readiness.
 
+The envelope also retains the exact native-built ZIP, `BUILD.json` and checksum
+sidecar under `download/`. Publish those tested ZIP bytes. Archive metadata is
+canonical, but recompressing on another Python/zlib toolchain may change the ZIP
+digest even when every extracted source file is identical.
+
 The complete product source and its changes are available in the public GitHub
 repository. The combined desktop distribution is GPL-2.0-only; its separately
 attributed runtime remains MIT. See [third-party notices](../../desktop/THIRD_PARTY.md).

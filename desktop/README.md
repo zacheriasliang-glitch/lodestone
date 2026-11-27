@@ -103,6 +103,8 @@ absolute local-drive paths.
 To reopen the installed application, press **Win+R**, enter `shell:programs`, and
 open **Lodestone Preview.cmd** in that folder. This uses the installed launcher
 directly and does not depend on Start-menu search or pinning.
+This preview's Windows launcher keeps a console window open alongside the GUI.
+Quit through the application's menu or main window so it can save normally.
 
 **Advanced PowerShell route:** the same pinned setup remains available as
 `powershell.exe -NoProfile -File ".\Install Lodestone.ps1"`, with `-Root`, `-App`,
