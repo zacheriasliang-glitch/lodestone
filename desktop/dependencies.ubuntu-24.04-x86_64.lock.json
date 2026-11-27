@@ -564,7 +564,7 @@
           "sha256": "d55053324924fdcf762573a8693c470b0e9c8c71acb0048c40f1165db79176ee",
           "size": 179644676,
           "url": "https://github.com/wxWidgets/Phoenix/releases/download/wxPython-4.3.2/wxpython-4.3.2%2Bubuntu2404-cp314-cp314-linux_x86_64.whl",
-          "version": "4.3.2+ubuntu2404"
+          "version": "4.3.2"
         }
       ]
     },

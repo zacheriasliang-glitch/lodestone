@@ -28,7 +28,7 @@ import desktop_prior_evidence as evidence_format
 TARGETS = {"macos-x86_64": "darwin", "ubuntu-24.04-x86_64": "linux", "windows-x86_64": "win32"}
 SOURCE_TESTS = ("test_portable_process.py", "test_portable_storage.py", "test_platform_install.py",
                 "test_portable_ci.py", "test_tokenizer_dependencies.py", "test_decision_format.py",
-                "test_dependencies.py", "test_build.py", "test_dependency_custody.py", "test_dependency_archives.py",
+                "test_dependencies.py", "test_build.py", "test_dependency_custody.py", "test_dependency_archives.py", "test_windows_bootstrap.py",
                 "test_mechanical_preview.py")
 READERS = {"LODESTONE_OLD_GUI_SOURCE": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
            "LODESTONE_PREVIOUS_GUI_SOURCE": "655fa55672a4c3ae2d0284da881921b7bed97c78"}

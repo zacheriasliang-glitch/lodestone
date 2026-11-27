@@ -18,7 +18,8 @@ TARGETS = {
 ROOT_FILES = ("install.py", "run_loom.py", "bootstrap_learning.py", "dependencies.py",
               "dependencies.lock.json", "dependencies.ubuntu-24.04-x86_64.lock.json",
               "dependencies.windows-x86_64.lock.json", "platform_support.py",
-              "Install Lodestone.command", "Install Lodestone.sh", "Install Lodestone.ps1", "README.md",
+              "Install Lodestone.command", "Install Lodestone.sh", "Install Lodestone.ps1",
+              "Install Lodestone.cmd", "README.md",
               "THIRD_PARTY.md", "SOURCE_PROVENANCE.json", "LICENSE", "smoke.py",
               "build.py", "verify_payload.py")
 

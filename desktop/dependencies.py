@@ -286,7 +286,7 @@ def _install_environment(name: str, spec: dict, python: Path, uv: Path,
         "import importlib.metadata as m,json,re; print(json.dumps({re.sub(r'[-_.]+','-',d.metadata['Name']).lower():d.version for d in m.distributions()}))"], root))
     expected = {wheel["name"]: wheel["version"] for wheel in spec["wheels"]}
     if actual != expected:
-        raise ValueError("Installed package versions differ from the complete dependency lock")
+        raise ValueError("Installed package versions differ from the complete dependency lock: " + name + " " + json.dumps({key: {"expected": expected.get(key), "actual": actual.get(key)} for key in sorted(set(actual) | set(expected)) if actual.get(key) != expected.get(key)}, sort_keys=True))
     return venv_python(env_path)
 
 
