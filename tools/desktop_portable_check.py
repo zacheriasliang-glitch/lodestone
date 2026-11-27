@@ -35,7 +35,7 @@ SOURCE_TESTS = (
     "test_learning_archive_custody.py", "test_decision_retention.py", "test_practice_selection.py", "test_practice_voxels.py",
     "test_reader_history_window.py", "test_windows_path_budget.py", "test_windows_preflight.py", "test_windows_policy_check.py",
     "test_portable_operations.py", "test_portable_readers.py", "test_curated_handoff.py", "test_windows_review_custody.py",
-    "test_portable_bezoar.py", "test_catalogue_bezoar.py", "test_portable_inference_skill.py", "test_portable_release_reader.py",
+    "test_portable_bezoar.py", "test_catalogue_bezoar.py", "test_catalogue_routes.py", "test_portable_inference_skill.py", "test_portable_release_reader.py",
     "test_portable_local_memory.py", "test_portable_continuity.py", "test_portable_repository.py", "test_portable_pando.py",
 )
 

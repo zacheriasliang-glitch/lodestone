@@ -2723,7 +2723,7 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_operations.py",
-      "reason": "Own explicit trusted catalogue subprocesses with Windows Jobs or POSIX process groups, bounded output and elapsed time; preserve Windows path aliases for custody checks and enable only reviewed operation dependencies. No filesystem/network confinement claim.",
+      "reason": "Own explicit trusted catalogue subprocesses with Windows Jobs or POSIX process groups, bounded output and elapsed time; preserve selected Windows names for native custody; expose only the sixteen reviewed catalogue closures and disclose notebook read-lock metadata. Job ownership is not filesystem/network confinement.",
       "sha256": "220360b97a15e6adb223b1624a0abda3676295fd481f51a944d650a31ec4fe90",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
@@ -2849,7 +2849,7 @@
     },
     {
       "path": "runtime/tools/ecosystem/cli.py",
-      "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
+      "reason": "Dispatch the reviewed native Bezoar ingest/show, catalogue readers and Pando init/verify closures with explicit local state; preserve selected Windows names before custody checks and retain unsupported-route refusals.",
       "sha256": "483a8ed0bc615f100015c2982c3dac8126ea656d3224bac99a7e24e4f5ac1a06",
       "source_sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e"
     },
