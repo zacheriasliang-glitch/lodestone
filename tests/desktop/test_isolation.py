@@ -43,6 +43,7 @@ class Simulated:
 
 
 class FenceSelectionTests(unittest.TestCase):
+    @unittest.skipUnless(os.name == "posix", "Seatbelt profiles express POSIX paths")
     def test_macos_selects_seatbelt_and_keeps_the_exact_earlier_invocation(self):
         with Simulated(*simulated("darwin", {"sandbox-exec": "/usr/bin/sandbox-exec"})):
             fence = isolation.fence()
@@ -146,6 +147,7 @@ class RefusalTests(unittest.TestCase):
             with self.assertRaises(isolation.FenceUnavailable):
                 loom_garden.sandboxed(["/bin/echo"], "/tmp", "/tmp")
 
+    @unittest.skipUnless(os.name == "posix", "Seatbelt profiles express POSIX paths")
     def test_garden_trial_records_the_fence_kind(self):
         with Simulated(*simulated("darwin", {"sandbox-exec": "/usr/bin/sandbox-exec"})):
             argv, kind = loom_garden.sandboxed(["/bin/echo"], "/tmp", "/tmp")

@@ -126,6 +126,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: AppContainer launcher diagnostic (shows any setup refusal)
+        shell: pwsh
+        run: |
+          $ws = Join-Path $env:RUNNER_TEMP 'fence-diagnostic'
+          New-Item -ItemType Directory -Force -Path $ws | Out-Null
+          python -I -B desktop/runtime/src/lodestone_machinery/windows_appcontainer.py --workspace $ws -- "$env:SystemRoot\System32\cmd.exe" /c "echo inside & exit 0"
+          Write-Output "launcher exit: $LASTEXITCODE"
       - name: Real AppContainer confinement and cleanup (required, not skipped)
         env:
           LODESTONE_REQUIRE_APPCONTAINER: '1'
