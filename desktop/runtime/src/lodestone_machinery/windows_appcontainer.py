@@ -8,9 +8,11 @@ outside the container so callers keep their ordinary argv/stdio contract:
 Each run creates a uniquely named AppContainer profile with no capabilities
 (no network, no loopback), grants that container's SID modify access to the
 workspace and read/execute access to the declared paths, starts the command
-suspended inside the container and inside a kill-on-close Job, resumes it, waits,
-and returns its exit code. Afterwards the grants are removed and the profile is
-deleted. Anything that cannot be set up is refused; nothing runs unconfined.
+suspended inside the container and inside a kill-on-close Job, resumes it, and
+retains observed descendant handles while waiting. Grants and profile cleanup
+require signaled process handles covering the Job's full lifetime accounting.
+Unobserved descendants or incomplete termination retain the recovery journal
+and refuse cleanup; closing a Job handle alone is not completion. Anything that cannot be set up is refused; nothing runs unconfined.
 
 Limits, stated: programs inside the container may start further programs inside
 the same container (recorded as DECLARED, not ENFORCED); Windows system
@@ -364,13 +366,56 @@ def _delete_profile(api, name):
     return result in (0, 0x80070002, 0x80070490)  # deleted, or already absent
 
 
+def _completion_recorded(entries):
+    """Replay ordered journal states; a later possible process revokes proof."""
+    if (not entries or not all(isinstance(entry, dict) for entry in entries)
+            or "profile" not in entries[0]
+            or entries[0].get("initial_process_state") != "not_started"):
+        return False  # Legacy/malformed journals cannot establish no execution.
+    state = "not_started"
+    for index, entry in enumerate(entries):
+        if index and ("profile" in entry or "initial_process_state" in entry):
+            return False
+        markers = [key for key in ("process_may_exist", "completion_confirmed", "completion_unconfirmed")
+                   if key in entry]
+        if len(markers) > 1 or any(entry[key] is not True for key in markers):
+            return False
+        if markers:
+            marker = markers[0]
+            if marker == "process_may_exist":
+                state = "unconfirmed"
+            elif marker == "completion_confirmed":
+                if state != "unconfirmed":
+                    return False
+                state = "confirmed"
+            else:
+                state = "unconfirmed"
+    return state in ("not_started", "confirmed")
+
+
+def _completion_tracker(job, process, pid):
+    # The launcher runs with -I, which intentionally removes its source folder
+    # from sys.path. Load only the sibling shipped with this verified runtime.
+    import importlib.util
+    path = Path(__file__).with_name("portable_process.py")
+    spec = importlib.util.spec_from_file_location("lodestone_fence_completion", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.WindowsJobCompletion(job, process, pid, require_complete_history=True)
+
+
 def _sweep(api):
     """Returns how many interrupted runs remain unrecovered (their journals kept)."""
     unresolved = 0
     security = _Security(api)
     for journal in sorted(_ledger_directory().glob(PREFIX + "*.journal")):
         entries = _Journal.entries(journal)
-        header = next((e for e in entries if "profile" in e), {})
+        if not _completion_recorded(entries):
+            unresolved += 1
+            print("Fence recovery kept " + journal.name +
+                  ": process completion is unconfirmed; ACL/profile cleanup requires inspection", file=sys.stderr)
+            continue
+        header = entries[0]
         sid = next((e["sid"] for e in entries if "sid" in e), None)
         unconfirmed = _undo(security, list(entries), sid)
         name = header.get("profile", "")
@@ -412,10 +457,66 @@ def run(argv, *, workspace, readable):
         return _run_locked(api, c, w, k, argv, workspace, readable)
 
 
+def _finish_run(api, *, job, process, resumed, completion, journal, entries, sid,
+                name, sid_pointer, process_may_exist):
+    c, k = api.c, api.kernel
+    # Preserve the primary setup/run exception. Cleanup failures remain
+    # recorded and cannot turn uncertain process completion into success.
+    clean, complete, stop = False, process is None, {"no_process_created": process is None}
+    try:
+        if completion is not None:
+            stop = completion.stop()
+            complete = stop.get("confirmed_stopped") is True
+        elif process:
+            # Create succeeded but assignment/tracker setup failed while
+            # the primary thread remained suspended: no child code ran.
+            terminated = k.TerminateProcess(process, 1)
+            termination_error = None if terminated else c.get_last_error()
+            state = k.WaitForSingleObject(process, 6000)
+            complete = not resumed and state == 0
+            stop = {"suspended_process_signaled": state == 0, "wait_result": state,
+                    "termination_requested": bool(terminated)}
+            if termination_error is not None:
+                stop["termination_winerror"] = termination_error
+        if complete and process_may_exist:
+            entries.append({"completion_confirmed": True, "completion": stop})
+            journal.append(entries[-1])
+        elif not complete:
+            journal.append({"completion_unconfirmed": True, "completion": stop})
+    except BaseException as cleanup_error:
+        complete = False
+        print("Windows fence process completion unconfirmed: " + type(cleanup_error).__name__, file=sys.stderr)
+    finally:
+        if completion is not None:
+            completion.close()  # Private pins only; Job/root are borrowed.
+        if process:
+            k.CloseHandle(process)
+        if job:
+            k.CloseHandle(job)  # Termination fallback, never completion proof.
+    try:
+        if complete:
+            inject = os.environ.get("LODESTONE_FENCE_TEST_FAIL_RESTORE") == "1"
+            unconfirmed = _undo(_Security(api), list(entries), sid, inject_failure=inject)
+            deleted = _delete_profile(api, name)
+            clean = not unconfirmed and deleted
+    except BaseException as cleanup_error:
+        print("Windows fence ACL/profile cleanup unconfirmed: " + type(cleanup_error).__name__, file=sys.stderr)
+    finally:
+        api.advapi.FreeSid(sid_pointer)
+        journal.close()
+    if clean:
+        try:
+            (_ledger_directory() / (name + ".journal")).unlink()
+        except OSError as cleanup_error:
+            clean = False
+            print("Windows fence journal cleanup unconfirmed: " + type(cleanup_error).__name__, file=sys.stderr)
+    return clean
+
+
 def _run_locked(api, c, w, k, argv, workspace, readable):
     name = PREFIX + uuid.uuid4().hex
     journal = _Journal(_ledger_directory() / (name + ".journal"), create=True)
-    entries = [{"profile": name}]
+    entries = [{"profile": name, "initial_process_state": "not_started"}]
     journal.append(entries[0])
     sid_pointer = c.c_void_p()
     result = api.userenv.CreateAppContainerProfile(name, name, "Lodestone per-run command fence", None, 0,
@@ -425,6 +526,7 @@ def _run_locked(api, c, w, k, argv, workspace, readable):
         (_ledger_directory() / (name + ".journal")).unlink()
         raise OSError("CreateAppContainerProfile failed: HRESULT 0x%08x" % (result & 0xFFFFFFFF))
     job, process, sid, code = None, None, None, None
+    completion, resumed, process_may_exist = None, False, False
     crash_after = os.environ.get("LODESTONE_FENCE_TEST_CRASH_AFTER_FIRST_GRANT") == "1"
     try:
         text = w.LPWSTR()
@@ -530,15 +632,25 @@ def _run_locked(api, c, w, k, argv, workspace, readable):
                         "HOME": str(workspace), "PYTHONDONTWRITEBYTECODE": "1"})
             block = c.create_unicode_buffer("\x00".join(key + "=" + value for key, value in
                                             sorted(env.items(), key=lambda row: row[0].upper())) + "\x00")
+            # Persist before even a suspended profile-bearing process exists.
+            entries.append({"process_may_exist": True})
+            journal.append(entries[-1])
+            process_may_exist = True
             # SUSPENDED | UNICODE_ENVIRONMENT | EXTENDED_STARTUPINFO_PRESENT
             api.check(k.CreateProcessW(str(argv[0]), c.create_unicode_buffer(subprocess.list2cmdline(argv)),
                                        None, None, True, 0x4 | 0x400 | 0x80000, block, str(workspace),
                                        c.byref(startup), c.byref(info)))
             process = info.hProcess
             api.check(k.AssignProcessToJobObject(job, process))
+            completion = _completion_tracker(job, process, info.dwProcessId)
             if k.ResumeThread(info.hThread) == 0xFFFFFFFF:
                 raise c.WinError(c.get_last_error())
+            resumed = True
         finally:
+            # CreateProcessW may have returned a real suspended handle before
+            # an intervening exception prevented the ordinary assignment.
+            if not process and info.hProcess:
+                process = info.hProcess
             if info.hThread:
                 k.CloseHandle(info.hThread)
             if initialized:
@@ -547,27 +659,21 @@ def _run_locked(api, c, w, k, argv, workspace, readable):
                 k.CloseHandle(handle)
             for stream in null_streams:
                 stream.close()
-        k.WaitForSingleObject(process, 0xFFFFFFFF)
-        exit_code = w.DWORD()
-        api.check(k.GetExitCodeProcess(process, c.byref(exit_code)))
-        code = exit_code.value
+        while True:
+            completion.observe_members()
+            try:
+                code = completion.wait(timeout=.02)
+                break
+            except subprocess.TimeoutExpired:
+                continue
     except BaseException:
         if process:
             k.TerminateProcess(process, 1)
         raise
     finally:
-        if process:
-            k.CloseHandle(process)
-        if job:
-            k.CloseHandle(job)  # kill-on-close: no descendant outlives the run
-        inject = os.environ.get("LODESTONE_FENCE_TEST_FAIL_RESTORE") == "1"
-        unconfirmed = _undo(_Security(api), list(entries), sid, inject_failure=inject)
-        api.advapi.FreeSid(sid_pointer)
-        deleted = _delete_profile(api, name)
-        journal.close()
-        clean = not unconfirmed and deleted
-        if clean:
-            (_ledger_directory() / (name + ".journal")).unlink()
+        clean = _finish_run(api, job=job, process=process, resumed=resumed, completion=completion,
+                            journal=journal, entries=entries, sid=sid, name=name,
+                            sid_pointer=sid_pointer, process_may_exist=process_may_exist)
     if not clean:
         print("Windows fence cleanup unconfirmed (command exit code %s); recovery journal kept" % code,
               file=sys.stderr)
