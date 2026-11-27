@@ -1,8 +1,8 @@
 """Local file custody with native POSIX and Windows implementations.
 
 Windows uses real kernel handles: every ancestor is opened without reparse
-traversal and held without write/delete sharing. Regular reads likewise deny
-write/delete sharing. Publication flushes a sibling temporary and uses a
+traversal and held without delete sharing. Regular reads deny write/delete
+sharing. Publication flushes a sibling temporary and uses a
 same-volume MoveFileExW(MOVEFILE_WRITE_THROUGH), without a copy fallback.
 There is deliberately no fake Windows directory fsync: callers must publish
 through durable_write or explicitly handle UnsupportedDurability.
@@ -94,7 +94,10 @@ if WINDOWS:
 
     def _win_open(path, *, directory=False, flags=os.O_RDONLY, lock=False):
         if directory:
-            access, sharing, disposition = 0x80, 1, 3  # READ_ATTRIBUTES, SHARE_READ, OPEN_EXISTING
+            # Attribute-only access is exempt from share-access accounting.
+            # LIST_DIRECTORY | TRAVERSE | READ_ATTRIBUTES pins the directory
+            # against rename; child writes remain possible with SHARE_READ|WRITE.
+            access, sharing, disposition = 0xA1, 3, 3
         else:
             access = 0x80000000 if flags & os.O_RDWR == 0 and flags & os.O_WRONLY == 0 else 0xC0000000
             sharing = 3 if lock else 1  # lock holders must allow other lock handles
@@ -182,6 +185,13 @@ def _directory(path, *, create=False, cache=False, reuse=True):
             registered = result
             held.append(registered)
         yield result
+        if WINDOWS:
+            for handle in opened:
+                info = _Information()
+                if not _kernel.GetFileInformationByHandle(handle, ctypes.byref(info)):
+                    raise _win_error(path)
+                if info.attributes & 0x400 or not info.attributes & 0x10:
+                    raise ValueError("Guarded directory became a reparse point")
         for ancestor, part, before in relations:
             after = os.stat(part, dir_fd=ancestor, follow_symlinks=False)
             if is_alias(after) or (before.st_dev, before.st_ino) != (after.st_dev, after.st_ino):

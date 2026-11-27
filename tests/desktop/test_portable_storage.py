@@ -20,6 +20,7 @@ from lodestone_nurarihyon import portable_files as files
 from lodestone_nurarihyon.common import BusyError, file_lock
 from lodestone_machinery.records import RecordStore
 from lodestone_machinery import loom_adapter_local as model
+from desktop import platform_support as installer_files
 
 
 class PortableStorage(unittest.TestCase):
@@ -73,6 +74,46 @@ with file_lock(sys.argv[2]):
         with file_lock(lock, timeout=5):
             pass
         self.assertEqual(lock.read_bytes(), original)
+
+    def test_installer_and_runtime_locks_contend_on_the_same_byte_and_release(self):
+        # Both implementations cover byte 0, length 1 on Windows (LockFileEx
+        # and msvcrt.locking). POSIX uses flock in both implementations.
+        for backend in ("installer", "runtime"):
+            with self.subTest(backend=backend):
+                lock, marker = self.root / (backend + ".lock"), self.root / (backend + ".ready")
+                process = self.child('''
+import time
+from pathlib import Path
+sys.path.insert(0, sys.argv[4])
+if sys.argv[5] == 'installer':
+ from platform_support import file_lock
+else:
+ from lodestone_nurarihyon.common import file_lock
+with file_lock(sys.argv[2]):
+ Path(sys.argv[3]).write_text('ready')
+ time.sleep(60)
+''', lock, marker, ROOT / "desktop", backend)
+                self.wait_ready(process, marker)
+                other = file_lock if backend == "installer" else installer_files.file_lock
+                expected = BusyError if backend == "installer" else BlockingIOError
+                with self.assertRaises(expected):
+                    with other(lock):
+                        self.fail("Installer and runtime locks did not exclude each other")
+                process.kill()
+                process.communicate(timeout=15)
+                with other(lock):
+                    pass
+                self.assertEqual(lock.stat().st_size, 0)
+
+    def test_guarded_directory_allows_durable_publication(self):
+        directory = files.ensure_directory(self.root / "guarded")
+        with files.guarded_directory(directory):
+            files.durable_write(directory / "record", b"first")
+            files.durable_write(directory / "record", b"second", replace=True)
+            nested = files.ensure_directory(directory / "nested")
+            files.durable_write(nested / "record", b"child")
+            self.assertEqual(files.read_bytes(directory / "record"), b"second")
+            self.assertEqual(files.read_bytes(nested / "record"), b"child")
 
     def test_atomic_publish_preserves_existing_and_flush_failure_preserves_old_bytes(self):
         path = self.root / "record"

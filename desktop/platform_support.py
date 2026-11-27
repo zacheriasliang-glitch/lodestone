@@ -108,10 +108,11 @@ if os.name == "nt":
     _kernel.MoveFileExW.restype = wintypes.BOOL
 
     def _open_windows(path, *, directory=False, read_only=False):
-        # Directory handles omit WRITE and DELETE sharing: neither a junction
-        # rewrite nor a rename can redirect a descendant while the lease is held.
-        handle = _kernel.CreateFileW(str(path), 0x80 if directory else (0x80000000 if read_only else 0xC0000000),
-                    1 if directory or read_only else 3, None, 3 if directory or read_only else 4,
+        # LIST_DIRECTORY participates in Windows share accounting; attribute-only
+        # access does not. Omit DELETE sharing to pin names, while allowing child
+        # creation/writes. Reparse attributes are checked on the native handle.
+        handle = _kernel.CreateFileW(str(path), 0xA1 if directory else (0x80000000 if read_only else 0xC0000000),
+                    1 if read_only else 3, None, 3 if directory or read_only else 4,
                     0x02200000 if directory else 0x00200000, None)
         if handle == ctypes.c_void_p(-1).value:
             raise ctypes.WinError(ctypes.get_last_error())
@@ -142,6 +143,14 @@ def guarded_directory(path, *, create=False):
                 raise ValueError("Managed parent is not a directory: " + str(item))
         check_path(path)
         yield path
+        if os.name == "nt":
+            for handle in handles:
+                info = _FileInfo()
+                if not _kernel.GetFileInformationByHandle(handle, ctypes.byref(info)):
+                    raise ctypes.WinError(ctypes.get_last_error())
+                if info.attributes & 0x400 or not info.attributes & 0x10:
+                    raise ValueError("Managed directory became a reparse point")
+        check_path(path)
     finally:
         for handle in reversed(handles):
             _kernel.CloseHandle(handle)

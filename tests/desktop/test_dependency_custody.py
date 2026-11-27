@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 from desktop import dependencies as d
 from desktop.platform_support import open_regular
+from desktop import platform_support as host
 
 
 class DependencyCustody(unittest.TestCase):
@@ -77,6 +78,21 @@ class DependencyCustody(unittest.TestCase):
         with self.assertRaises(ValueError):
             d._copy_asset(artifact, target, self.cache, offline=True)
         self.assertEqual(target.read_bytes(), b"retained damage")
+
+    def test_guarded_directory_supports_atomic_publication_and_refuses_native_rename(self):
+        directory = self.root / "guarded"
+        with host.guarded_directory(directory, create=True):
+            host.atomic_write(directory / "record", b"first", replace=False)
+            host.atomic_write(directory / "record", b"second")
+            stage = directory / "stage"
+            stage.mkdir()
+            host.atomic_write(stage / "child", b"retained")
+            host.durable_move(stage, directory / "published")
+            self.assertEqual(host.read_file(directory / "record"), b"second")
+            self.assertEqual(host.read_file(directory / "published/child"), b"retained")
+            if os.name == "nt":
+                with self.assertRaises(PermissionError):
+                    directory.rename(self.root / "redirected")
 
     def test_streaming_reader_detects_or_prevents_file_replacement(self):
         path, replacement = self.root / "first", self.root / "replacement"
