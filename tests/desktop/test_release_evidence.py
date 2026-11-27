@@ -96,6 +96,17 @@ class ReleaseEvidenceTests(unittest.TestCase):
             write("linux-gui-prerequisites/installed-gui-check.json", {
                 "schema": "lodestone-installed-gui-check/v1", "status": "PASSED",
                 "payload": str(installed), "tests": 2, "failures": 0, "errors": 0, "skipped": []})
+        if target == "windows-x86_64":
+            prior_policy = {"present": True, "type": 4, "value": 1}
+            write("windows-long-path-policy.json", {
+                "schema": "lodestone-windows-long-path-policy/v1", "status": "PASSED",
+                "source_commit": COMMIT, "release_id": release,
+                "original_policy": prior_policy, "restored_policy": prior_policy,
+                "registry_restored": True,
+                "policy_zero": {"effective_value": 0, "short_root_install": True, "doctor_ready": True,
+                                "long_root_refused_before_mutation": True},
+                "policy_one": {"deep_doctor_ready": True, "helper_explicit_yes": True, "effective_value": 1,
+                               "long_root_preflight_passed": True}})
         for number, method in ((1, "direct_gui_python"), (2, evidence.TARGETS[target][2])):
             write("gui-startup-receipt-" + str(number) + ".json", {"launch_method": method, "receipt": {
                 "schema": "lodestone-desktop-startup/v1", "release_id": release, "shown": True,
@@ -242,6 +253,31 @@ class ReleaseEvidenceTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.assemble()
         self.files[target] = {key: raw for key, raw in original.items() if key != receipt}
+        with self.assertRaises(ValueError):
+            self.assemble()
+
+    def test_windows_prerequisite_requires_actual_paths_helper_and_restored_policy(self):
+        target = "windows-x86_64"
+        filename = "windows-long-path-policy.json"
+        original = copy.deepcopy(self.files[target])
+        for change in (
+            lambda v: v.update(status="FAILED"),
+            lambda v: v.update(source_commit="d" * 40),
+            lambda v: v.update(release_id="d" * 64),
+            lambda v: v["policy_zero"].update(effective_value=1),
+            lambda v: v["policy_zero"].update(short_root_install=False),
+            lambda v: v["policy_zero"].update(long_root_refused_before_mutation=False),
+            lambda v: v["policy_one"].update(helper_explicit_yes=False),
+            lambda v: v["policy_one"].update(effective_value=0),
+            lambda v: v.update(registry_restored=False),
+            lambda v: v["restored_policy"].update(present=False, type=None, value=None),
+        ):
+            with self.subTest(change=change):
+                self.files[target] = copy.deepcopy(original)
+                self.edit(target, filename, change)
+                with self.assertRaises(ValueError):
+                    self.assemble()
+        self.files[target] = {key: raw for key, raw in original.items() if key != filename}
         with self.assertRaises(ValueError):
             self.assemble()
 

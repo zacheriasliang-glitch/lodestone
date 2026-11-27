@@ -240,6 +240,25 @@ def check_target(target, evidence_root, build_path, archive_path, job_url, commi
              and prerequisites.get("skipped") == []
              and native_path(target, prerequisites.get("payload")) == installed,
              "Linux native GUI prerequisites failed or are unbound")
+    if target == "windows-x86_64":
+        policy = read("windows-long-path-policy.json")
+        original, restored = policy.get("original_policy"), policy.get("restored_policy")
+        zero, one = policy.get("policy_zero", {}), policy.get("policy_one", {})
+        need(policy.get("schema") == "lodestone-windows-long-path-policy/v1"
+             and policy.get("status") == "PASSED" and policy.get("source_commit") == commit
+             and policy.get("release_id") == release_id,
+             "Windows prerequisite proof failed or refers to another source/release")
+        need(type(original) is dict and set(original) == {"present", "type", "value"}
+             and type(original["present"]) is bool and restored == original
+             and policy.get("registry_restored") is True,
+             "Windows prerequisite test did not restore the original registry value")
+        need(type(zero.get("effective_value")) is int and zero["effective_value"] == 0
+             and zero.get("short_root_install") is True and zero.get("doctor_ready") is True
+             and zero.get("long_root_refused_before_mutation") is True
+             and one.get("helper_explicit_yes") is True and type(one.get("effective_value")) is int
+             and one["effective_value"] == 1 and one.get("deep_doctor_ready") is True
+             and one.get("long_root_preflight_passed") is True,
+             "Windows prerequisite refusal, installation or explicit helper proof is missing")
     for number, method in ((1, "direct_gui_python"), (2, TARGETS[target][2])):
         startup = read("gui-startup-receipt-" + str(number) + ".json")
         receipt = startup.get("receipt", {})
