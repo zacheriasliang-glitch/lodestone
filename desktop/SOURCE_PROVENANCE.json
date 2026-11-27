@@ -1520,6 +1520,12 @@
       "sha256": "9766cf7cbfab93f7ed401be93750ea7ed9fda6dd7acdb2edbad766899485a214",
       "source_sha256": "9766cf7cbfab93f7ed401be93750ea7ed9fda6dd7acdb2edbad766899485a214"
     },
+    "runtime/src/lodestone_machinery/isolation.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/isolation.py",
+      "sha256": "0d769cfb1a7741093caa884f5faddcb91eb129aef1065037ef3dbedfc5017d6b",
+      "source_sha256": "0d769cfb1a7741093caa884f5faddcb91eb129aef1065037ef3dbedfc5017d6b"
+    },
     "runtime/src/lodestone_machinery/latent/__init__.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/latent/__init__.py",
@@ -1643,13 +1649,13 @@
     "runtime/src/lodestone_machinery/loom_garden.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_garden.py",
-      "sha256": "d24a663c237ffca91b52f5972c1ce9c2610f40c65983947b196ddb2f9bd914ac",
+      "sha256": "898b0a6326d33c4b123fab0399b4fd181fa6a8b73d8403d9ef4e30224630b03c",
       "source_sha256": "d24a663c237ffca91b52f5972c1ce9c2610f40c65983947b196ddb2f9bd914ac"
     },
     "runtime/src/lodestone_machinery/loom_handoff.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_handoff.py",
-      "sha256": "c3f9fb64a73f2d18a8695c217e64c8ea12407799626bc1144b175ca2ba526df5",
+      "sha256": "a69c70885f1b5e0fa3a9f3400bce6940e0af75717e05269a7e0b3ba01ba3320d",
       "source_sha256": "c3f9fb64a73f2d18a8695c217e64c8ea12407799626bc1144b175ca2ba526df5"
     },
     "runtime/src/lodestone_machinery/loom_improvement.py": {
@@ -1745,7 +1751,7 @@
     "runtime/src/lodestone_machinery/loom_training.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_training.py",
-      "sha256": "2e21db869eb200ee2f6bb6a5cf244b0d8de07f0897a26bbb218e4b58c9b66289",
+      "sha256": "3b2f6476eb402803b7686750b1068f33d0e0515ff0a7765314e41edbeea935c2",
       "source_sha256": "2e21db869eb200ee2f6bb6a5cf244b0d8de07f0897a26bbb218e4b58c9b66289"
     },
     "runtime/src/lodestone_machinery/loom_training_worker.py": {
@@ -1865,7 +1871,7 @@
     "runtime/src/lodestone_machinery/origami.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/origami.py",
-      "sha256": "519004864947824b9a5ca38d7017c774cbe4a6dcacb8dc85ae3e523a1bd30d80",
+      "sha256": "c6faacb5238ebf66d456ba289cc9e6de79305b2acb69d2930f40560b43bf9f6b",
       "source_sha256": "519004864947824b9a5ca38d7017c774cbe4a6dcacb8dc85ae3e523a1bd30d80"
     },
     "runtime/src/lodestone_machinery/origami_cli.py": {
@@ -1877,7 +1883,7 @@
     "runtime/src/lodestone_machinery/portable_process.py": {
       "origin": "lodestone-public",
       "path": "desktop/runtime/src/lodestone_machinery/portable_process.py",
-      "sha256": "418db93c9738c2aa12269604b1d3aa302accf52bc0af7c4c459f130cacb277c7",
+      "sha256": "05d3c2dc2cef15f72043d688f15dea5e3c15c91fd5bbb654eb7bbdb42a7da5f8",
       "source_sha256": "418db93c9738c2aa12269604b1d3aa302accf52bc0af7c4c459f130cacb277c7"
     },
     "runtime/src/lodestone_machinery/pressure_pair.py": {
@@ -1925,7 +1931,7 @@
     "runtime/src/lodestone_machinery/support_review_provider.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/support_review_provider.py",
-      "sha256": "4a7588c2d53a07dbc4f2950e05114bb7d91af5e40a3e31205a3c2554d230e632",
+      "sha256": "4f572c6960617689b092c9b6b358270e282c1d791ee41d12ea9ce123c83c0af4",
       "source_sha256": "4a7588c2d53a07dbc4f2950e05114bb7d91af5e40a3e31205a3c2554d230e632"
     },
     "runtime/src/lodestone_machinery/transformer.py": {
@@ -2464,10 +2470,12 @@
     }
   },
   "implementation_commits": {
+    "isolation_fail_closed": "287100bc6f5fb7267354dd303980721988a2ab84",
     "native_reference_history": "40e6672dd3403bae357345d7eb3016dd075e660d",
-    "portable_installer": "9321742",
-    "portable_process": "35b2754",
-    "portable_storage": "ea699f4",
+    "portable_installer": "93217426f4db532166ca26e6d55604a5f2eb9027",
+    "portable_process": "35b2754ec1235c2205aba78f3cee3034c9788752",
+    "portable_process_review_fix": "6fe42109ddde02a7d9dce05f799214d7c1a01c34",
+    "portable_storage": "ea699f4f255aaf167b4daefc54d3242f7ad1a233",
     "practice_voxel_admission_reuse": "ab51ab797878784a942a4e8d87d4f063fbcc0121",
     "practice_voxel_integration": "5c36f68dc5a17a1224257e0cb3adf93e5a2712e5",
     "previous_desktop_release": "22703ca5c0b4e800acd2f1b1903514577f00a33e",
@@ -2682,7 +2690,7 @@
     {
       "path": "runtime/src/lodestone_machinery/portable_process.py",
       "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "418db93c9738c2aa12269604b1d3aa302accf52bc0af7c4c459f130cacb277c7",
+      "sha256": "05d3c2dc2cef15f72043d688f15dea5e3c15c91fd5bbb654eb7bbdb42a7da5f8",
       "source_sha256": "418db93c9738c2aa12269604b1d3aa302accf52bc0af7c4c459f130cacb277c7"
     },
     {

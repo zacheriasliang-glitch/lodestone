@@ -200,8 +200,21 @@ def _provider_undeclared(roles, calls):
 
 
 def _sandbox():
-    """macOS sandbox-exec when present. None means no kernel enforcement is available here."""
-    return shutil.which("sandbox-exec") if sys.platform == "darwin" else None
+    """The kernel fence available here (see isolation), or None. None never means "run unfenced"."""
+    from .isolation import fence
+    return fence()
+
+
+def _fenced_argv(sandbox, argv, workspace, source_root, auth_path, proxy_port):
+    """Wrap argv in the fence. The macOS form is exactly the earlier Seatbelt invocation."""
+    from .isolation import SEATBELT, bwrap_argv
+    if sandbox.kind == SEATBELT:
+        profile = _profile(workspace, source_root, _program_paths(argv), auth_path, proxy_port)
+        return [sandbox.path, "-p", profile, *argv]
+    if proxy_port is not None:
+        raise ValueError("The Linux fence cannot admit only the local endpoint proxy")
+    readable = [*_program_paths(argv), Path(source_root)] + ([] if auth_path is None else [Path(auth_path)])
+    return bwrap_argv(sandbox.path, argv, workspace=workspace, readable=readable)
 
 
 def _subpath(path) -> str:
@@ -370,14 +383,18 @@ def _constraints(transport, sandboxed=False, endpoints=(), auth_path=None):
     endpoints = list(endpoints)
     auth = None if auth_path is None else str(auth_path)
     if transport == "command":
+        # ``sandboxed`` is the launching fence (or a legacy bool meaning Seatbelt).
+        launcher = getattr(sandboxed, "kind", "sandbox-exec" if sandboxed else "subprocess")
         kernel = "ENFORCED" if sandboxed else "DECLARED"
         network = kernel if not endpoints else ("ENFORCED_ENDPOINT_ONLY" if sandboxed else "DECLARED")
+        # bubblewrap confines files and network but does not deny forks inside the fence.
+        forks = kernel if launcher != "bwrap" else "DECLARED"
         return {"read_only_source_root": kernel, "workspace_only_writes": kernel, "no_network": network,
                 "no_lab_credentials": kernel, "provider_auth_path": kernel,
-                "no_further_subprocesses": kernel, "budget_stop": "ENFORCED",
+                "no_further_subprocesses": forks, "budget_stop": "ENFORCED",
                 "environment_allowlist": "ENFORCED",
                 "allowed_endpoints": endpoints, "provider_auth_path_value": auth,
-                "launcher": "sandbox-exec" if sandboxed else "subprocess"}
+                "launcher": launcher}
     return {"read_only_source_root": "DECLARED", "workspace_only_writes": "DECLARED", "no_network": "DECLARED",
             "no_lab_credentials": "ABSENT", "provider_auth_path": "ABSENT",
             "no_further_subprocesses": "DECLARED", "budget_stop": "ENFORCED",
@@ -1258,9 +1275,8 @@ class Origami:
                             "http_proxy": address, "NO_PROXY": "", "no_proxy": ""})
             argv = list(command.argv)
             if sandbox:
-                profile = _profile(self.workspace, source_root, _program_paths(argv), auth_path,
-                                   None if proxy is None else proxy.port)
-                argv = [sandbox, "-p", profile, *argv]
+                argv = _fenced_argv(sandbox, argv, self.workspace, source_root, auth_path,
+                                    None if proxy is None else proxy.port)
             # Output spools to a file inside the workspace, the one place a sandboxed provider may write.
             with tempfile.TemporaryFile(dir=self.workspace) as output:
                 done = subprocess.run(argv, input=json.dumps(request, ensure_ascii=False).encode("utf-8"),
@@ -1302,7 +1318,7 @@ class Origami:
                   "request": {"sha256": _hash(request_data), "bytes": len(request_data)},
                   "source_root_sha256": _hash(str(Path(source_root).resolve()).encode("utf-8")),
                   "workspace_sha256": _hash(str(self.workspace.resolve()).encode("utf-8")),
-                  "constraints": _constraints("command", bool(sandbox), endpoints, auth_path)}
+                  "constraints": _constraints("command", sandbox, endpoints, auth_path)}
         env = {key: os.environ[key] for key in ("PATH", "HOME", *LOCALE_KEYS) if key in os.environ}
         env.setdefault("PATH", "/usr/bin:/bin")
         proxy = _EndpointProxy(endpoints) if endpoints else None
@@ -1312,9 +1328,8 @@ class Origami:
                 env.update({"HTTPS_PROXY": address, "HTTP_PROXY": address, "https_proxy": address,
                             "http_proxy": address, "NO_PROXY": "", "no_proxy": ""})
             if sandbox:
-                profile = _profile(self.workspace, source_root, _program_paths(argv), auth_path,
-                                   None if proxy is None else proxy.port)
-                argv = [sandbox, "-p", profile, *argv]
+                argv = _fenced_argv(sandbox, argv, self.workspace, source_root, auth_path,
+                                    None if proxy is None else proxy.port)
             capture_dir.mkdir()
             _sync_capture_directory(parent)
             _record_command(argv, request_data, directory=capture_dir, workspace=self.workspace,
@@ -1359,7 +1374,11 @@ class Origami:
             command = ProviderCommand(provider)
         elif hasattr(provider, "argv") and hasattr(provider, "timeout") or not callable(provider):
             command = ProviderCommand(getattr(provider, "argv", provider), getattr(provider, "timeout", 120))
-        sandbox = _sandbox() if command else None
+        if command:
+            from .isolation import require
+            sandbox = require("An Origami command provider", endpoints=endpoints)
+        else:
+            sandbox = None
         directory = self._dir(run_id)
         source_root = Path(_read_state(directory / "intent.json")["root"])
         self.status(run_id)  # Reject unsupported state before provider work or lock creation.
@@ -1380,7 +1399,7 @@ class Origami:
                     from .learning_context import check_origami_dispatch
                     check_origami_dispatch(self.workspace, prepared, _read(dispatch_path), run_id=run_id,
                                            call_limit=request["budget"]["max_calls"])
-                constraints = (_constraints("command", bool(sandbox), endpoints, auth_path) if command
+                constraints = (_constraints("command", sandbox, endpoints, auth_path) if command
                                else _constraints("callable"))
                 recorded_command = command is not None and os.name == "posix"
                 started = {"at": now(), "request_id": request["request_id"], "constraints": constraints}
