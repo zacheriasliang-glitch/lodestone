@@ -140,8 +140,8 @@ UNAVAILABLE = {
 # dependency/custody port and native fixtures, not merely a successful import.
 # The catalogue runs trusted explicit commands; Job ownership is not a sandbox.
 WINDOWS_OPERATIONS = frozenset({"ecosystem.doctor", "ecosystem.context",
-                               "mailbox.validate-envelope", "loom.inference-memory-assess",
-                               "bezoar.ingest", "bezoar.show"})
+    "mailbox.validate-envelope", "release.verify-download", "loom.inference-memory-assess",
+    "loom.inference-memory-skill", "bezoar.ingest", "bezoar.show"})
 
 
 def _availability(root):

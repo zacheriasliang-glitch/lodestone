@@ -1679,7 +1679,7 @@
     "runtime/src/lodestone_machinery/loom_memory_cli.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_memory_cli.py",
-      "sha256": "ee5b370ac861b13b82cf7065db8ab74f0ba200fbf14b0d98d4597376ce90065f",
+      "sha256": "63950130b1cad38d5fe53effa0ed9a1529e4c7cbca858e9efdbd646c5df0295f",
       "source_sha256": "ee5b370ac861b13b82cf7065db8ab74f0ba200fbf14b0d98d4597376ce90065f"
     },
     "runtime/src/lodestone_machinery/loom_nli.py": {
@@ -1691,13 +1691,13 @@
     "runtime/src/lodestone_machinery/loom_operations.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_operations.py",
-      "sha256": "4bcb12c8569e1bf87861abee06cf197c28688c37ca85750cdd83b2cb6b8ab3d4",
+      "sha256": "0042b1f257fa489fbfaabbbb5fcd95840da99dd1e1f54c9378a7f5b394d5fdb0",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     "runtime/src/lodestone_machinery/loom_optional_operations.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_optional_operations.py",
-      "sha256": "9e2a6444e42531331620d4b21835d4605d8cc66fbf5cb392cab4f44f80e73b82",
+      "sha256": "f77c51d55e27e1224157b8ee6d2a3041bdc21c30d69b8a3a082d46c8c6df7270",
       "source_sha256": "21f70c48e6ec29d9f00dafe65975fdc55be71f4608b2be01cfcecd96311e8dbc"
     },
     "runtime/src/lodestone_machinery/loom_runtime.py": {
@@ -2465,7 +2465,7 @@
     "runtime/verify_download.py": {
       "origin": "unified-runtime",
       "path": "verify_download.py",
-      "sha256": "65aa5b5d148e1ae1717a3412b0b6bcb6163e22e66001cd9886a5f01f68977502",
+      "sha256": "35ba4051b45ea0480d7e3a4660b7fce9d9bccdff5520e43783bffe573a2b5336",
       "source_sha256": "65aa5b5d148e1ae1717a3412b0b6bcb6163e22e66001cd9886a5f01f68977502"
     }
   },
@@ -2487,12 +2487,15 @@
     "portable_catalogue_raw_windows_paths": "38dac1e6914bda5ab733bae2fd116ca78da3a297",
     "portable_catalogue_readers": "05a6b8e23c080dabc3806f709bd324f44479e539",
     "portable_catalogue_selected_path_custody": "e5ea6121c2e1d42fb2b302330620adc99aeb8e22",
+    "portable_inference_skill": "fb7d26de1e281b222b64633cad749f2d8b8aee5e",
     "portable_installer": "93217426f4db532166ca26e6d55604a5f2eb9027",
     "portable_loopback_reuse": "c7f354186bd319d9418de87f7693bf35008e4d16",
     "portable_native_ci": "5bd383a2d80ff8c5d05bff4c01df536350f3281d",
     "portable_process": "35b2754ec1235c2205aba78f3cee3034c9788752",
     "portable_process_review_fix": "6fe42109ddde02a7d9dce05f799214d7c1a01c34",
     "portable_reader_raw_windows_paths": "b9902cf0d11c7803b6c670f0ae66d7c225149905",
+    "portable_release_manifest_bound": "486f19929b77a5c676fd7d094a486148dd7830fa",
+    "portable_release_reader": "89875898c1a8abba804ff2881b2733d7e52386a1",
     "portable_smoke_receipt_preservation": "4f0c98f87cd7de1bbcb9f0b9a1682ac215a0593b",
     "portable_storage": "ea699f4f255aaf167b4daefc54d3242f7ad1a233",
     "portable_storage_path_work": "fe0cdadae5a33902db94c8c85b86bb2418e1d28a",
@@ -2715,8 +2718,8 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_operations.py",
-      "reason": "Own trusted explicit catalogue subprocesses, preserve source/path custody, and enable only reviewed doctor/context, mailbox validation, inference planning and Bezoar ingest/show closures.",
-      "sha256": "4bcb12c8569e1bf87861abee06cf197c28688c37ca85750cdd83b2cb6b8ab3d4",
+      "reason": "Enable reviewed doctor/context, mailbox validation, inference planning/skill export and release verification through explicitly approved bounded owned subprocesses; unported routes remain unavailable.",
+      "sha256": "0042b1f257fa489fbfaabbbb5fcd95840da99dd1e1f54c9378a7f5b394d5fdb0",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     {
@@ -2841,7 +2844,7 @@
     },
     {
       "path": "runtime/tools/ecosystem/cli.py",
-      "reason": "Compose reviewed Windows Bezoar ingest/show and loom-tools routes with lexical package/workspace selection before native custody; keep all other CLI gates.",
+      "reason": "Preserve lexical Windows package and workspace selections before native loom-tools custody checks.",
       "sha256": "c6ceada603131f43e9fcb838aa07ce3da18476aa7bd0a4bb191a0324d8496d98",
       "source_sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e"
     },
@@ -2853,9 +2856,21 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_optional_operations.py",
-      "reason": "Read bounded optional inputs and execute exact guarded trusted-validator source bytes without reopening source paths.",
-      "sha256": "9e2a6444e42531331620d4b21835d4605d8cc66fbf5cb392cab4f44f80e73b82",
+      "reason": "Use guarded bounded inputs and exact trusted source; verify selected releases with native file/root custody, a strict manifest bound, file-count/per-file/aggregate limits, and no publication.",
+      "sha256": "f77c51d55e27e1224157b8ee6d2a3041bdc21c30d69b8a3a082d46c8c6df7270",
       "source_sha256": "21f70c48e6ec29d9f00dafe65975fdc55be71f4608b2be01cfcecd96311e8dbc"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_memory_cli.py",
+      "reason": "Export only the existing bounded inert skill and helper, using native source custody and durable no-replace candidate publication without execution or proposal.",
+      "sha256": "63950130b1cad38d5fe53effa0ed9a1529e4c7cbca858e9efdbd646c5df0295f",
+      "source_sha256": "ee5b370ac861b13b82cf7065db8ab74f0ba200fbf14b0d98d4597376ce90065f"
+    },
+    {
+      "path": "runtime/verify_download.py",
+      "reason": "Accept an optional guarded reader for desktop catalogue verification while preserving standalone verification schema, defaults and CLI.",
+      "sha256": "35ba4051b45ea0480d7e3a4660b7fce9d9bccdff5520e43783bffe573a2b5336",
+      "source_sha256": "65aa5b5d148e1ae1717a3412b0b6bcb6163e22e66001cd9886a5f01f68977502"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"
