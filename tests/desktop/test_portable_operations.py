@@ -191,6 +191,27 @@ class PortableOperationTests(unittest.TestCase):
         self.assertFalse((self.root / "workspace").exists())
 
     @unittest.skipUnless(os.name == "nt", "Native Windows path custody")
+    def test_windows_raw_ambiguous_names_are_refused_before_absolute_normalization(self):
+        source = self.root / "input.txt"
+        source.write_bytes(b"original")
+        for suffix in (".", " ", ":stream"):
+            with self.subTest(suffix=suffix):
+                for invoke in (
+                        lambda: operations.OperationBridge(str(self.package) + suffix, self.root / "receipts"),
+                        lambda: operations.OperationBridge(self.package, str(self.root) + suffix + "/receipts"),
+                        lambda: self.bridge().prepare("ecosystem.context", {}, str(self.root) + suffix + "/workspace")):
+                    with self.assertRaises((ValueError, OSError)):
+                        invoke()
+                descriptor = operations.spec("ecosystem", "Fixture raw selected file", ["context"],
+                                              {"selected": ("file", "--selected")})
+                with patch.dict(operations.SPECS, {"ecosystem.context": descriptor}), \
+                        self.assertRaises((ValueError, OSError)):
+                    self.bridge().prepare("ecosystem.context", {"selected": str(source) + suffix},
+                                          self.root / "workspace")
+        self.assertEqual(source.read_bytes(), b"original")
+        self.assertFalse((self.root / "receipts").exists())
+
+    @unittest.skipUnless(os.name == "nt", "Native Windows path custody")
     def test_windows_selected_junctions_are_refused_before_resolution_or_mutation(self):
         target = self.root / "target"
         target.mkdir()
