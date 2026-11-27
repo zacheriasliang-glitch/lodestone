@@ -13,7 +13,12 @@ platform limits.
   Ubuntu 24.04 x86_64, and Windows 11 / Windows Server 2022 x86_64. Windows gains
   a double-click `.cmd` bootstrap without execution-policy changes; Ubuntu gains
   a shell bootstrap with explicit OS GUI/isolation prerequisites. The PowerShell
-  setup script remains an advanced Windows route.
+  setup script remains an advanced Windows route. Windows checks path requirements
+  before downloading; a separate opt-in administrator helper enables long-path
+  support when required, with the previous setting retained for reversal.
+- Bundles only the GUI dependencies used by the exposed local Loom route, with
+  required versions and hashes preserved. Upstream provider engine source and
+  its original dependency metadata remain attributed and available.
 - Uses native per-user data locations and owned launchers: a Mac app bundle,
   Linux desktop entry and Windows command launcher. Versioned activation,
   rollback and removal retain recovery transactions and preserve drafts,
@@ -27,6 +32,10 @@ platform limits.
   the target packaging. Native wx controls remain; the optional
   `accessible-output3` speech/braille plugin is not bundled, and no cross-platform
   assistive-technology verification is claimed.
+- Closes migration database handles and frame timers before native teardown.
+  Native wx warnings and errors are retained in UTF-8 logs without blocking
+  shutdown; unavailable native locales fall back while keeping the requested
+  application translation.
 - Adds Windows Job ownership of local inference workers and descendants, with
   cancellation, timeout and a committed-memory limit. Resident-memory sampling
   is reported separately; the configured 4 GiB Windows commit bound is not the
