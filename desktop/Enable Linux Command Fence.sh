@@ -139,15 +139,23 @@ ours() {
   return 0
 }
 
-# Unknown (unreadable list) counts as loaded, so removal never skips an unload.
-loaded() { [[ ! -r "$loaded_list" ]] || grep -Eq '^(bwrap|unpriv_bwrap) ' "$loaded_list"; }
+# Read the loaded-profile list once: 0 = a bwrap profile is loaded,
+# 1 = none is loaded, 2 = unknown (the list could not be read).
+loaded_state() {
+  local listing
+  listing=$(cat -- "$loaded_list" 2>/dev/null) || return 2
+  grep -Eq '^(bwrap|unpriv_bwrap) ' <<<"$listing" && return 0
+  return 1
+}
 
 if [[ $action == remove ]]; then
   if ! ours; then
     echo "$target is not installed; nothing to remove"
     exit 0
   fi
-  if loaded; then
+  if loaded_state; then state=0; else state=$?; fi
+  # Loaded or unknown: the unload must succeed before the file is deleted.
+  if [[ $state != 1 ]]; then
     "$parser" -R "$target" || fail "Unloading the bwrap profiles failed; $target is kept" 5
   fi
   rm -- "$target"
@@ -164,9 +172,9 @@ else
       fail "An independently installed bubblewrap profile exists ($other); Lodestone leaves it unchanged" 6
     fi
   done
-  if [[ -r "$loaded_list" ]] && grep -Eq '^(bwrap|unpriv_bwrap) ' "$loaded_list"; then
-    fail "A bubblewrap AppArmor profile is already loaded independently; Lodestone leaves it unchanged" 6
-  fi
+  if loaded_state; then state=0; else state=$?; fi
+  [[ $state != 2 ]] || fail "Cannot read the loaded AppArmor profiles ($loaded_list); changing nothing" 6
+  [[ $state != 0 ]] || fail "A bubblewrap AppArmor profile is already loaded independently; Lodestone leaves it unchanged" 6
   staged=$(mktemp "$directory/.$name.XXXXXX")
   trap 'rm -f -- "$staged"' EXIT
   profile > "$staged"
@@ -175,11 +183,14 @@ else
   ln -- "$staged" "$target" || fail "$target appeared concurrently; leaving it unchanged" 4
   created=yes
 fi
-if ! "$parser" -r "$target"; then
-  if [[ $created == yes ]]; then
+if [[ $created == yes ]]; then
+  # Add-only: never replaces a profile someone else loaded meanwhile.
+  if ! "$parser" -a "$target"; then
     rm -- "$target"
+    fail "Loading the bwrap profiles failed; the new Lodestone profile file was removed" 5
   fi
-  fail "Loading the bwrap profiles failed; no Lodestone profile file remains installed" 5
+elif ! "$parser" -r "$target"; then
+  fail "Reloading the existing Lodestone profile failed; $target is kept as it was" 5
 fi
 echo "Loaded $target; kernel.apparmor_restrict_unprivileged_userns is unchanged:"
 sysctl kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || true

@@ -15,6 +15,9 @@ FAKE_PARSER = """#!/bin/bash
 # Records each call; LOAD_FAIL / UNLOAD_FAIL make it fail; keeps a fake loaded list.
 echo "$*" >> "$FAKE_LOG"
 case "$1" in
+  -a) [[ -n "${LOAD_FAIL:-}" ]] && exit 1
+      grep -q '^bwrap ' "$FAKE_LOADED" && exit 1
+      printf 'bwrap (enforce)\\nunpriv_bwrap (enforce)\\n' > "$FAKE_LOADED" ;;
   -r) [[ -n "${LOAD_FAIL:-}" ]] && exit 1
       printf 'bwrap (enforce)\\nunpriv_bwrap (enforce)\\n' > "$FAKE_LOADED" ;;
   -R) [[ -n "${UNLOAD_FAIL:-}" ]] && exit 1
@@ -67,7 +70,7 @@ class CommandFenceScriptTests(unittest.TestCase):
         removed = self.run_script("--remove")
         self.assertEqual(removed.returncode, 0, removed.stderr)
         self.assertFalse(self.target().exists())
-        self.assertEqual([c.split()[0] for c in self.calls()], ["-r", "-r", "-R"])
+        self.assertEqual([c.split()[0] for c in self.calls()], ["-a", "-r", "-R"])
         self.assertEqual(self.run_script("--remove").returncode, 0)
         self.assertEqual(sorted(p.name for p in self.profiles.iterdir()), [])
 
@@ -81,6 +84,39 @@ class CommandFenceScriptTests(unittest.TestCase):
         result = self.run_script(LOAD_FAIL="1")
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(sorted(p.name for p in self.profiles.iterdir()), [])
+
+    def test_failed_reload_of_an_existing_owned_file_keeps_it_and_says_so(self):
+        self.assertEqual(self.run_script().returncode, 0)
+        body = self.target().read_bytes()
+        result = self.run_script(LOAD_FAIL="1")
+        self.assertEqual(result.returncode, 5)
+        self.assertIn("is kept as it was", result.stderr)
+        self.assertEqual(self.target().read_bytes(), body)
+
+    def test_unknown_loaded_state_changes_nothing_on_apply(self):
+        for broken in ("missing", "unreadable"):
+            with self.subTest(broken=broken):
+                self.loaded.unlink(missing_ok=True)
+                if broken == "unreadable":
+                    self.loaded.mkdir()  # reading a directory fails
+                result = self.run_script()
+                self.assertEqual(result.returncode, 6)
+                self.assertEqual(sorted(p.name for p in self.profiles.iterdir()), [])
+                self.assertEqual(self.calls(), [])
+                if self.loaded.is_dir():
+                    self.loaded.rmdir()
+
+    def test_unknown_loaded_state_on_remove_still_requires_the_unload(self):
+        self.assertEqual(self.run_script().returncode, 0)
+        self.loaded.unlink()
+        self.loaded.mkdir()
+        kept = self.run_script("--remove", UNLOAD_FAIL="1")
+        self.assertEqual(kept.returncode, 5)
+        self.assertTrue(self.target().is_file())
+        removed = self.run_script("--remove", FAKE_LOADED=str(self.base / "scratch-loaded"))
+        self.assertEqual(removed.returncode, 0, removed.stderr)
+        self.assertFalse(self.target().exists())
+        self.assertEqual([c.split()[0] for c in self.calls()], ["-a", "-R", "-R"])
 
     def test_preexisting_unmanaged_file_or_symlink_is_left_untouched(self):
         self.target().write_text("site policy\n")
