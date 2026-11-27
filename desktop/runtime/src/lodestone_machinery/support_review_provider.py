@@ -287,8 +287,12 @@ def run_review(organ, run_id, reviewer, *, allowed_endpoints=(), provider_auth_p
             command = origami.ProviderCommand(reviewer)
         elif (hasattr(reviewer, "argv") and hasattr(reviewer, "timeout")) or not callable(reviewer):
             command = origami.ProviderCommand(getattr(reviewer, "argv", reviewer), getattr(reviewer, "timeout", 120))
-        sandbox = origami._sandbox() if command else None
-        constraints = (origami._constraints("command", bool(sandbox), endpoints, auth_path)
+        if command:
+            from .isolation import require
+            sandbox = require("A support-review command", endpoints=endpoints)
+        else:
+            sandbox = None
+        constraints = (origami._constraints("command", sandbox, endpoints, auth_path)
                        if command else origami._constraints("callable"))
         # Stable dictionary order lets a later reader reconstruct the exact
         # command stdin bytes, in addition to the canonical request identity.
