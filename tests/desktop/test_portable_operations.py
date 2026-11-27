@@ -94,6 +94,13 @@ class PortableOperationTests(unittest.TestCase):
 
     @unittest.skipUnless(os.name == "posix", "Native POSIX process-group exit race")
     def test_exit_between_group_snapshot_and_signal_requires_fresh_stop_proof(self):
+        self.check_exit_race(authored_denial=False)
+
+    @unittest.skipUnless(os.name == "posix", "POSIX denied-signal race contract")
+    def test_authored_permission_denial_after_exit_requires_fresh_stop_proof(self):
+        self.check_exit_race(authored_denial=True)
+
+    def check_exit_race(self, *, authored_denial):
         child = subprocess.Popen([sys.executable, "-B", "-c",
             "import sys; print('ready', flush=True); sys.stdin.buffer.read(1)"],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, start_new_session=True)
@@ -115,6 +122,8 @@ class PortableOperationTests(unittest.TestCase):
             return rows
         def signal_group(pgid, signum):
             try:
+                if authored_denial:
+                    raise PermissionError(errno.EPERM, "Authored exited-group signal denial")
                 return real_signal(pgid, signum)
             except OSError as exc:
                 signal_errors.append(exc.errno)
@@ -127,7 +136,7 @@ class PortableOperationTests(unittest.TestCase):
             self.assertTrue(result["confirmed_stopped"], result)
             self.assertEqual(child.returncode, 0)  # The direct child was reaped.
             self.assertFalse(real_snapshot(child.pid))
-            if sys.platform == "darwin":
+            if sys.platform == "darwin" or authored_denial:
                 self.assertEqual(signal_errors, [errno.EPERM])
                 self.assertFalse(result["termination_required"])
         finally:
