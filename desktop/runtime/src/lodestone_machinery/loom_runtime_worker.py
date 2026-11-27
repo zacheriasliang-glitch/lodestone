@@ -10,6 +10,7 @@ from pathlib import Path
 import signal
 import socket
 import subprocess
+import sys
 import time
 import urllib.request
 
@@ -74,7 +75,7 @@ def http_json(opener, path, body=None, timeout=10):
 
 
 def start_ollama(config, log_path):
-    """Own a private loopback server inside this worker's process group."""
+    """Own a loopback server inside the worker's POSIX group or Windows Job."""
     binary = Path(config["ollama_binary"])
     models = Path(config["ollama_models"])
     if not binary.is_absolute() or not binary.is_file() or not models.is_dir():
@@ -83,6 +84,12 @@ def start_ollama(config, log_path):
         probe.bind(("127.0.0.1", 11435))  # Never use another process's server.
     env = {key: os.environ[key] for key in ("HOME", "USER", "LOGNAME", "TMPDIR", "PATH")
            if key in os.environ}
+    if sys.platform == "win32":
+        # These values came from the supervisor's minimal environment. No
+        # breakaway flag: Ollama and ordinary runner descendants inherit the Job.
+        env.update({key: os.environ[key] for key in
+                    ("SystemRoot", "WINDIR", "TEMP", "TMP", "USERPROFILE", "LOCALAPPDATA", "APPDATA")
+                    if key in os.environ})
     env.update({"OLLAMA_HOST": "127.0.0.1:11435", "OLLAMA_MODELS": str(models),
                 "OLLAMA_NUM_PARALLEL": "1", "OLLAMA_MAX_LOADED_MODELS": "1",
                 "OLLAMA_KEEP_ALIVE": "0", "OLLAMA_MAX_QUEUE": "1",
@@ -116,7 +123,7 @@ def stop_server(process):
     except subprocess.TimeoutExpired:
         process.kill()
         process.wait(timeout=2)
-    # The parent supervisor also checks/kills the entire private process group,
+    # The parent supervisor also checks/kills the entire owned group or Job,
     # including any model runner left behind by the server.
 
 
@@ -157,6 +164,8 @@ def run_ollama(config, request, partial_path, observation):
     text = ""
     try:
         process, opener, version = start_ollama(config, Path(partial_path).with_suffix(".server.log"))
+        if sys.platform == "win32":
+            observation["server_pid"] = process.pid
         tags = http_json(opener, "/api/tags")
         selected = [row for row in tags.get("models", [])
                     if row.get("name") == config["ollama_model"]]

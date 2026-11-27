@@ -26,13 +26,18 @@ def run_migrations_online():
 	"""Run migrations in 'online' mode."""
 	db_path = ConversationDatabase.get_db_path()
 	connectable = ConversationDatabase.get_db_engine(db_path)
-	with connectable.connect() as connection:
-		context.configure(
-			connection=connection, target_metadata=target_metadata
-		)
+	try:
+		with connectable.connect() as connection:
+			context.configure(
+				connection=connection, target_metadata=target_metadata
+			)
 
-		with context.begin_transaction():
-			context.run_migrations()
+			with context.begin_transaction():
+				context.run_migrations()
+	finally:
+		# This engine belongs only to the migration. Closing its connection
+		# returns it to the pool; disposal releases the SQLite file handle.
+		connectable.dispose()
 
 
 if context.is_offline_mode():

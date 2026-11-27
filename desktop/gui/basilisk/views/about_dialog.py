@@ -5,6 +5,8 @@ version, description, website, license, developers, and translators using wx.adv
 """
 
 import sys
+import json
+from pathlib import Path
 
 import wx.adv
 
@@ -20,11 +22,19 @@ if getattr(sys, "frozen", False):
 
 	app_version = BUILD_RELEASE_STRING
 else:
-	from setuptools_scm import get_version
-
-	app_version = get_version(
-		root="../..", relative_to=__file__, fallback_version="0.4.0a1"
-	)
+	# The installer verifies this payload manifest before launching the GUI.
+	# Source checkouts intentionally have no packaged release identity or Git
+	# build-tool dependency in their runtime environment.
+	manifest_path = Path(__file__).resolve().parents[3] / "MANIFEST.json"
+	if manifest_path.is_file():
+		manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+		if (manifest.get("schema") != "lodestone-desktop-payload/v1"
+			or not isinstance(manifest.get("version"), str)
+			or not manifest["version"].strip()):
+			raise ValueError("Invalid desktop release version manifest")
+		app_version = manifest["version"]
+	else:
+		app_version = "Source checkout (unpackaged)"
 
 
 def display_about_dialog(parent: wx.Window):

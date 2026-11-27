@@ -8,6 +8,9 @@ import stat
 import math
 import time
 
+from .portable_files import (durable_write, open_regular, read_bytes, sync_directory,
+                             is_alias)
+
 
 class BusyError(RuntimeError):
     """Normal OS lock contention; no task or executor failure."""
@@ -51,38 +54,14 @@ def strict_json(raw, limit=262144):
                       parse_constant=nonfinite, parse_float=number)
 
 
-def read_bytes(path, limit=262144):
-    path = Path(path)
-    if path.is_symlink() or not path.is_file():
-        raise ValueError("Expected a regular, non-symlink file")
-    with path.open("rb") as stream:
-        data = stream.read(limit + 1)
-    if len(data) > limit:
-        raise ValueError("File exceeds byte bound")
-    return data
-
-
-def sync_directory(path):
-    descriptor = os.open(str(path), os.O_RDONLY)
-    try:
-        os.fsync(descriptor)
-    finally:
-        os.close(descriptor)
-
-
 def create_file(path, body):
-    """No replacement; complete and flush before publishing a reference."""
-    path = Path(path)
-    with path.open("xb") as stream:
-        stream.write(body)
-        stream.flush()
-        os.fsync(stream.fileno())
-    sync_directory(path.parent)
+    """No replacement; publish only complete, durably flushed bytes."""
+    durable_write(path, body)
 
 
 def tree_inventory(root, *, max_bytes=67108864, max_files=8192):
     root = Path(root)
-    if root.is_symlink() or not root.is_dir():
+    if is_alias(root.lstat()) or not root.is_dir():
         raise ValueError("Tree root must be a regular directory")
     result = []
     total = 0
@@ -92,19 +71,21 @@ def tree_inventory(root, *, max_bytes=67108864, max_files=8192):
         if entries > max_files:
             raise ValueError("Retained filesystem entries exceed resource limit")
         for name in names:
-            if (Path(directory) / name).is_symlink():
+            if is_alias((Path(directory) / name).lstat()):
                 raise ValueError("Symlink directory is not admitted")
         for name in sorted(files):
             path = Path(directory) / name
             metadata = path.lstat()
-            if not stat.S_ISREG(metadata.st_mode):
+            if is_alias(metadata) or not stat.S_ISREG(metadata.st_mode):
                 raise ValueError("Nonregular file is not admitted")
             total += metadata.st_size
             if total > max_bytes or len(result) >= max_files:
                 raise ValueError("Retained output exceeds resource limit")
             sha = hashlib.sha256()
-            with path.open("rb") as stream:
-                for block in iter(lambda: stream.read(65536), b""):
+            with open_regular(path) as fd:
+                if (metadata.st_dev, metadata.st_ino) != (os.fstat(fd).st_dev, os.fstat(fd).st_ino):
+                    raise ValueError("Tree file identity changed during inventory")
+                for block in iter(lambda: os.read(fd, 65536), b""):
                     sha.update(block)
             result.append({"path": path.relative_to(root).as_posix(),
                            "bytes": metadata.st_size, "sha256": sha.hexdigest()})
@@ -117,7 +98,7 @@ def tree_usage(root, *, live=False):
     for directory, names, files in os.walk(root, followlinks=False):
         entries += len(names) + len(files)
         for name in names:
-            if (Path(directory) / name).is_symlink():
+            if is_alias((Path(directory) / name).lstat()):
                 raise ValueError("Symlink directory is not admitted")
         for name in files:
             path = Path(directory) / name
@@ -127,7 +108,7 @@ def tree_usage(root, *, live=False):
                 if live:  # SQLite journals/atomic record temporaries can disappear during sampling.
                     continue
                 raise
-            if not stat.S_ISREG(metadata.st_mode):
+            if is_alias(metadata) or not stat.S_ISREG(metadata.st_mode):
                 raise ValueError("Nonregular file is not admitted")
             total += metadata.st_size
     return total, entries
@@ -139,22 +120,41 @@ def tree_size(root):
 
 @contextmanager
 def file_lock(path, *, timeout=0):
-    """An OS-held lock, released by process exit; PID files confer no ownership."""
-    import fcntl
-    path = Path(path)
-    if path.is_symlink():
-        raise ValueError("Lock symlink refused")
-    with path.open("a+b") as stream:
+    """Native OS exclusion, released on process exit; no PID ownership fiction."""
+    if type(timeout) not in (int, float) or not math.isfinite(timeout) or timeout < 0:
+        raise ValueError("Lock timeout must be finite and nonnegative")
+    with open_regular(path, os.O_RDWR | os.O_CREAT, lock=True) as fd:
+        if os.name == "nt":
+            import msvcrt
+            def acquire():
+                os.lseek(fd, 0, os.SEEK_SET)
+                msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+            def release():
+                os.lseek(fd, 0, os.SEEK_SET)
+                msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+            def acquire():
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            def release():
+                fcntl.flock(fd, fcntl.LOCK_UN)
         deadline = time.monotonic() + timeout
         while True:
             try:
-                fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                acquire()
                 break
-            except BlockingIOError as exc:
+            except OSError as exc:
+                import errno
+                if exc.errno not in (errno.EACCES, errno.EAGAIN, errno.EDEADLK):
+                    raise
                 if time.monotonic() >= deadline:
                     raise BusyError("Local state is busy; another executor or snapshot owns the lock") from exc
                 time.sleep(min(0.05, max(0, deadline - time.monotonic())))
         try:
+            # A waiter must not enter after its named lock was replaced.
+            info, named = os.fstat(fd), Path(path).lstat()
+            if is_alias(named) or (info.st_dev, info.st_ino) != (named.st_dev, named.st_ino):
+                raise ValueError("Lock file identity changed while acquiring custody")
             yield
         finally:
-            fcntl.flock(stream, fcntl.LOCK_UN)
+            release()

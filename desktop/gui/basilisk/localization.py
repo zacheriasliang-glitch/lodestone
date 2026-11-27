@@ -65,18 +65,39 @@ def get_wx_locale(current_locale: Locale) -> wx.Locale:
 	Returns:
 		The wxPython locale object for the current locale.
 	"""
-	find_language = wx.Locale.FindLanguageInfo(current_locale.language)
-	if find_language:
+	find_language = wx.Locale.FindLanguageInfo(str(current_locale))
+	if find_language and wx.Locale.IsAvailable(find_language.Language):
 		log.debug(
 			"wxPython locale found for: %s(%s)",
 			current_locale.english_name,
 			find_language.Language,
 		)
-		return wx.Locale(find_language.Language)
+		selected = wx.Locale(find_language.Language)
+		if selected.IsOk():
+			return selected
+		# Some platforms report UI-language availability even when the C
+		# runtime cannot activate that locale. Release it before trying another.
+		del selected
+	fallback = None
+	if wx.Locale.IsAvailable(wx.LANGUAGE_DEFAULT):
+		fallback = wx.Locale(wx.LANGUAGE_DEFAULT)
+		fallback_name = "system default"
+		if not fallback.IsOk():
+			del fallback
+			fallback = None
+	if fallback is None:
+		# The C locale is always provided by the C runtime, including systems
+		# whose configured default locale has not been generated.
+		fallback = wx.Locale("C", "C", "C")
+		fallback_name = "C"
+	if not fallback.IsOk():
+		raise RuntimeError("Could not initialize a supported native locale")
 	log.warning(
-		"wxPython locale not found for: %s", current_locale.english_name
+		"Native locale %s is unavailable; using %s (%s) for native controls. "
+		"Requested application translation remains %s.",
+		current_locale, fallback_name, locale.setlocale(locale.LC_CTYPE), current_locale,
 	)
-	return wx.Locale(wx.LANGUAGE_DEFAULT)
+	return fallback
 
 
 def setup_translation(locale: Locale) -> None:

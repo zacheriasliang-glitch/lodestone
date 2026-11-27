@@ -1,7 +1,17 @@
 # Lodestone Desktop preview
 
-Install Unified Loom on an Intel Mac, with a local Qwen3 reader, retained encounters
-and corrections, Origami handoffs and the supported toolkit catalogue.
+Unified Loom provides a local Qwen3 reader, retained encounters and corrections,
+Origami handoffs and a catalogue of the supported toolkit operations.
+
+The `0.4.0-preview.6` cross-platform preview targets Intel macOS, Ubuntu 24.04
+x86_64 and Windows x86_64. The
+[named release page](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0-preview.6)
+provides downloads when published, with the exact source commit, checksums and
+native verification record. Apple Silicon, other Linux distributions, ARM Windows
+and mobile platforms are outside this target set.
+
+The public [native verification guide](https://github.com/zacheriasliang-glitch/lodestone/blob/main/docs/desktop-validation/portable-preview.md)
+describes the release checks, retained evidence and local inference smoke.
 
 This is a preview. A retained correction is made available to a later encounter;
 the reader can still misunderstand or misapply it. Local practice does not update
@@ -10,12 +20,125 @@ unfinished research; installing the application does not complete that research.
 
 ## Install
 
-1. Download the named macOS x86_64 ZIP from the Lodestone GitHub preview release.
-2. Extract it and double-click **Install Lodestone.command**. Setup downloads pinned
-   application runtimes, dependencies and the local model, verifying their hashes.
-3. Open **Lodestone Preview** in your user Applications folder. Enter an encounter
-   and its purpose, then send it to the local reader. Use the feedback controls to
-   retain a correction, and try a later encounter.
+Choose the ZIP for your operating system and architecture from the named preview
+release, and compare its SHA-256 with the release's `SHA256SUMS.txt` before running
+setup. Extract the entire ZIP; keep its files together. Setup obtains the pinned
+application runtimes, dependencies and local model and verifies their hashes.
+Existing Python, Git, model accounts and API keys are not required.
+
+Plan for at least 12 GiB of free disk space for the initial downloads, extraction,
+retained cache and application; retained releases and practice history need more
+space over time. A machine with 16 GiB of RAM is recommended. These are planning
+allowances, not measured minimum requirements or performance guarantees. First
+setup needs internet access. Local inference subsequently uses the installed
+files and a private loopback model process, with no model subscription or paid API
+calls. The GUI requires a graphical desktop session.
+
+Installation and data paths must not pass through symbolic links or junctions.
+Use ordinary local directories so the installer and retained-record store can
+verify their ownership throughout each operation.
+
+| Target | Setup entrypoint | Open after setup |
+|---|---|---|
+| macOS 12 or later, Intel x86_64 | `Install Lodestone.command` | `Lodestone Preview.app` in your user Applications folder |
+| Ubuntu 24.04, x86_64 | `Install Lodestone.sh` | Lodestone Preview in the desktop applications menu |
+| Windows 11 or Windows Server 2022, x86_64 | `Install Lodestone.cmd` | The installed `Lodestone Preview.cmd` launcher |
+
+Windows Server needs a graphical Desktop Experience session. The Windows
+preview requires OS build 20348 or later; this is not a claim of verification
+on every later Windows release.
+
+### Intel macOS
+
+Double-click **Install Lodestone.command** in the extracted folder. This preview
+is unsigned and not Apple-notarized. If macOS blocks it, use Apple's
+[instructions for opening an app from an unidentified developer](https://support.apple.com/en-us/102445)
+after verifying the download. Setup does not change macOS security settings.
+
+### Ubuntu 24.04
+
+Open a terminal in the extracted folder and run:
+
+```sh
+bash "Install Lodestone.sh"
+```
+
+The application and its Python environments install under your user account.
+The script checks the OS prerequisites and uses `sudo apt-get` if any are missing:
+`curl`, `ca-certificates`, `libgtk-3-0t64`, `librsvg2-common`, `at-spi2-core`,
+`libwebkit2gtk-4.1-0`, `libnotify4`,
+`libportaudio2`, `libgl1`, `libegl1`, `libsm6`, `libxtst6`, `libsdl2-2.0-0`,
+`libglib2.0-bin` and `bubblewrap`. These provide HTTPS downloads, GTK/WebKit,
+audio, SVG icons, accessibility services, graphical libraries, desktop launching
+and command isolation. An administrator can install these packages first;
+`--no-system-deps` then checks
+their presence and refuses if any are missing. It does not skip the prerequisite
+check. `--no-open` completes setup without opening the GUI.
+
+### Windows
+
+Compare the downloaded ZIP's hash using PowerShell's
+`Get-FileHash -Algorithm SHA256`. After verifying the archive and its source,
+use the ZIP's **Properties → Unblock** option if present, then extract it.
+Double-click **Install Lodestone.cmd**. The console shows setup progress and stays
+open if setup fails. It downloads the pinned Python archive, checks its hash
+before extraction and execution, and retains failed download/staging files for
+inspection. Application files install under your account. The Windows long-path
+prerequisite described below may require administrator approval.
+
+The `.cmd` entrypoint runs native Windows commands and small built-in PowerShell
+checks. It does not load a PowerShell script or change execution policy. From a
+Command Prompt in the extracted folder, optional arguments work as follows:
+
+```bat
+"Install Lodestone.cmd" --no-open
+```
+
+`--no-open` completes setup without opening the GUI or pausing on failure. Paths
+may contain spaces and Unicode. This bootstrap refuses command-shell
+metacharacters such as `%`, `!`, `&`, `^` and parentheses in its extracted folder,
+data root, launcher or cache path before creating files. Choose ordinary directory
+names if it reports this restriction. `--root`, `--app` and `--cache` accept
+absolute local-drive paths.
+
+Before downloading, setup checks these paths against the longest members of the
+pinned archives and wheels, including temporary and retained interrupted
+environments. It reports the deepest member and remaining UTF-16 path budget.
+The default data root usually requires Windows long-path support. If the check
+refuses, choose a shorter directory you own with `--root`, or explicitly run
+**Enable Windows Long Paths.cmd** from the verified download. That separate
+helper asks you to type `ENABLE` and may request administrator approval through
+UAC. It changes only `LongPathsEnabled` to `1`; it never changes execution policy
+and is never run automatically by setup. Managed-host policy still applies.
+
+The helper first saves the previous value, including whether it was absent, and
+an exact restore command under
+`%LOCALAPPDATA%\Lodestone Windows Setup\receipts`. Keep that receipt if you want
+to undo the setting later in an administrator terminal. Restart setup after the
+change. Extraction, cache, bootstrap and launcher paths must still fit their
+reported limits, even when long-path support is enabled.
+
+To reopen the installed application, press **Win+R**, enter `shell:programs`, and
+open **Lodestone Preview.cmd** in that folder. This uses the installed launcher
+directly and does not depend on Start-menu search or pinning.
+This preview's Windows launcher keeps a console window open alongside the GUI.
+Quit through the application's menu or main window so it can save normally.
+
+**Advanced PowerShell route:** the same pinned setup remains available as
+`powershell.exe -NoProfile -File ".\Install Lodestone.ps1"`, with `-Root`, `-App`,
+`-Cache` and `-NoOpen`. This script is unsigned. If it carries a download block,
+review that specific file and use `Unblock-File -LiteralPath
+'.\Install Lodestone.ps1'` before retrying; see Microsoft's
+[Unblock-File documentation](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/unblock-file).
+This unblocks only that file and does not change execution policy. If host or
+organization policy prohibits unsigned scripts, that optional route remains
+blocked. Neither entrypoint changes the host's security policy.
+
+## Use the preview
+
+Open Lodestone Preview, enter an encounter and its purpose, then send it to the
+local reader. Use the feedback controls to retain a correction and inspect what
+happens in a later encounter.
 
 Unsent drafts, their purpose and the selected configured model survive normal
 quit and reopen. Saving a project as a `.bskc` file also preserves its purpose.
@@ -43,22 +166,21 @@ copying the project file alone to another installation does not transfer them.
 Keep that data directory when backing up your practice, and use the explicit
 memory-import tools below when moving retained learning into another workspace.
 
-The first setup needs an internet connection and several gigabytes of free space.
-Inference thereafter uses local files and a private loopback model process; no
-model account, API key or subscription is required. Existing Python, Git and an
-existing Lodestone installation are not required. Only the operating-system and
-architecture combinations listed in the release verification are supported.
+The preview keeps its launcher and data separate from existing installations:
 
-This preview is unsigned and is not Apple-notarized. macOS may require a manual
-confirmation when opening the downloaded installer. Verify the release ZIP with
-the accompanying `SHA256SUMS.txt`, and follow Apple's
-[instructions for opening an app from an unidentified developer](https://support.apple.com/en-us/102445)
-if macOS blocks it. Setup does not change your Mac's security settings.
+| Target | Data root | Launcher |
+|---|---|---|
+| macOS | `~/Library/Application Support/Lodestone Preview` | `~/Applications/Lodestone Preview.app` |
+| Ubuntu | `$XDG_DATA_HOME/lodestone-preview`, or `~/.local/share/lodestone-preview` | `$XDG_DATA_HOME/applications/lodestone-preview.desktop`, or `~/.local/share/applications/lodestone-preview.desktop` |
+| Windows | `%LOCALAPPDATA%\Lodestone Preview` | `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Lodestone Preview.cmd` |
 
-The preview has its own application and data directory:
-
-- `~/Applications/Lodestone Preview.app`
-- `~/Library/Application Support/Lodestone Preview`
+A relative `XDG_DATA_HOME` is ignored. The shell and Windows `.cmd` installers
+accept `--root`, `--app` and `--cache`; the optional PowerShell installer accepts
+`-Root`, `-App` and `-Cache`.
+Keep the same data root and launcher path when upgrading. Back up the complete
+data root to preserve native learning history, failed attempts, corrections,
+conversations and unsent drafts. Models, cached downloads and old release folders
+also remain there.
 
 Your existing Loom and Lodestone workspaces stay in their existing locations.
 The new workspace starts with clearly labelled instructional examples, not a copy
@@ -67,18 +189,55 @@ commands. Model generation is bounded and failures remain available for review.
 
 ## Manage this installation
 
-Use the Python runtime created by setup and the management script in the extracted
-download. These examples use the default installation location:
+Use the persistent `worker_python` interpreter and `release` directory recorded
+in the data root's `ACTIVE.json`. These paths include the selected dependency set
+and release identity; do not substitute a temporary bootstrap interpreter.
+
+On macOS, read those paths using the operating system's JSON-capable `plutil`:
 
 ```sh
-"$HOME/Library/Application Support/Lodestone Preview/deps/python/3.12.12/python/bin/python3.12" -B install.py doctor
-"$HOME/Library/Application Support/Lodestone Preview/deps/python/3.12.12/python/bin/python3.12" -B install.py rollback
-"$HOME/Library/Application Support/Lodestone Preview/deps/python/3.12.12/python/bin/python3.12" -B install.py uninstall
+preview_root="$HOME/Library/Application Support/Lodestone Preview"
+worker_python="$(/usr/bin/plutil -extract worker_python raw -o - "$preview_root/ACTIVE.json")"
+preview_release="$(/usr/bin/plutil -extract release raw -o - "$preview_root/ACTIVE.json")"
+"$worker_python" -I -B "$preview_release/install.py" --root "$preview_root" doctor
 ```
 
+On Ubuntu, open the data root's `ACTIVE.json` in a text editor and copy its
+`worker_python` and `release` values into the two placeholders below. These are
+filesystem paths, without the JSON string's enclosing quotes; use the decoded
+path if your editor displays JSON escapes. This route does not require another
+Python or JSON parser to be installed:
+
+```sh
+preview_root="${XDG_DATA_HOME:-$HOME/.local/share}/lodestone-preview"
+# If XDG_DATA_HOME is relative, use "$HOME/.local/share/lodestone-preview".
+worker_python='/paste/the/worker_python/value/here'
+preview_release='/paste/the/release/value/here'
+"$worker_python" -I -B "$preview_release/install.py" --root "$preview_root" doctor
+```
+
+On Windows, PowerShell reads the same fields directly:
+
+```powershell
+$PreviewRoot = Join-Path $env:LOCALAPPDATA 'Lodestone Preview'
+$Active = Get-Content -LiteralPath (Join-Path $PreviewRoot 'ACTIVE.json') -Raw | ConvertFrom-Json
+$WorkerPython = $Active.worker_python
+$Installer = Join-Path $Active.release 'install.py'
+& $WorkerPython -I -B $Installer --root $PreviewRoot doctor
+```
+
+Use your custom data root if you selected one. Replace the final `doctor` with
+`open`, `rollback` or `uninstall` for those operations; `open` launches the GUI.
+`doctor` checks the selected payload, dependency identities and learning
+configuration without making a model call. After removal, `UNINSTALLED.json`
+retains the former interpreter and release paths. To reinstall, run the verified
+setup entrypoint for the same target and data root.
+
 Close the application normally before upgrading, rolling back or removing it.
-Install a later verified download to upgrade. A failed activation restores the
-previous active files. Rollback restores the prior activation while retaining all
+Install a later verified download to upgrade. Failed activation, rollback and
+removal attempts retain recovery transactions and restore the previous managed
+files. An interrupted transaction is recovered before the next launch or
+installation change. Rollback restores the prior activation while retaining all
 user records and conversations. Removal deactivates the app and keeps the data,
 models and release history in the data directory. On a first installation,
 rollback deactivates the application because there is no earlier version.
@@ -133,7 +292,14 @@ probability probe, train weights, or establish improved decisions.
 ## Bounds and components
 
 The default reader is the quantized Qwen3-0.6B base. It has a small model capacity,
-an 8,192-token input/output budget and a 4 GiB observed process-group memory bound.
+an 8,192-token input/output budget and a configured 4 GiB worker limit. On macOS
+and Linux, the supervisor samples the worker process group's resident memory
+(RSS); this is an observed limit, not an instantaneous allocation ceiling. On
+Windows, a Job object owns the worker and its children, applies a 4 GiB committed
+memory limit, and reports working-set/RSS observations separately. Committed
+memory and resident memory are different measures; neither limit describes total
+system RAM use by the OS and GUI. Cancellation and timeout stop the owned worker
+processes. A Windows Job does not provide filesystem or network isolation.
 Long histories can reach the native context limit; an error or retained refusal
 must be inspected before another attempt. Some machines will respond slowly.
 
@@ -143,6 +309,33 @@ corrections; Origami provides curated handoffs; the toolkit catalogue reports ea
 operation's requirements. Optional research/training tools are not dependencies
 of the installed local reader and are not run by installation.
 
+Toolkit availability also depends on host isolation. Windows toolkit command
+execution and external command providers that require the POSIX isolation fence
+refuse until an equivalent isolation mechanism is available. The local Loom
+reader and its retained learning lifecycle are separate from those optional
+command routes. Linux command routes that require bubblewrap refuse when host
+policy or kernel restrictions prevent its isolation from starting; installing
+`bubblewrap` does not override such restrictions. Inspect the catalogue and the
+retained refusal before retrying.
+
+On stock Ubuntu 24.04, AppArmor restricts unprivileged user namespaces, so
+bubblewrap cannot start and those optional command routes refuse. An
+administrator may opt in with `sudo "./Enable Linux Command Fence.sh"`. It loads
+upstream AppArmor's `bwrap-userns-restrict` policy, byte-for-byte and pinned by
+hash (the policy Ubuntu 25.04 enables by default): `/usr/bin/bwrap` may use user
+namespaces, and every program it starts runs without capabilities. The global
+restriction stays on; `--remove` unloads and deletes it; it refuses to touch any
+profile it did not write. The normal installer never runs it.
+
+The GUI uses native wx controls. The optional `accessible-output3` speech/braille
+plugin is not bundled because the target dependency sets lack pinned compatible
+wheels. This does not establish screen-reader or braille accessibility on any
+of the three platforms; that still needs native assistive-technology testing.
+
 See `THIRD_PARTY.md` and the included source licences. The distribution includes
 the modified GUI source and the runtime source used by this release. Models and
-dependencies are obtained from the pinned upstream URLs in `dependencies.lock.json`.
+dependencies are obtained from the pinned upstream URLs in the target archive's
+`dependencies.lock.json`. The source tree also retains the Ubuntu and Windows
+locks as `dependencies.ubuntu-24.04-x86_64.lock.json` and
+`dependencies.windows-x86_64.lock.json`. The combined desktop distribution is
+GPL-2.0-only; the separately usable runtime retains its MIT licence.

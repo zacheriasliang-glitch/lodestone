@@ -1,5 +1,53 @@
 # Release notes
 
+## 0.4.0-preview.6 — cross-platform desktop preview
+
+Source review is recorded in
+[PR #18](https://github.com/zacheriasliang-glitch/lodestone/pull/18).
+[The named release page](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0-preview.6)
+records publication status, the exact tested source and native artifact evidence.
+See the [desktop guide](desktop/README.md) for setup, management commands and
+platform limits.
+
+- Adds separate pinned installer/dependency sets for Intel macOS 12 or later,
+  Ubuntu 24.04 x86_64, and Windows 11 / Windows Server 2022 x86_64. Windows gains
+  a double-click `.cmd` bootstrap without execution-policy changes; Ubuntu gains
+  a shell bootstrap with explicit OS GUI/isolation prerequisites. The PowerShell
+  setup script remains an advanced Windows route. Windows checks path requirements
+  before downloading; a separate opt-in administrator helper enables long-path
+  support when required, with the previous setting retained for reversal.
+- Bundles only the GUI dependencies used by the exposed local Loom route, with
+  required versions and hashes preserved. Upstream provider engine source and
+  its original dependency metadata remain attributed and available.
+- Uses native per-user data locations and owned launchers: a Mac app bundle,
+  Linux desktop entry and Windows command launcher. Versioned activation,
+  rollback and removal retain recovery transactions and preserve drafts,
+  conversations, native learning records and correction history.
+- Ports bootstrap/import metadata, record publication and lifecycle locking to
+  native Windows and POSIX operations. Existing failed, refused and interrupted
+  attempts remain available; selected reference-history imports keep their
+  explicit history window and runtime-compatibility requirements.
+- Preserves the Loom GUI's encounter purpose, saved draft/model selection,
+  practice options, attributed correction controls and Origami handoffs across
+  the target packaging. Native wx controls remain; the optional
+  `accessible-output3` speech/braille plugin is not bundled, and no cross-platform
+  assistive-technology verification is claimed.
+- Closes migration database handles and frame timers before native teardown.
+  Native wx warnings and errors are retained in UTF-8 logs without blocking
+  shutdown; unavailable native locales fall back while keeping the requested
+  application translation.
+- Adds Windows Job ownership of local inference workers and descendants, with
+  cancellation, timeout and a committed-memory limit. Resident-memory sampling
+  is reported separately; the configured 4 GiB Windows commit bound is not the
+  same measure as the macOS/Linux process-group RSS bound.
+- Keeps command execution dependent on actual host isolation. Windows toolkit
+  commands and external command-provider routes requiring POSIX isolation refuse;
+  Linux routes requiring bubblewrap refuse when that isolation cannot start.
+  The local reader and retention lifecycle remain separate from those routes.
+- Preserves all 31 programme criteria and earlier evidence. This preview does
+  not establish improved semantic decisions, useful learned transfer or model
+  weight updates. Published stable core v0.3.2 artifacts remain separate.
+
 ## 0.4.0-preview.5 — reference-history import and compatibility
 
 - Adds opt-in `import-memory --history-references` and explicit selection of a

@@ -131,7 +131,7 @@ class WorkerTransportTests(unittest.TestCase):
             with patch.object(worker, "verified_tokenizer", return_value=(object(), {"fixture": "pinned"})), \
                     patch.object(loom_adapter, "encode_prediction", return_value={"prompt_tokens": 10}) as encode, \
                     patch.object(loom_adapter, "render_prompt", return_value="IDENTICAL RENDERED PROMPT") as render, \
-                    patch.object(worker, "start_ollama", return_value=(object(), opener, {"version": "scripted"})), \
+                    patch.object(worker, "start_ollama", return_value=(Mock(pid=12345), opener, {"version": "scripted"})), \
                     patch.object(worker, "stop_server"), \
                     patch.object(worker, "http_json", return_value={"models": [{"name": "qwen3:0.6b", "digest": "scripted-digest"}]}):
                 result = worker.run_ollama(config, packet, partial, observation)
@@ -185,6 +185,7 @@ class WorkerTransportTests(unittest.TestCase):
 
 class BridgeBindingTests(unittest.TestCase):
     def configured(self, directory, backend="ollama_qwen3_base"):
+        directory = Path(directory).resolve()
         active_path = Path(directory) / "active.json"
         active_path.write_text(json.dumps({"schema": "lodestone-learning-active/v1",
             "required": True, "memory_workspace": str(Path(directory) / "memory"),

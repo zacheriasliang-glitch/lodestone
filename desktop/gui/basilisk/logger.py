@@ -11,9 +11,56 @@ from pathlib import Path
 from types import TracebackType
 
 from platformdirs import user_log_path
+import wx
 
 from basilisk import global_vars
 from basilisk.consts import APP_AUTHOR, APP_NAME
+
+
+class _WxLogTarget(wx.Log):
+	"""Write native diagnostics without wx.LogGui's blocking modal flush."""
+
+	def __init__(self):
+		super().__init__()
+		self.logger = logging.getLogger("basilisk.wx")
+		self.levels = {
+			wx.LOG_FatalError: logging.CRITICAL,
+			wx.LOG_Error: logging.ERROR,
+			wx.LOG_Warning: logging.WARNING,
+			wx.LOG_Debug: logging.DEBUG,
+			wx.LOG_Trace: logging.DEBUG,
+		}
+
+	def DoLogRecord(self, level, message, info):
+		python_level = self.levels.get(level, logging.INFO)
+		if python_level < logging.WARNING:
+			self.logger.log(python_level, "%s", message)
+			return
+		# Native warnings/errors previously appeared independently of Python's
+		# verbosity setting. Preserve them in the same configured destinations.
+		record = self.logger.makeRecord(
+			self.logger.name, python_level, info.filename or "", info.line,
+			message, (), None,
+		)
+		for handler in logging.getLogger().handlers:
+			handler.handle(record)
+
+
+# wx owns the native target; keep its Python virtual-method implementation alive
+# through native application shutdown as well as ordinary garbage collection.
+_wx_log_target = None
+
+
+def install_wx_logging() -> _WxLogTarget:
+	"""Install before wx startup/localization, with Python handlers ready."""
+	global _wx_log_target
+	target = _WxLogTarget()
+	# SetActiveTarget flushes the previous target before returning ownership.
+	# Installing before wx.App avoids creating or discarding a pending LogGui.
+	previous = wx.Log.SetActiveTarget(target)
+	_wx_log_target = target
+	del previous
+	return _wx_log_target
 
 
 def get_log_file_path() -> Path:
@@ -49,7 +96,7 @@ def setup_logging(level: str) -> None:
 	level = level.upper()
 	if level == "OFF":
 		level = "NOTSET"
-	handlers = [logging.FileHandler(get_log_file_path(), mode="w")]
+	handlers = [logging.FileHandler(get_log_file_path(), mode="w", encoding="utf-8")]
 	if not getattr(sys, "frozen", False):
 		handlers.append(logging.StreamHandler())
 	logging.basicConfig(

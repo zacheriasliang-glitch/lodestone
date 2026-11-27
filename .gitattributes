@@ -1,2 +1,6 @@
 # Keep checksum-pinned source bytes identical in native Git checkouts.
 * text=auto eol=lf
+
+# cmd.exe GOTO/CALL must consume the same CRLF bytes on every host and in ZIPs.
+# Store the batch files verbatim so the global LF rule cannot rewrite them.
+desktop/*.cmd -text whitespace=cr-at-eol

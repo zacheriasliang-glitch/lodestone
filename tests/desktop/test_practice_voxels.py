@@ -26,7 +26,7 @@ class PracticeVoxelTests(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
-        self.root = Path(temporary.name)
+        self.root = Path(temporary.name).resolve()
         initialized = bootstrap.initialize(self.root / "preview", RUNTIME, Path(sys.executable))
         self.active = Path(initialized["active_config"])
         config = json.loads(self.active.read_text())

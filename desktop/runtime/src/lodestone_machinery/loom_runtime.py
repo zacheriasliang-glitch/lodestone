@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import signal
 import subprocess
+import sys
 import threading
 import time
 import uuid
@@ -19,6 +20,7 @@ import re
 
 from lodestone_nurarihyon.common import canonical, read_bytes, strict_json
 from .loom_unified import UnifiedLoom
+from .portable_process import WindowsJobProcess, launch_worker, linux_group_snapshot, windows_system_directory
 
 
 SCHEMA = "loom-unified-runtime/v1"
@@ -196,7 +198,7 @@ def _retain_local_failure(learning_config, *, operation, source_event, observati
 def _execution_binding(config, identity, *, encounter, purpose, context, voxel=None):
     """Bind the effective recipe; transient run metadata cannot bypass a stop."""
     root = Path(__file__).resolve().parent
-    names = ("loom_runtime.py", "loom_runtime_worker.py", "loom_adapter.py",
+    names = ("loom_runtime.py", "loom_runtime_worker.py", "portable_process.py", "loom_adapter.py",
              "loom_adapter_local.py", "loom_adapter_torch.py", "loom_inference_memory.py",
              "learning_context.py", "learning_reader.py")
     if config.get("decision_format") is not None:
@@ -244,7 +246,7 @@ def _resource_failure(returned, owned_result, config):
     reason = observation.get("reason")
     if reason == "rss_limit":
         peak, samples = observation.get("observed_group_peak_rss_bytes"), observation.get("rss_valid_sample_count")
-        if (observation.get("rss_accounting") == "sampled_entire_owned_process_group"
+        if (observation.get("rss_accounting") in ("sampled_entire_owned_process_group", "sampled_entire_owned_windows_job")
                 and type(peak) is int and type(samples) is int and samples > 0
                 and peak > config["max_rss_bytes"]):
             return {"resource": "max_rss_bytes", "observed": peak, "limit": config["max_rss_bytes"]}
@@ -269,11 +271,21 @@ def _environment(backend):
                 "OMP_NUM_THREADS": "2", "MKL_NUM_THREADS": "2",
                 "OPENBLAS_NUM_THREADS": "2", "NUMEXPR_NUM_THREADS": "2",
                 "VECLIB_MAXIMUM_THREADS": "2"})
+    if sys.platform == "win32":
+        system_root = windows_system_directory()
+        env.update({key: os.environ[key] for key in ("TEMP", "TMP", "USERPROFILE", "LOCALAPPDATA", "APPDATA")
+                    if key in os.environ})
+        env.update({"SystemRoot": system_root, "WINDIR": system_root,
+                    "PATH": str(Path(system_root) / "System32")})
     return env
 
 
 def _group_snapshot(pgid):
     """Bounded read-only process-group sample, including worker descendants."""
+    if sys.platform.startswith("linux"):
+        return linux_group_snapshot(pgid)
+    if sys.platform != "darwin":
+        raise OSError("POSIX group sampling unavailable; Windows requires an owned Job handle")
     sample = subprocess.run(["/bin/ps", "-axo", "pid=,pgid=,rss=,stat="],
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                             timeout=1, check=True)
@@ -300,6 +312,8 @@ def _signal_group(pgid, signum):
 
 def _stop_group(child):
     """Terminate once, escalate once and verify there are no live group members."""
+    if isinstance(child, WindowsJobProcess):
+        return child.stop()
     pgid = child.pid  # start_new_session=True; child and all its children share it.
     _signal_group(pgid, signal.SIGTERM)
     escalated = False
@@ -609,16 +623,19 @@ class LoomBridge:
         valid_sample_count = 0
         last_valid_sample_seconds = None
         reason = None
+        job_observation = {}
         cleanup = {"confirmed_stopped": True, "kill_escalated": False, "zombie_pids": []}
         try:
             with (directory / "stdout.log").open("xb") as stdout, (directory / "stderr.log").open("xb") as stderr:
                 os.chmod(stdout.name, 0o600)
                 os.chmod(stderr.name, 0o600)
-                child = subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=stdout,
-                                         stderr=stderr, cwd=str(directory),
-                                         env=_environment(config["backend"]), start_new_session=True)
-                _save(directory / "worker.json", {"pid": child.pid, "pgid": child.pid,
-                                                  "backend": config["backend"]})
+                child = launch_worker(command, stdout=stdout, stderr=stderr, cwd=str(directory),
+                                      env=_environment(config["backend"]), max_memory_bytes=config["max_rss_bytes"])
+                _save(directory / "worker.json", {"pid": child.pid,
+                    "pgid": None if isinstance(child, WindowsJobProcess) else child.pid,
+                    "backend": config["backend"],
+                    **({"ownership": "windows_job", "filesystem_network_sandbox": False}
+                       if isinstance(child, WindowsJobProcess) else {})})
                 while child.poll() is None:
                     if cancelled():
                         reason = "cancelled"
@@ -626,9 +643,14 @@ class LoomBridge:
                     if time.monotonic() - started >= config["wall_seconds"]:
                         reason = "wall_limit"
                         break
+                    if isinstance(child, WindowsJobProcess):
+                        job_observation = child.memory_observation()
+                        if job_observation["windows_job_memory_limit_notified"]:
+                            reason = "windows_job_memory_limit"
+                            break
                     if time.monotonic() >= next_sample:
                         try:
-                            sample = _group_snapshot(child.pid)
+                            sample = child.snapshot() if isinstance(child, WindowsJobProcess) else _group_snapshot(child.pid)
                         except subprocess.TimeoutExpired:
                             consecutive_sample_errors += 1
                             maximum_consecutive_sample_errors = max(
@@ -660,8 +682,15 @@ class LoomBridge:
             if child is not None:
                 try:
                     cleanup = _stop_group(child)
+                    if isinstance(child, WindowsJobProcess):
+                        job_observation = child.memory_observation()
+                        if reason is None and job_observation["windows_job_memory_limit_notified"]:
+                            reason = "windows_job_memory_limit"
                 except (OSError, ValueError, subprocess.SubprocessError) as exc:
                     cleanup = {"confirmed_stopped": False, "stop_error": type(exc).__name__}
+                finally:
+                    if isinstance(child, WindowsJobProcess):
+                        child.close()
                 if not cleanup["confirmed_stopped"]:
                     with self._lock:
                         self._unsafe_groups.add(child.pid)
@@ -673,13 +702,14 @@ class LoomBridge:
         observation = {"backend": config["backend"], "worker_exit_code": child.returncode if child else None,
                        "elapsed_seconds": round(time.monotonic() - started, 3),
                        "observed_group_peak_rss_bytes": peak,
-                       "rss_accounting": "sampled_entire_owned_process_group",
+                       "rss_accounting": ("sampled_entire_owned_windows_job" if isinstance(child, WindowsJobProcess)
+                                          else "sampled_entire_owned_process_group"),
                        "rss_sample_errors": sample_errors,
                        "rss_valid_sample_count": valid_sample_count,
                        "rss_last_valid_sample_seconds": last_valid_sample_seconds,
                        "rss_consecutive_errors_at_exit": consecutive_sample_errors,
                        "rss_max_consecutive_errors": maximum_consecutive_sample_errors,
-                       "stop": cleanup, "artifacts_dir": str(directory)}
+                       "stop": cleanup, "artifacts_dir": str(directory), **job_observation}
         if reason is None and cancelled():
             reason = "cancelled"
         if reason is None and child.returncode != 0:
@@ -703,7 +733,7 @@ class LoomBridge:
                 reason = "invalid_worker_result:" + type(exc).__name__
         if reason is not None:
             response, counts = _partial(directory)
-            result = {"status": "INTERRUPTED" if reason in ("cancelled", "wall_limit", "rss_limit")
+            result = {"status": "INTERRUPTED" if reason in ("cancelled", "wall_limit", "rss_limit", "windows_job_memory_limit")
                       else "FAILED", "response": response,
                       "observation": dict(observation, reason=reason, **counts)}
         _save(directory / "supervisor.json", result)

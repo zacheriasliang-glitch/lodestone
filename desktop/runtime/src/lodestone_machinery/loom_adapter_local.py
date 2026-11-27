@@ -15,6 +15,9 @@ import stat
 import time
 import math
 
+from lodestone_nurarihyon.portable_files import (absolute_path, guarded_directory,
+                                                 open_regular)
+
 
 REPOSITORY = "Qwen/Qwen3-0.6B"
 REVISION = "167b8104f88905a951069f5f95f9776908da5f68"
@@ -108,19 +111,18 @@ def _root(directory):
     supplied = Path(directory)
     if ".." in supplied.parts:
         raise ValueError("Parent traversal in model directory")
-    root = Path(os.path.abspath(supplied))
-    if not root.is_dir() or any(p.is_symlink() for p in (root, *root.parents)):
-        raise ValueError("Existing model directory with no symlink components required")
-    if {p.name for p in root.iterdir()} != set(ASSETS):
-        raise ValueError("Model directory must contain exactly the registered assets")
+    root = absolute_path(supplied)
+    with guarded_directory(root):
+        if {p.name for p in root.iterdir()} != set(ASSETS):
+            raise ValueError("Model directory must contain exactly the registered assets")
     return root
 
 
 def _verify_file(path, expected):
     size, expected_sha = expected
-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-    try:
+    with open_regular(path) as fd:
         before = os.fstat(fd)
+        named_before = path.stat(follow_symlinks=False)
         if not stat.S_ISREG(before.st_mode) or before.st_size != size:
             raise ValueError("Model asset is not a regular file of the registered size")
         digest = hashlib.sha256()
@@ -134,13 +136,11 @@ def _verify_file(path, expected):
                 raise ValueError("Model asset grew while being verified")
             digest.update(block)
         if (_identity(before) != _identity(os.fstat(fd)) or
-                _identity(before) != _identity(path.stat(follow_symlinks=False))):
+                _identity(named_before) != _identity(path.stat(follow_symlinks=False))):
             raise ValueError("Model asset changed during verification")
         if total != size or digest.hexdigest() != expected_sha:
             raise ValueError("Model asset differs from its registered SHA-256")
         return _identity(before)
-    finally:
-        os.close(fd)
 
 
 class VerifiedAssets:
@@ -148,19 +148,26 @@ class VerifiedAssets:
 
     def __init__(self, directory):
         self.root = _root(directory)
-        self.identities = {name: _verify_file(self.root / name, expected)
-                           for name, expected in ASSETS.items()}
+        with guarded_directory(self.root):
+            self.root_identity = (self.root.stat().st_dev, self.root.stat().st_ino)
+            self.identities = {name: _verify_file(self.root / name, expected)
+                               for name, expected in ASSETS.items()}
 
     def verify_unchanged(self, *, full=False):
-        if _root(self.root) != self.root:
-            raise ValueError("Model root changed")
-        for name, expected in ASSETS.items():
-            path = self.root / name
-            info = path.lstat()
-            if not stat.S_ISREG(info.st_mode) or _identity(info) != self.identities[name]:
-                raise ValueError("Verified model asset identity changed")
-            if full and _verify_file(path, expected) != self.identities[name]:
-                raise ValueError("Verified model content changed")
+        with guarded_directory(self.root):
+            root = _root(self.root)
+            if root != self.root or (root.stat().st_dev, root.stat().st_ino) != self.root_identity:
+                raise ValueError("Model root changed")
+            for name, expected in ASSETS.items():
+                path = self.root / name
+                # Compare handle metadata with handle metadata: Windows path
+                # ctime means creation time while fstat ctime means ChangeTime.
+                with open_regular(path) as fd:
+                    info = os.fstat(fd)
+                    if not stat.S_ISREG(info.st_mode) or _identity(info) != self.identities[name]:
+                        raise ValueError("Verified model asset identity changed")
+                    if full and _verify_file(path, expected) != self.identities[name]:
+                        raise ValueError("Verified model content changed")
 
     def receipt(self):
         return {"model": REPOSITORY, "revision": REVISION,

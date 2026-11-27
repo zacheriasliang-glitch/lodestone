@@ -159,6 +159,11 @@ def learning_refs(record):
 
 
 class CapturedLearningMemory(LearningMemory):
+    _read_only_capture = True
+
+    def _publish(self, *args, **kwargs):
+        raise ValueError("Captured learning archives are read-only")
+
     def __init__(self, store):
         # Deliberately bypass LearningMemory/RecordStore filesystem constructors.
         self.store = store

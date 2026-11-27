@@ -310,9 +310,8 @@ print(json.dumps({'maximum_reads_per_record':max(first_counts), 'records_read':l
             self.root / "imports/example", RUNTIME, Path(sys.executable),
             seed_handles=initialized["seed_handles"])
         before_config = Path(initialized["active_config"]).read_bytes()
-        import fcntl
-        with (Path(initialized["memory_workspace"]) / "learning-weaving.lock").open("a+b") as held:
-            fcntl.flock(held.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        from platform_support import file_lock
+        with file_lock(Path(initialized["memory_workspace"]) / "learning-weaving.lock"):
             with self.assertRaises(ValueError):
                 bootstrap.select_import(self.root, Path(imported["destination"]), RUNTIME, Path(sys.executable))
         self.assertEqual(Path(initialized["active_config"]).read_bytes(), before_config)
@@ -414,9 +413,8 @@ print(json.dumps({'first_status':first['status'],'second_status':second['status'
         self.assertEqual(result["status"], "RECONCILED")
         self.assertEqual(result["provider_calls"], 0)
         self.assertFalse(result["automatic_retry"])
-        import fcntl
-        with (Path(initialized["memory_workspace"]) / "learning-broker.lock").open("a+b") as held:
-            fcntl.flock(held.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        from platform_support import file_lock
+        with file_lock(Path(initialized["memory_workspace"]) / "learning-broker.lock"):
             busy = bootstrap.reconcile(self.root, RUNTIME, Path(sys.executable))
             self.assertEqual(busy["status"], "BUSY")
             self.assertEqual(busy["provider_calls"], 0)

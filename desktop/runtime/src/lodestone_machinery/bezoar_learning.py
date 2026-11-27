@@ -7,15 +7,16 @@ checks verify custody and declarations, not a reviewer's identity or truth.
 There are no model calls, weight updates, permission grants or implicit actions.
 Callers serialize prepare/dispatch/finish with their existing execution lock.
 """
+from contextlib import nullcontext
 from datetime import datetime, timezone
 from functools import wraps
 import hashlib
 import json
-import os
 from pathlib import Path
 import uuid
 
 from .records import HANDLE, RecordStore, canonical
+from lodestone_nurarihyon.portable_files import guarded_directory
 
 PREFIX = "bezoar-learning-"
 MAX_RECORDS = 2048
@@ -77,32 +78,39 @@ def _operation(method):
     @wraps(method)
     def wrapped(self, *args, **kwargs):
         outer = not hasattr(self, "_validated_records")
-        if outer:
-            self._validated_records = {}
-            self._catalog_rows = None
-            self._validated_values = {}
-            self._checking_values = set()
-        key = (method.__name__, args[0]) if method.__name__.startswith("read_") and len(args) == 1 and not kwargs else None
-        try:
-            if key is not None and key in self._validated_values:
-                return _copy(self._validated_values[key])
-            if key is not None:
-                _require(key not in self._checking_values, "Recursive learning validation cycle")
-                self._checking_values.add(key)
-            try:
-                result = method(self, *args, **kwargs)
-                if key is not None:
-                    self._validated_values[key] = _copy(result)
-                return result
-            finally:
-                if key is not None:
-                    self._checking_values.discard(key)
-        finally:
+        if self.workspace is None:
+            _require(getattr(self, "_read_only_capture", False) is True,
+                     "Only an explicit read-only capture may omit filesystem custody")
+        # One lexical directory lease covers nested validation and cached reads.
+        # Captured archives have no attributed filesystem workspace to open.
+        custody = guarded_directory(self.workspace) if outer and self.workspace is not None else nullcontext()
+        with custody:
             if outer:
-                del self._validated_records
-                del self._catalog_rows
-                del self._validated_values
-                del self._checking_values
+                self._validated_records = {}
+                self._catalog_rows = None
+                self._validated_values = {}
+                self._checking_values = set()
+            key = (method.__name__, args[0]) if method.__name__.startswith("read_") and len(args) == 1 and not kwargs else None
+            try:
+                if key is not None and key in self._validated_values:
+                    return _copy(self._validated_values[key])
+                if key is not None:
+                    _require(key not in self._checking_values, "Recursive learning validation cycle")
+                    self._checking_values.add(key)
+                try:
+                    result = method(self, *args, **kwargs)
+                    if key is not None:
+                        self._validated_values[key] = _copy(result)
+                    return result
+                finally:
+                    if key is not None:
+                        self._checking_values.discard(key)
+            finally:
+                if outer:
+                    del self._validated_records
+                    del self._catalog_rows
+                    del self._validated_values
+                    del self._checking_values
     return wrapped
 
 
@@ -110,8 +118,8 @@ class LearningMemory:
     def __init__(self, workspace, *, history_references=False):
         _require(type(history_references) is bool, "History representation selection must be explicit")
         self.history_references = history_references
-        self.workspace = Path(workspace).resolve()
-        self.store = RecordStore(self.workspace)
+        self.store = RecordStore(workspace)
+        self.workspace = self.store.workspace
         if history_references:
             self._check_history_workspace()
 
@@ -146,15 +154,10 @@ class LearningMemory:
         return cls(workspace, history_references=mode == "lodestone-learning-active/v2")
 
     def _publish(self, kind, body, links=()):
+        _require(self.workspace is not None, "Captured learning archives are read-only")
         payload = {"schema": PREFIX + kind + "/v1", **_copy(body), "authority": "NONE"}
         result = self.store.publish("bezoar", "learning-" + kind, payload, links=sorted(set(links)))
-        # RecordStore syncs the file before its atomic link. Persist that link
-        # too: a completed learning write must survive loss of the host process.
-        descriptor = os.open(self.store.path(result).parent, os.O_RDONLY)
-        try:
-            os.fsync(descriptor)
-        finally:
-            os.close(descriptor)
+        # RecordStore publishes and flushes with the native platform backend.
         rows = getattr(self, "_catalog_rows", None)
         if rows is not None:
             # This operation already checked the complete catalogue. Validate
