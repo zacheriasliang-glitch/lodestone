@@ -921,7 +921,7 @@
     "runtime/docs/pando.md": {
       "origin": "public-core",
       "path": "docs/pando.md",
-      "sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a",
+      "sha256": "80e725ff96f8f3f5fa428cf94b45bea3cea6b4ad20f051150b762fddb9d29851",
       "source_sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a"
     },
     "runtime/docs/porcelain.md": {
@@ -1691,7 +1691,7 @@
     "runtime/src/lodestone_machinery/loom_operations.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_operations.py",
-      "sha256": "3cf59004f0f4c7413d99a65806c449e7a2780ab9e8c709becc01b2aa73ba88f6",
+      "sha256": "ace967312c2e40a338a1e63454c712fb39095e564c7675eb4c9514be1a66b203",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     "runtime/src/lodestone_machinery/loom_optional_operations.py": {
@@ -2171,7 +2171,7 @@
     "runtime/src/lodestone_pando/__main__.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_pando/__main__.py",
-      "sha256": "9f57dfd36ee844c6eeb8e30935bbe374fbbaced60e0bf1d80b0a5a30074818cd",
+      "sha256": "080d7c7fc6916f62d47fd7aef77f1728be70572c551c287d5c0a15c363ffa004",
       "source_sha256": "9f57dfd36ee844c6eeb8e30935bbe374fbbaced60e0bf1d80b0a5a30074818cd"
     },
     "runtime/src/lodestone_pando/server.py": {
@@ -2213,7 +2213,7 @@
     "runtime/tools/ecosystem/cli.py": {
       "origin": "unified-runtime",
       "path": "tools/ecosystem/cli.py",
-      "sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e",
+      "sha256": "32e075ed8003c4ceef75464b7a737a9f8ab662ecb521014bb0805ea60f5b3da9",
       "source_sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e"
     },
     "runtime/tools/ecosystem/conscience-policy.json": {
@@ -2405,7 +2405,7 @@
     "runtime/tools/pando/run": {
       "origin": "unified-runtime",
       "path": "tools/pando/run",
-      "sha256": "862b85e6fb9f2e7f0a43219ecf628edb3141e1e5c29fbb4a5ffe71af747b69c8",
+      "sha256": "f3214bc6bea1de6ad750c5f44e5821c230a0d9780d305f618723b3819b6ce6ee",
       "source_sha256": "862b85e6fb9f2e7f0a43219ecf628edb3141e1e5c29fbb4a5ffe71af747b69c8"
     },
     "runtime/tools/release/nurarihyon_smoke.py": {
@@ -2488,6 +2488,7 @@
     "portable_installer": "93217426f4db532166ca26e6d55604a5f2eb9027",
     "portable_loopback_reuse": "c7f354186bd319d9418de87f7693bf35008e4d16",
     "portable_native_ci": "5bd383a2d80ff8c5d05bff4c01df536350f3281d",
+    "portable_pando_init_verify": "a5e4b35176910c41f585c87006ac992257f9f7c9",
     "portable_process": "35b2754ec1235c2205aba78f3cee3034c9788752",
     "portable_process_review_fix": "6fe42109ddde02a7d9dce05f799214d7c1a01c34",
     "portable_smoke_receipt_preservation": "4f0c98f87cd7de1bbcb9f0b9a1682ac215a0593b",
@@ -2710,7 +2711,7 @@
     {
       "path": "runtime/src/lodestone_machinery/loom_operations.py",
       "reason": "Own explicit trusted catalogue subprocesses with Windows Jobs or POSIX process groups, bounded output and elapsed time; preserve Windows path aliases for custody checks and enable only reviewed operation dependencies. No filesystem/network confinement claim.",
-      "sha256": "3cf59004f0f4c7413d99a65806c449e7a2780ab9e8c709becc01b2aa73ba88f6",
+      "sha256": "ace967312c2e40a338a1e63454c712fb39095e564c7675eb4c9514be1a66b203",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     {
@@ -2808,6 +2809,30 @@
       "reason": "Choose an available native locale while preserving the requested application translation.",
       "sha256": "40e1b651c9cf42e9b95c6845c22ce87497f7e92eb7d2684d01aca4f45f1d64cd",
       "source_sha256": "e529d84f29f4c5d04febb5a48b1fb0e70422f1e65d3aae24ec6adc6b80ce7a7e"
+    },
+    {
+      "path": "runtime/docs/pando.md",
+      "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
+      "sha256": "80e725ff96f8f3f5fa428cf94b45bea3cea6b4ad20f051150b762fddb9d29851",
+      "source_sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a"
+    },
+    {
+      "path": "runtime/src/lodestone_pando/__main__.py",
+      "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
+      "sha256": "080d7c7fc6916f62d47fd7aef77f1728be70572c551c287d5c0a15c363ffa004",
+      "source_sha256": "9f57dfd36ee844c6eeb8e30935bbe374fbbaced60e0bf1d80b0a5a30074818cd"
+    },
+    {
+      "path": "runtime/tools/ecosystem/cli.py",
+      "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
+      "sha256": "32e075ed8003c4ceef75464b7a737a9f8ab662ecb521014bb0805ea60f5b3da9",
+      "source_sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e"
+    },
+    {
+      "path": "runtime/tools/pando/run",
+      "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
+      "sha256": "f3214bc6bea1de6ad750c5f44e5821c230a0d9780d305f618723b3819b6ce6ee",
+      "source_sha256": "862b85e6fb9f2e7f0a43219ecf628edb3141e1e5c29fbb4a5ffe71af747b69c8"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"
