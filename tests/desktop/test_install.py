@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 DESKTOP = Path(__file__).resolve().parents[2] / "desktop"
 sys.path.insert(0, str(DESKTOP))
@@ -51,8 +51,19 @@ class InstallationTests(unittest.TestCase):
     def bootstrap(self, root, runtime, python):
         p = root / "learning/ACTIVE.json"
         if not p.exists():
-            install.save(p, {"schema": "fixture-learning", "retained": "original"})
+            install.save(p, {"schema": "lodestone-learning-active/v1", "required": True,
+                            "memory_workspace": str(root / "learning/memory"),
+                            "seed_handles": ["bezoar:" + "0" * 64], "retained": "original"})
+            install.save(root / "runtime/learning-policy.json", {"schema": "fixture-policy"})
         return {"config": str(p)}
+
+    def rollback(self):
+        # These fixtures contain inert runtime files. Native compatibility is
+        # checked separately against real readers in test_reference_import.py.
+        verifier = Mock()
+        verifier.validate_selection.return_value = {"status": "COMPATIBLE"}
+        with patch.object(install, "release_module", return_value=verifier):
+            return install.rollback(self.root)
 
     def setup_install(self):
         return install.install(self.root, self.payload, app=self.app,
@@ -81,7 +92,7 @@ class InstallationTests(unittest.TestCase):
         self.assertEqual(install.read(conf)["max_new_tokens"], 200)
         record = self.root / "learning/user-added-evidence.json"
         record.write_text('{"actual":"new evidence"}')
-        install.rollback(self.root)
+        self.rollback()
         self.assertEqual((self.root / "ACTIVE.json").read_bytes(), before)
         self.assertEqual(record.read_text(), '{"actual":"new evidence"}')
         self.assertTrue(Path(second["release"]).exists())
@@ -150,7 +161,7 @@ class InstallationTests(unittest.TestCase):
     def test_first_install_rollback_leaves_records(self):
         self.setup_install()
         before = (self.root / "learning/ACTIVE.json").read_bytes()
-        install.rollback(self.root)
+        self.rollback()
         self.assertFalse((self.root / "ACTIVE.json").exists())
         self.assertEqual((self.root / "learning/ACTIVE.json").read_bytes(), before)
 
@@ -177,7 +188,7 @@ class InstallationTests(unittest.TestCase):
         with (self.root / ".lifecycle.lock").open("a+") as lease:
             fcntl.flock(lease, fcntl.LOCK_SH | fcntl.LOCK_NB)
             for action in (self.setup_install, lambda: install.uninstall(self.root),
-                           lambda: install.rollback(self.root)):
+                           self.rollback):
                 with self.assertRaisesRegex(ValueError, "Close this Lodestone"):
                     action()
 

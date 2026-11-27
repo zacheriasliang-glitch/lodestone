@@ -169,6 +169,66 @@ def select_import(root: Path, destination: Path, runtime: Path, python: Path) ->
                    {"root": str(_path(root)), "destination": str(_path(destination))})
 
 
+def validate_selection(root: Path, runtime: Path, python: Path) -> dict:
+    """Check the selected memory with a specific runtime, without activation."""
+    return _invoke("validate-selection", runtime, python, {"root": str(_path(root))})
+
+
+def _reference_capability():
+    """Resolve real APIs from the selected interpreter's runtime, not metadata."""
+    from lodestone_machinery.bezoar_learning import LearningMemory
+    from lodestone_machinery import history_inventory
+    from lodestone_machinery.learning_context import history_window_policy
+    if (history_inventory.SCHEMA != "bezoar-learning-history-inventory/v1"
+            or not callable(getattr(LearningMemory, "from_active", None))
+            or history_window_policy(1) != {
+                "schema": "loom-reader-history-window/v1", "keep_latest_runs": 1}):
+        raise ValueError("Selected runtime does not support reference-history practice")
+
+
+def _selection_policy(origami, config):
+    """Validate the paired selection; this does not admit non-windowed Origami."""
+    from lodestone_machinery.learning_context import read_learning_policy
+    if config.get("schema") != "lodestone-learning-active/v2":
+        return read_learning_policy(origami)
+    _reference_capability()
+    policy = _read(_child(origami, "learning-policy.json"))
+    if (type(policy) is not dict or set(policy) != {
+            "schema", "required", "memory_workspace", "purpose", "seed_handles",
+            "history_representation"}
+            or policy.get("schema") != "origami-learning-policy/v2"
+            or policy.get("required") is not True
+            or policy.get("history_representation") != config.get("history_representation")
+            or type(policy.get("purpose")) is not str or not policy["purpose"].strip()
+            or len(policy["purpose"].encode("utf-8")) > 4096):
+        raise ValueError("Invalid paired reference-history selection policy")
+    return policy
+
+
+def _validate_selection(root):
+    from lodestone_machinery.yggdrasil_learning import validate_learning_records
+    from lodestone_nurarihyon import learning
+    root = _path(root)
+    config = _read(_child(root, "learning", "ACTIVE.json"))
+    memory = _selected(config)
+    if not memory.workspace.is_relative_to(root):
+        raise ValueError("Selected memory must remain inside this preview")
+    policy = _selection_policy(_child(root, "runtime"), config)
+    if (policy["memory_workspace"] != config["memory_workspace"]
+            or policy["seed_handles"] != config["seed_handles"]):
+        raise ValueError("Learning and Origami selections differ")
+    with learning.weaving(memory), learning.locked(memory):
+        learning._require_one_reader(memory)
+        # STOP prevents practice, not read-only compatibility maintenance.
+        # The weaving/reader locks and pending-run check still forbid switching
+        # a live or unfinished encounter onto a different reader.
+        validate_learning_records(memory.store)
+        if memory.pending():
+            raise ValueError("Pending practice prevents changing the reader runtime")
+    return {"status": "COMPATIBLE", "active_schema": config["schema"],
+            "memory_workspace": str(memory.workspace), "provider_calls": 0}
+
+
 def _active(memory, seeds, *, history_references=False):
     result = {"schema": "lodestone-learning-active/v1", "required": True,
               "memory_workspace": str(memory), "seed_handles": seeds,
@@ -196,7 +256,18 @@ def _selected(config):
     memory_path = _path(config["memory_workspace"])
     if not memory_path.is_dir() or str(memory_path) != config["memory_workspace"]:
         raise ValueError("Selected memory must be an existing resolved absolute directory")
-    memory = LearningMemory.from_active(config)
+    if callable(getattr(LearningMemory, "from_active", None)):
+        memory = LearningMemory.from_active(config)
+    else:
+        # Compatibility checks also execute against older installed readers.
+        # Their original v1 representation is the only admissible fallback.
+        if (config.get("schema") != "lodestone-learning-active/v1"
+                or config.get("required") is not True or "history_representation" in config):
+            raise ValueError("Selected runtime does not support this memory representation")
+        marker = memory_path / "learning-history-format.json"
+        if marker.exists() or marker.is_symlink():
+            raise ValueError("Legacy runtime cannot validate a reference-history workspace marker")
+        memory = LearningMemory(memory_path)
     with learning.locked(memory):
         seeds = memory.resolve_seeds(config["seed_handles"])
         memory._pairs(seeds, None)  # Require real linked SEED/NACRE conditions.
@@ -238,7 +309,6 @@ def _bootstrap(memory):
 
 def _initialize(root, runtime, python):
     from lodestone_machinery.bezoar_learning import LearningMemory
-    from lodestone_machinery.learning_context import read_learning_policy
     root = _path(root)
     learning_dir = _child(root, "learning")
     active_file = _child(root, "learning", "ACTIVE.json")
@@ -276,8 +346,9 @@ def _initialize(root, runtime, python):
             _create(receipt_file, {**plan, **teaching, "kind": "AUTHORED_TEACHING",
                                   "provider_calls": 0, "weight_update": False})
         if not policy_file.exists():
-            _create(policy_file, _policy(memory.workspace, config["seed_handles"]))
-        policy = read_learning_policy(origami)
+            _create(policy_file, _policy(memory.workspace, config["seed_handles"],
+                                        history_references=config.get("schema") == "lodestone-learning-active/v2"))
+        policy = _selection_policy(origami, config)
         if (policy["memory_workspace"] != config["memory_workspace"]
                 or policy["seed_handles"] != config["seed_handles"]):
             raise ValueError("Existing Origami policy differs from the explicit learning selection")
@@ -330,6 +401,8 @@ def _import(source, destination, seed_handles, *, history_references=False):
     from lodestone_machinery.yggdrasil_learning import validate_learning_records
     if type(history_references) is not bool:
         raise ValueError("Reference-history import must be explicit")
+    if history_references:
+        _reference_capability()
     source, destination = _path(source), _path(destination)
     if destination.exists():
         raise ValueError("Import destination must be new")
@@ -404,12 +477,13 @@ def _import(source, destination, seed_handles, *, history_references=False):
 
 
 def _reconcile(root):
+    from lodestone_machinery.bezoar_learning import LearningMemory
     from lodestone_nurarihyon import learning
     root = _path(root)
     if _child(root, "learning", "STOP").exists():
         return {"status": "STOPPED", "provider_calls": 0, "automatic_retry": False}
     config = _read(_child(root, "learning", "ACTIVE.json"))
-    if (config.get("schema") != "lodestone-learning-active/v1"
+    if (config.get("schema") not in ("lodestone-learning-active/v1", "lodestone-learning-active/v2")
             or config.get("required") is not True):
         raise ValueError("Required native learning configuration is invalid")
     memory = _path(config["memory_workspace"])
@@ -417,6 +491,13 @@ def _reconcile(root):
         raise ValueError("Reconciliation requires an existing preview memory workspace")
     # Native reconciliation owns its nonblocking lock. Pre-validating selection
     # under a second lock would incorrectly turn active practice into an error.
+    if config["schema"] == "lodestone-learning-active/v2":
+        _reference_capability()
+        policy = _selection_policy(_child(root, "runtime"), config)
+        if (policy["memory_workspace"] != config["memory_workspace"]
+                or policy["seed_handles"] != config["seed_handles"]):
+            raise ValueError("Learning and Origami selections differ")
+        return learning.reconcile(LearningMemory.from_active(config))
     return learning.reconcile(memory)
 
 
@@ -443,7 +524,6 @@ def _replace(path, data, expected):
 
 def _select(root, destination):
     from lodestone_machinery.bezoar_learning import LearningMemory
-    from lodestone_machinery.learning_context import read_learning_policy
     from lodestone_machinery.yggdrasil_learning import validate_learning_records
     from lodestone_nurarihyon import learning
     root, destination = _path(root), _path(destination)
@@ -459,7 +539,9 @@ def _select(root, destination):
         receipt = _read(_child(destination, "IMPORT.json"), 1024 * 1024)
         imported = _read(_child(destination, "ACTIVE.json"))
         if imported.get("schema") == "lodestone-learning-active/v2":
-            raise ValueError("Reference-history activation requires a paired supporting runtime and isolated ACTIVE/workspace; ordinary select_import cannot perform that transition")
+            _reference_capability()
+            if receipt.get("history_representation") != imported.get("history_representation"):
+                raise ValueError("Imported reference-history capability differs from its receipt")
         imported_path = _child(destination, "memory")
         if (receipt.get("schema") != IMPORT_SCHEMA or receipt.get("destination") != str(destination)
                 or not imported_path.is_dir()
@@ -480,7 +562,7 @@ def _select(root, destination):
                 learning._check_stop(memory)
             _selected(current)
             _selected(imported)
-            policy = read_learning_policy(origami)
+            policy = _selection_policy(origami, current)
             if (policy["memory_workspace"] != current["memory_workspace"]
                     or policy["seed_handles"] != current["seed_handles"]):
                 raise ValueError("Current learning and Origami selections differ")
@@ -500,6 +582,16 @@ def _select(root, destination):
             selection = {"memory_workspace": str(imported_path), "seed_handles": imported["seed_handles"]}
             following_active = {**current, **selection}
             following_policy = {**policy, **selection}
+            if imported.get("schema") == "lodestone-learning-active/v2":
+                following_active.update(schema="lodestone-learning-active/v2",
+                    history_representation=imported["history_representation"])
+                following_policy.update(schema="origami-learning-policy/v2",
+                    history_representation=imported["history_representation"])
+            elif current.get("schema") == "lodestone-learning-active/v2":
+                following_active["schema"] = "lodestone-learning-active/v1"
+                following_policy["schema"] = "origami-learning-policy/v1"
+                following_active.pop("history_representation", None)
+                following_policy.pop("history_representation", None)
             if following_active == current and following_policy == policy:
                 return {"status": "UNCHANGED", "active_config": str(active_file), **selection,
                         "origami_policy": str(policy_file), "provider_calls": 0, "authority": "NONE"}
@@ -569,6 +661,8 @@ def _main():
         result = _reconcile(Path(values["root"]))
     elif operation == "select":
         result = _select(Path(values["root"]), Path(values["destination"]))
+    elif operation == "validate-selection":
+        result = _validate_selection(Path(values["root"]))
     else:
         raise ValueError("Unknown bootstrap operation")
     sys.stdout.buffer.write(_canonical(result) + b"\n")

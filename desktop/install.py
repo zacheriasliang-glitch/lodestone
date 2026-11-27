@@ -421,6 +421,37 @@ def rollback(root):
                                    app / "Contents/Info.plist", app / "Contents/MacOS/Lodestone")}
         if set(report["before"]) != allowed:
             raise ValueError("Transaction contains unexpected restoration paths")
+        previous = report["before"][str(root / "ACTIVE.json")]
+        if previous is not None:
+            previous_active = json.loads(base64.b64decode(previous["bytes"], validate=True))
+            selected_path = root / "learning/ACTIVE.json"
+            selected = read(selected_path)
+            if (type(selected) is not dict or selected.get("schema") not in
+                    ("lodestone-learning-active/v1", "lodestone-learning-active/v2")):
+                raise ValueError("Unsupported learning selection prevents runtime rollback")
+            previous_release = root / "releases" / previous_active.get("release_id", "")
+            if (previous_active.get("schema") != SCHEMA
+                    or previous_active.get("release") != str(previous_release)
+                    or previous_release.parent != root / "releases"):
+                raise ValueError("Previous runtime does not belong to this installation")
+            _, identity = verify_payload(previous_release)
+            if identity != previous_active["release_id"]:
+                raise ValueError("Previous runtime payload identity differs")
+            selection_files = (selected_path, root / "runtime/learning-policy.json")
+            before_selection = snapshot(selection_files)
+            try:
+                # Use this verifier with the target reader's actual modules.
+                # Never silently roll an old runtime onto a new-format memory.
+                bootstrap = release_module(Path(__file__).resolve().parent, "bootstrap_learning")
+                bootstrap.validate_selection(root, previous_release / "runtime",
+                                             Path(previous_active["worker_python"]))
+            except (ValueError, OSError, subprocess.SubprocessError) as exc:
+                raise ValueError("Rollback requires a compatible paired runtime and memory workspace. "
+                    "Select a validated v1 import (or restore the exact saved pre-selection ACTIVE and "
+                    "policy together) before retrying; all records and active pointers are unchanged. "
+                    "Compatibility check: " + str(exc)) from exc
+            if snapshot(selection_files) != before_selection:
+                raise ValueError("Learning selection changed during rollback compatibility check")
         restore(report["before"])
         report["state"] = "ROLLED_BACK"
         save(transaction, report)
@@ -466,6 +497,8 @@ def main():
     imp.add_argument("source", type=Path)
     imp.add_argument("destination", type=Path)
     imp.add_argument("--seed", action="append", required=True)
+    imp.add_argument("--history-references", action="store_true",
+                     help="Import into an isolated reference-history workspace; requires an explicit practice history window")
     select = sub.add_parser("select-memory", help="Use a verified import inside this preview")
     select.add_argument("destination", type=Path)
     args = parser.parse_args()
@@ -484,7 +517,8 @@ def main():
             active = active_install(root)
             bootstrap = release_module(active["release"], "bootstrap_learning")
             result = bootstrap.import_memory(args.source, args.destination, Path(active["release"]) / "runtime",
-                                   Path(active["worker_python"]), seed_handles=args.seed)
+                                   Path(active["worker_python"]), seed_handles=args.seed,
+                                   **({"history_references": True} if args.history_references else {}))
         elif args.command == "select-memory":
             root = checked_root(args.root)
             with locked(root):
