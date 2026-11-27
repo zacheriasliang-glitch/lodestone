@@ -3,12 +3,12 @@
 Unified Loom provides a local Qwen3 reader, retained encounters and corrections,
 Origami handoffs and a catalogue of the supported toolkit operations.
 
-The `0.4.0-preview.6` cross-platform candidate targets Intel macOS, Ubuntu 24.04
-x86_64 and Windows x86_64. Native release verification and publication are pending
-for this candidate. A target listed here is not a claim that its release asset or
-native checks have been completed; use the exact release's verification record.
-Apple Silicon, other Linux distributions, ARM Windows and mobile platforms are
-outside this target set.
+The `0.4.0-preview.6` cross-platform preview targets Intel macOS, Ubuntu 24.04
+x86_64 and Windows x86_64. The
+[named release page](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0-preview.6)
+provides downloads when published, with the exact source commit, checksums and
+native verification record. Apple Silicon, other Linux distributions, ARM Windows
+and mobile platforms are outside this target set.
 
 The public [native verification guide](https://github.com/zacheriasliang-glitch/lodestone/blob/main/docs/desktop-validation/portable-preview.md)
 describes the release checks, retained evidence and local inference smoke.
@@ -45,7 +45,7 @@ verify their ownership throughout each operation.
 | Windows 11 or Windows Server 2022, x86_64 | `Install Lodestone.cmd` | The installed `Lodestone Preview.cmd` launcher |
 
 Windows Server needs a graphical Desktop Experience session. The Windows
-candidate requires OS build 20348 or later; this is not a claim of verification
+preview requires OS build 20348 or later; this is not a claim of verification
 on every later Windows release.
 
 ### Intel macOS

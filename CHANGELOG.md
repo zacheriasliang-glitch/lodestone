@@ -1,12 +1,13 @@
 # Release notes
 
-## 0.4.0-preview.6 — cross-platform desktop candidate (unreleased)
+## 0.4.0-preview.6 — cross-platform desktop preview
 
-Candidate review and native verification are tracked in
-[PR #18](https://github.com/zacheriasliang-glitch/lodestone/pull/18). Release
-publication is pending; use that review and the eventual release's exact
-artifact records for validation status. See the [desktop guide](desktop/README.md)
-for setup, management commands and platform limits.
+Source review is recorded in
+[PR #18](https://github.com/zacheriasliang-glitch/lodestone/pull/18).
+[The named release page](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0-preview.6)
+records publication status, the exact tested source and native artifact evidence.
+See the [desktop guide](desktop/README.md) for setup, management commands and
+platform limits.
 
 - Adds separate pinned installer/dependency sets for Intel macOS 12 or later,
   Ubuntu 24.04 x86_64, and Windows 11 / Windows Server 2022 x86_64. Windows gains
@@ -34,7 +35,7 @@ for setup, management commands and platform limits.
   commands and external command-provider routes requiring POSIX isolation refuse;
   Linux routes requiring bubblewrap refuse when that isolation cannot start.
   The local reader and retention lifecycle remain separate from those routes.
-- Preserves all 31 programme criteria and earlier evidence. This candidate does
+- Preserves all 31 programme criteria and earlier evidence. This preview does
   not establish improved semantic decisions, useful learned transfer or model
   weight updates. Published stable core v0.3.2 artifacts remain separate.
 

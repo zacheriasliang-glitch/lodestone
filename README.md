@@ -6,12 +6,14 @@ local toolkit tasks with a record of what happened.**
 [Download v0.3.2](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.2)
 · [Quickstart](docs/quickstart.md) · [All tools](docs/toolkits.md)
 
-The [Lodestone Desktop preview.6 candidate](desktop/README.md) targets Intel
-macOS, Ubuntu 24.04 x86_64 and Windows 11 / Windows Server 2022 x86_64, with
-per-user installers for Unified Loom, a local reader and retained outcomes and
-corrections. [PR #18](https://github.com/zacheriasliang-glitch/lodestone/pull/18)
-tracks the candidate's review and native validation; release publication is
-pending. The desktop preview is a separate experimental distribution.
+[Lodestone Desktop preview.6](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0-preview.6)
+provides separate downloads for Intel macOS, Ubuntu 24.04 x86_64 and Windows
+11 / Windows Server 2022 x86_64. It combines Unified Loom, a local reader and
+retained outcomes and corrections in a per-user installation. Read the
+[desktop installation guide](desktop/README.md), check the named release's
+availability and verification record, and use the ZIP matching your platform.
+The desktop preview is a separate experimental distribution; its public source
+and review are in [PR #18](https://github.com/zacheriasliang-glitch/lodestone/pull/18).
 
 The stable core v0.3.2 download above is available now. Python 3.10+ is all you
 need for the core; your notes and files stay on your computer. Use macOS or Linux
