@@ -12,15 +12,24 @@ from . import decision_contract as checker
 from .records import canonical
 from .loom_voxels import CONTEXT_SCHEMA, render_voxel_sections
 from lodestone_nurarihyon import learning
+from lodestone_nurarihyon.portable_files import read_bytes
 
 SCHEMA = "loom-machine-decision-assessment/v1"
 KIND = "MACHINE_STRUCTURAL_FINDING"
 AUTHOR = "Loom source-bound structural reviewer/v1"
+DEFINITE_CODES = frozenset(("INVALID_RESPONSE_FORMAT", "CASE_ID_MISMATCH", "ACTION_NOT_ALLOWED",
+    "TRANSITION_INCONSISTENT", "UNKNOWN_EVIDENCE_ID", "UNVERIFIED_EVIDENCE",
+    "EVIDENCE_TARGET_MISMATCH", "EVIDENCE_NOT_LATEST"))
 
 
 def _version():
-    return {"decision_contract": hashlib.sha256(Path(checker.__file__).read_bytes()).hexdigest(),
-            "decision_assessment": hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
+    return {"decision_contract": hashlib.sha256(read_bytes(Path(checker.__file__), 1024 * 1024)).hexdigest(),
+            "decision_assessment": hashlib.sha256(read_bytes(Path(__file__), 1024 * 1024)).hexdigest()}
+
+
+def _reusable(assessment):
+    return (assessment["status"] == "REJECTED" and assessment["selected_evidence_id"] is not None
+            and bool(DEFINITE_CODES.intersection(assessment["reason_codes"])))
 
 
 def _compact(assessment):
@@ -63,7 +72,7 @@ def assess(memory, outcome_handle, contract):
             "observed_at": observed_at or datetime.now(timezone.utc).isoformat(),
             "text": text, "attribution": AUTHOR + "; machine structural finding, not a human correction"})
     return {**body, "evidence_handle": handle, "retention": "RETAINED_MACHINE_EVIDENCE",
-            "advice_delivery": "EXPLICIT_VOXEL_SELECTION_ONLY" if assessment["status"] == "REJECTED"
+            "advice_delivery": "EXPLICIT_VOXEL_SELECTION_ONLY" if _reusable(assessment)
             else "NOT_ELIGIBLE", "provider_called": False}
 
 
@@ -88,7 +97,7 @@ def read(memory, handle, *, for_delivery=False):
         if body["checker_version"] != _version():
             raise ValueError("Structural reviewer version changed; reassess before selecting its advice")
         _, _, actual = _check(memory, body["outcome_handle"], contract)
-        if _compact(actual) != assessment or actual["status"] != "REJECTED":
+        if _compact(actual) != assessment or not _reusable(actual):
             raise ValueError("Only definite source-bound structural rejections may become named knots")
     return {**body, "evidence_handle": handle}
 
@@ -131,7 +140,7 @@ def knot_voxel(memory, handles):
                 "Expected under the explicitly selected case contract: " + canonical(expected).decode()
                 + ". What came: " + canonical(came).decode()
                 + ". Definite failures: " + ", ".join(key for key in assessment["reason_codes"]
-                    if key != "CONDITION_POLICY_NOT_SUPPLIED")
+                    if key in DEFINITE_CODES)
                 + ". Post-outcome finding; surprise unknown. The original response is retained. "
                   "These conventions apply only to matching structured tasks; no action advice for another case.")
             lines.append(line)

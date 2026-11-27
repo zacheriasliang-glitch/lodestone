@@ -112,6 +112,37 @@ print(json.dumps({'result':result,'original':original,'pending':loom.status()['p
         self.assertEqual(actual['result']['decision_assessment']['retention'], 'NOT_CONFIRMED')
         self.assertEqual(actual['pending'], [])
 
+    def test_invalid_format_does_not_turn_unknown_or_ambiguous_evidence_into_advice(self):
+        actual = self.native(SCRIPT + '''
+results=[]
+for ambiguous in (False, True):
+    case=json.loads(human_contract['case_json'])
+    if ambiguous:
+        case['observations'][1]=dict(case['observations'][0],id='equal-latest')
+    else:
+        for item in case['observations']:
+            item['verified']=False
+    case_json=json.dumps(case)
+    encounter='Explicit ambiguous or missing-evidence fixture. ' + case_json
+    contract=decision_contract.bind_decision_contract(encounter, case_json=case_json,author='Fixture')
+    result=automatic('invalid structured response')
+    finding=result['decision_assessment']
+    try:
+        loom.decision_knot_voxel([finding['evidence_handle']])
+    except ValueError:
+        refused=True
+    else:
+        refused=False
+    results.append({'finding':finding,'refused':refused})
+print(json.dumps(results))
+''')
+        for row, reason in zip(actual, ('NO_VERIFIED_TARGET_OBSERVATION', 'AMBIGUOUS_LATEST_TARGET_OBSERVATION')):
+            self.assertEqual(row['finding']['assessment']['status'], 'REJECTED')
+            self.assertIn(reason, row['finding']['assessment']['reason_codes'])
+            self.assertIsNone(row['finding']['assessment']['selected_evidence_id'])
+            self.assertEqual(row['finding']['advice_delivery'], 'NOT_ELIGIBLE')
+            self.assertTrue(row['refused'])
+
     def test_forged_or_changed_reviewer_findings_cannot_enter_voxel_advice(self):
         actual = self.native(SCRIPT + '''
 result=automatic()
