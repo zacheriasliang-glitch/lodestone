@@ -300,6 +300,25 @@ print(RecordStore(sys.argv[2]).publish('bezoar', 'fixture', {'text':'literal ret
             with self.assertRaisesRegex(ValueError, "Model root changed"):
                 assets.verify_unchanged()
 
+    def test_model_change_time_detects_same_inode_rewrite_with_restored_mtime(self):
+        root = self.root / "model change time"
+        root.mkdir()
+        path = root / "model.safetensors"
+        body = b"original fixture bytes"
+        path.write_bytes(body)
+        pins = {path.name: (len(body), hashlib.sha256(body).hexdigest())}
+        with patch.object(model, "ASSETS", pins):
+            assets = model.VerifiedAssets(root)
+            before = path.stat()
+            time.sleep(.02)
+            path.write_bytes(b"X" * len(body))
+            os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+            after = path.stat()
+            self.assertEqual((before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns),
+                             (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns))
+            with self.assertRaisesRegex(ValueError, "identity changed"):
+                assets.verify_unchanged()
+
     @unittest.skipUnless(os.name == "nt", "Native Windows contract")
     def test_windows_directory_fsync_refuses_explicitly(self):
         with self.assertRaises(files.UnsupportedDurability):
