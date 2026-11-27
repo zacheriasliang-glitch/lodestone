@@ -4,6 +4,7 @@ Platforms are simulated for the selection and refusal checks; the real-fence
 checks run only where that fence exists. No model or network call.
 """
 from pathlib import Path
+import json
 import os
 import shutil
 import subprocess
@@ -341,6 +342,46 @@ class RealAppContainerTests(unittest.TestCase):
             self.assertEqual([run.returncode for run in runs], [0, 0], results)
             self.assertEqual({p: self._sddl(p) for p in (source, work_a, work_b)}, before)
             self.assertEqual(self._pending(), [])
+
+    def test_a_protection_change_made_during_the_run_is_kept(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        security = wac._Security(wac._Api())
+        with tempfile.TemporaryDirectory() as raw:
+            work, source = Path(raw) / "w", Path(raw) / "s"
+            work.mkdir(), source.mkdir()
+            self.assertFalse(wac._protected(self._sddl(source)))
+            argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", "import time; time.sleep(8)"],
+                                        work, source, None, None)
+            launcher = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            time.sleep(4)
+            current = self._sddl(source)
+            security.write(source, "D:P" + current[2:].lstrip("AIR"))  # a user's protection-only edit
+            out, err = launcher.communicate(timeout=120)
+            self.assertEqual(launcher.returncode, 0, err)
+            self.assertIn("removed_own_entry_only", err)
+            final = self._sddl(source)
+            self.assertTrue(wac._protected(final), final)
+            self.assertNotIn("S-1-15-2-", final)
+            self.assertEqual(self._pending(), [])
+
+    def test_unresolved_earlier_recovery_refuses_new_runs_until_swept(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        with tempfile.TemporaryDirectory() as raw:
+            work, source = Path(raw) / "w", Path(raw) / "s"
+            work.mkdir(), source.mkdir()
+            stale = wac._ledger_directory() / (wac.PREFIX + "synthetic-unresolved.journal")
+            # A recorded grant whose identity cannot be confirmed: recovery must keep it.
+            entries = [{"profile": wac.PREFIX + "synthetic-unresolved"}, {"sid": "S-1-15-2-1-2-3-4-5-6-7"},
+                       {"grant": str(work), "sddl": self._sddl(work), "id": [0, 0]}]
+            stale.write_text("".join(json.dumps(e) + "\n" for e in entries))
+            try:
+                done = self._launch(work, source, "pass")
+                self.assertEqual(done.returncode, wac.EXIT_SETUP_FAILED, done.stderr)
+                self.assertIn("recovery is unresolved", done.stderr)
+                self.assertTrue(stale.exists())
+            finally:
+                stale.unlink(missing_ok=True)
+            self.assertEqual(self._launch(work, source, "pass").returncode, 0)
 
     def test_paths_through_a_junction_are_refused_before_any_grant(self):
         from lodestone_machinery import windows_appcontainer as wac

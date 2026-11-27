@@ -17,6 +17,13 @@ the same container (recorded as DECLARED, not ENFORCED); Windows system
 directories readable by "ALL APPLICATION PACKAGES" remain readable, as system
 prefixes are under the macOS and Linux fences.
 
+Host assumption, stated: the launcher checks each granted path as written for
+reparse points and rechecks its file identity before the grant, after the grant,
+before launch and before restore, but it does not hold directory handles for
+the whole run. It is built for a trusted host directory tree; it does not claim
+race-proof custody against a hostile process that can rename the user's own
+directories between those checks.
+
 Win32 contracts: learn.microsoft.com/windows/win32/secauthz/implementing-an-appcontainer
 and /api/userenv/nf-userenv-createappcontainerprofile.
 """
@@ -170,6 +177,11 @@ def _without_sid(sddl, sid):
     return head + "".join(ace for ace in aces if not (ace.endswith(";" + sid + ")") and "ID" not in ace.split(";")[1]))
 
 
+def _protected(sddl):
+    head = sddl.partition("(")[0]
+    return "P" in head[2:]
+
+
 def _aces(sddl):
     _, _, rest = sddl.partition("(")
     return re.findall(r"\([^)]*\)", "(" + rest) if rest else []
@@ -319,7 +331,12 @@ def _undo(security, entries, sid, *, inject_failure=False):
                 raise ValueError("Path identity changed during the run; its DACL is left for inspection")
             current = security.read(path)
             stripped = _without_sid(current, sid) if sid else current
-            if (path in expected and current == expected[path]) or _aces(stripped) == _aces(entry["sddl"]):
+            # Exact restore only when nothing but Lodestone's ACE differs: same
+            # remaining ACEs and the same protection flag. (SetNamedSecurityInfoW
+            # itself may set the AI flag, so that bit alone is not a user edit.)
+            only_ours = (_aces(stripped) == _aces(entry["sddl"])
+                         and _protected(stripped) == _protected(entry["sddl"]))
+            if (path in expected and current == expected[path]) or only_ours:
                 # Only Lodestone's ACE differs from the saved original (including a
                 # run interrupted before confirming its grant): restore it exactly.
                 security.restore(path, entry["sddl"], sid)
@@ -348,6 +365,8 @@ def _delete_profile(api, name):
 
 
 def _sweep(api):
+    """Returns how many interrupted runs remain unrecovered (their journals kept)."""
+    unresolved = 0
     security = _Security(api)
     for journal in sorted(_ledger_directory().glob(PREFIX + "*.journal")):
         entries = _Journal.entries(journal)
@@ -359,7 +378,9 @@ def _sweep(api):
         if not unconfirmed and deleted:
             journal.unlink()
         else:
+            unresolved += 1
             print("Fence recovery kept " + journal.name + " for inspection", file=sys.stderr)
+    return unresolved
 
 
 def sweep(api=None):
@@ -384,7 +405,10 @@ def run(argv, *, workspace, readable):
             unique.append(path)
     readable = unique
     with _GlobalLock(_wait_seconds()):
-        _sweep(api)
+        if _sweep(api):
+            # Never stack new grants on top of an unrecovered earlier run.
+            raise OSError("An earlier fenced run's recovery is unresolved; its journal is kept for "
+                          "inspection and sweep can be retried. New fenced runs are refused until then.")
         return _run_locked(api, c, w, k, argv, workspace, readable)
 
 
@@ -424,6 +448,11 @@ def _run_locked(api, c, w, k, argv, workspace, readable):
                 os._exit(99)  # test hook: interruption after one real ACL mutation
             entries.append({"granted": str(item), "expected": security.read(item)})
             journal.append(entries[-1])
+            if _identity(item) != identity:
+                raise ValueError("Path identity changed during its grant: " + str(item))
+        for entry in entries:
+            if "grant" in entry and _identity(entry["grant"]) != entry["id"]:
+                raise ValueError("Path identity changed before launch: " + entry["grant"])
 
         class Capabilities(c.Structure):
             _fields_ = [("AppContainerSid", c.c_void_p), ("Capabilities", c.c_void_p),
