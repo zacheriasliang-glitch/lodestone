@@ -1967,8 +1967,8 @@
     "runtime/src/lodestone_machinery/windows_appcontainer.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/windows_appcontainer.py",
-      "sha256": "13233131bd2b2c22a2c3e237aa32abd2a3cb72ab28fac236e4579418722bfa7a",
-      "source_sha256": "13233131bd2b2c22a2c3e237aa32abd2a3cb72ab28fac236e4579418722bfa7a"
+      "sha256": "e48be0564e00b3241624d76b3e0a59429d2b7317a4bae86e8274532ea31a9862",
+      "source_sha256": "e48be0564e00b3241624d76b3e0a59429d2b7317a4bae86e8274532ea31a9862"
     },
     "runtime/src/lodestone_machinery/workers.py": {
       "origin": "unified-runtime",

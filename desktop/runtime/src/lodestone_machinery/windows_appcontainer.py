@@ -303,6 +303,12 @@ def _undo(security, entries, sid, *, inject_failure=False):
         try:
             if inject_failure:
                 raise OSError("injected restore failure (test hook)")
+            try:
+                os.lstat(path)
+            except FileNotFoundError:
+                # The object no longer exists, so no Lodestone entry remains on it.
+                print("Fence restore for " + path + ": path_gone", file=sys.stderr)
+                continue
             _lexical(path)
             if _identity(path) != entry["id"]:
                 raise ValueError("Path identity changed during the run; its DACL is left for inspection")
@@ -359,10 +365,14 @@ def run(argv, *, workspace, readable):
     api = _Api()
     c, w, k = api.c, api.w, api.kernel
     workspace = _lexical(workspace)
-    unique = []
+    # One grant per object: an 8.3 short name and its long name are the same
+    # directory, and granting it twice would make one restore resurrect the other.
+    seen, unique = {tuple(_identity(workspace))}, []
     for item in readable:
         path = _lexical(item)
-        if path != workspace and path not in unique:
+        identity = tuple(_identity(path))
+        if identity not in seen:
+            seen.add(identity)
             unique.append(path)
     readable = unique
     with _GlobalLock(_wait_seconds()):
