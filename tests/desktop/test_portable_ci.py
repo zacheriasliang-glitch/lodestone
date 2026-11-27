@@ -190,17 +190,34 @@ class PortableCITests(unittest.TestCase):
                 driver.active = {"gui_python": "/fixture/python", "release": "/fixture/payload"}
                 original = subprocess.CalledProcessError(-11, "authored GUI fixture")
                 with patch.object(driver, "previous_readers", return_value={}), \
-                        patch.object(driver, "run", side_effect=[None, original, diagnostic_error]) as calls:
+                        patch.object(driver, "run", side_effect=[None, None, original, diagnostic_error]) as calls:
                     with self.assertRaises(subprocess.CalledProcessError) as raised:
                         driver.gui()
                 self.assertIs(raised.exception, original)
-                self.assertEqual(calls.call_count, 3)
+                self.assertEqual(calls.call_count, 4)
+                prerequisite = calls.call_args_list[1]
+                self.assertEqual(prerequisite.args[0], "native-gui-prerequisites")
+                self.assertEqual(prerequisite.args[1][0], driver.active["gui_python"])
+                self.assertIn("tests/desktop_gui_linux", prerequisite.args[1])
                 diagnostic = calls.call_args_list[-1]
                 self.assertEqual(diagnostic.args[0], "gui-startup-native-diagnostic")
                 command = diagnostic.args[1]
                 self.assertEqual(command[0:2], ["gdb", "--batch"])
-                self.assertEqual(command[command.index("--args") + 1:], calls.call_args_list[1].args[1])
+                self.assertEqual(command[command.index("--args") + 1:], calls.call_args_list[2].args[1])
                 self.assertEqual(diagnostic.kwargs["timeout"], 120)
+
+    def test_non_linux_gui_does_not_collect_linux_only_prerequisites(self):
+        for target in ("macos-x86_64", "windows-x86_64"):
+            with self.subTest(target=target), tempfile.TemporaryDirectory() as temporary:
+                driver = check.Check(temporary, Path(temporary) / "work", target)
+                driver.active = {"gui_python": "/fixture/python", "release": "/fixture/payload"}
+                original = subprocess.CalledProcessError(1, "authored GUI fixture")
+                with patch.object(driver, "previous_readers", return_value={}), \
+                        patch.object(driver, "run", side_effect=[None, original]) as calls:
+                    with self.assertRaises(subprocess.CalledProcessError):
+                        driver.gui()
+                self.assertEqual([call.args[0] for call in calls.call_args_list],
+                                 ["gui-save-reopen", "gui-startup-1"])
 
     def test_smoke_command_receipt_preserves_detailed_report_on_success_and_failure(self):
         for returncode in (0, 1):

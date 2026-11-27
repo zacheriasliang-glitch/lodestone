@@ -228,6 +228,11 @@ class Check:
         self.run("gui-save-reopen", [self.active["gui_python"], "-B", "tools/desktop_mechanical_check.py", "gui",
             "--tests", "tests/desktop_gui", "--payload", self.active["release"], "--evidence", str(self.evidence)],
             timeout=600, env=self.previous_readers())
+        if self.target == "ubuntu-24.04-x86_64":
+            self.run("native-gui-prerequisites", [self.active["gui_python"], "-B",
+                "tools/desktop_mechanical_check.py", "gui", "--tests", "tests/desktop_gui_linux",
+                "--payload", self.active["release"],
+                "--evidence", str(self.evidence / "linux-gui-prerequisites")], timeout=60)
         for number in (1, 2):
             receipt = self.root / "startup-verification.json"
             if receipt.exists():

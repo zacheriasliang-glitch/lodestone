@@ -4,7 +4,6 @@ import sys
 import unittest
 
 
-@unittest.skipUnless(sys.platform == "linux", "Native GTK runtime prerequisites")
 class LinuxGuiPrerequisiteTests(unittest.TestCase):
     def test_gtk_can_decode_its_adwaita_svg_resource(self):
         # Import the installed wx build first, so this exercises the same GTK
