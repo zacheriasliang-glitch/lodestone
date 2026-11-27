@@ -40,7 +40,7 @@ def _contains(value, expected, *, depth=0, budget=None):
     return False
 
 
-def _rule_folded_adapter_request(memory, checked, packet):
+def _rule_folded_adapter_request(memory, checked, packet, *, _validated_packet=None):
     """Return the rule's projection if an adapter request is exactly the deterministic fold rule's output.
 
     The fold (learning_context.FOLD_RULE) keeps every correction, verdict, condition and pattern
@@ -59,7 +59,10 @@ def _rule_folded_adapter_request(memory, checked, packet):
     if packet.get("schema") != REQUEST_SCHEMA:
         return None
     try:
-        validate_practice_packet(memory, checked, packet, "adapter")
+        if _validated_packet is None:
+            validate_practice_packet(memory, checked, packet, "adapter")
+        elif canonical(_validated_packet) != canonical(packet):
+            raise ValueError("Practice packet changed after reconstruction")
         projection = expand_learning_projection(json.loads(packet["context"])["learning_context"])["projection"]
     except (ValueError, TypeError, KeyError):
         return None
@@ -85,14 +88,15 @@ def assess(memory, prepared, packet):
         saved_snapshot = strict_json(saved_context.encode(), MAX_PACKET_BYTES) if type(saved_context) is str else {}
         reference_history = type(saved_snapshot) is dict and saved_snapshot.get("schema") == "bezoar-learning-context/v2"
         reference = None
+        validated_packet = None
         if packet.get("schema") == REQUEST_SCHEMA and type(packet.get("context")) is str:
             try:
                 reference = strict_json(packet["context"].encode(), MAX_PACKET_BYTES)
             except (ValueError, UnicodeError):
                 reference = None
-            if type(reference) is dict and "reader_history_window" in reference:
+            if type(reference) is dict and ("reader_history_window" in reference or "voxel" in reference):
                 from lodestone_machinery.learning_context import validate_practice_packet
-                validate_practice_packet(memory, checked, packet, "adapter")
+                validated_packet = validate_practice_packet(memory, checked, packet, "adapter")
         if reference_history and not (type(reference) is dict and "reader_history_window" in reference):
             raise ValueError("Reference history requires an explicit validated adapter reader window")
         delivery, departed = "FULL_NATIVE_PREPARATION", []
@@ -110,7 +114,9 @@ def assess(memory, prepared, packet):
             if projected is not None and _contains(packet, projected):
                 delivery = "EXACT_NATIVE_READER_PROJECTION"
             else:
-                folded = _rule_folded_adapter_request(memory, checked, packet)
+                # Reuse this assessment only; the final native reopen remains mandatory.
+                folded = _rule_folded_adapter_request(memory, checked, packet,
+                                                       _validated_packet=validated_packet)
                 if folded is None:
                     raise ValueError("Exact retained SEED/NACRE preparation or reader projection is absent from provider input")
                 if folded.get("departed_history_runs"):

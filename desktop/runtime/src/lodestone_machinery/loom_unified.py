@@ -74,7 +74,7 @@ class UnifiedLoom:
 
     def run(self, *, encounter, purpose, reader, context="", provider,
             run_id=None, applicability=None, wait=0, cancelled=None,
-            execution_binding=None, failure_classifier=None, history_window=None):
+            execution_binding=None, failure_classifier=None, history_window=None, voxel=None):
         """Prepare, admit, dispatch once and retain an actual practice outcome.
 
         The provider receives ``loom-adapter-request/v1`` and returns either text
@@ -98,7 +98,7 @@ class UnifiedLoom:
         def build(saved, literal):
             request = build_adapter_request(
                 self.memory, saved, request_id=saved["run_id"], context=literal,
-                encounter=encounter, purpose=purpose, history_window=history_window)
+                encounter=encounter, purpose=purpose, history_window=history_window, voxel=voxel)
             return validate_practice_packet(self.memory, saved, request, "adapter")
 
         held = {}

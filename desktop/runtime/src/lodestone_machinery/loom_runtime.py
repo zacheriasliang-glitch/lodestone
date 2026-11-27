@@ -55,6 +55,8 @@ def _config(path):
         raise ValueError("Expected Loom unified runtime configuration")
     if value.get("backend") not in ("ollama_qwen3_base", "local_adapter"):
         raise ValueError("Unknown explicit local Loom backend")
+    if "voxel" in value:
+        raise ValueError("Voxel teaching is a per-encounter opt-in, not persistent configuration")
     if "decision_format" in value:
         raise ValueError("Decision format is a per-encounter opt-in, not persistent configuration")
     if "history_window" in value:
@@ -191,7 +193,7 @@ def _retain_local_failure(learning_config, *, operation, source_event, observati
                 "outcome_created": False, "provider_called": False, "authority": "NONE"}
 
 
-def _execution_binding(config, identity, *, encounter, purpose, context):
+def _execution_binding(config, identity, *, encounter, purpose, context, voxel=None):
     """Bind the effective recipe; transient run metadata cannot bypass a stop."""
     root = Path(__file__).resolve().parent
     names = ("loom_runtime.py", "loom_runtime_worker.py", "loom_adapter.py",
@@ -199,6 +201,8 @@ def _execution_binding(config, identity, *, encounter, purpose, context):
              "learning_context.py", "learning_reader.py")
     if config.get("decision_format") is not None:
         names += ("decision_format.py", "decision_contract.py")
+    if voxel is not None:
+        names += ("loom_voxels.py",)
     sources = {name: hashlib.sha256(read_bytes(root / name, _MAX_FILE)).hexdigest()
                for name in names}
     reader = {key: value for key, value in identity.items()
@@ -206,6 +210,8 @@ def _execution_binding(config, identity, *, encounter, purpose, context):
     source = {"sources": sources, "reader": reader}
     inputs = {"encounter": encounter, "purpose": purpose, "context": context,
               "generation": config["generation"], "max_total_tokens": config["max_total_tokens"]}
+    if voxel is not None:
+        inputs["voxel"] = voxel
     if config.get("decision_format") is not None:
         from .decision_format import validate_decision_format
         inputs["decision_format"] = validate_decision_format(encounter, config["decision_format"])
@@ -450,7 +456,7 @@ class LoomBridge:
 
     def run(self, *, encounter, purpose, context="", route=None, max_tokens=None,
             temperature=0, top_p=1, cancel_event=None, decision_case_json=None, history_window=None,
-            seed_handles=None, decision_strategy="flat"):
+            seed_handles=None, decision_strategy="flat", voxel=None):
         # Keep a failed reread of configuration inside the durable local error
         # boundary. The constructor's validated config supplies only the ledger.
         profile_error = None
@@ -527,7 +533,7 @@ class LoomBridge:
                       "Loom/LocalAdapter/Qwen3-0.6B/" +
                       ("adapter-sha256:" + config["adapter_state_sha256"]
                        if config.get("adapter_state") else "base-adapter-disabled"))
-            binding = _execution_binding(config, identity, encounter=encounter, purpose=purpose, context=context)
+            binding = _execution_binding(config, identity, encounter=encounter, purpose=purpose, context=context, voxel=voxel)
             _save(directory / "execution-binding.json", binding)
             def provide(packet):
                 nonlocal provider_called, owned_result
@@ -544,7 +550,7 @@ class LoomBridge:
             # Keep the original context exact, even when too large. Native
             # assembly retains a failure instead of silently dropping advice.
             native_result = native.run(
-                encounter=encounter, purpose=purpose, context=literal, reader=reader,
+                encounter=encounter, purpose=purpose, context=literal, reader=reader, voxel=voxel,
                 run_id="unified-" + directory.name,
                 provider=provide, execution_binding=binding,
                 wait=TURN_WAIT_SECONDS, cancelled=cancelled,

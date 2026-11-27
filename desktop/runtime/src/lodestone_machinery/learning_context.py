@@ -544,6 +544,13 @@ def practice_data_candidates(request):
     if type(value) is not dict or value.get("schema") != PRACTICE_SCHEMA:
         return None
     fields = {"schema", "exposure", "literal_context", "learning_context", "use", "authority"}
+    voxel_sections = None
+    if "voxel" in value:
+        from .loom_voxels import render_voxel_sections
+        fields.add("voxel")
+        voxel_sections = render_voxel_sections(value["voxel"], request["purpose"])
+        if voxel_sections is None:
+            raise ValueError("Practice voxel must be a canonical voxel context")
     window_policy = None
     if "reader_history_window" in value:
         fields.add("reader_history_window")
@@ -605,6 +612,9 @@ def practice_data_candidates(request):
                     ("ENCOUNTER", request["encounter"]), ("PURPOSE", request["purpose"])]
         if window_policy is not None:
             sections.insert(1, ("READER_HISTORY_WINDOW_JSON", canonical(window_policy).decode()))
+        if voxel_sections is not None:
+            sections.insert(sections.index(("ENCOUNTER", request["encounter"])),
+                            ("VOXEL_TEACHING", voxel_sections))
         candidates.append(PRACTICE_SCHEMA + " | " + EXPOSURE + " | authority=NONE\n" + PRACTICE_USE + "\n"
             + "\n".join(name + " (UTF-8 bytes=" + str(len(text.encode())) + "):\n" + text
                         for name, text in sections))
@@ -810,7 +820,7 @@ def read_origami_learning_fold(organ, handle):
 
 def _practice_reference(memory, prepared, literal_context, *, encounter=None, purpose=None,
                         max_bytes=MAX_PRACTICE_BYTES, fold=False, departures=True, _legacy_transport=False,
-                        history_window=None):
+                        history_window=None, voxel=None):
     """Return the complete practice reference, exact whenever it fits ``max_bytes``.
 
     With ``fold`` (the adapter path only) a reference above ``target`` folds
@@ -826,6 +836,23 @@ def _practice_reference(memory, prepared, literal_context, *, encounter=None, pu
     """
     if type(literal_context) is not str:
         raise ValueError("Literal context must be a string")
+    if voxel is not None:
+        from .loom_voxels import render_voxel_sections
+        # Preserve the original selection. Optional teaching must not silently
+        # push earlier outcomes or corrections out of the reader's history.
+        current_purpose = purpose if purpose is not None else prepared["binding"]["purpose"]
+        if render_voxel_sections(voxel, current_purpose) is None:
+            raise ValueError("Practice voxel must be a canonical voxel context")
+        baseline = _practice_reference(
+            memory, prepared, literal_context, encounter=encounter, purpose=purpose,
+            max_bytes=max_bytes, fold=fold, departures=departures,
+            _legacy_transport=_legacy_transport, history_window=history_window)
+        value = json.loads(baseline)
+        value["voxel"] = voxel
+        raw = canonical(value)
+        if len(raw) > max_bytes:
+            raise ValueError("Practice voxel exceeds the combined context bound; retained history is unchanged")
+        return raw.decode("utf-8")
     window_policy = history_window_policy(history_window)
     if window_policy is not None and (not fold or not departures or _legacy_transport):
         raise ValueError("Reader history window requires the current adapter projection")
@@ -873,11 +900,12 @@ def _practice_reference(memory, prepared, literal_context, *, encounter=None, pu
     raise ValueError("Complete practice context exceeds bound; truncation is forbidden")
 
 
-def build_adapter_request(memory, prepared, *, request_id, context, encounter, purpose, history_window=None):
+def build_adapter_request(memory, prepared, *, request_id, context, encounter, purpose, history_window=None,
+                          voxel=None):
     """Prepare the existing natural-language Loom adapter's exact input contract."""
     from .loom_adapter import MAX_CONTEXT_BYTES, REQUEST_SCHEMA, validate_request
     text = _practice_reference(memory, prepared, context, encounter=encounter, purpose=purpose,
-                               max_bytes=MAX_CONTEXT_BYTES, fold=True, history_window=history_window)
+                               max_bytes=MAX_CONTEXT_BYTES, fold=True, history_window=history_window, voxel=voxel)
     return validate_request({"schema": REQUEST_SCHEMA, "id": request_id,
                              "context": text, "context_sha256": hashlib.sha256(text.encode()).hexdigest(),
                              "encounter": encounter, "purpose": purpose})
@@ -926,6 +954,10 @@ def validate_practice_packet(memory, prepared, packet, kind, *, historical=False
     reference = json.loads(packet[field])
     if type(reference) is not dict or type(reference.get("literal_context")) is not str:
         raise ValueError("Missing complete literal practice context")
+    if "voxel" in reference:
+        if kind != "adapter":
+            raise ValueError("Voxel teaching is supported only for adapter practice")
+        bound["voxel"] = reference["voxel"]
     if "reader_history_window" in reference:
         if kind != "adapter":
             raise ValueError("Reader history window is supported only for adapter practice")
@@ -935,6 +967,8 @@ def validate_practice_packet(memory, prepared, packet, kind, *, historical=False
                                   encounter=encounter, purpose=purpose, **bound)
     if packet[field] == rebuilt:
         return deepcopy(packet)
+    if "voxel" in reference:
+        raise ValueError("Voxel practice packet differs from its native projection")
     if "reader_history_window" in reference:
         raise ValueError("Declared reader history window differs from its native projection")
     # Preserve the declared pre-departure rule as a supported complete-run view.
