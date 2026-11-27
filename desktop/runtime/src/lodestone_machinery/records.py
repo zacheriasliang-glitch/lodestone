@@ -4,12 +4,14 @@ Records live with their producer. The catalog contains pointers, not a second
 evidence store. Hash checks establish byte identity, never semantic correctness,
 reviewer independence, or permission to act.
 """
+from functools import wraps
 import hashlib
 import json
-import os
 from pathlib import Path
 import re
-import tempfile
+
+from lodestone_nurarihyon.portable_files import (absolute_path, durable_write,
+                                                 ensure_directory, guarded_directory, is_alias, read_bytes)
 
 
 NAME = re.compile(r"[a-z][a-z0-9_-]{0,47}\Z")
@@ -28,20 +30,28 @@ def canonical(value):
                       separators=(",", ":"), allow_nan=False).encode("utf-8")
 
 
+def _custody(method):
+    @wraps(method)
+    def checked(self, *args, **kwargs):
+        with guarded_directory(self.workspace):
+            return method(self, *args, **kwargs)
+    return checked
+
+
 class RecordStore:
     def __init__(self, workspace):
-        self.workspace = Path(workspace).resolve()
-        self.workspace.mkdir(parents=True, exist_ok=True)
+        self.workspace = ensure_directory(absolute_path(workspace))
         self._directory("organs", create=True)
 
     def _directory(self, relative, *, create=False):
         current = self.workspace
         for part in relative.split("/"):
             current = current / part
-            if current.is_symlink():
-                raise ValueError("Organ record path contains a symlink")
+            if current.exists() or current.is_symlink():
+                if is_alias(current.lstat()):
+                    raise ValueError("Organ record path contains a symlink or reparse point")
             if create:
-                current.mkdir(exist_ok=True)
+                ensure_directory(current)
             if current.exists() and not current.is_dir():
                 raise ValueError("Organ record directory is not a directory")
         return current
@@ -53,10 +63,11 @@ class RecordStore:
         owner, identity = match.groups()
         directory = self._directory("organs/" + owner + "/records")
         path = directory / (identity + ".json")
-        if path.is_symlink():
-            raise ValueError("Organ record is a symlink")
+        if (path.exists() or path.is_symlink()) and is_alias(path.lstat()):
+            raise ValueError("Organ record is a symlink or reparse point")
         return path
 
+    @_custody
     def publish(self, owner, kind, payload, *, links=()):
         if not isinstance(owner, str) or NAME.fullmatch(owner) is None:
             raise ValueError("Invalid record owner")
@@ -76,28 +87,19 @@ class RecordStore:
         handle = owner + ":" + hashlib.sha256(data).hexdigest()
         directory = self._directory("organs/" + owner + "/records", create=True)
         target = self.path(handle)
-        # Publish complete bytes atomically without replacing an existing record.
-        temporary = None
+        # Existing records, including corruption, are never replaced. Both native
+        # backends publish complete bytes and flush before returning a reference.
         try:
-            with tempfile.NamedTemporaryFile(dir=directory, prefix=".pending-", delete=False) as stream:
-                temporary = Path(stream.name)
-                stream.write(data)
-                stream.flush()
-                os.fsync(stream.fileno())
-            try:
-                os.link(temporary, target)
-            except FileExistsError:
-                if self.read(handle) != record:
-                    raise ValueError("Existing organ record differs")
-        finally:
-            if temporary is not None:
-                temporary.unlink(missing_ok=True)
+            durable_write(target, data)
+        except FileExistsError:
+            if self.read(handle) != record:
+                raise ValueError("Existing organ record differs")
         return handle
 
+    @_custody
     def read(self, handle):
         path = self.path(handle)
-        with path.open("rb") as stream:
-            data = stream.read(MAX_BYTES + 1)
+        data = read_bytes(path, MAX_BYTES)
         if len(data) > MAX_BYTES or hashlib.sha256(data).hexdigest() != handle.split(":")[1]:
             raise ValueError("Organ record identity mismatch")
         record = json.loads(data)
@@ -120,6 +122,7 @@ class RecordStore:
             raise ValueError("Producer or output contract mismatch")
         return record
 
+    @_custody
     def verify_links(self, handles):
         pending, seen = list(handles), set()
         while pending:
@@ -137,6 +140,7 @@ class RecordStore:
         return {"status": "INTACT", "records_checked": len(seen),
                 "scope": "Exact record bytes and reachable references only"}
 
+    @_custody
     def catalog(self):
         entries = []
         for owner in sorted(self._directory("organs").iterdir()):

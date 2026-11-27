@@ -25,7 +25,8 @@ import threading
 import uuid
 
 from lodestone_machinery.records import canonical
-from .common import BusyError, file_lock, sync_directory, read_bytes, strict_json
+from .common import BusyError, file_lock, read_bytes, strict_json
+from .portable_files import ensure_directory, is_alias
 from .learning_conscience import assess, MAX_PACKET_BYTES
 from . import learning_recurrence
 
@@ -90,7 +91,7 @@ def weaving(memory, *, timeout=0):
 
 def _lease_path(memory, run_handle):
     directory = Path(memory.workspace).resolve() / "learning-leases"
-    if directory.is_symlink():
+    if (directory.exists() or directory.is_symlink()) and is_alias(directory.lstat()):
         raise ValueError("Learning lease directory is an alias")
     return directory / (hashlib.sha256(run_handle.encode()).hexdigest() + ".lock")
 
@@ -129,7 +130,7 @@ def _require_one_reader(memory, own=None):
 def _publish(memory, kind, payload, links):
     handle = memory.store.publish("nurarihyon", kind, payload, links=links)
     memory.store.verify_links([handle])
-    sync_directory(memory.store.path(handle).parent)
+    # RecordStore.publish already durably publishes through the native backend.
     return handle
 
 
@@ -618,7 +619,7 @@ def execute_carved(memory, prepare, request, provider, *, packet_builder=None,
                 return prepared, _execute(memory, prepared, request, provider, packet_builder,
                                            execution_binding, failure_classifier)
             lease = _lease_path(memory, prepared["run_handle"])
-            lease.parent.mkdir(mode=0o700, exist_ok=True)
+            ensure_directory(lease.parent)
             plate.enter_context(file_lock(lease))
             served = _serve(memory, prepared, request, provider, packet_builder,
                             own_lease=prepared["run_handle"], execution_binding=execution_binding,
@@ -628,7 +629,10 @@ def execute_carved(memory, prepare, request, provider, *, packet_builder=None,
         eaten = _eat(provider, served["packet"], served["raw"], served["execution_binding"], failure_classifier)
         with locked(memory, timeout=clear_wait) as memory:
             report = _clear(memory, prepared, served, eaten)
-            lease.unlink(missing_ok=True)  # Cleared; a later reader of the card finds no live plate.
+            # Release native custody before removal. Windows denies unlinking a
+            # held lease; the broker still excludes a new reader during cleanup.
+            plate.close()
+            lease.unlink(missing_ok=True)
             return prepared, report
 
 

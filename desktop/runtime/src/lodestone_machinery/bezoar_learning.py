@@ -16,6 +16,7 @@ from pathlib import Path
 import uuid
 
 from .records import HANDLE, RecordStore, canonical
+from lodestone_nurarihyon.portable_files import guarded_directory
 
 PREFIX = "bezoar-learning-"
 MAX_RECORDS = 2048
@@ -76,33 +77,34 @@ def _operation(method):
     """
     @wraps(method)
     def wrapped(self, *args, **kwargs):
-        outer = not hasattr(self, "_validated_records")
-        if outer:
-            self._validated_records = {}
-            self._catalog_rows = None
-            self._validated_values = {}
-            self._checking_values = set()
-        key = (method.__name__, args[0]) if method.__name__.startswith("read_") and len(args) == 1 and not kwargs else None
-        try:
-            if key is not None and key in self._validated_values:
-                return _copy(self._validated_values[key])
-            if key is not None:
-                _require(key not in self._checking_values, "Recursive learning validation cycle")
-                self._checking_values.add(key)
-            try:
-                result = method(self, *args, **kwargs)
-                if key is not None:
-                    self._validated_values[key] = _copy(result)
-                return result
-            finally:
-                if key is not None:
-                    self._checking_values.discard(key)
-        finally:
+        with guarded_directory(self.workspace):
+            outer = not hasattr(self, "_validated_records")
             if outer:
-                del self._validated_records
-                del self._catalog_rows
-                del self._validated_values
-                del self._checking_values
+                self._validated_records = {}
+                self._catalog_rows = None
+                self._validated_values = {}
+                self._checking_values = set()
+            key = (method.__name__, args[0]) if method.__name__.startswith("read_") and len(args) == 1 and not kwargs else None
+            try:
+                if key is not None and key in self._validated_values:
+                    return _copy(self._validated_values[key])
+                if key is not None:
+                    _require(key not in self._checking_values, "Recursive learning validation cycle")
+                    self._checking_values.add(key)
+                try:
+                    result = method(self, *args, **kwargs)
+                    if key is not None:
+                        self._validated_values[key] = _copy(result)
+                    return result
+                finally:
+                    if key is not None:
+                        self._checking_values.discard(key)
+            finally:
+                if outer:
+                    del self._validated_records
+                    del self._catalog_rows
+                    del self._validated_values
+                    del self._checking_values
     return wrapped
 
 
@@ -110,8 +112,8 @@ class LearningMemory:
     def __init__(self, workspace, *, history_references=False):
         _require(type(history_references) is bool, "History representation selection must be explicit")
         self.history_references = history_references
-        self.workspace = Path(workspace).resolve()
-        self.store = RecordStore(self.workspace)
+        self.store = RecordStore(workspace)
+        self.workspace = self.store.workspace
         if history_references:
             self._check_history_workspace()
 
