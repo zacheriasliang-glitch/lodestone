@@ -5,6 +5,7 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import re
 import sys
 import tempfile
 import unittest
@@ -53,8 +54,13 @@ class PracticeVoxelTests(unittest.TestCase):
                 self.assertEqual(assess(self.memory, self.prepared, added)["verdict"], "ALLOW")
                 candidates = lc.practice_data_candidates(added)
                 self.assertGreater(len(candidates), 1)
+                expected_sections = ["LITERAL_CONTEXT"]
+                if window is not None:
+                    expected_sections.append("READER_HISTORY_WINDOW_JSON")
+                expected_sections += ["LEARNING_CONTEXT_JSON", "VOXEL_TEACHING", "ENCOUNTER", "PURPOSE"]
                 for candidate in candidates:
-                    self.assertIn("VOXEL_TEACHING", candidate)
+                    self.assertEqual(re.findall(r"^(\w+) \(UTF-8 bytes=\d+\):$",
+                                                candidate, re.MULTILINE), expected_sections)
                     self.assertIn("Teaching:\nKeep competing readings", candidate)
                     self.assertIn("LEARNING_CONTEXT_JSON", candidate)
                 self.assertIn("VOXEL_TEACHING", render_prompt(added, Tokenizer()))

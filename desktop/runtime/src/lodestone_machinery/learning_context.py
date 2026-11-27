@@ -613,7 +613,8 @@ def practice_data_candidates(request):
         if window_policy is not None:
             sections.insert(1, ("READER_HISTORY_WINDOW_JSON", canonical(window_policy).decode()))
         if voxel_sections is not None:
-            sections.insert(2, ("VOXEL_TEACHING", voxel_sections))
+            sections.insert(sections.index(("ENCOUNTER", request["encounter"])),
+                            ("VOXEL_TEACHING", voxel_sections))
         candidates.append(PRACTICE_SCHEMA + " | " + EXPOSURE + " | authority=NONE\n" + PRACTICE_USE + "\n"
             + "\n".join(name + " (UTF-8 bytes=" + str(len(text.encode())) + "):\n" + text
                         for name, text in sections))

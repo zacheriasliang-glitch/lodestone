@@ -1589,7 +1589,7 @@
     "runtime/src/lodestone_machinery/learning_context.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/learning_context.py",
-      "sha256": "9cb1e210fc1c9e3c07f8db2ac51f53ccb15f968d6fee8b7109ef3524ab905ed6",
+      "sha256": "f82c345f9e0d2212ad1c7821d5e1bb84d6840730befa71b261669c43c6fc931a",
       "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
     },
     "runtime/src/lodestone_machinery/learning_reader.py": {
@@ -2553,8 +2553,8 @@
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/learning_context.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
-      "sha256": "9cb1e210fc1c9e3c07f8db2ac51f53ccb15f968d6fee8b7109ef3524ab905ed6",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Place optional voxel teaching after retained history and immediately before the encounter, with or without an explicit history window.",
+      "sha256": "f82c345f9e0d2212ad1c7821d5e1bb84d6840730befa71b261669c43c6fc931a",
       "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
     },
     {
