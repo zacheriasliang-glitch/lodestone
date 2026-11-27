@@ -390,11 +390,24 @@ class MainFrame(wx.Frame, ErrorDisplayMixin):
 			self.tray_icon.RemoveIcon()
 			self.tray_icon.Destroy()
 		self._loom_quit_complete = True
+		self.Destroy()
+		wx.GetApp().ExitMainLoop()
+
+	def Destroy(self):
+		"""Stop native timer delivery before its owning frame is deleted.
+
+		A modal dialog can keep GTK dispatching after this frame is destroyed.
+		wx.Timer retains a native owner pointer, so retaining the Python timer
+		without stopping it would deliver events to the deleted frame.
+		"""
+		timer = getattr(self, "timer", None)
+		if timer is not None:
+			timer.Stop()
+			timer.SetOwner(None)
 		quit_timer = getattr(self, "_loom_quit_timer", None)
 		if quit_timer is not None:
 			quit_timer.Stop()
-		self.Destroy()
-		wx.GetApp().ExitMainLoop()
+		return super().Destroy()
 
 	def _wait_for_loom_quit(self):
 		self._loom_quit_waiting = False
