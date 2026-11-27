@@ -74,14 +74,26 @@ def http_json(opener, path, body=None, timeout=10):
     return json.loads(raw)
 
 
+def ensure_loopback_port_available(port=11435):
+    """Reject a live listener without mistaking POSIX TIME_WAIT for one."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        if os.name == "posix":
+            # A completed local request can leave a closed server connection in
+            # TIME_WAIT after its owned process group has exited. POSIX reuse
+            # permits that address but still refuses an active listener.
+            # Windows keeps plain bind: SO_REUSEADDR there can steal a live port.
+            # https://docs.python.org/3/library/socket.html#socket.create_server
+            probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        probe.bind(("127.0.0.1", port))
+
+
 def start_ollama(config, log_path):
     """Own a loopback server inside the worker's POSIX group or Windows Job."""
     binary = Path(config["ollama_binary"])
     models = Path(config["ollama_models"])
     if not binary.is_absolute() or not binary.is_file() or not models.is_dir():
         raise ValueError("Existing local Ollama binary and model directory are required")
-    with socket.socket() as probe:
-        probe.bind(("127.0.0.1", 11435))  # Never use another process's server.
+    ensure_loopback_port_available()  # Never use an already-listening server.
     env = {key: os.environ[key] for key in ("HOME", "USER", "LOGNAME", "TMPDIR", "PATH")
            if key in os.environ}
     if sys.platform == "win32":

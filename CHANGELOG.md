@@ -40,6 +40,9 @@ platform limits.
   cancellation, timeout and a committed-memory limit. Resident-memory sampling
   is reported separately; the configured 4 GiB Windows commit bound is not the
   same measure as the macOS/Linux process-group RSS bound.
+- Allows consecutive local reader calls to reuse a closed POSIX server socket
+  without treating its TIME_WAIT state as an active listener. Live listeners
+  remain refused, and Windows address-reuse behavior is unchanged.
 - Keeps command execution dependent on actual host isolation. Windows toolkit
   commands and external command-provider routes requiring POSIX isolation refuse;
   Linux routes requiring bubblewrap refuse when that isolation cannot start.

@@ -1709,7 +1709,7 @@
     "runtime/src/lodestone_machinery/loom_runtime_worker.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_runtime_worker.py",
-      "sha256": "be2e2ed6404d86962d7e408d43bcda72511482333199f435c8950e27c4f905eb",
+      "sha256": "cf6cc717682496161651e3d5548555e2bf4f31fab4e461a48090854001a62111",
       "source_sha256": "c27a1bd2556109fc41ce2242cc557841f1d46f57ed369c42067cfec4aea3e01f"
     },
     "runtime/src/lodestone_machinery/loom_support.py": {
@@ -2483,6 +2483,7 @@
     "portable_archive_metadata": "e67c8fbf618ff9066d12c88dd641f414b37d935f",
     "portable_captured_archive": "0312c378b5ed498bd8d9757e498fef3c0da15422",
     "portable_installer": "93217426f4db532166ca26e6d55604a5f2eb9027",
+    "portable_loopback_reuse": "c7f354186bd319d9418de87f7693bf35008e4d16",
     "portable_native_ci": "5bd383a2d80ff8c5d05bff4c01df536350f3281d",
     "portable_process": "35b2754ec1235c2205aba78f3cee3034c9788752",
     "portable_process_review_fix": "6fe42109ddde02a7d9dce05f799214d7c1a01c34",
@@ -2524,8 +2525,8 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_runtime_worker.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "be2e2ed6404d86962d7e408d43bcda72511482333199f435c8950e27c4f905eb",
+      "reason": "Supervise owned local model servers across native targets; allow closed POSIX sockets to be reused while refusing active listeners and preserving Windows bind semantics.",
+      "sha256": "cf6cc717682496161651e3d5548555e2bf4f31fab4e461a48090854001a62111",
       "source_sha256": "c27a1bd2556109fc41ce2242cc557841f1d46f57ed369c42067cfec4aea3e01f"
     },
     {
