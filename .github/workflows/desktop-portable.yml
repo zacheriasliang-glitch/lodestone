@@ -1,4 +1,4 @@
-name: Windows Job stop diagnostic only
+name: Windows last Job handle close diagnostic only
 
 on:
   workflow_dispatch:
@@ -28,25 +28,25 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12.10'
-      - name: Observe existing native Job teardown without models
+      - name: Observe last Job handle close without models
         shell: bash
         run: |
           set -euo pipefail
-          python -B tools/desktop_windows_stop_diagnostic.py --source "$GITHUB_WORKSPACE" \
-            --output "$RUNNER_TEMP/windows-stop-diagnostic.json" --expected-head "$EXPECTED_HEAD"
+          python -B tools/desktop_windows_close_diagnostic.py --source "$GITHUB_WORKSPACE" \
+            --output "$RUNNER_TEMP/windows-close-diagnostic.json" --expected-head "$EXPECTED_HEAD"
       - name: Preserve exact diagnostic JSON in logs
         if: always()
         shell: python
         run: |
           import base64, hashlib, os
           from pathlib import Path
-          path = Path(os.environ['RUNNER_TEMP']) / 'windows-stop-diagnostic.json'
+          path = Path(os.environ['RUNNER_TEMP']) / 'windows-close-diagnostic.json'
           if not path.is_file():
               raise SystemExit('Diagnostic did not create its required receipt')
           raw = path.read_bytes()
           digest = hashlib.sha256(raw).hexdigest()
-          print('LODESTONE_STOP_DIAGNOSTIC_BEGIN ' + digest + ' ' + str(len(raw)))
+          print('LODESTONE_CLOSE_DIAGNOSTIC_BEGIN ' + digest + ' ' + str(len(raw)))
           encoded = base64.b64encode(raw).decode()
           for index, start in enumerate(range(0, len(encoded), 2000)):
-              print('LODESTONE_STOP_DIAGNOSTIC_CHUNK ' + str(index) + ' ' + encoded[start:start + 2000])
-          print('LODESTONE_STOP_DIAGNOSTIC_END ' + digest)
+              print('LODESTONE_CLOSE_DIAGNOSTIC_CHUNK ' + str(index) + ' ' + encoded[start:start + 2000])
+          print('LODESTONE_CLOSE_DIAGNOSTIC_END ' + digest)
