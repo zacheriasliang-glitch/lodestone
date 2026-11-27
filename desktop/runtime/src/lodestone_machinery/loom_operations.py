@@ -25,7 +25,7 @@ MAX_JOB_MEMORY = 4 * 1024 * 1024 * 1024
 from .loom_optional_operations import EXTRA_SPECS, availability as optional_availability
 from .portable_process import WindowsJobProcess, launch_worker
 from lodestone_nurarihyon.portable_files import (read_bytes, durable_write,
-                                                ensure_directory, guarded_directory)
+                                                ensure_directory, guarded_directory, absolute_path)
 
 
 class _OutputCapture:
@@ -152,9 +152,29 @@ def _availability(root):
     return available
 
 
+def _selected_path(value, *, directory=False):
+    path = Path(value).expanduser()
+    if os.name != "nt":
+        return path.resolve()
+    # resolve() would erase a junction before the native custody check sees it.
+    path = absolute_path(path)
+    ancestor = path if directory else path.parent
+    while True:
+        try:
+            ancestor.lstat()
+            break
+        except FileNotFoundError:
+            if ancestor == ancestor.parent:
+                raise
+            ancestor = ancestor.parent
+    with guarded_directory(ancestor):
+        pass
+    return path
+
+
 def catalogue(package_root):
-    root = Path(package_root).expanduser().resolve()
-    inventory = json.loads((root / "docs/loom-integration-map.json").read_text())
+    root = _selected_path(package_root, directory=True)
+    inventory = json.loads(_read(root / "docs/loom-integration-map.json"))
     available = _availability(root)
     operations = [{"id": key, "family": value["family"], "description": value["description"],
                    "inputs": {name: {"type": item[0], "required": True} for name, item in value["inputs"].items()},
@@ -212,15 +232,15 @@ def _atomic(path, value):
 class OperationBridge:
     def __init__(self, package_root, receipts_dir, *, max_seconds=MAX_SECONDS, max_bytes=MAX_BYTES,
                  learning_config=None):
-        self.root = Path(package_root).expanduser().resolve()
-        self.receipts_dir = Path(receipts_dir).expanduser().resolve()
+        self.root = _selected_path(package_root, directory=True)
+        self.receipts_dir = _selected_path(receipts_dir, directory=True)
         if self.receipts_dir == self.root or self.root in self.receipts_dir.parents:
             raise ValueError("Receipt directory must be outside the immutable package")
         if (type(max_seconds) not in (int, float) or type(max_bytes) is not int or
                 not 0 < max_seconds <= MAX_SECONDS or not 0 < max_bytes <= MAX_BYTES):
             raise ValueError("Bounds cannot exceed catalogue limits")
         self.max_seconds, self.max_bytes = max_seconds, max_bytes
-        self.learning_config = (Path(learning_config).expanduser().resolve()
+        self.learning_config = (_selected_path(learning_config)
                                 if learning_config is not None else None)
 
     def _retain_failure(self, operation, event, observation):
@@ -263,7 +283,7 @@ class OperationBridge:
             raise error("Operation unavailable: " + prerequisite.get("reason", operation))
         if set(inputs) != set(descriptor["inputs"]):
             raise ValueError("Provide exactly the operation's named inputs")
-        workspace = str(Path(workspace).expanduser().resolve())
+        workspace = str(_selected_path(workspace, directory=True))
         if workspace == str(self.root) or self.root in Path(workspace).parents:
             raise ValueError("Choose an output workspace outside the immutable package")
         argv = [sys.executable, "-B", str(self.root / "lodestone.py"), "--repo", str(self.root), "--workspace", workspace]
@@ -284,12 +304,19 @@ class OperationBridge:
                 if not isinstance(item, str) or not item or len(item) > 32768 or "\x00" in item or item.startswith("-"):
                     raise ValueError("Inputs must be nonempty bounded strings, not CLI options")
                 if kind in ("file", "directory", "new-file"):
-                    path = Path(item).expanduser().resolve()
+                    path = _selected_path(item, directory=kind == "directory")
                     if kind == "file":
                         pins[str(path)] = sha(_read(path))
                     elif kind == "directory" and not path.is_dir():
                         raise ValueError("Selected input directory does not exist")
                     elif kind == "new-file":
+                        if os.name == "nt":
+                            try:
+                                path.lstat()
+                            except FileNotFoundError:
+                                pass
+                            else:
+                                raise ValueError("Output must be a new file, not an existing path or reparse point")
                         if path.exists() or not path.parent.is_dir():
                             raise ValueError("Output must be a new file with an existing parent")
                         if path == self.root or self.root in path.parents:
@@ -298,8 +325,8 @@ class OperationBridge:
                 if kind == "sources":
                     if Path(item).is_absolute():
                         raise ValueError("Sources must use relative paths")
-                    source_root = Path(inputs["root"]).expanduser().resolve()
-                    source_path = (source_root / item).resolve()
+                    source_root = _selected_path(inputs["root"], directory=True)
+                    source_path = _selected_path(source_root / item)
                     if source_root not in source_path.parents:
                         raise ValueError("Source must be a relative file inside the selected root")
                     pins[str(source_path)] = sha(_read(source_path))

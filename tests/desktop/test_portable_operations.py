@@ -191,6 +191,40 @@ class PortableOperationTests(unittest.TestCase):
         self.assertFalse((self.root / "workspace").exists())
 
     @unittest.skipUnless(os.name == "nt", "Native Windows path custody")
+    def test_windows_selected_junctions_are_refused_before_resolution_or_mutation(self):
+        target = self.root / "target"
+        target.mkdir()
+        (target / "input.txt").write_bytes(b"original")
+        link = self.root / "chosen junction"
+        result = subprocess.run(["cmd.exe", "/d", "/c", "mklink", "/J", str(link), str(target)],
+                                capture_output=True, text=True, timeout=5)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.addCleanup(os.rmdir, link)
+        for operation in (
+                lambda: operations.OperationBridge(link, self.root / "receipts"),
+                lambda: operations.OperationBridge(self.package, link / "receipts"),
+                lambda: operations.OperationBridge(self.package, self.root / "receipts", learning_config=link / "active.json"),
+                lambda: self.bridge().prepare("ecosystem.context", {}, link / "workspace")):
+            with self.subTest(operation=operation), self.assertRaises((ValueError, OSError)):
+                operation()
+        for kind, chosen in (("file", link / "input.txt"), ("directory", link),
+                             ("new-file", link / "output.json")):
+            descriptor = operations.spec("ecosystem", "Fixture selected path", ["context"],
+                                          {"selected": (kind, "--selected")})
+            with patch.dict(operations.SPECS, {"ecosystem.context": descriptor}), \
+                    self.subTest(kind=kind), self.assertRaises((ValueError, OSError)):
+                self.bridge().prepare("ecosystem.context", {"selected": str(chosen)}, self.root / "workspace")
+        descriptor = operations.spec("ecosystem", "Fixture source selection", ["context"],
+            {"sources": ("sources", "--source"), "root": ("directory", "--root")})
+        with patch.dict(operations.SPECS, {"ecosystem.context": descriptor}), \
+                self.assertRaises((ValueError, OSError)):
+            self.bridge().prepare("ecosystem.context", {"sources": ["input.txt"], "root": str(link)},
+                                  self.root / "workspace")
+        self.assertEqual([(p.name, p.read_bytes()) for p in target.iterdir()], [("input.txt", b"original")])
+        self.assertFalse((self.root / "receipts").exists())
+        self.assertFalse((self.root / "workspace").exists())
+
+    @unittest.skipUnless(os.name == "nt", "Native Windows path custody")
     def test_windows_junction_replacement_refuses_source_pin_read(self):
         original = self.package / "src"
         moved = self.root / "moved source"
