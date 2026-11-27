@@ -27,7 +27,7 @@ import desktop_mechanical_check as mechanical
 import desktop_prior_evidence as evidence_format
 
 TARGETS = {"macos-x86_64": "darwin", "ubuntu-24.04-x86_64": "linux", "windows-x86_64": "win32"}
-SOURCE_TESTS = ("test_portable_process.py", "test_portable_storage.py", "test_platform_install.py",
+SOURCE_TESTS = ("test_portable_process.py", "test_portable_listener.py", "test_portable_storage.py", "test_platform_install.py",
                 "test_portable_ci.py", "test_tokenizer_dependencies.py", "test_decision_format.py",
                 "test_dependencies.py", "test_build.py", "test_dependency_custody.py", "test_dependency_archives.py", "test_windows_bootstrap.py",
                 "test_mechanical_preview.py", "test_release_evidence.py")
