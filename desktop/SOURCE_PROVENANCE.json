@@ -1389,7 +1389,7 @@
     "runtime/src/lodestone_machinery/bezoar_cli.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/bezoar_cli.py",
-      "sha256": "df230d152f83f1447bb0b0d1217c08d52e6f63a30a4674e18f3956e06208e72c",
+      "sha256": "7c0cb32553e08cf7e3e5b4696f0985b0845983de7e6f166e30104b1a952b2869",
       "source_sha256": "df230d152f83f1447bb0b0d1217c08d52e6f63a30a4674e18f3956e06208e72c"
     },
     "runtime/src/lodestone_machinery/bezoar_familiarity.py": {
@@ -1823,7 +1823,7 @@
     "runtime/src/lodestone_machinery/organs/ingest.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/organs/ingest.py",
-      "sha256": "96a511bc7195f36866f5f70e6be9cd1d9ffacc000f73039108b1d44b0024474c",
+      "sha256": "64a9f72aa5ea69e3a75f4c28bac69bfd99da7b473bb672d1393a7621a6dde714",
       "source_sha256": "96a511bc7195f36866f5f70e6be9cd1d9ffacc000f73039108b1d44b0024474c"
     },
     "runtime/src/lodestone_machinery/organs/measurement.py": {
@@ -2213,7 +2213,7 @@
     "runtime/tools/ecosystem/cli.py": {
       "origin": "unified-runtime",
       "path": "tools/ecosystem/cli.py",
-      "sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e",
+      "sha256": "1a3ccab2a1a5856a0f13063935a04214028c6b36c53a75a6f2d892f2977a8762",
       "source_sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e"
     },
     "runtime/tools/ecosystem/conscience-policy.json": {
@@ -2481,6 +2481,7 @@
     "native_locale_fallback": "586121e5fc82da2a1234db6689deff3f91dd2355",
     "native_reference_history": "40e6672dd3403bae357345d7eb3016dd075e660d",
     "portable_archive_metadata": "e67c8fbf618ff9066d12c88dd641f414b37d935f",
+    "portable_bezoar_capture": "62a5df1f7f2fbf8c48a7c53862348151884d22da",
     "portable_captured_archive": "0312c378b5ed498bd8d9757e498fef3c0da15422",
     "portable_installer": "93217426f4db532166ca26e6d55604a5f2eb9027",
     "portable_loopback_reuse": "c7f354186bd319d9418de87f7693bf35008e4d16",
@@ -2818,6 +2819,24 @@
       "reason": "Guard Windows support evidence and user-selected review reads without hiding aliases; retain existing schema, byte and total-size checks.",
       "sha256": "806e4d6ecf41ceda7d9d751f6d99905e3f460d9f53fc7ecfea8e44ca635785ca",
       "source_sha256": "df07f7e3d4b2c5b01d8710e952553142c410635cce55205a6bacc7bb5eca00ad"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/bezoar_cli.py",
+      "reason": "Preserve Unicode retained Bezoar records through ASCII-safe terminal JSON.",
+      "sha256": "7c0cb32553e08cf7e3e5b4696f0985b0845983de7e6f166e30104b1a952b2869",
+      "source_sha256": "df230d152f83f1447bb0b0d1217c08d52e6f63a30a4674e18f3956e06208e72c"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/organs/ingest.py",
+      "reason": "Hold native source-directory custody across complete multi-file capture and publication; retain original failure and historical records.",
+      "sha256": "64a9f72aa5ea69e3a75f4c28bac69bfd99da7b473bb672d1393a7621a6dde714",
+      "source_sha256": "96a511bc7195f36866f5f70e6be9cd1d9ffacc000f73039108b1d44b0024474c"
+    },
+    {
+      "path": "runtime/tools/ecosystem/cli.py",
+      "reason": "Admit only reviewed Windows Bezoar ingest/show routes while preserving lexical workspace paths for native custody.",
+      "sha256": "1a3ccab2a1a5856a0f13063935a04214028c6b36c53a75a6f2d892f2977a8762",
+      "source_sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"
