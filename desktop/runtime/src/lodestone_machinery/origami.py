@@ -207,13 +207,15 @@ def _sandbox():
 
 def _fenced_argv(sandbox, argv, workspace, source_root, auth_path, proxy_port):
     """Wrap argv in the fence. The macOS form is exactly the earlier Seatbelt invocation."""
-    from .isolation import SEATBELT, bwrap_argv
+    from .isolation import APPCONTAINER, SEATBELT, appcontainer_argv, bwrap_argv
     if sandbox.kind == SEATBELT:
         profile = _profile(workspace, source_root, _program_paths(argv), auth_path, proxy_port)
         return [sandbox.path, "-p", profile, *argv]
     if proxy_port is not None:
-        raise ValueError("The Linux fence cannot admit only the local endpoint proxy")
+        raise ValueError("This platform's fence cannot admit only the local endpoint proxy")
     readable = [*_program_paths(argv), Path(source_root)] + ([] if auth_path is None else [Path(auth_path)])
+    if sandbox.kind == APPCONTAINER:
+        return appcontainer_argv(sandbox.path, argv, workspace=workspace, readable=readable)
     return bwrap_argv(sandbox.path, argv, workspace=workspace, readable=readable)
 
 
@@ -387,8 +389,9 @@ def _constraints(transport, sandboxed=False, endpoints=(), auth_path=None):
         launcher = getattr(sandboxed, "kind", "sandbox-exec" if sandboxed else "subprocess")
         kernel = "ENFORCED" if sandboxed else "DECLARED"
         network = kernel if not endpoints else ("ENFORCED_ENDPOINT_ONLY" if sandboxed else "DECLARED")
-        # bubblewrap confines files and network but does not deny forks inside the fence.
-        forks = kernel if launcher != "bwrap" else "DECLARED"
+        # bubblewrap and AppContainer confine files and network but do not deny
+        # starting further programs inside the same fence.
+        forks = kernel if launcher not in ("bwrap", "appcontainer") else "DECLARED"
         return {"read_only_source_root": kernel, "workspace_only_writes": kernel, "no_network": network,
                 "no_lab_credentials": kernel, "provider_auth_path": kernel,
                 "no_further_subprocesses": forks, "budget_stop": "ENFORCED",

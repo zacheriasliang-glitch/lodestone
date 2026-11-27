@@ -1529,8 +1529,8 @@
     "runtime/src/lodestone_machinery/isolation.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/isolation.py",
-      "sha256": "0d769cfb1a7741093caa884f5faddcb91eb129aef1065037ef3dbedfc5017d6b",
-      "source_sha256": "0d769cfb1a7741093caa884f5faddcb91eb129aef1065037ef3dbedfc5017d6b"
+      "sha256": "0ce9c04c54343f755dd98c7335a47f151e2f43e082bb762284d7240b35b3fece",
+      "source_sha256": "0ce9c04c54343f755dd98c7335a47f151e2f43e082bb762284d7240b35b3fece"
     },
     "runtime/src/lodestone_machinery/latent/__init__.py": {
       "origin": "unified-runtime",
@@ -1877,8 +1877,8 @@
     "runtime/src/lodestone_machinery/origami.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/origami.py",
-      "sha256": "c6faacb5238ebf66d456ba289cc9e6de79305b2acb69d2930f40560b43bf9f6b",
-      "source_sha256": "519004864947824b9a5ca38d7017c774cbe4a6dcacb8dc85ae3e523a1bd30d80"
+      "sha256": "c980c60c74d4bc65f1e99606392f890d402204229f3ba6ed8465e3d24807102a",
+      "source_sha256": "c980c60c74d4bc65f1e99606392f890d402204229f3ba6ed8465e3d24807102a"
     },
     "runtime/src/lodestone_machinery/origami_cli.py": {
       "origin": "unified-runtime",
@@ -1969,6 +1969,12 @@
       "path": "src/lodestone_machinery/usage.py",
       "sha256": "ee38e822f34c91d19d24c7a6299de485781afa486c143729d6f6cb3082b2a844",
       "source_sha256": "ee38e822f34c91d19d24c7a6299de485781afa486c143729d6f6cb3082b2a844"
+    },
+    "runtime/src/lodestone_machinery/windows_appcontainer.py": {
+      "origin": "unified-runtime",
+      "path": "src/lodestone_machinery/windows_appcontainer.py",
+      "sha256": "e3ed4a9ec07f705c946934c7f9641af231eb3cfb4b8030fbc9e3f5a8045536bc",
+      "source_sha256": "e3ed4a9ec07f705c946934c7f9641af231eb3cfb4b8030fbc9e3f5a8045536bc"
     },
     "runtime/src/lodestone_machinery/workers.py": {
       "origin": "unified-runtime",
@@ -2504,6 +2510,7 @@
     "reference_history_installer": "f3b28acdc2d2abc77813376445616b200fd3b609",
     "reference_history_installer_cherry_picked_from": "1a32a87ccad4dd7c596df31a911fd0c4ebf08527",
     "scope": "Implementation commits identify the native history and installer changes. Original export origins and source_sha256 values remain preserved; release packaging and documentation are tracked by the enclosing release commit. Optional practice/voxel integration identifies its lab source commit; the public port preserves its distinct history-window and tokenizer-candidate paths.",
+    "windows_appcontainer_fence": "66b0bcbad41376e4c767fc1bfa7db9ed68f74d5b",
     "windows_batch_bytes": "0369bcbd0963579324abc51ff41e923b7981de6b",
     "windows_directory_custody_review": "2812c20c90a4d5bcd8cbf96bbb131b6f9ce32a16",
     "windows_file_timestamp_contract": "da26134b75de18d0fdf49822dd3c930ad4b009f9",
@@ -2767,7 +2774,7 @@
     {
       "path": "runtime/src/lodestone_machinery/origami.py",
       "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
-      "sha256": "c6faacb5238ebf66d456ba289cc9e6de79305b2acb69d2930f40560b43bf9f6b",
+      "sha256": "c980c60c74d4bc65f1e99606392f890d402204229f3ba6ed8465e3d24807102a",
       "source_sha256": "519004864947824b9a5ca38d7017c774cbe4a6dcacb8dc85ae3e523a1bd30d80"
     },
     {

@@ -115,6 +115,30 @@ jobs:
           sudo "desktop/Enable Linux Command Fence.sh" --remove
           python -B -m unittest discover -s tests/desktop -p 'test_isolation.py' -k HostOutcome -v
 
+  windows-isolation:
+    # Proves the Windows AppContainer fence for command providers on a free public runner.
+    runs-on: windows-2022
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: AppContainer launcher diagnostic (shows any setup refusal)
+        shell: pwsh
+        run: |
+          $ws = Join-Path $env:RUNNER_TEMP 'fence-diagnostic'
+          New-Item -ItemType Directory -Force -Path $ws | Out-Null
+          python -I -B desktop/runtime/src/lodestone_machinery/windows_appcontainer.py --workspace $ws -- "$env:SystemRoot\System32\cmd.exe" /c "echo inside & exit 0"
+          Write-Output "launcher exit: $LASTEXITCODE"
+      - name: Real AppContainer confinement and cleanup (required, not skipped)
+        env:
+          LODESTONE_REQUIRE_APPCONTAINER: '1'
+          LODESTONE_EXPECT_ISOLATION: FENCED
+        run: python -B -m unittest discover -s tests/desktop -p 'test_isolation.py' -v
+
   porcelain-import:
     runs-on: ubuntu-latest
     timeout-minutes: 15
