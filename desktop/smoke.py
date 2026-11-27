@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
-import fcntl
 import hashlib
 import importlib.util
 import json
@@ -92,8 +91,8 @@ def run(root, output, max_tokens):
     save(output, report)
     bridge = None
     try:
-        with (root / ".lifecycle.lock").open("a+") as lease:
-            fcntl.flock(lease, fcntl.LOCK_SH | fcntl.LOCK_NB)
+        from platform_support import file_lock
+        with file_lock(root / ".lifecycle.lock", shared=True):
             active = read(root / "ACTIVE.json")
             require(active.get("schema") == "lodestone-desktop-active/v1", "Select a desktop preview installation")
             release = Path(active["release"]).resolve()

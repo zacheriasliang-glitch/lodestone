@@ -1,0 +1,101 @@
+name: Desktop portable native checks
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_head:
+        description: 'Exact checkout SHA to install and verify'
+        type: string
+        required: true
+      local_model_smoke:
+        description: 'Run two bounded local encounters and retained correction delivery; no API or training'
+        type: boolean
+        default: false
+        required: false
+  pull_request:
+    paths:
+      - 'desktop/**'
+      - 'tests/desktop/**'
+      - 'tests/desktop_gui/**'
+      - 'tools/desktop_portable_check.py'
+      - 'tools/desktop_mechanical_check.py'
+      - 'tools/desktop_prior_evidence.py'
+      - '.github/workflows/desktop-portable.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-portable-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native-install:
+    # Public standard runners are free. Never use larger runners, private-repo
+    # compute, artifact upload or Actions cache storage for these checks.
+    # https://docs.github.com/en/billing/concepts/product-billing/github-actions
+    if: github.event.repository.private == false
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            target: ubuntu-24.04-x86_64
+          - runner: windows-2022
+            target: windows-x86_64
+          - runner: macos-15-intel
+            target: macos-x86_64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 100
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUTF8: '1'
+      TARGET: ${{ matrix.target }}
+      EXPECTED_HEAD: ${{ inputs.expected_head }}
+      LOCAL_MODEL_SMOKE: ${{ inputs.local_model_smoke }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Ubuntu native GUI, audio and confinement dependencies
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libgtk-3-0t64 libwebkit2gtk-4.1-0 libnotify4 libsm6 \
+            libportaudio2 libasound2t64 libpulse0 libxtst6 \
+            libgstreamer1.0-0 gstreamer1.0-plugins-base \
+            xvfb xauth dbus-x11 bubblewrap
+
+      - name: Verify source, download, fresh installation, GUI and lifecycle
+        shell: bash
+        run: |
+          set -euo pipefail
+          runner_python=python
+          if [ "$RUNNER_OS" != Windows ]; then runner_python=python3; fi
+          invocation=("$runner_python" -B tools/desktop_portable_check.py run
+            --source "$GITHUB_WORKSPACE"
+            --work "$RUNNER_TEMP/lodestone-portable-$TARGET"
+            --target "$TARGET"
+            --source-commit "$GITHUB_SHA"
+            --event "$GITHUB_EVENT_NAME"
+            --expected-head "$EXPECTED_HEAD"
+            --local-model-smoke "$LOCAL_MODEL_SMOKE")
+          if [ "$RUNNER_OS" = Linux ]; then
+            xvfb-run --auto-servernum --server-args='-screen 0 1440x1000x24' dbus-run-session -- "${invocation[@]}"
+          else
+            "${invocation[@]}"
+          fi
+
+      - name: Preserve bounded native outcomes and logs without artifact storage
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          runner_python=python
+          if [ "$RUNNER_OS" != Windows ]; then runner_python=python3; fi
+          "$runner_python" -B tools/desktop_portable_check.py emit \
+            --work "$RUNNER_TEMP/lodestone-portable-$TARGET"
