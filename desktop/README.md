@@ -65,11 +65,13 @@ bash "Install Lodestone.sh"
 
 The application and its Python environments install under your user account.
 The script checks the OS prerequisites and uses `sudo apt-get` if any are missing:
-`curl`, `ca-certificates`, `libgtk-3-0t64`, `libwebkit2gtk-4.1-0`, `libnotify4`,
+`curl`, `ca-certificates`, `libgtk-3-0t64`, `librsvg2-common`, `at-spi2-core`,
+`libwebkit2gtk-4.1-0`, `libnotify4`,
 `libportaudio2`, `libgl1`, `libegl1`, `libsm6`, `libxtst6`, `libsdl2-2.0-0`,
 `libglib2.0-bin` and `bubblewrap`. These provide HTTPS downloads, GTK/WebKit,
-audio, graphical libraries, desktop launching and command isolation. An
-administrator can install these packages first; `--no-system-deps` then checks
+audio, SVG icons, accessibility services, graphical libraries, desktop launching
+and command isolation. An administrator can install these packages first;
+`--no-system-deps` then checks
 their presence and refuses if any are missing. It does not skip the prerequisite
 check. `--no-open` completes setup without opening the GUI.
 

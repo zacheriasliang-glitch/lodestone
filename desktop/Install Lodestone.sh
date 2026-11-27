@@ -26,7 +26,9 @@ while [ "$#" -gt 0 ]; do
     *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
 done
-packages=(curl ca-certificates libglib2.0-bin libgtk-3-0t64 libwebkit2gtk-4.1-0 libnotify4 libportaudio2 libgl1 libegl1 libsm6 libxtst6 libsdl2-2.0-0 bubblewrap)
+# GTK's SVG loader and accessibility bus are recommendations, so minimal
+# systems can have GTK itself installed without these desktop runtime pieces.
+packages=(curl ca-certificates libglib2.0-bin libgtk-3-0t64 librsvg2-common at-spi2-core libwebkit2gtk-4.1-0 libnotify4 libportaudio2 libgl1 libegl1 libsm6 libxtst6 libsdl2-2.0-0 bubblewrap)
 missing=()
 for package in "${packages[@]}"; do
   if ! dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -q 'install ok installed'; then missing+=("$package"); fi

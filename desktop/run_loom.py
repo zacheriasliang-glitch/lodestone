@@ -72,9 +72,25 @@ def run(root, args):
         return
     try:
         from basilisk.main_app import MainApp
-        app = MainApp()
         if args.verify_startup:
+            import locale
             import wx
+
+            class VerifiedMainApp(MainApp):
+                def OnInit(self):
+                    # Record the native locale candidate without changing the
+                    # selected locale or suppressing initialization diagnostics.
+                    info = wx.Locale.FindLanguageInfo(global_vars.args.language)
+                    print(json.dumps({"startup_locale": {
+                        "requested": global_vars.args.language,
+                        "system": locale.setlocale(locale.LC_ALL),
+                        "wx_language": info.Language if info else None,
+                        "wx_canonical": info.CanonicalName if info else None,
+                        "available": wx.Locale.IsAvailable(info.Language) if info else False,
+                    }}), file=sys.stderr, flush=True)
+                    return super().OnInit()
+
+            app = VerifiedMainApp()
             def verify():
                 report = {"schema": "lodestone-desktop-startup/v1", "shown": app.frame.IsShown(),
                           "title": app.frame.GetTitle(), "models": global_vars.loom_bridge.models(),
@@ -83,6 +99,8 @@ def run(root, args):
                 (root / "startup-verification.json").write_text(json.dumps(report, indent=2) + "\n")
                 app.frame.Close()
             wx.CallLater(1500, verify)
+        else:
+            app = MainApp()
         app.MainLoop()
     except BaseException:
         (root / "startup-error.txt").write_text(traceback.format_exc())
