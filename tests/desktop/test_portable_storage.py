@@ -5,12 +5,13 @@ All provider results are scripted fixtures; no model, training or paid call.
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import subprocess
 import sys
 import tempfile
 import time
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -51,13 +52,25 @@ class PortableStorage(unittest.TestCase):
             time.sleep(.02)
         self.assertTrue(marker.exists(), "Child failed to reach the controlled crash boundary")
 
+    def test_windows_ambiguous_names_are_rejected_before_path_normalization(self):
+        for name in ("C:/scope/file.", "C:/scope/file ", "C:/parent./file", "C:/parent /file",
+                     "C:/scope/NUL.txt", "C:/scope/name:stream", "relative.", "relative "):
+            with self.subTest(path=name):
+                with patch.object(files, "WINDOWS", True), patch.object(files, "Path", PureWindowsPath), \
+                        patch.object(files.os.path, "abspath", side_effect=AssertionError("Must reject before normalization")), \
+                        self.assertRaises(ValueError):
+                    files.absolute_path(name)
+                with patch.object(installer_files, "os", SimpleNamespace(name="nt")), \
+                        patch.object(installer_files, "Path", PureWindowsPath), self.assertRaises(ValueError):
+                    installer_files.check_path(name)
+
     def test_native_lock_contends_times_out_and_crash_releases_without_mutating_bytes(self):
         lock, marker = self.root / "custody.lock", self.root / "ready"
         original = b"preexisting lock file is evidence, not a PID owner"
         lock.write_bytes(original)
         process = self.child('''
 import time
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from lodestone_nurarihyon.common import file_lock
 with file_lock(sys.argv[2]):
  Path(sys.argv[3]).write_text('ready')
@@ -83,7 +96,7 @@ with file_lock(sys.argv[2]):
                 lock, marker = self.root / (backend + ".lock"), self.root / (backend + ".ready")
                 process = self.child('''
 import time
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 sys.path.insert(0, sys.argv[4])
 if sys.argv[5] == 'installer':
  from platform_support import file_lock
@@ -160,7 +173,7 @@ with file_lock(sys.argv[2]):
         files.durable_write(path, b"old record")
         process = self.child('''
 import time
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from lodestone_nurarihyon import portable_files as files
 def pause(*args, **kwargs):
  Path(sys.argv[3]).write_text('ready')
