@@ -1625,7 +1625,7 @@
     "runtime/src/lodestone_machinery/loom_adapter_local.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_adapter_local.py",
-      "sha256": "58df216cd0903a499a751c63b7828fe544f833057b96514c0840d111d0f53b0c",
+      "sha256": "d2441b67b47c1f1d2882dd29a8b57a072bc138e86e1539adeb520a5a0bf790e4",
       "source_sha256": "31fb73057c4f679fde8edcf50fcdb97e04323211b796e3a2961643b96fb567c3"
     },
     "runtime/src/lodestone_machinery/loom_adapter_torch.py": {
@@ -1709,7 +1709,7 @@
     "runtime/src/lodestone_machinery/loom_runtime_worker.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_runtime_worker.py",
-      "sha256": "cef082dc0b806f95bb718e645013fcd772d2b999884e3843a4672a9d51e10d6e",
+      "sha256": "be2e2ed6404d86962d7e408d43bcda72511482333199f435c8950e27c4f905eb",
       "source_sha256": "c27a1bd2556109fc41ce2242cc557841f1d46f57ed369c42067cfec4aea3e01f"
     },
     "runtime/src/lodestone_machinery/loom_support.py": {
@@ -1883,7 +1883,7 @@
     "runtime/src/lodestone_machinery/portable_process.py": {
       "origin": "lodestone-public",
       "path": "desktop/runtime/src/lodestone_machinery/portable_process.py",
-      "sha256": "fea360215e852b4efea1cd9fbd3ece082fd9f406e52a6e4c13a5e56a24afb4d0",
+      "sha256": "113914dffb67970fcfa8c76acf2a6acb3a231f3340cebc1b2ac19fbe2debc6e6",
       "source_sha256": "418db93c9738c2aa12269604b1d3aa302accf52bc0af7c4c459f130cacb277c7"
     },
     "runtime/src/lodestone_machinery/pressure_pair.py": {
@@ -1895,7 +1895,7 @@
     "runtime/src/lodestone_machinery/records.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/records.py",
-      "sha256": "cd524eaf7dbaf5ace630e12651c93ae632d2ee172aad9a51ed07bbc33fbfdc1f",
+      "sha256": "6440d2fb6f383c3bb4a5bb9ec39d124b3e371c512a82899f8633e1405ed51297",
       "source_sha256": "c575a0a6649eb08b2ba7b41f650764c1ccac9c2334932140842000c269ad8b5e"
     },
     "runtime/src/lodestone_machinery/reviewed_workflow.py": {
@@ -2111,7 +2111,7 @@
     "runtime/src/lodestone_nurarihyon/portable_files.py": {
       "origin": "lodestone-public",
       "path": "desktop/runtime/src/lodestone_nurarihyon/portable_files.py",
-      "sha256": "7fe98305fa842d951147152f7fdc935775cf9ffd9c83ddb55d763066e89ff18b",
+      "sha256": "5ac0be8e75162cac46b9ae7959d4a56cf4737d420fa8600c2d6f6c5c3d579edc",
       "source_sha256": "b6713120dcd974ef3bfe6c100349e20f5d004884b4d94684a92041da3c713966"
     },
     "runtime/src/lodestone_nurarihyon/preparation.py": {
@@ -2501,13 +2501,13 @@
     {
       "path": "runtime/src/lodestone_machinery/loom_adapter_local.py",
       "reason": "Separate tokenizer package checks from the unchanged full model/training package binding. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "58df216cd0903a499a751c63b7828fe544f833057b96514c0840d111d0f53b0c",
+      "sha256": "d2441b67b47c1f1d2882dd29a8b57a072bc138e86e1539adeb520a5a0bf790e4",
       "source_sha256": "31fb73057c4f679fde8edcf50fcdb97e04323211b796e3a2961643b96fb567c3"
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_runtime_worker.py",
       "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "cef082dc0b806f95bb718e645013fcd772d2b999884e3843a4672a9d51e10d6e",
+      "sha256": "be2e2ed6404d86962d7e408d43bcda72511482333199f435c8950e27c4f905eb",
       "source_sha256": "c27a1bd2556109fc41ce2242cc557841f1d46f57ed369c42067cfec4aea3e01f"
     },
     {
@@ -2693,13 +2693,13 @@
     {
       "path": "runtime/src/lodestone_machinery/portable_process.py",
       "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "fea360215e852b4efea1cd9fbd3ece082fd9f406e52a6e4c13a5e56a24afb4d0",
+      "sha256": "113914dffb67970fcfa8c76acf2a6acb3a231f3340cebc1b2ac19fbe2debc6e6",
       "source_sha256": "418db93c9738c2aa12269604b1d3aa302accf52bc0af7c4c459f130cacb277c7"
     },
     {
       "path": "runtime/src/lodestone_machinery/records.py",
       "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "cd524eaf7dbaf5ace630e12651c93ae632d2ee172aad9a51ed07bbc33fbfdc1f",
+      "sha256": "6440d2fb6f383c3bb4a5bb9ec39d124b3e371c512a82899f8633e1405ed51297",
       "source_sha256": "c575a0a6649eb08b2ba7b41f650764c1ccac9c2334932140842000c269ad8b5e"
     },
     {
@@ -2717,7 +2717,7 @@
     {
       "path": "runtime/src/lodestone_nurarihyon/portable_files.py",
       "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "7fe98305fa842d951147152f7fdc935775cf9ffd9c83ddb55d763066e89ff18b",
+      "sha256": "5ac0be8e75162cac46b9ae7959d4a56cf4737d420fa8600c2d6f6c5c3d579edc",
       "source_sha256": "b6713120dcd974ef3bfe6c100349e20f5d004884b4d94684a92041da3c713966"
     },
     {
