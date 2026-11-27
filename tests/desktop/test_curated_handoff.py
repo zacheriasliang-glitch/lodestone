@@ -239,7 +239,7 @@ organ.complete(config['id'], config['curation'])
 
     @unittest.skipUnless(os.name == "nt", "Native Windows reparse/stream handling")
     def test_windows_source_stream_device_and_junction_paths_refuse_without_proposal(self):
-        for source in ("note.txt:stream", "C:/outside.txt", "CON", "NUL.txt", "note.txt."):
+        for source in ("note.txt:stream", "C:/outside.txt", "CON", "NUL.txt", "note.txt.", "note.txt "):
             with self.subTest(source=source), self.assertRaises((ValueError, OSError)):
                 self.handoff.preview(self.original["outcome_handle"], root=self.source, paths=[source])
         alias = self.root / "source-junction"
