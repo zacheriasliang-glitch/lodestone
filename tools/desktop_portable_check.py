@@ -36,6 +36,7 @@ SOURCE_TESTS = (
     "test_reader_history_window.py", "test_windows_path_budget.py", "test_windows_preflight.py", "test_windows_policy_check.py",
     "test_portable_operations.py", "test_portable_readers.py", "test_curated_handoff.py", "test_windows_review_custody.py",
     "test_portable_bezoar.py", "test_catalogue_bezoar.py", "test_portable_inference_skill.py", "test_portable_release_reader.py",
+    "test_portable_local_memory.py",
 )
 
 READERS = {"LODESTONE_OLD_GUI_SOURCE": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",

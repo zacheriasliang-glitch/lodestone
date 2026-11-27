@@ -1691,7 +1691,7 @@
     "runtime/src/lodestone_machinery/loom_operations.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_operations.py",
-      "sha256": "0042b1f257fa489fbfaabbbb5fcd95840da99dd1e1f54c9378a7f5b394d5fdb0",
+      "sha256": "739f48a23627cbef834bf74729c45ec9537ad8f0a4fae2c377a8c4ebe10d56b2",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     "runtime/src/lodestone_machinery/loom_optional_operations.py": {
@@ -2249,7 +2249,7 @@
     "runtime/tools/local-memory/README.md": {
       "origin": "public-core",
       "path": "tools/local-memory/README.md",
-      "sha256": "00f53c0c7e940359a0a0dfcd488ffef367d9edd9f5fde79402b7b8bd7cbf806a",
+      "sha256": "541b990c97a4f17d9adfbdfec75adcca965873af9dbf3b4a66372c51cb1e220e",
       "source_sha256": "00f53c0c7e940359a0a0dfcd488ffef367d9edd9f5fde79402b7b8bd7cbf806a"
     },
     "runtime/tools/local-memory/schemas/record.schema.json": {
@@ -2261,7 +2261,7 @@
     "runtime/tools/local-memory/src/lodestone_memory.py": {
       "origin": "unified-runtime",
       "path": "tools/local-memory/src/lodestone_memory.py",
-      "sha256": "13feb8ff9a5d34d926a0c43f7fbcbbe22a0267b00feb2d123955f030198d43cf",
+      "sha256": "a5a76f6f7bfc865b3d76ea350d5de125fdf4121ae39072d9cf314d93e2e660a3",
       "source_sha256": "13feb8ff9a5d34d926a0c43f7fbcbbe22a0267b00feb2d123955f030198d43cf"
     },
     "runtime/tools/local-memory/src/source_addresses.py": {
@@ -2489,6 +2489,7 @@
     "portable_catalogue_selected_path_custody": "e5ea6121c2e1d42fb2b302330620adc99aeb8e22",
     "portable_inference_skill": "fb7d26de1e281b222b64633cad749f2d8b8aee5e",
     "portable_installer": "93217426f4db532166ca26e6d55604a5f2eb9027",
+    "portable_local_memory": "e778bf6758bcc4e87207c56c71afc54d56f753e5",
     "portable_loopback_reuse": "c7f354186bd319d9418de87f7693bf35008e4d16",
     "portable_native_ci": "5bd383a2d80ff8c5d05bff4c01df536350f3281d",
     "portable_process": "35b2754ec1235c2205aba78f3cee3034c9788752",
@@ -2718,8 +2719,8 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_operations.py",
-      "reason": "Enable reviewed doctor/context, mailbox validation, inference planning/skill export and release verification through explicitly approved bounded owned subprocesses; unported routes remain unavailable.",
-      "sha256": "0042b1f257fa489fbfaabbbb5fcd95840da99dd1e1f54c9378a7f5b394d5fdb0",
+      "reason": "Own explicit trusted catalogue subprocesses with Windows Jobs or POSIX process groups, bounded output and elapsed time; preserve Windows path aliases for custody checks and enable only reviewed operation dependencies. No filesystem/network confinement claim.",
+      "sha256": "739f48a23627cbef834bf74729c45ec9537ad8f0a4fae2c377a8c4ebe10d56b2",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     {
@@ -2871,6 +2872,18 @@
       "reason": "Accept an optional guarded reader for desktop catalogue verification while preserving standalone verification schema, defaults and CLI.",
       "sha256": "35ba4051b45ea0480d7e3a4660b7fce9d9bccdff5520e43783bffe573a2b5336",
       "source_sha256": "65aa5b5d148e1ae1717a3412b0b6bcb6163e22e66001cd9886a5f01f68977502"
+    },
+    {
+      "path": "runtime/tools/local-memory/README.md",
+      "reason": "Add bounded native Windows notebook custody with a shared OS lock, exact retained-prefix durable publication and Unicode CLI output; preserve POSIX behavior and notebook schema. Source attribution remains inert text.",
+      "sha256": "541b990c97a4f17d9adfbdfec75adcca965873af9dbf3b4a66372c51cb1e220e",
+      "source_sha256": "00f53c0c7e940359a0a0dfcd488ffef367d9edd9f5fde79402b7b8bd7cbf806a"
+    },
+    {
+      "path": "runtime/tools/local-memory/src/lodestone_memory.py",
+      "reason": "Add bounded native Windows notebook custody with a shared OS lock, exact retained-prefix durable publication and Unicode CLI output; preserve POSIX behavior and notebook schema. Source attribution remains inert text.",
+      "sha256": "a5a76f6f7bfc865b3d76ea350d5de125fdf4121ae39072d9cf314d93e2e660a3",
+      "source_sha256": "13feb8ff9a5d34d926a0c43f7fbcbbe22a0267b00feb2d123955f030198d43cf"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"

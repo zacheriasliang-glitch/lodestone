@@ -93,8 +93,10 @@ SPECS = {
         effects="Verify board; native Board constructor may initialize missing database or metadata"),
     "memory.add": spec("local-memory", "Retain an attributed local note", ["memory", "add", "{workspace}"],
         {"title": ("text", "--title"), "body": ("text", "--body"), "source": ("text", "--source")}, "Append local note; source attribution is not factual endorsement"),
-    "memory.search": spec("local-memory", "Search selected local notes", ["memory", "search", "{workspace}"], {"query": ("text", None)}),
-    "memory.verify": spec("local-memory", "Verify selected local memory", ["memory", "verify", "{workspace}"]),
+    "memory.search": spec("local-memory", "Search selected local notes", ["memory", "search", "{workspace}"], {"query": ("text", None)},
+        "Read selected local notes and write invocation receipt; Windows creates persistent .local-memory.lock metadata without rewriting note records"),
+    "memory.verify": spec("local-memory", "Verify selected local memory", ["memory", "verify", "{workspace}"],
+        effects="Read selected local notes and write invocation receipt; Windows creates persistent .local-memory.lock metadata without rewriting note records"),
     "corpus-fold.verify": spec("corpus-fold", "Verify captured corpus bindings and drift", ["yggdrasil", "corpus-fold"],
         {"root": ("directory", "--root"), "fold": ("file", "--fold")}),
     "origami-fold.verify": spec("origami-fold", "Verify selected fold and source bindings", ["origami-fold"],
@@ -141,7 +143,8 @@ UNAVAILABLE = {
 # The catalogue runs trusted explicit commands; Job ownership is not a sandbox.
 WINDOWS_OPERATIONS = frozenset({"ecosystem.doctor", "ecosystem.context",
     "mailbox.validate-envelope", "release.verify-download", "loom.inference-memory-assess",
-    "loom.inference-memory-skill", "bezoar.ingest", "bezoar.show"})
+    "loom.inference-memory-skill", "bezoar.ingest", "bezoar.show",
+    "memory.add", "memory.search", "memory.verify"})
 
 
 def _availability(root):
