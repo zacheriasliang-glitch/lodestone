@@ -55,6 +55,47 @@ def _no_reparse(path):
     return path
 
 
+class _Api:
+    def __init__(self):
+        import ctypes
+        from ctypes import wintypes as w
+        if sys.platform != "win32" or ctypes.sizeof(ctypes.c_void_p) != 8:
+            raise OSError("The AppContainer fence requires 64-bit Windows")
+        self.c, self.w = ctypes, w
+        self.kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        self.userenv = ctypes.WinDLL("userenv", use_last_error=True)
+        self.advapi = ctypes.WinDLL("advapi32", use_last_error=True)
+        p, size = ctypes.c_void_p, ctypes.c_size_t
+        for lib, name, args, result in (
+            (self.userenv, "CreateAppContainerProfile", [w.LPCWSTR, w.LPCWSTR, w.LPCWSTR, p, w.DWORD, ctypes.POINTER(p)], ctypes.c_long),
+            (self.userenv, "DeleteAppContainerProfile", [w.LPCWSTR], ctypes.c_long),
+            (self.advapi, "ConvertSidToStringSidW", [p, ctypes.POINTER(w.LPWSTR)], w.BOOL),
+            (self.advapi, "FreeSid", [p], p),
+            (self.kernel, "LocalFree", [p], p),
+            (self.kernel, "GetStdHandle", [w.DWORD], w.HANDLE),
+            (self.kernel, "GetCurrentProcess", [], w.HANDLE),
+            (self.kernel, "DuplicateHandle", [w.HANDLE, w.HANDLE, w.HANDLE, p, w.DWORD, w.BOOL, w.DWORD], w.BOOL),
+            (self.kernel, "InitializeProcThreadAttributeList", [p, w.DWORD, w.DWORD, p], w.BOOL),
+            (self.kernel, "UpdateProcThreadAttribute", [p, w.DWORD, size, p, size, p, p], w.BOOL),
+            (self.kernel, "DeleteProcThreadAttributeList", [p], None),
+            (self.kernel, "CreateProcessW", [w.LPCWSTR, w.LPWSTR, p, p, w.BOOL, w.DWORD, p, w.LPCWSTR, p, p], w.BOOL),
+            (self.kernel, "CreateJobObjectW", [p, w.LPCWSTR], w.HANDLE),
+            (self.kernel, "SetInformationJobObject", [w.HANDLE, ctypes.c_int, p, w.DWORD], w.BOOL),
+            (self.kernel, "AssignProcessToJobObject", [w.HANDLE, w.HANDLE], w.BOOL),
+            (self.kernel, "ResumeThread", [w.HANDLE], w.DWORD),
+            (self.kernel, "TerminateProcess", [w.HANDLE, w.UINT], w.BOOL),
+            (self.kernel, "WaitForSingleObject", [w.HANDLE, w.DWORD], w.DWORD),
+            (self.kernel, "GetExitCodeProcess", [w.HANDLE, p], w.BOOL),
+            (self.kernel, "CloseHandle", [w.HANDLE], w.BOOL)):
+            fn = getattr(lib, name)
+            fn.argtypes, fn.restype = args, result
+
+    def check(self, value):
+        if not value:
+            raise self.c.WinError(self.c.get_last_error())
+        return value
+
+
 FILE_OBJECT, DACL_INFO = 1, 0x4
 PROTECTED_DACL, UNPROTECTED_DACL, SE_DACL_PROTECTED = 0x80000000, 0x20000000, 0x1000
 MODIFY, READ_EXECUTE = "0x1301bf", "0x1200a9"
