@@ -93,11 +93,19 @@ def extract_archive(archive, destination):
     return destination / roots.pop()
 
 
+def windows_batch_command(script, arguments):
+    """Quote a fixed CI batch invocation for cmd's grammar, with shell=False."""
+    executable = os.environ.get("COMSPEC", "cmd.exe")
+    values = [str(script), *map(str, arguments)]
+    if any(character in value for value in (executable, *values) for character in '&|<>^()%!"\r\n\x00'):
+        raise ValueError("Unexpected command character in CI batch arguments")
+    return '"' + executable + '" /d /s /c "' + " ".join('"' + value + '"' for value in values) + '"'
+
+
 def bootstrap_command(payload, target, root, app, cache):
     if target == "windows-x86_64":
-        return ["powershell.exe", "-NoProfile", "-NonInteractive", "-File",
-                str(payload / "Install Lodestone.ps1"), "-Root", str(root), "-App", str(app),
-                "-Cache", str(cache), "-NoOpen"]
+        return windows_batch_command(payload / "Install Lodestone.cmd", ["--root", root,
+            "--app", app, "--cache", cache, "--no-open"])
     name = "Install Lodestone.command" if target == "macos-x86_64" else "Install Lodestone.sh"
     return ["/bin/bash", str(payload / name), "--root", str(root), "--app", str(app),
             "--cache", str(cache), "--no-open"]
@@ -107,12 +115,7 @@ def wrapper_command(target, root, app, active):
     if target == "macos-x86_64":
         return [str(app / "Contents/MacOS/Lodestone"), "--verify-startup"], "installed_app_wrapper"
     if target == "windows-x86_64":
-        # The fixed CI path contains spaces but no cmd metacharacters. cmd /s /c
-        # needs the outer quote pair as well as quotes around the batch path.
-        if any(character in str(app) for character in '&|<>^()%!"\r\n'):
-            raise ValueError("Unexpected command character in CI wrapper path")
-        return (subprocess.list2cmdline([os.environ.get("COMSPEC", "cmd.exe")]) +
-                ' /d /s /c ""' + str(app) + '" --verify-startup"'), "installed_cmd_wrapper"
+        return windows_batch_command(app, ["--verify-startup"]), "installed_cmd_wrapper"
     entries = [line[5:] for line in app.read_text(encoding="utf-8").splitlines() if line.startswith("Exec=")]
     if len(entries) != 1:
         raise ValueError("Installed desktop file has no unique Exec command")

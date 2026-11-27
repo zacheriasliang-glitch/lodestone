@@ -61,13 +61,29 @@ class PortableCITests(unittest.TestCase):
     def test_native_bootstrap_arguments_do_not_rely_on_git_or_shell_expansion(self):
         root = Path(tempfile.gettempdir()) / "portable fixture"
         win = check.bootstrap_command(root, "windows-x86_64", root / "user data", root / "app.cmd", root / "cache")
-        self.assertEqual(win[:2], ["powershell.exe", "-NoProfile"])
-        self.assertIn(str(root / "Install Lodestone.ps1"), win)
-        self.assertEqual(win[-1], "-NoOpen")
+        self.assertIsInstance(win, str)
+        self.assertIn(' /d /s /c ""' + str(root / "Install Lodestone.cmd") + '"', win)
+        self.assertIn('"--root" "' + str(root / "user data") + '"', win)
+        self.assertTrue(win.endswith('"--no-open""'))
         self.assertNotIn("-ExecutionPolicy", win)
+        self.assertNotIn("powershell", win.lower())
         linux = check.bootstrap_command(root, "ubuntu-24.04-x86_64", root / "user data", root / "app.desktop", root / "cache")
         self.assertEqual(linux[:2], ["/bin/bash", str(root / "Install Lodestone.sh")])
         self.assertEqual(linux[-1], "--no-open")
+
+    @unittest.skipUnless(sys.platform == "win32", "Native Windows cmd argument grammar")
+    def test_windows_batch_command_runs_unicode_space_path_with_literal_arguments(self):
+        with tempfile.TemporaryDirectory(prefix="Lodestone ü ") as temporary:
+            script = Path(temporary) / "fixture ü.cmd"
+            script.write_bytes(b"@echo off\r\necho %~1\r\nexit /b 0\r\n")
+            command = check.windows_batch_command(script, ["--verify-startup"])
+            result = subprocess.run(command, shell=False, capture_output=True, text=True, timeout=10, check=True)
+            self.assertEqual(result.stdout.strip(), "--verify-startup")
+
+    def test_windows_batch_command_rejects_shell_metacharacters(self):
+        for value in ('a&b', 'a%PATH%b', 'a!b', 'a"b'):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                check.windows_batch_command("fixture.cmd", [value])
 
     def test_linux_launch_checks_the_actual_desktop_command(self):
         with tempfile.TemporaryDirectory() as temporary:
