@@ -1,6 +1,7 @@
 """Native owned-worker lifecycle fixtures; no model, network or paid API calls."""
 import json
 import hashlib
+from contextlib import redirect_stderr
 import io
 import os
 from pathlib import Path
@@ -255,6 +256,22 @@ from lodestone_machinery import loom_runtime_worker, loom_runtime
         completed = subprocess.run([sys.executable, "-I", "-B", "-c", code, str(RUNTIME / "src")],
             capture_output=True, text=True, timeout=15)
         self.assertEqual(completed.returncode, 0, completed.stderr)
+
+    def test_windows_optional_learned_support_refuses_before_io_or_model_loading(self):
+        from lodestone_machinery import loom_support_cli as support
+        arguments = ["--workspace", "unused", "--model-dir", "unused", "--output", "unused"]
+        for name in ("parent", "selector", "request", "model-manifest", "confirmation", "run-freeze"):
+            arguments += ["--" + name, "unused", "--expected-" + name + "-sha256", "0" * 64]
+        error = io.StringIO()
+        with patch.object(sys, "platform", "win32"), redirect_stderr(error), \
+                patch.object(support, "plain_path", side_effect=AssertionError("unexpected path operation")) as paths, \
+                patch.object(support, "_read", side_effect=AssertionError("unexpected input read")) as reads, \
+                patch.object(support.loom_nli, "LocalNLI", side_effect=AssertionError("unexpected model loading")) as model:
+            self.assertEqual(support.main(arguments), 2)
+        self.assertIn("unavailable on Windows", json.loads(error.getvalue())["message"])
+        paths.assert_not_called()
+        reads.assert_not_called()
+        model.assert_not_called()
 
     def test_worker_environment_drops_provider_credentials_and_custom_path(self):
         with patch.dict(os.environ, {"OPENAI_API_KEY": "fixture", "ANTHROPIC_API_KEY": "fixture",

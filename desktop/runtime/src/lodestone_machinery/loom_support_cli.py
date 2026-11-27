@@ -48,6 +48,8 @@ def main(argv=None):
     parser.add_argument("--output", required=True)
     args = parser.parse_args(argv)
     try:
+        if sys.platform == "win32":
+            raise OSError("Optional learned support execution is unavailable on Windows: the frozen NLI model custody requires POSIX")
         output = plain_path(args.output, new=True)
         snapshots, values = {}, {}
         for name in ("parent", "selector", "request", "model_manifest", "confirmation", "run_freeze"):
