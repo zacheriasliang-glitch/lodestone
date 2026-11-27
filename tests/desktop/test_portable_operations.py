@@ -187,7 +187,7 @@ class PortableOperationTests(unittest.TestCase):
             self.assertEqual({row["id"] for row in rows if row["status"] == "AVAILABLE"},
                              operations.WINDOWS_OPERATIONS)
             with self.assertRaisesRegex(OSError, "dependency/custody"):
-                self.bridge().prepare("pando.init", {}, self.root / "workspace")
+                self.bridge().prepare("nurarihyon.registry", {}, self.root / "workspace")
         self.assertFalse((self.root / "workspace").exists())
 
     @unittest.skipUnless(os.name == "nt", "Native Windows path custody")
