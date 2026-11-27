@@ -164,7 +164,7 @@ class HostOutcomeTests(unittest.TestCase):
                 isolation.require("A command")
             outcome = "REFUSED"
         else:
-            self.assertIn(found.kind, ("sandbox-exec", "bwrap"))
+            self.assertIn(found.kind, ("sandbox-exec", "bwrap", "appcontainer"))
             outcome = "FENCED:" + found.kind
         print("ISOLATION_HOST_OUTCOME", sys.platform, outcome)
         expected = os.environ.get("LODESTONE_EXPECT_ISOLATION")
@@ -243,10 +243,14 @@ class RealAppContainerTests(unittest.TestCase):
                 item.mkdir()
             (source / "input.txt").write_text("read me")
             (private / "secret.txt").write_text("not for the fence")
+            # Absolute argument paths are deliberately readable inside every fence,
+            # so the private location reaches the program only through a source file.
+            (source / "private-path.txt").write_text(str(private))
             before = {p: self._icacls(p) for p in (work, source, outside, private)}
             program = (
                 "import pathlib, socket, sys\n"
-                "w, s, o, p = map(pathlib.Path, sys.argv[1:5])\n"
+                "w, s, o = map(pathlib.Path, sys.argv[1:4])\n"
+                "p = pathlib.Path((s / 'private-path.txt').read_text())\n"
                 "assert (s / 'input.txt').read_text() == 'read me'\n"
                 "(w / 'ok.txt').write_text('inside')\n"
                 "for target in (s / 'x', o / 'x'):\n"
@@ -265,7 +269,7 @@ class RealAppContainerTests(unittest.TestCase):
                 "        pass\n"
                 "print('CONFINED')\n")
             argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", program, str(work), str(source),
-                                                     str(outside), str(private)], work, source, None, None)
+                                                     str(outside)], work, source, None, None)
             done = subprocess.run(argv, capture_output=True, text=True, timeout=180)
             self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
             self.assertIn("CONFINED", done.stdout)
@@ -291,6 +295,13 @@ class RealAppContainerTests(unittest.TestCase):
             time.sleep(5)  # let the grants be applied
             launcher.kill()  # no cleanup runs in the launcher
             launcher.wait(timeout=30)
-            wac.sweep()
+            # Windows releases a dead process's byte-range lock after an unspecified
+            # delay; until then the sweep correctly treats the run as live.
+            deadline = time.monotonic() + 60
+            while True:
+                wac.sweep()
+                if not list(wac._ledger_directory().glob(wac.PREFIX + "*.json")) or time.monotonic() > deadline:
+                    break
+                time.sleep(1)
             self.assertEqual(self._icacls(source), before)
             self.assertEqual(list(wac._ledger_directory().glob(wac.PREFIX + "*.json")), [])
