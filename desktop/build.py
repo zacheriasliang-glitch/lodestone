@@ -22,6 +22,9 @@ ROOT_FILES = ("install.py", "run_loom.py", "bootstrap_learning.py", "dependencie
               "Install Lodestone.cmd", "Enable Linux Command Fence.sh", "README.md",
               "THIRD_PARTY.md", "SOURCE_PROVENANCE.json", "LICENSE", "smoke.py",
               "build.py", "verify_payload.py")
+EXECUTABLE_FILES = frozenset(("Install Lodestone.command", "Install Lodestone.sh",
+                            "Enable Linux Command Fence.sh", "runtime/orchestrator/run",
+                            "runtime/tools/machinery/run", "runtime/tools/machinery/yggdrasil_findings.py"))
 
 
 def selected(source):
@@ -83,8 +86,10 @@ def build(source, destination, target="macos-x86_64"):
     with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
         for name in sorted([*files, "MANIFEST.json"]):
             item = zipfile.ZipInfo(prefix + "/" + name, date_time=(2026, 1, 1, 0, 0, 0))
-            executable = name in ("Install Lodestone.command", "Install Lodestone.sh", "Enable Linux Command Fence.sh") or (name in files and files[name].stat().st_mode & 0o111)
-            item.external_attr = (0o100755 if executable else 0o100644) << 16
+            # ZIP metadata must not depend on the host's Git checkout modes or
+            # ZipInfo's native Windows/POSIX default. These are entrypoints.
+            item.create_system = 3
+            item.external_attr = (0o100755 if name in EXECUTABLE_FILES else 0o100644) << 16
             item.compress_type = zipfile.ZIP_DEFLATED
             z.writestr(item, data if name == "MANIFEST.json" else contents[name])
     sha = hashlib.sha256(archive.read_bytes()).hexdigest()

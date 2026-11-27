@@ -199,6 +199,14 @@ class Check:
         self.payload = extract_archive(archives[0], self.work / "extracted")
         mechanical.payload_files(self.payload)
         mechanical.write(self.evidence / "download-identity.json", built)
+        # Preserve the exact native ZIP for release, without recompression on a
+        # different host/zlib version. The existing bounded log envelope exports it.
+        if archives[0].stat().st_size > 8 * 1024 * 1024:
+            raise ValueError("Native release ZIP exceeds the recoverable evidence file bound")
+        download = self.evidence / "download"
+        download.mkdir()
+        for name in (archives[0].name, "BUILD.json", "SHA256SUMS.txt"):
+            shutil.copyfile(output / name, download / name)
 
     def install(self, label):
         self.run(label, bootstrap_command(self.payload, self.target, self.root, self.app, self.cache), timeout=1800)

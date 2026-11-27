@@ -1,6 +1,7 @@
 """Offline portability checks for the native CI driver; no installs or inference."""
 from contextlib import redirect_stdout
 import io
+import hashlib
 import json
 from pathlib import Path
 import stat
@@ -117,6 +118,36 @@ class PortableCITests(unittest.TestCase):
             result = check.evidence_format.recover(log, root / "recovered")
             self.assertEqual(result["status"], "RECOVERED_VERIFIED_BYTES")
             self.assertEqual((root / "recovered/native/Loom/runs/fixture/outcome.json").read_bytes(), raw)
+
+    def test_native_download_bytes_survive_build_evidence_and_log_recovery(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            driver = check.Check(root, root / "work", "windows-x86_64")
+            def authored_build(label, command):
+                output = Path(command[command.index("--output") + 1])
+                output.mkdir(parents=True)
+                archive = output / "native-fixture.zip"
+                content = b"Authored source fixture; no executable or model.\n"
+                manifest = {"schema": "lodestone-desktop-payload/v1", "files": {"README.md": hashlib.sha256(content).hexdigest()}}
+                with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as zipped:
+                    zipped.writestr("Fixture/README.md", content)
+                    zipped.writestr("Fixture/MANIFEST.json", json.dumps(manifest))
+                identity = hashlib.sha256(archive.read_bytes()).hexdigest()
+                (output / "BUILD.json").write_text(json.dumps({"archive": archive.name, "sha256": identity}))
+                (output / "SHA256SUMS.txt").write_text(identity + "  " + archive.name + "\n")
+            with patch.object(driver, "run", side_effect=authored_build):
+                driver.build()
+            expected = (driver.work / "download/native-fixture.zip").read_bytes()
+            self.assertEqual((driver.evidence / "download/native-fixture.zip").read_bytes(), expected)
+            captured = io.StringIO()
+            with redirect_stdout(captured):
+                check.emit(driver.work)
+            log = root / "native-job.log"
+            log.write_text(captured.getvalue())
+            check.evidence_format.recover(log, root / "recovered")
+            self.assertEqual((root / "recovered/download/native-fixture.zip").read_bytes(), expected)
+            self.assertEqual((root / "recovered/download/BUILD.json").read_bytes(),
+                             (driver.work / "download/BUILD.json").read_bytes())
 
     def test_workflow_keeps_free_public_standard_runners_and_no_storage_actions(self):
         workflow = (ROOT / ".github/workflows/desktop-portable.yml").read_text()

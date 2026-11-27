@@ -7,6 +7,7 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 
 
@@ -37,6 +38,9 @@ class BuildTests(unittest.TestCase):
         exported = {
             "runtime/LICENSE": "Synthetic runtime notice\n",
             "gui/LICENSE": "Synthetic GUI notice\n",
+            "runtime/orchestrator/run": "#!/bin/sh\n# Authored packaging fixture\n",
+            "runtime/tools/machinery/run": "#!/bin/sh\n# Authored packaging fixture\n",
+            "runtime/tools/machinery/yggdrasil_findings.py": "#!/usr/bin/env python3\n# Authored packaging fixture\n",
             "runtime/docs/loom-integration-map.json": json.dumps({
                 "programme_rows": [{} for _ in range(31)],
                 "toolkit_families": [{} for _ in range(15)]}),
@@ -78,6 +82,27 @@ class BuildTests(unittest.TestCase):
                     self.assertEqual(archive.read(prefix + "dependencies.lock.json"),
                                      (self.source / lock_name).read_bytes())
                     self.assertIn(target, result["archive"])
+
+    def test_archive_identity_ignores_host_modes_and_zip_platform_defaults(self):
+        first = build.build(self.source, self.base / "normal-host", "windows-x86_64")
+        for path in self.source.rglob("*"):
+            if path.is_file():
+                path.chmod(0o755)  # Even incidental document bits cannot leak into the archive.
+        real_info = zipfile.ZipInfo
+        class WindowsInfo(real_info):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.create_system = 0
+        with patch.object(build.zipfile, "ZipInfo", WindowsInfo):
+            second = build.build(self.source, self.base / "different-host", "windows-x86_64")
+        self.assertEqual(first["sha256"], second["sha256"])
+        with zipfile.ZipFile(self.base / "different-host" / second["archive"]) as archive:
+            entries = archive.infolist()
+            self.assertEqual({item.create_system for item in entries}, {3})
+            executable = {item.filename.split("/", 1)[1] for item in entries if item.external_attr >> 16 & 0o111}
+            self.assertEqual(executable, {"Install Lodestone.command", "Install Lodestone.sh",
+                "Enable Linux Command Fence.sh", "runtime/orchestrator/run", "runtime/tools/machinery/run",
+                "runtime/tools/machinery/yggdrasil_findings.py"})
 
     def test_wrong_platform_lock_cannot_be_labeled_as_windows(self):
         (self.source / build.TARGETS["windows-x86_64"][1]).write_bytes(
