@@ -19,8 +19,12 @@ SECOND = "bezoar:" + "2" * 64
 
 class PracticeSelectionTests(unittest.TestCase):
     def bridge(self, directory):
+        active_path = Path(directory) / "active.json"
+        active_path.write_text(json.dumps({"schema": "lodestone-learning-active/v1",
+            "required": True, "memory_workspace": str(Path(directory) / "memory"),
+            "seed_handles": [FIRST]}))
         config = {"backend": "ollama_qwen3_base", "runs_dir": str(directory),
-                  "learning_config": "/unused", "max_new_tokens": 64,
+                  "learning_config": str(active_path), "max_new_tokens": 64,
                   "max_total_tokens": 1024, "wall_seconds": 3,
                   "max_rss_bytes": 10000000, "ollama_model_digest": "scripted"}
         bridge = object.__new__(runtime.LoomBridge)
@@ -56,11 +60,17 @@ class PracticeSelectionTests(unittest.TestCase):
     def test_native_default_and_explicit_selection_share_workspace_and_leave_active_unchanged(self):
         active = {"schema": "lodestone-learning-active/v1", "required": True,
                   "memory_workspace": "/retained-workspace", "seed_handles": [FIRST]}
-        with patch.object(runtime, "_json", return_value=active), patch.object(runtime, "UnifiedLoom") as loom:
+        memory = Mock()
+        with patch.object(runtime, "_json", return_value=active), \
+                patch("lodestone_machinery.bezoar_learning.LearningMemory.from_active", return_value=memory) as load, \
+                patch.object(runtime, "UnifiedLoom") as loom:
             runtime._native({"learning_config": "/active"})
-            loom.assert_called_with("/retained-workspace", [FIRST])
+            load.assert_called_once_with(active)
+            loom.assert_called_with(memory, [FIRST])
             runtime._native({"learning_config": "/active", "seed_handles": [SECOND]})
-            loom.assert_called_with("/retained-workspace", [SECOND])
+            self.assertEqual(load.call_count, 2)
+            load.assert_called_with(active)
+            loom.assert_called_with(memory, [SECOND])
         self.assertEqual(active["seed_handles"], [FIRST])
 
     def test_invalid_selection_or_unbound_strategy_never_reaches_native_provider(self):

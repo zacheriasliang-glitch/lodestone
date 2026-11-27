@@ -1,5 +1,20 @@
 # Release notes
 
+## 0.4.0-preview.5 — reference-history import and compatibility
+
+- Adds opt-in `import-memory --history-references` and explicit selection of a
+  separate native history workspace. Record bytes, failed attempts, outcomes
+  and corrections remain retained; ordinary installations and imports keep
+  their existing defaults.
+- Practice in a reference-history workspace requires an explicit window of
+  1–32 recent runs. The archive retains omitted runs. Selection and rollback
+  check reader compatibility before changing the active files.
+- Keeps the preview.4 GUI unchanged. This release contains operational history
+  and installer changes; it does not establish better semantic decisions,
+  reduced inference memory, faster admission or updated model weights.
+- Release availability, the tested commit and artifact identities are recorded
+  on the release page.
+
 ## 0.3.3 — source checkout
 
 - Adds `memory source-bind` and `memory source-address` to retain and reopen

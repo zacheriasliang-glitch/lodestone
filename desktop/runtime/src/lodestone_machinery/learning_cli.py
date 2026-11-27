@@ -107,6 +107,7 @@ def main(argv=None):
     c.add_argument("--kind", choices=("adapter", "subscription"), required=True)
     c.add_argument("--context", required=True, help="UTF-8 literal account file")
     c.add_argument("--response-schema", help="Required JSON schema file for subscription packet")
+    c.add_argument("--history-window", type=int, help="Explicit adapter history window (1..32); required for reference-history workspaces")
     c = sub.add_parser("run")
     c.add_argument("run_handle")
     c.add_argument("--kind", choices=("adapter", "subscription"), required=True)
@@ -140,9 +141,7 @@ def main(argv=None):
         from .bezoar_learning import LearningMemory
         from lodestone_nurarihyon import learning
         config = read(a.config)
-        if config.get("schema") != "lodestone-learning-active/v1" or config.get("required") is not True:
-            raise ValueError("A configured required practice lifecycle is needed")
-        memory = LearningMemory(config["memory_workspace"])
+        memory = LearningMemory.from_active(config)
         if a.command in ("prepare", "run") and (Path(a.config).parent / "STOP").exists():
             raise ValueError("Learning practice is stopped; retention and status remain available")
         if a.command == "improve":
@@ -174,7 +173,7 @@ def main(argv=None):
             b = prepared["binding"]
             if a.kind == "adapter":
                 result = build_adapter_request(memory, prepared, request_id=prepared["run_id"],
-                                               context=context, encounter=b["encounter"], purpose=b["purpose"])
+                                               context=context, encounter=b["encounter"], purpose=b["purpose"], history_window=getattr(a, "history_window", None))
             else:
                 if not a.response_schema:
                     raise ValueError("A subscription response schema is required")

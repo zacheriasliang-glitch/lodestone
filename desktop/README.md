@@ -92,6 +92,29 @@ directory, close the preview normally, then run `select-memory NEW_DESTINATION`.
 Selection validates the import again, backs up the old selection, and updates both
 Loom and Origami. Imported records remain advice and do not grant execution authority.
 
+For a large retained history, `import-memory SOURCE NEW_DESTINATION --seed bezoar:...
+--history-references` explicitly creates a separate reference-history workspace.
+The source records remain unchanged; the import preserves their bytes. Select it
+with `select-memory NEW_DESTINATION` using this supporting release. Selection
+checks the actual runtime and workspace capability and saves both previous
+selection files under `learning/selection-history` before changing them.
+
+Every practice in that workspace needs an explicit **Practice options** history
+window: choose 1–32 recent runs. Omitted runs stay
+in the native archive and are named in the reader view; they are not delivered to
+the model. Selecting a window does not guarantee that the remaining input fits.
+The current non-windowed Origami route refuses this workspace. Ordinary imports
+and fresh installations continue using the original format by default.
+
+Reference-history workspaces require a compatible runtime. Before rollback, the
+current installer checks the selected records and both selection files with the
+target reader. It refuses an incompatible pairing before changing active pointers.
+To roll back to an older reader, first select a validated compatible v1 import, or
+restore the exact saved pre-selection `ACTIVE.json` and `learning-policy.json`
+together while the application is closed. Keep the newer workspace intact: its
+outcomes and corrections are not rewritten for the old reader. Use this release's
+installer for the compatibility check; an older installer does not gain it.
+
 ## Bounds and components
 
 The default reader is the quantized Qwen3-0.6B base. It has a small model capacity,

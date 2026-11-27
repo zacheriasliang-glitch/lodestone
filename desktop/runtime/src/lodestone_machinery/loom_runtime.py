@@ -59,6 +59,8 @@ def _config(path):
         raise ValueError("Decision format is a per-encounter opt-in, not persistent configuration")
     if "history_window" in value:
         raise ValueError("Reader history window is a per-encounter opt-in, not persistent configuration")
+    if "native_history_representation" in value or "native_history_workspace_capability_sha256" in value:
+        raise ValueError("Native history capability comes from an explicit isolated ACTIVE configuration")
     if "seed_handles" in value or "decision_strategy" in value:
         raise ValueError("Practice lesson selection and decision strategy are per-encounter options")
     for field in ("learning_config", "python", "assets_dir", "runs_dir"):
@@ -168,15 +170,11 @@ def _selected_seeds(handles):
 
 def _native(config):
     active = _json(config["learning_config"], 65536)
-    if (type(active) is not dict or active.get("schema") != "lodestone-learning-active/v1"
-            or active.get("required") is not True):
-        raise ValueError("Required native learning configuration is unavailable")
-    workspace = active.get("memory_workspace")
-    if type(workspace) is not str or not Path(workspace).is_absolute():
-        raise ValueError("Native learning workspace must be an absolute path")
+    from .bezoar_learning import LearningMemory
+    memory = LearningMemory.from_active(active)
     handles = (_selected_seeds(config["seed_handles"]) if "seed_handles" in config
                else active.get("seed_handles"))
-    return UnifiedLoom(workspace, handles)
+    return UnifiedLoom(memory, handles)
 
 
 def _retain_local_failure(learning_config, *, operation, source_event, observation):
@@ -211,6 +209,13 @@ def _execution_binding(config, identity, *, encounter, purpose, context):
     if config.get("decision_format") is not None:
         from .decision_format import validate_decision_format
         inputs["decision_format"] = validate_decision_format(encounter, config["decision_format"])
+    if config.get("native_history_representation") is not None:
+        inputs["native_history_representation"] = config["native_history_representation"]
+        inputs["native_history_workspace_capability_sha256"] = config["native_history_workspace_capability_sha256"]
+        for name in ("history_inventory.py", "bezoar_learning.py", "loom_unified.py"):
+            sources[name] = hashlib.sha256(read_bytes(root / name, _MAX_FILE)).hexdigest()
+        sources["nurarihyon/learning_conscience.py"] = hashlib.sha256(
+            read_bytes(root.parent / "lodestone_nurarihyon/learning_conscience.py", _MAX_FILE)).hexdigest()
     if config.get("history_window") is not None:
         from .learning_context import history_window_policy
         inputs["reader_history_window"] = history_window_policy(config["history_window"])
@@ -499,6 +504,13 @@ class LoomBridge:
                 from .learning_context import history_window_policy
                 history_window_policy(history_window)
                 config["history_window"] = history_window
+            active = _json(config["learning_config"], 65536)
+            if active.get("schema") == "lodestone-learning-active/v2":
+                from .bezoar_learning import LearningMemory
+                isolated = LearningMemory.from_active(active)
+                config["native_history_representation"] = active["history_representation"]
+                config["native_history_workspace_capability_sha256"] = hashlib.sha256(
+                    read_bytes(isolated.workspace / "learning-history-format.json", 4096)).hexdigest()
             identity = runtime_identity(config)
             _save(directory / "config.json", config)
             _save(directory / "reader-identity.json", identity)
