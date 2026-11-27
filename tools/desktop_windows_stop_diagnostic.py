@@ -59,6 +59,23 @@ def unlink_once(path):
         return {"deleted": False, **failure(exc)}
 
 
+def record_waits(api, handles, row, key, save, deadline=None):
+    """Retain unexpected native wait failures before refusing interpretation."""
+    states, errors = {}, {}
+    row[key] = states
+    for pid, handle in handles:
+        milliseconds = 0 if deadline is None else max(0, int((deadline - time.monotonic()) * 1000))
+        state = api.kernel.WaitForSingleObject(handle, milliseconds)
+        states[str(pid)] = state
+        if state not in (0, 258):
+            errors[str(pid)] = {"wait_code": state, "winerror": ctypes.get_last_error()}
+    if errors:
+        row[key + "_errors"] = errors
+        save()
+        raise RuntimeError("Unexpected native process wait result: " + json.dumps(errors, sort_keys=True))
+    return states
+
+
 def process_identity(api, handle):
     w, kernel = api.w, api.kernel
     kernel.GetProcessId.argtypes, kernel.GetProcessId.restype = [w.HANDLE], w.DWORD
@@ -163,10 +180,10 @@ def case(native, root, row, save, duplicate_count):
         row["product_stop"] = child.stop(); stopped = True
         row["stop_seconds"] = time.monotonic() - started
         row["after_stop_job_pids"] = child.pids()
-        row["immediate_process_waits"] = {str(pid): child.api.kernel.WaitForSingleObject(handle, 0) for pid, handle in handles}
-        row["waits_before_unlink"] = {str(pid): child.api.kernel.WaitForSingleObject(handle, 0) for pid, handle in handles}
+        record_waits(child.api, handles, row, "immediate_process_waits", save)
+        record_waits(child.api, handles, row, "waits_before_unlink", save)
         row["unlink_before_wait"] = unlink_once(root / "err")
-        row["waits_after_unlink"] = {str(pid): child.api.kernel.WaitForSingleObject(handle, 0) for pid, handle in handles}
+        record_waits(child.api, handles, row, "waits_after_unlink", save)
         save()
         row["file_lock_with_signaled_pre_unlink_handles"] = (row["unlink_before_wait"].get("winerror") == 32
             and all(state == 0 for state in row["waits_before_unlink"].values()))
@@ -178,17 +195,14 @@ def case(native, root, row, save, duplicate_count):
                 owner["matches_diagnostic_supervisor"] = observed == row["supervisor_identity"]
             save()
         deadline = time.monotonic() + 6
-        row["completed_process_waits"] = {}
-        for pid, handle in handles:
-            milliseconds = max(0, int((deadline - time.monotonic()) * 1000))
-            row["completed_process_waits"][str(pid)] = child.api.kernel.WaitForSingleObject(handle, milliseconds)
+        record_waits(child.api, handles, row, "completed_process_waits", save, deadline)
         all_signaled = all(state == 0 for state in row["completed_process_waits"].values())
         row["unlink_after_wait"] = (unlink_once(root / "err") if not row["unlink_before_wait"]["deleted"]
                                     else {"not_needed": "The single before-wait attempt deleted the file"})
         row["all_known_descendants_signaled"] = all_signaled
         if row["product_stop"].get("confirmed_stopped") and any(state == 258 for state in row["immediate_process_waits"].values()):
             row["finding"] = "CONFIRMED_STOP_WITH_UNSIGNALED_DESCENDANT"
-        elif row["unlink_before_wait"].get("winerror") == 32:
+        elif row["file_lock_with_signaled_pre_unlink_handles"]:
             row["finding"] = "FILE_LOCK_WITH_SIGNALED_KNOWN_DESCENDANTS"
         else:
             row["finding"] = "NO_GAP_OBSERVED"
@@ -209,8 +223,18 @@ def case(native, root, row, save, duplicate_count):
                 child.close()
                 for _, handle in handles:
                     child.api.kernel.CloseHandle(handle)
-        row["fixture_files"] = {p.name: {"bytes": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
-                                 for p in root.iterdir() if p.is_file()}
+        row["fixture_files"] = {}
+        for path in root.iterdir():
+            if not path.is_file():
+                continue
+            try:
+                raw = path.read_bytes()
+                details = {"bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+                if path.name == "err":
+                    details["bounded_stderr_utf8"] = raw[:16384].decode("utf-8", errors="replace")
+                row["fixture_files"][path.name] = details
+            except OSError as exc:
+                row["fixture_files"][path.name] = {"read_error": failure(exc)}
         # One final cleanup attempt: preserve and report any remaining failure.
         if row.get("cleanup_permitted"):
             try:
