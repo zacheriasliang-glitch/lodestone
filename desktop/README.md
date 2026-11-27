@@ -388,6 +388,11 @@ capabilities, narrow source-read/workspace-write grants and a kill-on-close Job.
 A flushed recovery journal and serialized launcher restore temporary grants;
 unconfirmed recovery blocks new fenced runs. User permission edits are retained.
 Recovery journals are stored under `%LOCALAPPDATA%\Lodestone Fence`.
+Cleanup requires confirmed completion of the fenced processes. An interruption
+after process creation, an unobserved descendant, or an older journal without
+completion evidence requires inspection before automatic cleanup or another
+fenced run. Interruptions recorded before process creation remain recoverable
+automatically. Keep unresolved journals and their permission records intact.
 This assumes a trusted host directory tree, not a hostile process racing host
 path changes. External commands that declare network endpoints are refused on
 Linux and Windows; only macOS supports confinement to the local endpoint proxy. On Linux the routes require working bubblewrap and refuse when

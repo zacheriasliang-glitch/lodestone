@@ -1709,7 +1709,7 @@
     "runtime/src/lodestone_machinery/loom_runtime.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_runtime.py",
-      "sha256": "dec630d7b9e119ce4a150bef2762a90ca42a61fb8e84a04a1ee49536ac3365e7",
+      "sha256": "9899a542a4d09253555db4d8799c5aa3d4dda54cab15d9293327bd088f797b74",
       "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
     },
     "runtime/src/lodestone_machinery/loom_runtime_worker.py": {
@@ -1889,7 +1889,7 @@
     "runtime/src/lodestone_machinery/portable_process.py": {
       "origin": "lodestone-public",
       "path": "desktop/runtime/src/lodestone_machinery/portable_process.py",
-      "sha256": "113914dffb67970fcfa8c76acf2a6acb3a231f3340cebc1b2ac19fbe2debc6e6",
+      "sha256": "defb2498dbd7d98a02005bafb48211a6a97d119179c1f5bbba1884bfda8f54d4",
       "source_sha256": "418db93c9738c2aa12269604b1d3aa302accf52bc0af7c4c459f130cacb277c7"
     },
     "runtime/src/lodestone_machinery/pressure_pair.py": {
@@ -1973,7 +1973,7 @@
     "runtime/src/lodestone_machinery/windows_appcontainer.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/windows_appcontainer.py",
-      "sha256": "e3ed4a9ec07f705c946934c7f9641af231eb3cfb4b8030fbc9e3f5a8045536bc",
+      "sha256": "59746a253fd4f651632863f4ceedb7c28777b6bfee49d5a503ca37e66119ba1e",
       "source_sha256": "e3ed4a9ec07f705c946934c7f9641af231eb3cfb4b8030fbc9e3f5a8045536bc"
     },
     "runtime/src/lodestone_machinery/workers.py": {
@@ -2529,16 +2529,20 @@
     "reviewed_raw_windows_path_fix": "f42a963fbc05ff2ed013ddfe87b6eee77d1d9c35",
     "scope": "Implementation commits identify the native history and installer changes. Original export origins and source_sha256 values remain preserved; release packaging and documentation are tracked by the enclosing release commit. Optional practice/voxel integration identifies its lab source commit; the public port preserves its distinct history-window and tokenizer-candidate paths.",
     "windows_ambiguous_path_rejection": "f42a963fbc05ff2ed013ddfe87b6eee77d1d9c35",
+    "windows_appcontainer_completion": "576b2467155ff9fd43903e22df21cefe0a90edac",
     "windows_appcontainer_fence": "66b0bcbad41376e4c767fc1bfa7db9ed68f74d5b",
+    "windows_appcontainer_started_fixture": "db9d221e6872cbafff2690cd236edc359f30a990",
     "windows_batch_bytes": "0369bcbd0963579324abc51ff41e923b7981de6b",
     "windows_continuity_custody": "d8a6fa6efbe8dcd8ccfc71df185dfa97e4ced8aa",
     "windows_curated_handoff": "7379bcb130f09c4c918121461524b0f13154ff05",
+    "windows_descendant_completion": "c2213319380adee71ce0f78ea47cec9157fd2052",
     "windows_directory_custody_review": "2812c20c90a4d5bcd8cbf96bbb131b6f9ce32a16",
     "windows_file_timestamp_contract": "da26134b75de18d0fdf49822dd3c930ad4b009f9",
     "windows_gui_wait_and_status": "6aa49ce5b39d6c43aad0cdb93ce39e15be96d0f2",
     "windows_job_membership_evidence": "a4b8b897234c4f481c19f4caac97c1f060fb740d",
     "windows_repository_navigation": "6e38e020799d97236c10396c01069042da0c81e6",
     "windows_review_custody": "48531dd5a3c4b9d4839585953fb4d8091391381a",
+    "windows_sampling_exit_completion": "0e3972cbb58fbe0084b86107ef95d1c65af26b3b",
     "windows_visible_bootstrap": "1bd796fb852d902b7f19241ef5a0def3b6a23fad"
   },
   "public_base_commit": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
@@ -2794,8 +2798,8 @@
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
       "path": "runtime/src/lodestone_machinery/loom_runtime.py",
-      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "dec630d7b9e119ce4a150bef2762a90ca42a61fb8e84a04a1ee49536ac3365e7",
+      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes. Preserve allowlisted native inspection API/PID/error/wait facts in failed supervisor receipts without arbitrary exception text.",
+      "sha256": "9899a542a4d09253555db4d8799c5aa3d4dda54cab15d9293327bd088f797b74",
       "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
     },
     {
@@ -2848,8 +2852,8 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/portable_process.py",
-      "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "113914dffb67970fcfa8c76acf2a6acb3a231f3340cebc1b2ac19fbe2debc6e6",
+      "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes. Retain identity-bound Windows descendant handles and confirm their signaled completion before stop success; permit a shared bounded completion grace after inspection fails only on the same verified handle. Share explicit borrowed-handle completion ownership with the AppContainer launcher, whose cleanup additionally requires complete bounded lifetime identity coverage.",
+      "sha256": "defb2498dbd7d98a02005bafb48211a6a97d119179c1f5bbba1884bfda8f54d4",
       "source_sha256": "418db93c9738c2aa12269604b1d3aa302accf52bc0af7c4c459f130cacb277c7"
     },
     {
