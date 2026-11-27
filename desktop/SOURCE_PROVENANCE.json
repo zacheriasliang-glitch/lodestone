@@ -171,7 +171,7 @@
     "gui/basilisk/localization.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/localization.py",
-      "sha256": "e529d84f29f4c5d04febb5a48b1fb0e70422f1e65d3aae24ec6adc6b80ce7a7e",
+      "sha256": "40e1b651c9cf42e9b95c6845c22ce87497f7e92eb7d2684d01aca4f45f1d64cd",
       "source_sha256": "e529d84f29f4c5d04febb5a48b1fb0e70422f1e65d3aae24ec6adc6b80ce7a7e"
     },
     "gui/basilisk/logger.py": {
@@ -639,7 +639,7 @@
     "gui/basilisk/views/about_dialog.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/views/about_dialog.py",
-      "sha256": "c0b1fabce94d4f6abbacf165cb35089ed5cb98c4702bd27188f088a64c710c40",
+      "sha256": "47717e059c2769532d886dd2d4e1c23cc685e9bb037f6dcfc758551d5e6ac7bf",
       "source_sha256": "8db661e065945423a42dc1ffba25f15dc56e41a54a502c9301b95dd55293316d"
     },
     "gui/basilisk/views/account_dialog.py": {
@@ -2470,12 +2470,15 @@
     }
   },
   "implementation_commits": {
+    "about_payload_version": "7c4f208cce8adaf95c2991ad702465ba822fa248",
     "gui_frame_timer_lifetime": "2624d992c7df92457f1a4cc138f873099ac8a87a",
     "gui_migration_engine_lifetime": "70377a70bb9291474112193b335e67dfdb7f5a50",
     "gui_nonmodal_diagnostics": "d9defb2182255a6a59d06b8d892d078593ddc5d9",
     "isolation_fail_closed": "51fd3b577a9fe2da8d73b26337a2337c4ca01286",
     "linux_gui_prerequisites": "87cdfc8b5e562938eaca6d6085729fadfd234db2",
     "linux_optional_command_fence": "9c0a9bb3a6259378710f60596f29264d43eaf525",
+    "loom_only_gui_dependencies": "54d716fd225644c16eefabcf9ce306b80d2934d3",
+    "native_locale_fallback": "586121e5fc82da2a1234db6689deff3f91dd2355",
     "native_reference_history": "40e6672dd3403bae357345d7eb3016dd075e660d",
     "portable_archive_metadata": "e67c8fbf618ff9066d12c88dd641f414b37d935f",
     "portable_captured_archive": "0312c378b5ed498bd8d9757e498fef3c0da15422",
@@ -2489,6 +2492,7 @@
     "practice_voxel_admission_reuse": "ab51ab797878784a942a4e8d87d4f063fbcc0121",
     "practice_voxel_integration": "5c36f68dc5a17a1224257e0cb3adf93e5a2712e5",
     "previous_desktop_release": "22703ca5c0b4e800acd2f1b1903514577f00a33e",
+    "public_release_evidence_checker": "78b2463251ec2e1ecf2b39088a50b82449cd836b",
     "reference_history_installer": "f3b28acdc2d2abc77813376445616b200fd3b609",
     "reference_history_installer_cherry_picked_from": "1a32a87ccad4dd7c596df31a911fd0c4ebf08527",
     "scope": "Implementation commits identify the native history and installer changes. Original export origins and source_sha256 values remain preserved; release packaging and documentation are tracked by the enclosing release commit. Optional practice/voxel integration identifies its lab source commit; the public port preserves its distinct history-window and tokenizer-candidate paths.",
@@ -2538,8 +2542,8 @@
     },
     {
       "path": "gui/basilisk/views/about_dialog.py",
-      "reason": "Permit version display from the distributed source payload without Git metadata.",
-      "sha256": "c0b1fabce94d4f6abbacf165cb35089ed5cb98c4702bd27188f088a64c710c40",
+      "reason": "Read the installed payload version without requiring a source-build dependency at runtime.",
+      "sha256": "47717e059c2769532d886dd2d4e1c23cc685e9bb037f6dcfc758551d5e6ac7bf",
       "source_sha256": "8db661e065945423a42dc1ffba25f15dc56e41a54a502c9301b95dd55293316d"
     },
     {
@@ -2772,27 +2776,33 @@
     },
     {
       "path": "gui/basilisk/res/alembic/env.py",
-      "reason": "Dispose the dedicated migration engine after success or failure so SQLite handles do not outlive migration and block native Windows file custody.",
+      "reason": "Dispose the dedicated migration engine after connection use so Windows releases database handles.",
       "sha256": "fe98e3b284658ca6a23810a054e9751f3abc49f00f7f025268ff5eae629c926a",
       "source_sha256": "3f1cfe2027d6c0dfc608ad0c910dca806496cb1ac4949e2177ef1df76e0475c3"
     },
     {
       "path": "gui/basilisk/views/main_frame.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets. Stop and detach each frame-owned timer before native window destruction so a surviving modal loop cannot dispatch to a deleted frame.",
+      "reason": "Stop and detach frame-owned timers before native destruction to prevent callbacks to a destroyed window.",
       "sha256": "2d0cb39d62cd185b609adc1990e80f1d39c99704867ad169c6c1961db2d6359e",
       "source_sha256": "19dc9d5d2664df73bdd90f859d70bcf8c7a79d29f1492454f31ba09e21ce3567"
     },
     {
       "path": "gui/basilisk/logger.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "reason": "Retain native wx diagnostics in UTF-8 application logs without modal shutdown dialogs.",
       "sha256": "aa2c2bcfacd3461e9029f9c788273eeacabab4b374715e66341348f698197d84",
       "source_sha256": "5756c86a50c97746a8473d77082aff27dedd215e0e595dbc276cad5e540c7e31"
     },
     {
       "path": "gui/basilisk/main_app.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "reason": "Install persistent native logging before wx initialization and flush buffered diagnostics at shutdown.",
       "sha256": "cbcc2ef3e5e1db864fa0e1306934f7a099117f507f1d455e92e0ca3def9a5ab9",
       "source_sha256": "56c12447c9b6c825c851a69099d57afdecbd477dd163093d2524ba0aab6b8776"
+    },
+    {
+      "path": "gui/basilisk/localization.py",
+      "reason": "Choose an available native locale while preserving the requested application translation.",
+      "sha256": "40e1b651c9cf42e9b95c6845c22ce87497f7e92eb7d2684d01aca4f45f1d64cd",
+      "source_sha256": "e529d84f29f4c5d04febb5a48b1fb0e70422f1e65d3aae24ec6adc6b80ce7a7e"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"

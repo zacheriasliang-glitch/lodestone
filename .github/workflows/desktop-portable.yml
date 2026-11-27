@@ -22,6 +22,7 @@ on:
       - 'tools/desktop_mechanical_check.py'
       - 'tools/desktop_prior_evidence.py'
       - 'tools/desktop_release_evidence.py'
+      - 'tools/desktop_windows_*.py'
       - '.github/workflows/desktop-portable.yml'
 
 permissions:

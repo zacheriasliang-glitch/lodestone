@@ -241,6 +241,7 @@ def check_target(target, evidence_root, build_path, archive_path, job_url, commi
              and native_path(target, prerequisites.get("payload")) == installed,
              "Linux native GUI prerequisites failed or are unbound")
     if target == "windows-x86_64":
+        passed("windows-long-path-policy-command")
         policy = read("windows-long-path-policy.json")
         original, restored = policy.get("original_policy"), policy.get("restored_policy")
         zero, one = policy.get("policy_zero", {}), policy.get("policy_one", {})

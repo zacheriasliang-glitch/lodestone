@@ -25,8 +25,14 @@ Actions cache or artifact-storage upload. The workflow runs these checks:
    check the restored installation and uninstall. Captured retained files must
    keep their original bytes. This synthetic upgrade is not another release.
 
-All state belongs to a fresh runner directory. Existing installations and
-personal records are not used. Linux GUI checks use Xvfb; Windows uses a native
+State belongs to fresh runner directories. The Windows prerequisite exercise
+also creates one uniquely owned temporary directory directly under the runner
+drive root, so it can verify an installation within the legacy path limit. It
+checks refusal of an unsuitable path, exercises the explicitly selected long-path
+helper, restores the exact previous registry value in `finally`, and removes its
+owned fixture after preserving bounded outcomes. Commands run in owned Windows
+Jobs and stop before registry restoration. The release record requires the
+restoration proof. Existing installations and personal records are not used. Linux GUI checks use Xvfb; Windows uses a native
 Windows Server 2022 runner. These checks do not establish performance on every
 supported machine or assistive-technology compatibility.
 

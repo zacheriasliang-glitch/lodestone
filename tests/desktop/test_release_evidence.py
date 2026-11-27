@@ -97,6 +97,7 @@ class ReleaseEvidenceTests(unittest.TestCase):
                 "schema": "lodestone-installed-gui-check/v1", "status": "PASSED",
                 "payload": str(installed), "tests": 2, "failures": 0, "errors": 0, "skipped": []})
         if target == "windows-x86_64":
+            write("windows-long-path-policy-command.json", {"status": "PASSED", "returncode": 0})
             prior_policy = {"present": True, "type": 4, "value": 1}
             write("windows-long-path-policy.json", {
                 "schema": "lodestone-windows-long-path-policy/v1", "status": "PASSED",
@@ -221,6 +222,7 @@ class ReleaseEvidenceTests(unittest.TestCase):
         target = "windows-x86_64"
         original = copy.deepcopy(self.files[target])
         for filename, change in (("gui-startup-1.json", lambda v: v.update(returncode=-11)),
+                ("windows-long-path-policy-command.json", lambda v: v.update(returncode=1)),
                 ("local-smoke.json", lambda v: v["delivery"].update(exact_correction_in_second_request=False)),
                 ("local-smoke.json", lambda v: v["attempts"][0]["verification"]["windows_job"].update(confirmed_stopped=False)),
                 ("local-smoke.json", lambda v: v["attempts"][0]["receipt"].update(artifacts_dir="C:/foreign/run"))):
