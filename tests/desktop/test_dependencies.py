@@ -3,6 +3,7 @@ from contextlib import contextmanager
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import tarfile
@@ -108,6 +109,7 @@ class DependencyTests(unittest.TestCase):
             with self.subTest(change=change), self.no_process(), self.assertRaises(ValueError):
                 d.fetch({**self.artifact(), **change}, self.cache)
 
+    @unittest.skipIf(os.name == "nt", "POSIX symlink fixture; native Windows junction custody has separate coverage")
     def test_cache_symlink_cannot_redirect_reads_or_partial_writes(self):
         artifact = self.artifact()
         outside = self.root / "outside"
@@ -123,8 +125,7 @@ class DependencyTests(unittest.TestCase):
         self.assertEqual(outside.read_bytes(), b"untouched")
 
     def test_verified_archive_reuses_exact_tree_and_detects_modified_executable(self):
-        artifact = self.archive([("bin/tool", b"#!/bin/sh\nexit 0\n", None),
-                                 ("bin/alias", b"", "tool")])
+        artifact = self.archive([("bin/tool", b"#!/bin/sh\nexit 0\n", None)])
         destination = self.root / "unpacked"
         with self.no_process():
             executable = d.unpack(artifact, self.cache, destination, offline=True)
@@ -132,6 +133,17 @@ class DependencyTests(unittest.TestCase):
         executable.write_bytes(b"changed executable")
         with self.no_process(), self.assertRaisesRegex(ValueError, "differs"):
             d.unpack(artifact, self.cache, destination, offline=True)
+
+    @unittest.skipIf(os.name == "nt", "POSIX archive symlink compatibility")
+    def test_posix_archive_keeps_pinned_internal_symlink(self):
+        artifact = self.archive([("bin/tool", b"#!/bin/sh\nexit 0\n", None),
+                                 ("bin/alias", b"", "tool")])
+        destination = self.root / "unpacked"
+        with self.no_process():
+            executable = d.unpack(artifact, self.cache, destination, offline=True)
+            self.assertTrue((destination / "bin/alias").is_symlink())
+            self.assertEqual((destination / "bin/alias").resolve(), executable.resolve())
+            self.assertEqual(d.unpack(artifact, self.cache, destination, offline=True), executable)
 
     def test_archive_traversal_and_escape_symlinks_are_rejected_before_extraction(self):
         for members in ([('../outside', b'injected', None)],

@@ -110,6 +110,33 @@ class MechanicalPreviewTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "manifest differs"):
                 check.installed_identity(source, payload, preview, COMMIT)
 
+    def test_native_target_lock_substitution_preserves_complete_source_proof(self):
+        for target in ("ubuntu-24.04-x86_64", "windows-x86_64"):
+            with self.subTest(target=target), tempfile.TemporaryDirectory() as temporary:
+                source, payload, preview, release = self.fixture(Path(temporary))
+                system, selected = check.TARGET_LOCKS[target]
+                (source / "desktop/dependencies.lock.json").write_bytes(b"Mac source lock")
+                target_bytes = json.dumps({"fixture_target": target}).encode()
+                (source / "desktop" / selected).write_bytes(target_bytes)
+                document = json.loads((payload / "MANIFEST.json").read_text())
+                document.update(target=target, platform=system, architecture="x86_64")
+                for name in (selected, "dependencies.lock.json"):
+                    (payload / name).write_bytes(target_bytes)
+                    document["files"][name] = hashlib.sha256(target_bytes).hexdigest()
+                (payload / "MANIFEST.json").write_text(json.dumps(document))
+                shutil.rmtree(release)
+                identity = hashlib.sha256(json.dumps(document, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+                release = preview / "releases" / identity
+                shutil.copytree(payload, release)
+                (preview / "ACTIVE.json").write_text(json.dumps({"release_id": identity, "release": str(release)}))
+                actual = check.installed_identity(source, payload, preview, COMMIT, target=target)
+                self.assertEqual(actual["target"], target)
+                self.assertEqual(actual["files_verified"], 4)
+                with self.assertRaisesRegex(ValueError, "selected native target"):
+                    check.installed_identity(source, payload, preview, COMMIT, target="macos-x86_64")
+                (source / "desktop" / selected).write_bytes(b"Changed selected lock")
+                with self.assertRaisesRegex(ValueError, "Source differs"):
+                    check.installed_identity(source, payload, preview, COMMIT, target=target)
     def test_gui_gate_enables_installed_root_and_rejects_skipped_coverage(self):
         class PassingFixture(unittest.TestCase):
             def runTest(self):

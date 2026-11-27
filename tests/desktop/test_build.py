@@ -2,6 +2,7 @@
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import tempfile
@@ -97,6 +98,7 @@ class BuildTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Source payload changed"):
             build.build(self.source, self.base / "download")
 
+    @unittest.skipIf(os.name == "nt", "POSIX symlink fixture; native Windows junction custody has separate coverage")
     def test_symlinked_root_distribution_file_is_rejected(self):
         path = self.source / "README.md"
         path.unlink()
@@ -104,6 +106,7 @@ class BuildTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Missing distribution file"):
             build.build(self.source, self.base / "download")
 
+    @unittest.skipIf(os.name == "nt", "POSIX symlink fixture; native Windows junction custody has separate coverage")
     def test_symlinked_component_directory_is_rejected(self):
         outside = self.base / "other-gui"
         (self.source / "gui").rename(outside)

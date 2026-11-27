@@ -27,7 +27,8 @@ import desktop_prior_evidence as evidence_format
 
 TARGETS = {"macos-x86_64": "darwin", "ubuntu-24.04-x86_64": "linux", "windows-x86_64": "win32"}
 SOURCE_TESTS = ("test_portable_process.py", "test_portable_storage.py", "test_platform_install.py",
-                "test_portable_ci.py", "test_tokenizer_dependencies.py", "test_decision_format.py")
+                "test_portable_ci.py", "test_tokenizer_dependencies.py", "test_decision_format.py",
+                "test_dependencies.py", "test_build.py", "test_dependency_custody.py", "test_mechanical_preview.py")
 READERS = {"LODESTONE_OLD_GUI_SOURCE": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
            "LODESTONE_PREVIOUS_GUI_SOURCE": "655fa55672a4c3ae2d0284da881921b7bed97c78"}
 
@@ -93,7 +94,7 @@ def extract_archive(archive, destination):
 
 def bootstrap_command(payload, target, root, app, cache):
     if target == "windows-x86_64":
-        return ["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
+        return ["powershell.exe", "-NoProfile", "-NonInteractive", "-File",
                 str(payload / "Install Lodestone.ps1"), "-Root", str(root), "-App", str(app),
                 "-Cache", str(cache), "-NoOpen"]
     name = "Install Lodestone.command" if target == "macos-x86_64" else "Install Lodestone.sh"
@@ -333,7 +334,7 @@ def main():
         check.install("fresh-install")
         mechanical.write(check.evidence / "installed-active.json", check.active)
         mechanical.write(check.evidence / "current-installed-identity.json", mechanical.installed_identity(
-            check.source, check.payload, check.root, args.source_commit))
+            check.source, check.payload, check.root, args.source_commit, target=check.target))
         check.gui()
         if mode == "local_inference_smoke":
             report["model_smoke_invoked"] = True

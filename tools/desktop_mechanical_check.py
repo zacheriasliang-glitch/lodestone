@@ -11,6 +11,12 @@ import re
 import subprocess
 import unittest
 
+TARGET_LOCKS = {
+    "macos-x86_64": ("macOS", "dependencies.lock.json"),
+    "ubuntu-24.04-x86_64": ("Linux", "dependencies.ubuntu-24.04-x86_64.lock.json"),
+    "windows-x86_64": ("Windows", "dependencies.windows-x86_64.lock.json"),
+}
+
 
 def sha(data):
     return hashlib.sha256(data).hexdigest()
@@ -67,7 +73,7 @@ def payload_files(root):
     return raw, document
 
 
-def installed_identity(source, payload, preview, commit):
+def installed_identity(source, payload, preview, commit, *, target=None):
     source, payload, preview = (Path(p).resolve() for p in (source, payload, preview))
     if not re.fullmatch(r"[0-9a-f]{40}", commit):
         raise ValueError("Missing exact source commit")
@@ -85,14 +91,31 @@ def installed_identity(source, payload, preview, commit):
     canonical = json.dumps(installed, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
     if sha(canonical) != identity:
         raise ValueError("Active release identity differs from manifest")
+    declared_target = document.get("target")
+    if target is not None and target != declared_target:
+        raise ValueError("Installed payload target differs from the selected native target")
+    selected_lock = "dependencies.lock.json"
+    if declared_target is not None:
+        if type(declared_target) is not str or declared_target not in TARGET_LOCKS:
+            raise ValueError("Unknown installed payload target")
+        system, selected_lock = TARGET_LOCKS[declared_target]
+        if document.get("platform") != system or document.get("architecture") != "x86_64":
+            raise ValueError("Installed payload platform differs from its declared target")
+        # The builder copies the selected source lock to its stable installer
+        # name. Both archive names must bind those exact source bytes; no other
+        # source-file substitution is permitted.
+        if (selected_lock not in document["files"] or "dependencies.lock.json" not in document["files"]
+                or document["files"][selected_lock] != document["files"]["dependencies.lock.json"]):
+            raise ValueError("Installed default lock differs from the declared target lock")
     for name, expected in document["files"].items():
-        path = source / "desktop" / name
+        path = source / "desktop" / (selected_lock if name == "dependencies.lock.json" else name)
         if path.is_symlink() or sha(path.read_bytes()) != expected:
             raise ValueError("Source differs from installed payload: " + name)
     return {"schema": "lodestone-mechanical-installed-identity/v1",
             "status": "SOURCE_DOWNLOAD_AND_INSTALLED_BYTES_MATCH", "source_commit": commit,
             "version": document["version"], "release_id": identity, "manifest_sha256": sha(raw),
             "files_verified": len(document["files"]), "model_calls_in_this_check": 0,
+            "target": declared_target,
             "scope": "Current source and artifact identity only; no prior study attribution or semantic validation."}
 
 
@@ -135,6 +158,7 @@ def main():
     identity = commands.add_parser("identity")
     for name in ("source", "payload", "preview", "source-commit", "output"):
         identity.add_argument("--" + name, required=True)
+    identity.add_argument("--target", choices=sorted(TARGET_LOCKS))
     gui = commands.add_parser("gui")
     for name in ("tests", "payload", "evidence"):
         gui.add_argument("--" + name, required=True)
@@ -150,7 +174,7 @@ def main():
             output.write("mode=" + selected + "\n")
     elif args.command == "identity":
         actual = checkout_commit(args.source, args.source_commit)
-        result = installed_identity(args.source, args.payload, args.preview, actual)
+        result = installed_identity(args.source, args.payload, args.preview, actual, target=args.target)
         write(args.output, result)
     else:
         result = gui_checks(args.tests, args.payload, args.evidence)

@@ -62,6 +62,7 @@ class PortableCITests(unittest.TestCase):
         self.assertEqual(win[:2], ["powershell.exe", "-NoProfile"])
         self.assertIn(str(root / "Install Lodestone.ps1"), win)
         self.assertEqual(win[-1], "-NoOpen")
+        self.assertNotIn("-ExecutionPolicy", win)
         linux = check.bootstrap_command(root, "ubuntu-24.04-x86_64", root / "user data", root / "app.desktop", root / "cache")
         self.assertEqual(linux[:2], ["/bin/bash", str(root / "Install Lodestone.sh")])
         self.assertEqual(linux[-1], "--no-open")
@@ -104,6 +105,8 @@ class PortableCITests(unittest.TestCase):
         self.assertNotIn("actions/upload-artifact", workflow)
         self.assertNotIn("actions/cache", workflow)
         self.assertNotIn("pull_request_target", workflow)
+        for name in ("test_dependencies.py", "test_build.py", "test_dependency_custody.py"):
+            self.assertIn(name, check.SOURCE_TESTS)
 
 
 if __name__ == "__main__":
