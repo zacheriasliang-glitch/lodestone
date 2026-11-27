@@ -260,7 +260,7 @@
   "tests/desktop/test_evidence_first_decision.py": "27e08d8d84bbab0c94fe9655e8f9986b19439548399b6da6aaa24c05b04b6396",
   "tests/desktop/test_history_inventory.py": "525b2e29d1a4f4ae82361c7b14cc00b003b7b79a70ac82c8c0bdb9eff703ffca",
   "tests/desktop/test_install.py": "47e4f7f415103a9f578a657dbafe81577c779016e78b6a0017293419888d1ec2",
-  "tests/desktop/test_isolation.py": "c0ca73310a638a630155dc5129c3dffd735cd37cec59fe7e1cd1f1ce5026102d",
+  "tests/desktop/test_isolation.py": "b146a4fa41a449b57ac68e0a597e7429bf3a1a36828bdfde93ed28f9fa7d22f7",
   "tests/desktop/test_learning_archive_custody.py": "1fa09839de13e1defad6f75ceec0c8a13b45f9e3b42ccefcf660a3fc14eeb37e",
   "tests/desktop/test_learning_rendering.py": "ad61fa4812dd47b3c32ea7768edd524657db7cb9258c876be34a3112e6425c64",
   "tests/desktop/test_linux_command_fence.py": "e1eaf14c725e939bf8e9d33a8f047c95c4b7d45878381c7cdabdd3ce11d3e4b9",

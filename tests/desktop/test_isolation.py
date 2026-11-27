@@ -218,6 +218,7 @@ if __name__ == "__main__":
 
 class RealAppContainerTests(unittest.TestCase):
     """Windows only; CI sets LODESTONE_REQUIRE_APPCONTAINER=1 so a missing fence fails instead."""
+    maxDiff = None
 
     def setUp(self):
         required = os.environ.get("LODESTONE_REQUIRE_APPCONTAINER") == "1"
