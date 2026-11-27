@@ -8,6 +8,7 @@ import subprocess
 import tarfile
 import tempfile
 import unittest
+import zipfile
 from unittest.mock import patch
 
 from desktop import dependencies as d
@@ -17,7 +18,7 @@ class DependencyTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.root = Path(self.temporary.name)
+        self.root = Path(self.temporary.name).resolve()
         self.cache = self.root / "cache"
         self.cache.mkdir()
 
@@ -210,7 +211,7 @@ class DependencyTests(unittest.TestCase):
 
         def environment(name, spec, python, uv, root, cache, *, offline):
             env = root / name
-            binary = env / "bin/python"
+            binary = d.venv_python(env)
             binary.parent.mkdir(parents=True)
             binary.write_text("fixture executable " + spec["epoch"])
             d._json(root / (name + ".installed.json"), {

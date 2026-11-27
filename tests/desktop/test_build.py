@@ -26,6 +26,11 @@ class BuildTests(unittest.TestCase):
             path = self.source / name
             path.write_text("Synthetic packaging fixture: " + name + "\n")
             path.chmod(0o644)
+        for target, (system, lock_name) in build.TARGETS.items():
+            platform = {"system": "Darwin" if system == "macOS" else system, "machine": "x86_64"}
+            if system == "Linux":
+                platform.update(distribution="ubuntu", distribution_version="24.04")
+            (self.source / lock_name).write_text(json.dumps({"schema": "lodestone-desktop-dependencies/v1", "platform": platform}))
         for name in ("build.py", "verify_payload.py"):
             shutil.copyfile(DESKTOP / name, self.source / name)
         exported = {
@@ -59,6 +64,25 @@ class BuildTests(unittest.TestCase):
                 self.assertEqual(archive.read(prefix + name), (DESKTOP / name).read_bytes())
             installer = archive.getinfo(prefix + "Install Lodestone.command")
             self.assertTrue(installer.external_attr >> 16 & 0o111)
+
+    def test_each_target_binds_its_selected_lock_and_declares_platform(self):
+        for target, (platform_name, lock_name) in build.TARGETS.items():
+            with self.subTest(target=target):
+                result = build.build(self.source, self.base / target, target=target)
+                with zipfile.ZipFile(self.base / target / result["archive"]) as archive:
+                    prefix = "Lodestone-Desktop-" + build.VERSION + "/"
+                    manifest = json.loads(archive.read(prefix + "MANIFEST.json"))
+                    self.assertEqual(manifest["target"], target)
+                    self.assertEqual(manifest["platform"], platform_name)
+                    self.assertEqual(archive.read(prefix + "dependencies.lock.json"),
+                                     (self.source / lock_name).read_bytes())
+                    self.assertIn(target, result["archive"])
+
+    def test_wrong_platform_lock_cannot_be_labeled_as_windows(self):
+        (self.source / build.TARGETS["windows-x86_64"][1]).write_bytes(
+            (self.source / build.TARGETS["macos-x86_64"][1]).read_bytes())
+        with self.assertRaisesRegex(ValueError, "does not match"):
+            build.build(self.source, self.base / "wrong-target", "windows-x86_64")
 
     def test_incidental_private_file_is_rejected_instead_of_published(self):
         private = self.source / "gui/user_data/private-conversation.txt"

@@ -190,7 +190,14 @@ def _sync_parent(path):
         os.close(fd)
 
 
-def read_file(path, maximum=None):
+@contextmanager
+def open_regular(path):
+    """Stream a non-aliased file with native custody and identity checks.
+
+    Windows denies write/delete sharing for the entire read. POSIX checks the
+    descriptor and name before/after streaming; O_NONBLOCK prevents FIFOs from
+    blocking before their type can be rejected. No file contents are cached.
+    """
     path = check_path(path)
     with guarded_directory(path.parent):
         if os.name == "nt":
@@ -202,11 +209,25 @@ def read_file(path, maximum=None):
                 _kernel.CloseHandle(handle)
                 raise
         else:
-            fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+            fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
         with os.fdopen(fd, "rb") as stream:
-            if not stat.S_ISREG(os.fstat(stream.fileno()).st_mode):
+            before = os.fstat(stream.fileno())
+            def identity(info):
+                return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns
+            if not stat.S_ISREG(before.st_mode) or _is_link(before):
                 raise ValueError("Managed path is not a regular file: " + str(path))
-            return stream.read() if maximum is None else stream.read(maximum + 1)
+            if identity(before) != identity(path.lstat()):
+                raise ValueError("Managed file identity changed while opening: " + str(path))
+            yield stream
+            check_path(path)
+            if (identity(before) != identity(os.fstat(stream.fileno())) or
+                    identity(before) != identity(path.lstat())):
+                raise ValueError("Managed file identity changed while reading: " + str(path))
+
+
+def read_file(path, maximum=None):
+    with open_regular(path) as stream:
+        return stream.read() if maximum is None else stream.read(maximum + 1)
 
 
 def atomic_write(path, data, mode=0o600, *, replace=True):
