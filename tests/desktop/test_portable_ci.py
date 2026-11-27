@@ -171,6 +171,27 @@ class PortableCITests(unittest.TestCase):
                 self.assertEqual(command[command.index("--args") + 1:], calls.call_args_list[1].args[1])
                 self.assertEqual(diagnostic.kwargs["timeout"], 120)
 
+    def test_smoke_command_receipt_preserves_detailed_report_on_success_and_failure(self):
+        for returncode in (0, 1):
+            with self.subTest(returncode=returncode), tempfile.TemporaryDirectory() as temporary:
+                driver = check.Check(temporary, Path(temporary) / "work", "windows-x86_64")
+                driver.active = {"worker_python": sys.executable, "release": str(Path(temporary) / "payload")}
+                detail = {"schema": "lodestone-desktop-local-smoke/v1", "status": "PASSED" if returncode == 0 else "FAILED",
+                          "attempts": [{"authored_fixture": True}], "delivery": {"exact_correction_in_second_request": returncode == 0}}
+                def authored(command, **kwargs):
+                    Path(command[command.index("--output") + 1]).write_text(json.dumps(detail))
+                    return subprocess.CompletedProcess(command, returncode)
+                with patch.object(check.subprocess, "run", side_effect=authored), redirect_stdout(io.StringIO()):
+                    if returncode:
+                        with self.assertRaises(subprocess.CalledProcessError):
+                            driver.local_smoke()
+                    else:
+                        driver.local_smoke()
+                self.assertEqual(json.loads((driver.evidence / "local-smoke.json").read_text()), detail)
+                command_receipt = json.loads((driver.evidence / "local-smoke-command.json").read_text())
+                self.assertEqual(command_receipt["returncode"], returncode)
+                self.assertEqual(command_receipt["status"], detail["status"])
+
 
 if __name__ == "__main__":
     unittest.main()

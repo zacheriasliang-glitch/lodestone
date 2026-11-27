@@ -257,6 +257,12 @@ class Check:
                 for folder in ("learning", "Loom/data", "Loom/runs")
                 for path in (self.root / folder).rglob("*") if path.is_file()}
 
+    def local_smoke(self):
+        # The command receipt and the model/retention report must have distinct
+        # paths: run() always saves its command status, including on failure.
+        self.run("local-smoke-command", [self.active["worker_python"], "-B", str(Path(self.active["release"]) / "smoke.py"),
+            "--root", str(self.root), "--output", str(self.evidence / "local-smoke.json"), "--max-tokens", "512"], timeout=2700)
+
     def lifecycle(self):
         original, retained = self.active, self.snapshot()
         if not retained:
@@ -375,8 +381,7 @@ def main():
         check.gui()
         if mode == "local_inference_smoke":
             report["model_smoke_invoked"] = True
-            check.run("local-smoke", [check.active["worker_python"], "-B", str(Path(check.active["release"]) / "smoke.py"),
-                "--root", str(check.root), "--output", str(check.evidence / "local-smoke.json"), "--max-tokens", "512"], timeout=2700)
+            check.local_smoke()
         check.lifecycle()
         report["status"] = "PASSED"
     except BaseException as exc:
