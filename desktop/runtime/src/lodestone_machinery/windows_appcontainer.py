@@ -170,6 +170,11 @@ def _without_sid(sddl, sid):
     return head + "".join(ace for ace in aces if not (ace.endswith(";" + sid + ")") and "ID" not in ace.split(";")[1]))
 
 
+def _aces(sddl):
+    _, _, rest = sddl.partition("(")
+    return re.findall(r"\([^)]*\)", "(" + rest) if rest else []
+
+
 def _with_ace(sddl, sid, mask, directory):
     """Insert one explicit allow ACE after the explicit ACEs (canonical order)."""
     head, _, rest = sddl.partition("(")
@@ -313,8 +318,11 @@ def _undo(security, entries, sid, *, inject_failure=False):
             if _identity(path) != entry["id"]:
                 raise ValueError("Path identity changed during the run; its DACL is left for inspection")
             current = security.read(path)
-            if path in expected and current == expected[path]:
-                security.restore(path, entry["sddl"], sid)   # exact: nobody else edited it
+            stripped = _without_sid(current, sid) if sid else current
+            if (path in expected and current == expected[path]) or _aces(stripped) == _aces(entry["sddl"]):
+                # Only Lodestone's ACE differs from the saved original (including a
+                # run interrupted before confirming its grant): restore it exactly.
+                security.restore(path, entry["sddl"], sid)
                 mode = "exact"
             elif sid and _without_sid(current, sid) != current:
                 # Someone edited the DACL meanwhile (or we crashed before
