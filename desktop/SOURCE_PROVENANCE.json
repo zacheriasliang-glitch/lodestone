@@ -441,7 +441,7 @@
     "gui/basilisk/res/alembic/env.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/res/alembic/env.py",
-      "sha256": "3f1cfe2027d6c0dfc608ad0c910dca806496cb1ac4949e2177ef1df76e0475c3",
+      "sha256": "fe98e3b284658ca6a23810a054e9751f3abc49f00f7f025268ff5eae629c926a",
       "source_sha256": "3f1cfe2027d6c0dfc608ad0c910dca806496cb1ac4949e2177ef1df76e0475c3"
     },
     "gui/basilisk/res/alembic/script.mako": {
@@ -723,7 +723,7 @@
     "gui/basilisk/views/main_frame.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/views/main_frame.py",
-      "sha256": "19dc9d5d2664df73bdd90f859d70bcf8c7a79d29f1492454f31ba09e21ce3567",
+      "sha256": "2d0cb39d62cd185b609adc1990e80f1d39c99704867ad169c6c1961db2d6359e",
       "source_sha256": "19dc9d5d2664df73bdd90f859d70bcf8c7a79d29f1492454f31ba09e21ce3567"
     },
     "gui/basilisk/views/name_conversation_dialog.py": {
@@ -2762,6 +2762,18 @@
       "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
       "sha256": "82478f850a4607218c0fa1a0be38ece3a36212cc3e5c8105a66f97db0603d924",
       "source_sha256": "8c027f092d18d71f08045335e452a60946454320cb9a9044c8b94e2c02a8719e"
+    },
+    {
+      "path": "gui/basilisk/res/alembic/env.py",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "sha256": "fe98e3b284658ca6a23810a054e9751f3abc49f00f7f025268ff5eae629c926a",
+      "source_sha256": "3f1cfe2027d6c0dfc608ad0c910dca806496cb1ac4949e2177ef1df76e0475c3"
+    },
+    {
+      "path": "gui/basilisk/views/main_frame.py",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "sha256": "2d0cb39d62cd185b609adc1990e80f1d39c99704867ad169c6c1961db2d6359e",
+      "source_sha256": "19dc9d5d2664df73bdd90f859d70bcf8c7a79d29f1492454f31ba09e21ce3567"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"

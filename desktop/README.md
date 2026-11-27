@@ -34,6 +34,10 @@ setup needs internet access. Local inference subsequently uses the installed
 files and a private loopback model process, with no model subscription or paid API
 calls. The GUI requires a graphical desktop session.
 
+Installation and data paths must not pass through symbolic links or junctions.
+Use ordinary local directories so the installer and retained-record store can
+verify their ownership throughout each operation.
+
 | Target | Setup entrypoint | Open after setup |
 |---|---|---|
 | macOS 12 or later, Intel x86_64 | `Install Lodestone.command` | `Lodestone Preview.app` in your user Applications folder |
