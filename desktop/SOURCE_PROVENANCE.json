@@ -2291,7 +2291,7 @@
     "runtime/tools/machinery/check_repository.py": {
       "origin": "unified-runtime",
       "path": "tools/machinery/check_repository.py",
-      "sha256": "1e576b5a027bf6752845e59ef3c8c08ef12b12a1181d15afd8912fc9293bf57a",
+      "sha256": "1381c9cd88ce975729bc378fe5873c4d995d0d32ce26d413c0c379e7fa22929d",
       "source_sha256": "1e576b5a027bf6752845e59ef3c8c08ef12b12a1181d15afd8912fc9293bf57a"
     },
     "runtime/tools/machinery/loom-practice": {
@@ -2505,6 +2505,7 @@
     "windows_file_timestamp_contract": "da26134b75de18d0fdf49822dd3c930ad4b009f9",
     "windows_gui_wait_and_status": "6aa49ce5b39d6c43aad0cdb93ce39e15be96d0f2",
     "windows_job_membership_evidence": "a4b8b897234c4f481c19f4caac97c1f060fb740d",
+    "windows_repository_navigation": "6e38e020799d97236c10396c01069042da0c81e6",
     "windows_review_custody": "48531dd5a3c4b9d4839585953fb4d8091391381a",
     "windows_visible_bootstrap": "1bd796fb852d902b7f19241ef5a0def3b6a23fad"
   },
@@ -2826,6 +2827,12 @@
       "reason": "Use native Windows streaming source and checkpoint custody, retain lexical roots and publish immutable flushed checkpoints without changing the v1 byte/schema or preservation semantics.",
       "sha256": "7320d435427f736f7b76b2f3903ea8fe47acfb5cece293800c3d8cb4db339b6a",
       "source_sha256": "1cb9c4cd8abef300f3f47d03fcaac627618b37039247590ef43a3d3c9c728572"
+    },
+    {
+      "path": "runtime/tools/machinery/check_repository.py",
+      "reason": "Preserve POSIX repository checks while bounding native Windows Markdown traversal and local-target custody, rejecting raw ambiguous names and reparse aliases before filesystem access.",
+      "sha256": "1381c9cd88ce975729bc378fe5873c4d995d0d32ce26d413c0c379e7fa22929d",
+      "source_sha256": "1e576b5a027bf6752845e59ef3c8c08ef12b12a1181d15afd8912fc9293bf57a"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"
