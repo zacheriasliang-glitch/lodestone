@@ -22,6 +22,7 @@ from basilisk.ipc import BasiliskIpc, FocusSignal, OpenBskcSignal
 from basilisk.localization import init_translation
 from basilisk.logger import (
 	get_log_file_path,
+	install_wx_logging,
 	logging_uncaught_exceptions,
 	setup_logging,
 )
@@ -34,6 +35,24 @@ log = logging.getLogger(__name__)
 
 class MainApp(wx.App):
 	"""Main application class for Basilisk."""
+
+	def __init__(self, *args, **kwargs):
+		# wx can emit diagnostics during its own initialization and localization.
+		# Configure a nonmodal sink before either can create the default LogGui.
+		sys.excepthook = logging_uncaught_exceptions
+		self.conf = config.conf()
+		log_level = (
+			global_vars.args.log_level or self.conf.general.log_level.name
+		)
+		setup_logging(log_level)
+		self.wx_log_target = install_wx_logging()
+		super().__init__(*args, **kwargs)
+
+	def OnPreInit(self):
+		# wxEntryStart flushes and deletes its bootstrap target. Install the
+		# long-lived replacement before wx.App.OnPreInit initializes its locale.
+		self.wx_log_target = install_wx_logging()
+		super().OnPreInit()
 
 	def OnInit(self) -> bool:
 		"""Initialize the application and set up the main window.
@@ -54,13 +73,7 @@ class MainApp(wx.App):
 			Various potential exceptions during initialization of components like sound manager,
 			file watcher, server thread, or update thread
 		"""
-		sys.excepthook = logging_uncaught_exceptions
-		self.conf = config.conf()
-		log_level = (
-			global_vars.args.log_level or self.conf.general.log_level.name
-		)
 		log.debug("args: %s", global_vars.args)
-		setup_logging(log_level)
 		log.debug("config: %s", self.conf)
 		if getattr(sys, "frozen", False):
 			log.info(
@@ -165,6 +178,8 @@ class MainApp(wx.App):
 			self.ipc.stop_receiver()
 			log.info("IPC receiver stopped")
 		self.close_conversation_db()
+		# Include records buffered by wx from background threads before exit.
+		wx.Log.FlushActive()
 		log.info("Application exited")
 		return 0
 
