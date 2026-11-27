@@ -284,7 +284,82 @@ class RealAppContainerTests(unittest.TestCase):
             # Every transient grant is gone and no recovery entry remains.
             self.assertEqual({p: self._sddl(p) for p in (work, source, outside, private)}, before,
                              "stderr:\n" + done.stderr)
-            self.assertEqual(list(ledger.glob(wac.PREFIX + "*.json")), [])
+            self.assertEqual(list(ledger.glob(wac.PREFIX + "*.journal")), [])
+
+    def _launch(self, work, source, code, **env):
+        argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", code], work, source, None, None)
+        return subprocess.run(argv, capture_output=True, text=True, timeout=300, env={**os.environ, **env})
+
+    def _pending(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        return list(wac._ledger_directory().glob(wac.PREFIX + "*.journal"))
+
+    def test_interruption_after_one_real_acl_mutation_is_recovered_exactly(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        with tempfile.TemporaryDirectory() as raw:
+            work, source = Path(raw) / "w", Path(raw) / "s"
+            work.mkdir(), source.mkdir()
+            before = {p: self._sddl(p) for p in (work, source)}
+            done = self._launch(work, source, "pass", LODESTONE_FENCE_TEST_CRASH_AFTER_FIRST_GRANT="1")
+            self.assertEqual(done.returncode, 99, done.stderr)
+            self.assertNotEqual(self._sddl(work), before[work])  # the mutation really happened
+            self.assertEqual(len(self._pending()), 1)
+            wac.sweep()
+            self.assertEqual({p: self._sddl(p) for p in (work, source)}, before)
+            self.assertEqual(self._pending(), [])
+
+    def test_cleanup_failure_is_reported_and_retried_not_hidden(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        with tempfile.TemporaryDirectory() as raw:
+            work, source = Path(raw) / "w", Path(raw) / "s"
+            work.mkdir(), source.mkdir()
+            before = {p: self._sddl(p) for p in (work, source)}
+            done = self._launch(work, source, "pass", LODESTONE_FENCE_TEST_FAIL_RESTORE="1")
+            self.assertEqual(done.returncode, wac.EXIT_CLEANUP_UNCONFIRMED, done.stderr)
+            self.assertIn("cleanup unconfirmed", done.stderr)
+            self.assertEqual(len(self._pending()), 1)
+            wac.sweep()
+            self.assertEqual({p: self._sddl(p) for p in (work, source)}, before)
+            self.assertEqual(self._pending(), [])
+
+    def test_overlapping_runs_on_one_tree_serialize_and_restore_exactly(self):
+        with tempfile.TemporaryDirectory() as raw:
+            base = Path(raw)
+            source, work_a, work_b = base / "s", base / "a", base / "b"
+            for item in (source, work_a, work_b):
+                item.mkdir()
+            (source / "input.txt").write_text("shared")
+            before = {p: self._sddl(p) for p in (source, work_a, work_b)}
+            code = ("import pathlib, sys, time\n"
+                    "assert (pathlib.Path(sys.argv[1]) / 'input.txt').read_text() == 'shared'\n"
+                    "time.sleep(3)\n")
+            runs = [subprocess.Popen(origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", code, str(source)],
+                                                         work, source, None, None),
+                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    for work in (work_a, work_b)]
+            results = [run.communicate(timeout=300) for run in runs]
+            self.assertEqual([run.returncode for run in runs], [0, 0], results)
+            self.assertEqual({p: self._sddl(p) for p in (source, work_a, work_b)}, before)
+            self.assertEqual(self._pending(), [])
+
+    def test_paths_through_a_junction_are_refused_before_any_grant(self):
+        from lodestone_machinery import windows_appcontainer as wac
+        with tempfile.TemporaryDirectory() as raw:
+            base = Path(raw)
+            target, link = base / "target", base / "link"
+            (target / "w").mkdir(parents=True)
+            (base / "s").mkdir()
+            system = os.environ.get("SystemRoot", r"C:\\Windows")
+            subprocess.run([os.path.join(system, "System32", "cmd.exe"), "/c", "mklink", "/J", str(link), str(target)],
+                           check=True, capture_output=True, timeout=60)
+            before = self._sddl(target / "w")
+            for work, source in ((link / "w", base / "s"), (base / "s", link / "w")):
+                with self.subTest(work=str(work)):
+                    done = self._launch(work, source, "pass")
+                    self.assertEqual(done.returncode, wac.EXIT_SETUP_FAILED, done.stdout + done.stderr)
+                    self.assertIn("reparse point", done.stderr)
+            self.assertEqual(self._sddl(target / "w"), before)
+            self.assertEqual(self._pending(), [])
 
     def test_interrupted_launcher_is_undone_by_the_next_sweep(self):
         from lodestone_machinery import windows_appcontainer as wac
@@ -296,7 +371,7 @@ class RealAppContainerTests(unittest.TestCase):
                                         work, source, None, None)
             launcher = subprocess.Popen(argv, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             deadline = time.monotonic() + 60
-            while not list(wac._ledger_directory().glob(wac.PREFIX + "*.json")) and time.monotonic() < deadline:
+            while not list(wac._ledger_directory().glob(wac.PREFIX + "*.journal")) and time.monotonic() < deadline:
                 time.sleep(0.2)
             time.sleep(5)  # let the grants be applied
             launcher.kill()  # no cleanup runs in the launcher
@@ -306,8 +381,8 @@ class RealAppContainerTests(unittest.TestCase):
             deadline = time.monotonic() + 60
             while True:
                 wac.sweep()
-                if not list(wac._ledger_directory().glob(wac.PREFIX + "*.json")) or time.monotonic() > deadline:
+                if not list(wac._ledger_directory().glob(wac.PREFIX + "*.journal")) or time.monotonic() > deadline:
                     break
                 time.sleep(1)
             self.assertEqual(self._sddl(source), before)
-            self.assertEqual(list(wac._ledger_directory().glob(wac.PREFIX + "*.json")), [])
+            self.assertEqual(list(wac._ledger_directory().glob(wac.PREFIX + "*.journal")), [])

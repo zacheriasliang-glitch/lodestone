@@ -30,19 +30,12 @@ from pathlib import Path
 import stat
 import subprocess
 import sys
+import time
 import uuid
 
 PREFIX = "Lodestone.Fence."
 EXIT_SETUP_FAILED = 125
-
-
-def _ledger_directory():
-    base = os.environ.get("LOCALAPPDATA")
-    if not base or not Path(base).is_absolute():
-        raise OSError("LOCALAPPDATA is required for the fence's recovery ledger")
-    directory = Path(base) / "Lodestone Fence" / "pending"
-    directory.mkdir(parents=True, exist_ok=True)
-    return directory
+EXIT_CLEANUP_UNCONFIRMED = 126
 
 
 def _no_reparse(path):
@@ -191,87 +184,228 @@ def _with_ace(sddl, sid, mask, directory):
     return head + "".join(explicit) + ace + "".join(inherited)
 
 
-def _write_ledger(handle, record):
-    handle.seek(0)
-    handle.truncate()
-    handle.write(json.dumps(record, sort_keys=True).encode("utf-8"))
-    handle.flush()
-    os.fsync(handle.fileno())
+def _fence_root():
+    base = os.environ.get("LOCALAPPDATA")
+    if not base or not os.path.isabs(base):
+        raise OSError("LOCALAPPDATA is required for the fence's recovery journal")
+    root = _lexical(Path(base) / "Lodestone Fence", create=True)
+    pending = root / "pending"
+    pending.mkdir(exist_ok=True)
+    _no_reparse(pending)
+    return root
+
+
+def _ledger_directory():
+    return _fence_root() / "pending"
+
+
+def _lexical(path, *, create=False):
+    """Validate the path as written, before any resolution can erase a junction.
+
+    Windows silently drops trailing dots/spaces and treats ':' as a stream
+    separator; such components are refused rather than normalized.
+    """
+    text = str(path)
+    drive, rest = os.path.splitdrive(text)
+    if len(drive) != 2 or drive[1] != ":" or not os.path.isabs(text):
+        raise ValueError("A local absolute drive path is required: " + text)
+    for part in rest.replace("/", "\\").split("\\"):
+        if part in (".", ".."):
+            raise ValueError("Relative path components are not admitted: " + text)
+        if part and (part[-1] in ". " or ":" in part):
+            raise ValueError("Ambiguous Windows path component is not admitted: " + text)
+    lexical = Path(os.path.normpath(text))
+    if create:
+        lexical.mkdir(parents=True, exist_ok=True)
+    return _no_reparse(lexical)
+
+
+def _identity(path):
+    info = os.lstat(path)
+    return [info.st_dev, info.st_ino]
+
+
+class _Journal:
+    """Append-only, fsynced recovery journal. Earlier entries are never rewritten,
+    so an interruption at any point leaves every saved original DACL intact.
+    A torn final line (no newline) is ignored: it was written before its mutation."""
+
+    def __init__(self, path, *, create):
+        self.path = path
+        self.handle = open(path, "xb" if create else "ab")
+
+    def append(self, entry):
+        self.handle.write(json.dumps(entry, sort_keys=True).encode("utf-8") + b"\n")
+        self.handle.flush()
+        os.fsync(self.handle.fileno())
+
+    def close(self):
+        self.handle.close()
+
+    @staticmethod
+    def entries(path):
+        raw = path.read_bytes()
+        lines = raw.split(b"\n")
+        return [json.loads(line) for line in lines[:-1] if line.strip()]
+
+
+class _GlobalLock:
+    """Serializes every ACL-mutating fence run and recovery for this user, so two
+    runs never snapshot or restore the same DACL concurrently. Bounded wait."""
+
+    def __init__(self, timeout):
+        import msvcrt
+        self.msvcrt = msvcrt
+        self.handle = open(_fence_root() / "fence.lock", "a+b")
+        deadline = time.monotonic() + timeout
+        while True:
+            try:
+                self.handle.seek(0)
+                msvcrt.locking(self.handle.fileno(), msvcrt.LK_NBLCK, 1)
+                return
+            except OSError:
+                if time.monotonic() >= deadline:
+                    self.handle.close()
+                    raise OSError("Another fenced command holds the Windows fence; refused after waiting")
+                time.sleep(0.25)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.handle.seek(0)
+        self.msvcrt.locking(self.handle.fileno(), self.msvcrt.LK_UNLCK, 1)
+        self.handle.close()
+
+
+def _wait_seconds():
+    try:
+        return max(0.0, float(os.environ.get("LODESTONE_FENCE_WAIT_SECONDS", "600")))
+    except ValueError:
+        return 600.0
+
+
+def _undo(security, entries, sid, *, inject_failure=False):
+    """Undo this run's grants; returns the paths whose cleanup is unconfirmed."""
+    grants, expected, done = [], {}, set()
+    for entry in entries:
+        if "grant" in entry:
+            grants.append(entry)
+        elif "granted" in entry:
+            expected[entry["granted"]] = entry["expected"]
+        elif "restored" in entry:
+            done.add(entry["restored"])
+    unconfirmed = []
+    for entry in reversed(grants):
+        path = entry["grant"]
+        if path in done:
+            continue
+        try:
+            if inject_failure:
+                raise OSError("injected restore failure (test hook)")
+            _lexical(path)
+            if _identity(path) != entry["id"]:
+                raise ValueError("Path identity changed during the run; its DACL is left for inspection")
+            current = security.read(path)
+            if path in expected and current == expected[path]:
+                security.restore(path, entry["sddl"], sid)   # exact: nobody else edited it
+                mode = "exact"
+            elif sid and _without_sid(current, sid) != current:
+                # Someone edited the DACL meanwhile (or we crashed before
+                # confirming): remove only our ACE and keep their edits.
+                security.write(path, _without_sid(current, sid))
+                mode = "removed_own_entry_only"
+            else:
+                mode = "nothing_to_undo"
+            after = security.read(path)
+            if sid and _without_sid(after, sid) != after:
+                raise OSError("Lodestone's entry is still present after restore")
+            if mode != "exact" and mode != "nothing_to_undo":
+                print("Fence restore for " + path + ": " + mode, file=sys.stderr)
+        except (OSError, ValueError) as exc:
+            print("Fence grant restore failed for " + path + ": " + str(exc), file=sys.stderr)
+            unconfirmed.append(path)
+    return unconfirmed
+
+
+def _delete_profile(api, name):
+    result = api.userenv.DeleteAppContainerProfile(name) & 0xFFFFFFFF
+    return result in (0, 0x80070002, 0x80070490)  # deleted, or already absent
+
+
+def _sweep(api):
+    security = _Security(api)
+    for journal in sorted(_ledger_directory().glob(PREFIX + "*.journal")):
+        entries = _Journal.entries(journal)
+        header = next((e for e in entries if "profile" in e), {})
+        sid = next((e["sid"] for e in entries if "sid" in e), None)
+        unconfirmed = _undo(security, list(entries), sid)
+        name = header.get("profile", "")
+        deleted = _delete_profile(api, name) if name.startswith(PREFIX) else True
+        if not unconfirmed and deleted:
+            journal.unlink()
+        else:
+            print("Fence recovery kept " + journal.name + " for inspection", file=sys.stderr)
 
 
 def sweep(api=None):
-    """Undo grants and profiles left by an interrupted launcher. Live runs hold their ledger lock."""
-    import msvcrt
+    """Undo grants and profiles left by interrupted launchers (under the global lock)."""
     api = api or _Api()
-    for entry in sorted(_ledger_directory().glob(PREFIX + "*.json")):
-        try:
-            handle = open(entry, "r+b")
-        except OSError:
-            continue
-        try:
-            try:
-                handle.seek(0)  # msvcrt.locking locks from the current position
-                msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
-            except OSError:
-                continue  # A live launcher still owns this run.
-            record = json.loads(handle.read().decode("utf-8") or "{}")
-            security = _Security(api)
-            for item in reversed(record.get("granted", [])):
-                security.restore(item["path"], item["sddl"], record.get("sid"))
-            if record.get("name", "").startswith(PREFIX):
-                api.userenv.DeleteAppContainerProfile(record["name"])
-            handle.seek(0)
-            msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
-        finally:
-            handle.close()
-        entry.unlink(missing_ok=True)
+    with _GlobalLock(_wait_seconds()):
+        _sweep(api)
 
 
 def run(argv, *, workspace, readable):
-    import msvcrt
     api = _Api()
     c, w, k = api.c, api.w, api.kernel
-    sweep(api)
-    workspace = _no_reparse(Path(workspace).resolve(strict=True))
-    # One grant per path: the workspace already has modify, and repeated paths
-    # (an argument that is also the source root) are granted once.
+    workspace = _lexical(workspace)
     unique = []
     for item in readable:
-        path = _no_reparse(Path(item).resolve(strict=True))
+        path = _lexical(item)
         if path != workspace and path not in unique:
             unique.append(path)
     readable = unique
+    with _GlobalLock(_wait_seconds()):
+        _sweep(api)
+        return _run_locked(api, c, w, k, argv, workspace, readable)
+
+
+def _run_locked(api, c, w, k, argv, workspace, readable):
     name = PREFIX + uuid.uuid4().hex
-    # The ledger exists and is locked before any host state changes, so an
-    # interrupted run is undone by the next sweep rather than left in place.
-    ledger_path = _ledger_directory() / (name + ".json")
-    ledger = open(ledger_path, "x+b")
-    msvcrt.locking(ledger.fileno(), msvcrt.LK_NBLCK, 1)
-    record = {"name": name, "sid": None, "granted": []}
-    _write_ledger(ledger, record)
+    journal = _Journal(_ledger_directory() / (name + ".journal"), create=True)
+    entries = [{"profile": name}]
+    journal.append(entries[0])
     sid_pointer = c.c_void_p()
     result = api.userenv.CreateAppContainerProfile(name, name, "Lodestone per-run command fence", None, 0,
                                                    c.byref(sid_pointer))
     if result != 0:
-        ledger.close()
-        ledger_path.unlink(missing_ok=True)
+        journal.close()
+        (_ledger_directory() / (name + ".journal")).unlink()
         raise OSError("CreateAppContainerProfile failed: HRESULT 0x%08x" % (result & 0xFFFFFFFF))
-    granted, job, process, sid = [], None, None, None
+    job, process, sid, code = None, None, None, None
+    crash_after = os.environ.get("LODESTONE_FENCE_TEST_CRASH_AFTER_FIRST_GRANT") == "1"
     try:
         text = w.LPWSTR()
         api.check(api.advapi.ConvertSidToStringSidW(sid_pointer, c.byref(text)))
         sid = text.value
         k.LocalFree(text)
-        record["sid"] = sid
+        entries.append({"sid": sid})
+        journal.append(entries[-1])
         security = _Security(api)
         for item, mask in [(workspace, MODIFY)] + [(item, READ_EXECUTE) for item in readable]:
+            identity = _identity(item)
             original = security.read(item)
-            # Record the exact original DACL before changing it: a crash between
-            # the two is undone by restoring that SDDL, protection flag included.
-            record["granted"].append({"path": str(item), "sddl": original})
-            _write_ledger(ledger, record)
+            # Appended (never rewritten) before the change it describes.
+            entries.append({"grant": str(item), "sddl": original, "id": identity})
+            journal.append(entries[-1])
+            _lexical(item)
+            if _identity(item) != identity:
+                raise ValueError("Path identity changed before its grant: " + str(item))
             security.write(item, _with_ace(original, sid, mask, item.is_dir()))
-            granted.append(item)
+            if crash_after:
+                os._exit(99)  # test hook: interruption after one real ACL mutation
+            entries.append({"granted": str(item), "expected": security.read(item)})
+            journal.append(entries[-1])
 
         class Capabilities(c.Structure):
             _fields_ = [("AppContainerSid", c.c_void_p), ("Capabilities", c.c_void_p),
@@ -367,9 +501,9 @@ def run(argv, *, workspace, readable):
             for stream in null_streams:
                 stream.close()
         k.WaitForSingleObject(process, 0xFFFFFFFF)
-        code = w.DWORD()
-        api.check(k.GetExitCodeProcess(process, c.byref(code)))
-        return code.value
+        exit_code = w.DWORD()
+        api.check(k.GetExitCodeProcess(process, c.byref(exit_code)))
+        code = exit_code.value
     except BaseException:
         if process:
             k.TerminateProcess(process, 1)
@@ -379,21 +513,19 @@ def run(argv, *, workspace, readable):
             k.CloseHandle(process)
         if job:
             k.CloseHandle(job)  # kill-on-close: no descendant outlives the run
-        failures = []
-        security = _Security(api)
-        for item in reversed(record["granted"]):
-            try:
-                security.restore(item["path"], item["sddl"], sid)
-            except OSError as exc:
-                print("Fence grant restore failed for " + item["path"] + ": " + str(exc), file=sys.stderr)
-                failures.append(item["path"])
+        inject = os.environ.get("LODESTONE_FENCE_TEST_FAIL_RESTORE") == "1"
+        unconfirmed = _undo(_Security(api), list(entries), sid, inject_failure=inject)
         api.advapi.FreeSid(sid_pointer)
-        deleted = api.userenv.DeleteAppContainerProfile(name) == 0
-        ledger.seek(0)
-        msvcrt.locking(ledger.fileno(), msvcrt.LK_UNLCK, 1)
-        ledger.close()
-        if not failures and deleted:
-            ledger_path.unlink(missing_ok=True)  # otherwise the next sweep retries
+        deleted = _delete_profile(api, name)
+        journal.close()
+        clean = not unconfirmed and deleted
+        if clean:
+            (_ledger_directory() / (name + ".journal")).unlink()
+    if not clean:
+        print("Windows fence cleanup unconfirmed (command exit code %s); recovery journal kept" % code,
+              file=sys.stderr)
+        return EXIT_CLEANUP_UNCONFIRMED
+    return code
 
 
 def main(arguments=None):
