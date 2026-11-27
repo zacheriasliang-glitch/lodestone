@@ -54,17 +54,24 @@ def _is_link(info):
     return stat.S_ISLNK(info.st_mode) or bool(getattr(info, "st_file_attributes", 0) & 0x400)
 
 
+def _windows_names(path):
+    if str(path).startswith(("\\\\?\\", "\\\\.\\")):
+        raise ValueError("Device namespace paths are unsupported")
+    reserved = {"CON", "PRN", "AUX", "NUL", *("COM" + str(i) for i in range(1, 10)),
+                *("LPT" + str(i) for i in range(1, 10))}
+    for part in path.parts[1:] if path.anchor else path.parts:
+        if ":" in part or part.endswith((".", " ")) or part.split(".")[0].upper() in reserved:
+            raise ValueError("Unsupported Windows managed path: " + str(path))
+
+
 def check_path(path):
     """Reject symlinks, junctions, device paths and alternate data streams."""
-    path = Path(path).absolute()
+    supplied = Path(path)
     if os.name == "nt":
-        if str(path).startswith(("\\\\?\\", "\\\\.\\")):
-            raise ValueError("Device namespace paths are unsupported")
-        reserved = {"CON", "PRN", "AUX", "NUL", *("COM" + str(i) for i in range(1, 10)),
-                    *("LPT" + str(i) for i in range(1, 10))}
-        for part in path.parts[1:]:
-            if ":" in part or part.endswith((".", " ")) or part.split(".")[0].upper() in reserved:
-                raise ValueError("Unsupported Windows managed path: " + str(path))
+        _windows_names(supplied)
+    path = supplied.absolute()
+    if os.name == "nt":
+        _windows_names(path)
     for item in (path, *path.parents):
         try:
             info = item.lstat()
@@ -73,7 +80,6 @@ def check_path(path):
         if _is_link(info):
             raise ValueError("Managed path is a symbolic link or reparse point: " + str(item))
     return path
-
 
 if os.name == "nt":
     from ctypes import wintypes

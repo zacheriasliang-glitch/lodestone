@@ -669,7 +669,7 @@
     "gui/basilisk/views/conversation_tab.py": {
       "origin": "basilisk-derived-gui",
       "path": "basilisk/views/conversation_tab.py",
-      "sha256": "3391fbaac61915a85d806c5744f3a9e8f6294a125699cd224490dc27a700404e",
+      "sha256": "b931981a2bec3fb967329f536275cb4fc6d4b2fd8c65ab2fbef4522dc6454800",
       "source_sha256": "5d8dfb817cfacd9ae7602ada1531f4f8159f8b90a82b52cd0a56706c19de3ae1"
     },
     "gui/basilisk/views/edit_block_dialog.py": {
@@ -711,7 +711,7 @@
     "gui/basilisk/views/loom_practice_dialog.py": {
       "origin": "desktop-practice-extension",
       "path": "basilisk/views/loom_practice_dialog.py",
-      "sha256": "9e897c8c5e54f91abd450e5493891b4c8d6d5b5edb849499359de9c3bc81a3f9",
+      "sha256": "73de828a450dca2d85d5f5e6d76a8d66890df2b80586665eb41bb0314feb6a2b",
       "source_sha256": "d17bef1628d39b77f00d536e3da417ee8b5b3f598412265d0bd4d358a03e4d62"
     },
     "gui/basilisk/views/loom_toolkits_dialog.py": {
@@ -921,7 +921,7 @@
     "runtime/docs/pando.md": {
       "origin": "public-core",
       "path": "docs/pando.md",
-      "sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a",
+      "sha256": "313a32639d6c51c09780ccb6446efd5cec6b4a125b405eefdd24b225864d0566",
       "source_sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a"
     },
     "runtime/docs/porcelain.md": {
@@ -1389,7 +1389,7 @@
     "runtime/src/lodestone_machinery/bezoar_cli.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/bezoar_cli.py",
-      "sha256": "df230d152f83f1447bb0b0d1217c08d52e6f63a30a4674e18f3956e06208e72c",
+      "sha256": "7c0cb32553e08cf7e3e5b4696f0985b0845983de7e6f166e30104b1a952b2869",
       "source_sha256": "df230d152f83f1447bb0b0d1217c08d52e6f63a30a4674e18f3956e06208e72c"
     },
     "runtime/src/lodestone_machinery/bezoar_familiarity.py": {
@@ -1479,7 +1479,7 @@
     "runtime/src/lodestone_machinery/decision_assessment.py": {
       "origin": "lodestone-public",
       "path": "desktop/runtime/src/lodestone_machinery/decision_assessment.py",
-      "sha256": "fecfc08138e23fa8fbd180a1bfbde546e13ac2c3e1f45fe11c5482594a82ef28",
+      "sha256": "2a499e2399a45a0a6363e8a4394c1409623606b8062d918b3b800d4841e296b6",
       "source_sha256": "fecfc08138e23fa8fbd180a1bfbde546e13ac2c3e1f45fe11c5482594a82ef28"
     },
     "runtime/src/lodestone_machinery/decision_contract.py": {
@@ -1503,7 +1503,7 @@
     "runtime/src/lodestone_machinery/fold_export.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/fold_export.py",
-      "sha256": "2595fbd1767be2e88b053720c0f7efc03717dec7d4b71a20eed170ee504bc524",
+      "sha256": "5f79af21e409fd887d5292ad4847d8ade016941007ef7129d3656dbf3b0ea6cd",
       "source_sha256": "2595fbd1767be2e88b053720c0f7efc03717dec7d4b71a20eed170ee504bc524"
     },
     "runtime/src/lodestone_machinery/fold_isolation.py": {
@@ -1601,7 +1601,7 @@
     "runtime/src/lodestone_machinery/learning_context.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/learning_context.py",
-      "sha256": "f82c345f9e0d2212ad1c7821d5e1bb84d6840730befa71b261669c43c6fc931a",
+      "sha256": "0adcfe78b199f6014ecd5e66e16d2c3c54e49060067e694a33e01e33c6ae75e3",
       "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
     },
     "runtime/src/lodestone_machinery/learning_reader.py": {
@@ -1661,7 +1661,7 @@
     "runtime/src/lodestone_machinery/loom_handoff.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_handoff.py",
-      "sha256": "a69c70885f1b5e0fa3a9f3400bce6940e0af75717e05269a7e0b3ba01ba3320d",
+      "sha256": "fd91f3384c76762bd144aa156aa6c98f5feb36e52c36353a1db17e923143112d",
       "source_sha256": "c3f9fb64a73f2d18a8695c217e64c8ea12407799626bc1144b175ca2ba526df5"
     },
     "runtime/src/lodestone_machinery/loom_improvement.py": {
@@ -1685,7 +1685,7 @@
     "runtime/src/lodestone_machinery/loom_memory_cli.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_memory_cli.py",
-      "sha256": "ee5b370ac861b13b82cf7065db8ab74f0ba200fbf14b0d98d4597376ce90065f",
+      "sha256": "63950130b1cad38d5fe53effa0ed9a1529e4c7cbca858e9efdbd646c5df0295f",
       "source_sha256": "ee5b370ac861b13b82cf7065db8ab74f0ba200fbf14b0d98d4597376ce90065f"
     },
     "runtime/src/lodestone_machinery/loom_nli.py": {
@@ -1697,13 +1697,13 @@
     "runtime/src/lodestone_machinery/loom_operations.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_operations.py",
-      "sha256": "efbf356bfda8ab276c65e3755162fc07c93a085ff3b986af0c4e19c461c35cf2",
+      "sha256": "220360b97a15e6adb223b1624a0abda3676295fd481f51a944d650a31ec4fe90",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     "runtime/src/lodestone_machinery/loom_optional_operations.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_optional_operations.py",
-      "sha256": "21f70c48e6ec29d9f00dafe65975fdc55be71f4608b2be01cfcecd96311e8dbc",
+      "sha256": "f77c51d55e27e1224157b8ee6d2a3041bdc21c30d69b8a3a082d46c8c6df7270",
       "source_sha256": "21f70c48e6ec29d9f00dafe65975fdc55be71f4608b2be01cfcecd96311e8dbc"
     },
     "runtime/src/lodestone_machinery/loom_runtime.py": {
@@ -1829,7 +1829,7 @@
     "runtime/src/lodestone_machinery/organs/ingest.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/organs/ingest.py",
-      "sha256": "96a511bc7195f36866f5f70e6be9cd1d9ffacc000f73039108b1d44b0024474c",
+      "sha256": "64a9f72aa5ea69e3a75f4c28bac69bfd99da7b473bb672d1393a7621a6dde714",
       "source_sha256": "96a511bc7195f36866f5f70e6be9cd1d9ffacc000f73039108b1d44b0024474c"
     },
     "runtime/src/lodestone_machinery/organs/measurement.py": {
@@ -1865,7 +1865,7 @@
     "runtime/src/lodestone_machinery/organs/sources.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/organs/sources.py",
-      "sha256": "088f11e1875a4e3bc122218f101b435eabb368b6c5079a4fdb8c574443576da8",
+      "sha256": "a4367183d4d0789a4b62b929006286493647e8759f978b484bbf9cbd7d023173",
       "source_sha256": "088f11e1875a4e3bc122218f101b435eabb368b6c5079a4fdb8c574443576da8"
     },
     "runtime/src/lodestone_machinery/organs/watcher.py": {
@@ -1877,7 +1877,7 @@
     "runtime/src/lodestone_machinery/origami.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/origami.py",
-      "sha256": "c980c60c74d4bc65f1e99606392f890d402204229f3ba6ed8465e3d24807102a",
+      "sha256": "5b324eb47f3cf36e93811965365064b404b53c9622df9287e0bb4212ae3c452a",
       "source_sha256": "c980c60c74d4bc65f1e99606392f890d402204229f3ba6ed8465e3d24807102a"
     },
     "runtime/src/lodestone_machinery/origami_cli.py": {
@@ -1931,7 +1931,7 @@
     "runtime/src/lodestone_machinery/support_review.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/support_review.py",
-      "sha256": "df07f7e3d4b2c5b01d8710e952553142c410635cce55205a6bacc7bb5eca00ad",
+      "sha256": "806e4d6ecf41ceda7d9d751f6d99905e3f460d9f53fc7ecfea8e44ca635785ca",
       "source_sha256": "df07f7e3d4b2c5b01d8710e952553142c410635cce55205a6bacc7bb5eca00ad"
     },
     "runtime/src/lodestone_machinery/support_review_provider.py": {
@@ -2123,7 +2123,7 @@
     "runtime/src/lodestone_nurarihyon/portable_files.py": {
       "origin": "lodestone-public",
       "path": "desktop/runtime/src/lodestone_nurarihyon/portable_files.py",
-      "sha256": "5ac0be8e75162cac46b9ae7959d4a56cf4737d420fa8600c2d6f6c5c3d579edc",
+      "sha256": "560da88edc9a372533026a3559393341566af8a456885fb3092b417c7606d3c3",
       "source_sha256": "b6713120dcd974ef3bfe6c100349e20f5d004884b4d94684a92041da3c713966"
     },
     "runtime/src/lodestone_nurarihyon/preparation.py": {
@@ -2183,7 +2183,7 @@
     "runtime/src/lodestone_pando/__main__.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_pando/__main__.py",
-      "sha256": "9f57dfd36ee844c6eeb8e30935bbe374fbbaced60e0bf1d80b0a5a30074818cd",
+      "sha256": "080d7c7fc6916f62d47fd7aef77f1728be70572c551c287d5c0a15c363ffa004",
       "source_sha256": "9f57dfd36ee844c6eeb8e30935bbe374fbbaced60e0bf1d80b0a5a30074818cd"
     },
     "runtime/src/lodestone_pando/server.py": {
@@ -2201,7 +2201,7 @@
     "runtime/src/lodestone_pando/store.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_pando/store.py",
-      "sha256": "a75df102e7ffc706b09d8a2abb60e340c365703f84793e1f4c31bc0d16a192aa",
+      "sha256": "fb5eb7d92e9ffc3271d3b25884e922f54621d008db66409d20ff72f63f4db412",
       "source_sha256": "a75df102e7ffc706b09d8a2abb60e340c365703f84793e1f4c31bc0d16a192aa"
     },
     "runtime/tools/continuity/README.md": {
@@ -2213,7 +2213,7 @@
     "runtime/tools/continuity/checkpoint.py": {
       "origin": "unified-runtime",
       "path": "tools/continuity/checkpoint.py",
-      "sha256": "1cb9c4cd8abef300f3f47d03fcaac627618b37039247590ef43a3d3c9c728572",
+      "sha256": "7320d435427f736f7b76b2f3903ea8fe47acfb5cece293800c3d8cb4db339b6a",
       "source_sha256": "1cb9c4cd8abef300f3f47d03fcaac627618b37039247590ef43a3d3c9c728572"
     },
     "runtime/tools/corpus-fold/src/corpus_fold.py": {
@@ -2225,7 +2225,7 @@
     "runtime/tools/ecosystem/cli.py": {
       "origin": "unified-runtime",
       "path": "tools/ecosystem/cli.py",
-      "sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e",
+      "sha256": "483a8ed0bc615f100015c2982c3dac8126ea656d3224bac99a7e24e4f5ac1a06",
       "source_sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e"
     },
     "runtime/tools/ecosystem/conscience-policy.json": {
@@ -2261,7 +2261,7 @@
     "runtime/tools/local-memory/README.md": {
       "origin": "public-core",
       "path": "tools/local-memory/README.md",
-      "sha256": "00f53c0c7e940359a0a0dfcd488ffef367d9edd9f5fde79402b7b8bd7cbf806a",
+      "sha256": "541b990c97a4f17d9adfbdfec75adcca965873af9dbf3b4a66372c51cb1e220e",
       "source_sha256": "00f53c0c7e940359a0a0dfcd488ffef367d9edd9f5fde79402b7b8bd7cbf806a"
     },
     "runtime/tools/local-memory/schemas/record.schema.json": {
@@ -2273,7 +2273,7 @@
     "runtime/tools/local-memory/src/lodestone_memory.py": {
       "origin": "unified-runtime",
       "path": "tools/local-memory/src/lodestone_memory.py",
-      "sha256": "13feb8ff9a5d34d926a0c43f7fbcbbe22a0267b00feb2d123955f030198d43cf",
+      "sha256": "a5a76f6f7bfc865b3d76ea350d5de125fdf4121ae39072d9cf314d93e2e660a3",
       "source_sha256": "13feb8ff9a5d34d926a0c43f7fbcbbe22a0267b00feb2d123955f030198d43cf"
     },
     "runtime/tools/local-memory/src/source_addresses.py": {
@@ -2303,7 +2303,7 @@
     "runtime/tools/machinery/check_repository.py": {
       "origin": "unified-runtime",
       "path": "tools/machinery/check_repository.py",
-      "sha256": "1e576b5a027bf6752845e59ef3c8c08ef12b12a1181d15afd8912fc9293bf57a",
+      "sha256": "1381c9cd88ce975729bc378fe5873c4d995d0d32ce26d413c0c379e7fa22929d",
       "source_sha256": "1e576b5a027bf6752845e59ef3c8c08ef12b12a1181d15afd8912fc9293bf57a"
     },
     "runtime/tools/machinery/loom-practice": {
@@ -2417,7 +2417,7 @@
     "runtime/tools/pando/run": {
       "origin": "unified-runtime",
       "path": "tools/pando/run",
-      "sha256": "862b85e6fb9f2e7f0a43219ecf628edb3141e1e5c29fbb4a5ffe71af747b69c8",
+      "sha256": "f3214bc6bea1de6ad750c5f44e5821c230a0d9780d305f618723b3819b6ce6ee",
       "source_sha256": "862b85e6fb9f2e7f0a43219ecf628edb3141e1e5c29fbb4a5ffe71af747b69c8"
     },
     "runtime/tools/release/nurarihyon_smoke.py": {
@@ -2477,12 +2477,13 @@
     "runtime/verify_download.py": {
       "origin": "unified-runtime",
       "path": "verify_download.py",
-      "sha256": "65aa5b5d148e1ae1717a3412b0b6bcb6163e22e66001cd9886a5f01f68977502",
+      "sha256": "35ba4051b45ea0480d7e3a4660b7fce9d9bccdff5520e43783bffe573a2b5336",
       "source_sha256": "65aa5b5d148e1ae1717a3412b0b6bcb6163e22e66001cd9886a5f01f68977502"
     }
   },
   "implementation_commits": {
     "about_payload_version": "7c4f208cce8adaf95c2991ad702465ba822fa248",
+    "desktop_release_scope": "6904def44a65e93bce3d24fb0dbc601bef7b1f87",
     "gui_frame_timer_lifetime": "2624d992c7df92457f1a4cc138f873099ac8a87a",
     "gui_migration_engine_lifetime": "70377a70bb9291474112193b335e67dfdb7f5a50",
     "gui_nonmodal_diagnostics": "d9defb2182255a6a59d06b8d892d078593ddc5d9",
@@ -2494,12 +2495,26 @@
     "native_locale_fallback": "586121e5fc82da2a1234db6689deff3f91dd2355",
     "native_reference_history": "40e6672dd3403bae357345d7eb3016dd075e660d",
     "portable_archive_metadata": "e67c8fbf618ff9066d12c88dd641f414b37d935f",
+    "portable_bezoar_capture": "62a5df1f7f2fbf8c48a7c53862348151884d22da",
     "portable_captured_archive": "0312c378b5ed498bd8d9757e498fef3c0da15422",
+    "portable_catalogue_composition": "a9619aa853c4ce06565feb24e29b54f19953d076",
+    "portable_catalogue_final": "4d610bf7fcd374bc090d7acee5f9783dae171f7c",
+    "portable_catalogue_ownership": "4ef5e3e13e58eb4156f9731b65f2de1cf3271c11",
+    "portable_catalogue_raw_windows_paths": "38dac1e6914bda5ab733bae2fd116ca78da3a297",
+    "portable_catalogue_readers": "05a6b8e23c080dabc3806f709bd324f44479e539",
+    "portable_catalogue_selected_path_custody": "e5ea6121c2e1d42fb2b302330620adc99aeb8e22",
+    "portable_inference_skill": "fb7d26de1e281b222b64633cad749f2d8b8aee5e",
     "portable_installer": "93217426f4db532166ca26e6d55604a5f2eb9027",
+    "portable_local_memory": "e778bf6758bcc4e87207c56c71afc54d56f753e5",
     "portable_loopback_reuse": "c7f354186bd319d9418de87f7693bf35008e4d16",
     "portable_native_ci": "5bd383a2d80ff8c5d05bff4c01df536350f3281d",
+    "portable_pando_database_aliases": "269c48ce8b82613e92860805c3d6d196f7a897ca",
+    "portable_pando_init_verify": "a5e4b35176910c41f585c87006ac992257f9f7c9",
     "portable_process": "35b2754ec1235c2205aba78f3cee3034c9788752",
     "portable_process_review_fix": "6fe42109ddde02a7d9dce05f799214d7c1a01c34",
+    "portable_reader_raw_windows_paths": "b9902cf0d11c7803b6c670f0ae66d7c225149905",
+    "portable_release_manifest_bound": "486f19929b77a5c676fd7d094a486148dd7830fa",
+    "portable_release_reader": "89875898c1a8abba804ff2881b2733d7e52386a1",
     "portable_smoke_receipt_preservation": "4f0c98f87cd7de1bbcb9f0b9a1682ac215a0593b",
     "portable_storage": "ea699f4f255aaf167b4daefc54d3242f7ad1a233",
     "portable_storage_path_work": "fe0cdadae5a33902db94c8c85b86bb2418e1d28a",
@@ -2509,13 +2524,19 @@
     "public_release_evidence_checker": "78b2463251ec2e1ecf2b39088a50b82449cd836b",
     "reference_history_installer": "f3b28acdc2d2abc77813376445616b200fd3b609",
     "reference_history_installer_cherry_picked_from": "1a32a87ccad4dd7c596df31a911fd0c4ebf08527",
+    "reviewed_raw_windows_path_fix": "f42a963fbc05ff2ed013ddfe87b6eee77d1d9c35",
     "scope": "Implementation commits identify the native history and installer changes. Original export origins and source_sha256 values remain preserved; release packaging and documentation are tracked by the enclosing release commit. Optional practice/voxel integration identifies its lab source commit; the public port preserves its distinct history-window and tokenizer-candidate paths.",
+    "windows_ambiguous_path_rejection": "f42a963fbc05ff2ed013ddfe87b6eee77d1d9c35",
     "windows_appcontainer_fence": "66b0bcbad41376e4c767fc1bfa7db9ed68f74d5b",
     "windows_batch_bytes": "0369bcbd0963579324abc51ff41e923b7981de6b",
+    "windows_continuity_custody": "d8a6fa6efbe8dcd8ccfc71df185dfa97e4ced8aa",
+    "windows_curated_handoff": "7379bcb130f09c4c918121461524b0f13154ff05",
     "windows_directory_custody_review": "2812c20c90a4d5bcd8cbf96bbb131b6f9ce32a16",
     "windows_file_timestamp_contract": "da26134b75de18d0fdf49822dd3c930ad4b009f9",
     "windows_gui_wait_and_status": "6aa49ce5b39d6c43aad0cdb93ce39e15be96d0f2",
     "windows_job_membership_evidence": "a4b8b897234c4f481c19f4caac97c1f060fb740d",
+    "windows_repository_navigation": "6e38e020799d97236c10396c01069042da0c81e6",
+    "windows_review_custody": "48531dd5a3c4b9d4839585953fb4d8091391381a",
     "windows_visible_bootstrap": "1bd796fb852d902b7f19241ef5a0def3b6a23fad"
   },
   "public_base_commit": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
@@ -2531,36 +2552,6 @@
     "unified-runtime": "Callable runtime code and generic integration catalogues from Unified Loom; no private records or experiment histories."
   },
   "transformations": [
-    {
-      "path": "runtime/src/lodestone_machinery/loom_adapter_local.py",
-      "reason": "Separate tokenizer package checks from the unchanged full model/training package binding. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "d2441b67b47c1f1d2882dd29a8b57a072bc138e86e1539adeb520a5a0bf790e4",
-      "source_sha256": "31fb73057c4f679fde8edcf50fcdb97e04323211b796e3a2961643b96fb567c3"
-    },
-    {
-      "path": "runtime/src/lodestone_machinery/loom_runtime_worker.py",
-      "reason": "Supervise owned local model servers across native targets; allow closed POSIX sockets to be reused while refusing active listeners and preserving Windows bind semantics.",
-      "sha256": "cf6cc717682496161651e3d5548555e2bf4f31fab4e461a48090854001a62111",
-      "source_sha256": "c27a1bd2556109fc41ce2242cc557841f1d46f57ed369c42067cfec4aea3e01f"
-    },
-    {
-      "path": "gui/basilisk/provider.py",
-      "reason": "Register only the local Loom provider in the desktop preview.",
-      "sha256": "a107cb39426a9aef25ea17fcc502dda2089ed9b2047aa42f57a6d6e0cf7e7a04",
-      "source_sha256": "bf18173b4c81eee2d1f52fd8dbd7f60773936398bb464aea7f3e3430b318d644"
-    },
-    {
-      "path": "gui/basilisk/views/loom_correction_dialog.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
-      "sha256": "2416714b7d448464335236f5f90a0b039755740795a6dff37d8119fa9650049f",
-      "source_sha256": "080fee86d71436a1074f4e7d0d903996a30a7a6a81152ffb7b6a0416dcb8268e"
-    },
-    {
-      "path": "gui/basilisk/views/about_dialog.py",
-      "reason": "Read the installed payload version without requiring a source-build dependency at runtime.",
-      "sha256": "47717e059c2769532d886dd2d4e1c23cc685e9bb037f6dcfc758551d5e6ac7bf",
-      "source_sha256": "8db661e065945423a42dc1ffba25f15dc56e41a54a502c9301b95dd55293316d"
-    },
     {
       "path": "gui/basilisk/conversation/conversation_model.py",
       "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings.",
@@ -2580,10 +2571,46 @@
       "source_sha256": "ac456c47ccb675d0f1eba0447b37ba6e5d9c66da7f1c9e920bcc5f5c89c40547"
     },
     {
+      "path": "gui/basilisk/localization.py",
+      "reason": "Choose an available native locale while preserving the requested application translation.",
+      "sha256": "40e1b651c9cf42e9b95c6845c22ce87497f7e92eb7d2684d01aca4f45f1d64cd",
+      "source_sha256": "e529d84f29f4c5d04febb5a48b1fb0e70422f1e65d3aae24ec6adc6b80ce7a7e"
+    },
+    {
+      "path": "gui/basilisk/logger.py",
+      "reason": "Retain native wx diagnostics in UTF-8 application logs without modal shutdown dialogs.",
+      "sha256": "aa2c2bcfacd3461e9029f9c788273eeacabab4b374715e66341348f698197d84",
+      "source_sha256": "5756c86a50c97746a8473d77082aff27dedd215e0e595dbc276cad5e540c7e31"
+    },
+    {
+      "path": "gui/basilisk/main_app.py",
+      "reason": "Install persistent native logging before wx initialization and flush buffered diagnostics at shutdown.",
+      "sha256": "cbcc2ef3e5e1db864fa0e1306934f7a099117f507f1d455e92e0ca3def9a5ab9",
+      "source_sha256": "56c12447c9b6c825c851a69099d57afdecbd477dd163093d2524ba0aab6b8776"
+    },
+    {
       "path": "gui/basilisk/presenters/conversation_presenter.py",
       "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings.",
       "sha256": "aa6957c81d05644ef00c54f8134c9637eec24e6fd9bcebbfa3bd621a107c4da6",
       "source_sha256": "a1a78bc8842c4b2844d2ae5b506c3cc88bd08864d56725b194789e040a39da37"
+    },
+    {
+      "path": "gui/basilisk/provider.py",
+      "reason": "Register only the local Loom provider in the desktop preview.",
+      "sha256": "a107cb39426a9aef25ea17fcc502dda2089ed9b2047aa42f57a6d6e0cf7e7a04",
+      "source_sha256": "bf18173b4c81eee2d1f52fd8dbd7f60773936398bb464aea7f3e3430b318d644"
+    },
+    {
+      "path": "gui/basilisk/provider_engine/loom_engine.py",
+      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings.",
+      "sha256": "2aa7501da41a029810f50f34a7ed56aa6dc43d4b8ac75c32405d8cb704dc1b34",
+      "source_sha256": "0223c341b952f14d04003cc839462b01faeaf1b125bbe0240114f084b08c2697"
+    },
+    {
+      "path": "gui/basilisk/res/alembic/env.py",
+      "reason": "Dispose the dedicated migration engine after connection use so Windows releases database handles.",
+      "sha256": "fe98e3b284658ca6a23810a054e9751f3abc49f00f7f025268ff5eae629c926a",
+      "source_sha256": "3f1cfe2027d6c0dfc608ad0c910dca806496cb1ac4949e2177ef1df76e0475c3"
     },
     {
       "path": "gui/basilisk/services/conversation_service.py",
@@ -2592,10 +2619,22 @@
       "source_sha256": "c1fcb6649855983005ac6defc4fda29b83335152740caa8c968729ec821ebc93"
     },
     {
+      "path": "gui/basilisk/services/loom_practice.py",
+      "reason": "Record explicit source-bound machine structural findings separately from human corrections; select only definite rejections into voxel advice without changing original answers.",
+      "sha256": "07012070c61e2e7fdf5e92fa3c8572b7740315ae02e4eba4f233240bdb2ba9da",
+      "source_sha256": "57be954048b67ff368d088386edd05fd0adb911433bc2e9174c5131438fde654"
+    },
+    {
       "path": "gui/basilisk/services/loom_records.py",
       "reason": "Preserve first drafts and per-encounter purpose, restore configured routes, and reject stale model-list callbacks across normal project reopening.",
       "sha256": "6e53287344d8bcec09e236501e0af25f223c9d209a7712f47aa83c8e03f8d64f",
       "source_sha256": "9eb93b52fcb9dfa9de196db6b94362229da6e37af9f054eb80b28f9edd0a99b7"
+    },
+    {
+      "path": "gui/basilisk/views/about_dialog.py",
+      "reason": "Read the installed payload version without requiring a source-build dependency at runtime.",
+      "sha256": "47717e059c2769532d886dd2d4e1c23cc685e9bb037f6dcfc758551d5e6ac7bf",
+      "source_sha256": "8db661e065945423a42dc1ffba25f15dc56e41a54a502c9301b95dd55293316d"
     },
     {
       "path": "gui/basilisk/views/base_conversation.py",
@@ -2606,73 +2645,44 @@
     {
       "path": "gui/basilisk/views/conversation_tab.py",
       "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings.",
-      "sha256": "3391fbaac61915a85d806c5744f3a9e8f6294a125699cd224490dc27a700404e",
+      "sha256": "b931981a2bec3fb967329f536275cb4fc6d4b2fd8c65ab2fbef4522dc6454800",
       "source_sha256": "5d8dfb817cfacd9ae7602ada1531f4f8159f8b90a82b52cd0a56706c19de3ae1"
     },
     {
-      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
-      "path": "runtime/src/lodestone_machinery/learning_context.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Place optional voxel teaching after retained history and immediately before the encounter, with or without an explicit history window.",
-      "sha256": "f82c345f9e0d2212ad1c7821d5e1bb84d6840730befa71b261669c43c6fc931a",
-      "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
+      "path": "gui/basilisk/views/loom_correction_dialog.py",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation.",
+      "sha256": "2416714b7d448464335236f5f90a0b039755740795a6dff37d8119fa9650049f",
+      "source_sha256": "080fee86d71436a1074f4e7d0d903996a30a7a6a81152ffb7b6a0416dcb8268e"
     },
     {
-      "path": "runtime/src/lodestone_machinery/learning_reader.py",
-      "reason": "Represent repeated current encounter/purpose through exact structural section references and select complete reader renders by actual tokenizer cost, with legacy rendering retained on ties.",
-      "sha256": "2f1e5059b7b1bfa7472ac5ccc8c2e1d6e0e08f2d36c47e569cc36c2126a6d01c",
-      "source_sha256": "140ec434cc47a3b4a8b40842562197fb0ddb6de9c648b123545ba34b35fa90a4"
+      "path": "gui/basilisk/views/loom_practice_dialog.py",
+      "reason": "Keep retained-lesson loading responsive with asynchronous validation and safe cancellation; display correction conditions and current replacements.",
+      "sha256": "73de828a450dca2d85d5f5e6d76a8d66890df2b80586665eb41bb0314feb6a2b",
+      "source_sha256": "d17bef1628d39b77f00d536e3da417ee8b5b3f598412265d0bd4d358a03e4d62"
     },
     {
-      "path": "runtime/src/lodestone_machinery/loom_adapter.py",
-      "reason": "Represent repeated current encounter/purpose through exact structural section references and select complete reader renders by actual tokenizer cost, with legacy rendering retained on ties.",
-      "sha256": "44a03ef2bd05e1b54bd0d2828efe357461d0e84f47af177aadd4b16001b2270a",
-      "source_sha256": "c661ab4aaafa8961341d8ee0aa8301118e8e6679b5eefadb34983f3518921486"
+      "path": "gui/basilisk/views/main_frame.py",
+      "reason": "Stop and detach frame-owned timers before native destruction to prevent callbacks to a destroyed window.",
+      "sha256": "2d0cb39d62cd185b609adc1990e80f1d39c99704867ad169c6c1961db2d6359e",
+      "source_sha256": "19dc9d5d2664df73bdd90f859d70bcf8c7a79d29f1492454f31ba09e21ce3567"
     },
     {
-      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
-      "path": "runtime/src/lodestone_machinery/learning_cli.py",
-      "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
-      "sha256": "dcdbe9fd0fb1c958baec285dc1836954355dffcf435ce516c90373034a6b7aa5",
-      "source_sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315"
+      "path": "runtime/docs/loom-voxels.md",
+      "reason": "Include voxel format documentation and the explicit retained-practice API and command route; no GUI control or inference is added.",
+      "sha256": "78ae7abcd4bdd2a5e9cb8d1ce2b35c9ab16e1e1f18e7023ba204331dc7ac3651",
+      "source_sha256": "3175c9519e91c019f0dc5fdcad22b414b8486d5ae43d469f8da47b4bb24c27d6"
     },
     {
-      "path": "runtime/src/lodestone_machinery/loom_unified.py",
-      "reason": "Add source-bound decision format and saved review, explicit reader history selection, and compatibility with valid reason/checks-only native reviews. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
-      "sha256": "87ffd6155a186de53dcfbfef97cd72c0eacb366f7fc5a94de74dda8c44d193b6",
-      "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
+      "path": "runtime/docs/pando.md",
+      "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
+      "sha256": "313a32639d6c51c09780ccb6446efd5cec6b4a125b405eefdd24b225864d0566",
+      "source_sha256": "9a3f735a5162a2dd9ec14a843eb2a633de1c86e5762ba8ae234f9991cd61b92a"
     },
     {
-      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
-      "path": "runtime/src/lodestone_machinery/loom_runtime.py",
-      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "dec630d7b9e119ce4a150bef2762a90ca42a61fb8e84a04a1ee49536ac3365e7",
-      "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
-    },
-    {
-      "path": "gui/basilisk/provider_engine/loom_engine.py",
-      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings.",
-      "sha256": "2aa7501da41a029810f50f34a7ed56aa6dc43d4b8ac75c32405d8cb704dc1b34",
-      "source_sha256": "0223c341b952f14d04003cc839462b01faeaf1b125bbe0240114f084b08c2697"
-    },
-    {
-      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
-      "path": "runtime/src/lodestone_machinery/yggdrasil_learning.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
-      "sha256": "ee7338e7e8ee7d3fba48ec1984afd56eb040430653fa4519780d24c9ea49281a",
-      "source_sha256": "f0bed09f43d31c2048f1554914d274ca7e014c00380dd2ee9e1a29dc92cabeda"
-    },
-    {
-      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
-      "path": "runtime/src/lodestone_nurarihyon/learning_conscience.py",
-      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Reuse only the current admission reconstruction to avoid a second folded-packet rebuild; final native validation remains mandatory.",
-      "sha256": "e2aa1fb28487c7130ef6fb765985bf032b363f385793d594ae3f50cfa3d8335a",
-      "source_sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9"
-    },
-    {
-      "path": "runtime/src/lodestone_machinery/decision_format.py",
-      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings.",
-      "sha256": "75db026c14190da10f04ea2e4aa2d49ef6bbdd755b05669a7508e61ecc23c471",
-      "source_sha256": "c98c8d1cc57c057c2aff65b051b17734d3903ec2f40372e9a8423ec50d0b2f88"
+      "path": "runtime/src/lodestone_machinery/bezoar_cli.py",
+      "reason": "Preserve Unicode retained Bezoar records through ASCII-safe terminal JSON.",
+      "sha256": "7c0cb32553e08cf7e3e5b4696f0985b0845983de7e6f166e30104b1a952b2869",
+      "source_sha256": "df230d152f83f1447bb0b0d1217c08d52e6f63a30a4674e18f3956e06208e72c"
     },
     {
       "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
@@ -2688,10 +2698,60 @@
       "source_sha256": "9838abb819e5c10c594d51313d6c4ffe1e594e008f5c3af015d62ea0c183dc48"
     },
     {
-      "path": "gui/basilisk/views/loom_practice_dialog.py",
-      "reason": "Keep retained-lesson loading responsive with asynchronous validation and safe cancellation; display correction conditions and current replacements.",
-      "sha256": "9e897c8c5e54f91abd450e5493891b4c8d6d5b5edb849499359de9c3bc81a3f9",
-      "source_sha256": "d17bef1628d39b77f00d536e3da417ee8b5b3f598412265d0bd4d358a03e4d62"
+      "path": "runtime/src/lodestone_machinery/decision_format.py",
+      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings.",
+      "sha256": "75db026c14190da10f04ea2e4aa2d49ef6bbdd755b05669a7508e61ecc23c471",
+      "source_sha256": "c98c8d1cc57c057c2aff65b051b17734d3903ec2f40372e9a8423ec50d0b2f88"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/fold_export.py",
+      "reason": "Use native bounded single-link regular-file custody and reject raw Windows aliases before path normalization for retained-fold/planning reads.",
+      "sha256": "5f79af21e409fd887d5292ad4847d8ade016941007ef7129d3656dbf3b0ea6cd",
+      "source_sha256": "2595fbd1767be2e88b053720c0f7efc03717dec7d4b71a20eed170ee504bc524"
+    },
+    {
+      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
+      "path": "runtime/src/lodestone_machinery/learning_cli.py",
+      "reason": "Add explicit source-bound decision review and retain the full declared contract as unresolved feedback without replacing the original model outcome. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
+      "sha256": "dcdbe9fd0fb1c958baec285dc1836954355dffcf435ce516c90373034a6b7aa5",
+      "source_sha256": "ab0cf6c2cce349c3f73cb3b78f0498690402ed4215ea15f4644f79ca6f646315"
+    },
+    {
+      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
+      "path": "runtime/src/lodestone_machinery/learning_context.py",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Place optional voxel teaching after retained history and immediately before the encounter, with or without an explicit history window.",
+      "sha256": "0adcfe78b199f6014ecd5e66e16d2c3c54e49060067e694a33e01e33c6ae75e3",
+      "source_sha256": "213f1a8ea4b671b46141141e6f50fce83c073b52e6b3ca2bed6b750a31bd7c24"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/learning_reader.py",
+      "reason": "Represent repeated current encounter/purpose through exact structural section references and select complete reader renders by actual tokenizer cost, with legacy rendering retained on ties.",
+      "sha256": "2f1e5059b7b1bfa7472ac5ccc8c2e1d6e0e08f2d36c47e569cc36c2126a6d01c",
+      "source_sha256": "140ec434cc47a3b4a8b40842562197fb0ddb6de9c648b123545ba34b35fa90a4"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_adapter.py",
+      "reason": "Represent repeated current encounter/purpose through exact structural section references and select complete reader renders by actual tokenizer cost, with legacy rendering retained on ties.",
+      "sha256": "44a03ef2bd05e1b54bd0d2828efe357461d0e84f47af177aadd4b16001b2270a",
+      "source_sha256": "c661ab4aaafa8961341d8ee0aa8301118e8e6679b5eefadb34983f3518921486"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_adapter_local.py",
+      "reason": "Separate tokenizer package checks from the unchanged full model/training package binding. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
+      "sha256": "d2441b67b47c1f1d2882dd29a8b57a072bc138e86e1539adeb520a5a0bf790e4",
+      "source_sha256": "31fb73057c4f679fde8edcf50fcdb97e04323211b796e3a2961643b96fb567c3"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_garden.py",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "sha256": "898b0a6326d33c4b123fab0399b4fd181fa6a8b73d8403d9ef4e30224630b03c",
+      "source_sha256": "d24a663c237ffca91b52f5972c1ce9c2610f40c65983947b196ddb2f9bd914ac"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_handoff.py",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "sha256": "fd91f3384c76762bd144aa156aa6c98f5feb36e52c36353a1db17e923143112d",
+      "source_sha256": "c3f9fb64a73f2d18a8695c217e64c8ea12407799626bc1144b175ca2ba526df5"
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_improvement.py",
@@ -2706,22 +2766,77 @@
       "source_sha256": "41f130866549d44d8112b80e694f50ed02979c3fb08934910def325bb12fb1ae"
     },
     {
+      "path": "runtime/src/lodestone_machinery/loom_memory_cli.py",
+      "reason": "Export only the existing bounded inert skill and helper, using native source custody and durable no-replace candidate publication without execution or proposal.",
+      "sha256": "63950130b1cad38d5fe53effa0ed9a1529e4c7cbca858e9efdbd646c5df0295f",
+      "source_sha256": "ee5b370ac861b13b82cf7065db8ab74f0ba200fbf14b0d98d4597376ce90065f"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_operations.py",
+      "reason": "Own explicit trusted catalogue subprocesses with Windows Jobs or POSIX process groups, bounded output and elapsed time; preserve selected Windows names for native custody; expose only the sixteen reviewed catalogue closures and disclose notebook read-lock metadata. Job ownership is not filesystem/network confinement. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
+      "sha256": "220360b97a15e6adb223b1624a0abda3676295fd481f51a944d650a31ec4fe90",
+      "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_optional_operations.py",
+      "reason": "Use guarded bounded inputs and exact trusted source; verify selected releases with native file/root custody, a strict manifest bound, file-count/per-file/aggregate limits, and no publication.",
+      "sha256": "f77c51d55e27e1224157b8ee6d2a3041bdc21c30d69b8a3a082d46c8c6df7270",
+      "source_sha256": "21f70c48e6ec29d9f00dafe65975fdc55be71f4608b2be01cfcecd96311e8dbc"
+    },
+    {
+      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
+      "path": "runtime/src/lodestone_machinery/loom_runtime.py",
+      "reason": "Expose explicit per-encounter retained lessons and evidence-first decisions; preserve ordinary defaults, raw responses, and exact historical learning bindings. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
+      "sha256": "dec630d7b9e119ce4a150bef2762a90ca42a61fb8e84a04a1ee49536ac3365e7",
+      "source_sha256": "972a6b017b94315a3af64bb097b1ee1fe513ec76497c01c22ead45bd490cf878"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_runtime_worker.py",
+      "reason": "Supervise owned local model servers across native targets; allow closed POSIX sockets to be reused while refusing active listeners and preserving Windows bind semantics.",
+      "sha256": "cf6cc717682496161651e3d5548555e2bf4f31fab4e461a48090854001a62111",
+      "source_sha256": "c27a1bd2556109fc41ce2242cc557841f1d46f57ed369c42067cfec4aea3e01f"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_support_cli.py",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "sha256": "82478f850a4607218c0fa1a0be38ece3a36212cc3e5c8105a66f97db0603d924",
+      "source_sha256": "8c027f092d18d71f08045335e452a60946454320cb9a9044c8b94e2c02a8719e"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_training.py",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "sha256": "3b2f6476eb402803b7686750b1068f33d0e0515ff0a7765314e41edbeea935c2",
+      "source_sha256": "2e21db869eb200ee2f6bb6a5cf244b0d8de07f0897a26bbb218e4b58c9b66289"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/loom_unified.py",
+      "reason": "Add source-bound decision format and saved review, explicit reader history selection, and compatibility with valid reason/checks-only native reviews. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
+      "sha256": "87ffd6155a186de53dcfbfef97cd72c0eacb366f7fc5a94de74dda8c44d193b6",
+      "source_sha256": "36a97ff6c98fece68f8e04151ac1d51c1f024fe9b1fd457ef1d5a82934f9940e"
+    },
+    {
       "path": "runtime/src/lodestone_machinery/loom_voxels.py",
       "reason": "Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes.",
       "sha256": "41893b44ecebe38eeb2c435612b8127474606d315eedfe52cdc9edd89dd12cd3",
       "source_sha256": "9af2cead9f119dbe0d8d7108ac6f78ed0118d30ddd735a1c3eb146bf3c2a1c67"
     },
     {
-      "path": "runtime/docs/loom-voxels.md",
-      "reason": "Include voxel format documentation and the explicit retained-practice API and command route; no GUI control or inference is added.",
-      "sha256": "78ae7abcd4bdd2a5e9cb8d1ce2b35c9ab16e1e1f18e7023ba204331dc7ac3651",
-      "source_sha256": "3175c9519e91c019f0dc5fdcad22b414b8486d5ae43d469f8da47b4bb24c27d6"
+      "path": "runtime/src/lodestone_machinery/organs/ingest.py",
+      "reason": "Hold native source-directory custody across complete multi-file capture and publication; retain original failure and historical records.",
+      "sha256": "64a9f72aa5ea69e3a75f4c28bac69bfd99da7b473bb672d1393a7621a6dde714",
+      "source_sha256": "96a511bc7195f36866f5f70e6be9cd1d9ffacc000f73039108b1d44b0024474c"
     },
     {
-      "path": "runtime/src/lodestone_machinery/loom_operations.py",
-      "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "efbf356bfda8ab276c65e3755162fc07c93a085ff3b986af0c4e19c461c35cf2",
-      "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
+      "path": "runtime/src/lodestone_machinery/organs/sources.py",
+      "reason": "Keep Windows source paths lexical and validate bounded UTF-8 through held no-reparse handles; refuse stream/device paths and preserve historical POSIX in-root source links.",
+      "sha256": "a4367183d4d0789a4b62b929006286493647e8759f978b484bbf9cbd7d023173",
+      "source_sha256": "088f11e1875a4e3bc122218f101b435eabb368b6c5079a4fdb8c574443576da8"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/origami.py",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "sha256": "5b324eb47f3cf36e93811965365064b404b53c9622df9287e0bb4212ae3c452a",
+      "source_sha256": "519004864947824b9a5ca38d7017c774cbe4a6dcacb8dc85ae3e523a1bd30d80"
     },
     {
       "path": "runtime/src/lodestone_machinery/portable_process.py",
@@ -2736,6 +2851,25 @@
       "source_sha256": "c575a0a6649eb08b2ba7b41f650764c1ccac9c2334932140842000c269ad8b5e"
     },
     {
+      "path": "runtime/src/lodestone_machinery/support_review.py",
+      "reason": "Guard Windows support evidence and user-selected review reads without hiding aliases; retain existing schema, byte and total-size checks.",
+      "sha256": "806e4d6ecf41ceda7d9d751f6d99905e3f460d9f53fc7ecfea8e44ca635785ca",
+      "source_sha256": "df07f7e3d4b2c5b01d8710e952553142c410635cce55205a6bacc7bb5eca00ad"
+    },
+    {
+      "path": "runtime/src/lodestone_machinery/support_review_provider.py",
+      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
+      "sha256": "4f572c6960617689b092c9b6b358270e282c1d791ee41d12ea9ce123c83c0af4",
+      "source_sha256": "4a7588c2d53a07dbc4f2950e05114bb7d91af5e40a3e31205a3c2554d230e632"
+    },
+    {
+      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
+      "path": "runtime/src/lodestone_machinery/yggdrasil_learning.py",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions.",
+      "sha256": "ee7338e7e8ee7d3fba48ec1984afd56eb040430653fa4519780d24c9ea49281a",
+      "source_sha256": "f0bed09f43d31c2048f1554914d274ca7e014c00380dd2ee9e1a29dc92cabeda"
+    },
+    {
       "path": "runtime/src/lodestone_nurarihyon/common.py",
       "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
       "sha256": "18fb88b465d1dbff86ce4024f446965cd0953eb4d91c68e4a090c3d3ca1b3ca7",
@@ -2748,82 +2882,71 @@
       "source_sha256": "2784d690b51e3d8e6a56923b228891f006a7cfcd44f286a0cccc49d90cca4c68"
     },
     {
+      "implementation_commit": "40e6672dd3403bae357345d7eb3016dd075e660d",
+      "path": "runtime/src/lodestone_nurarihyon/learning_conscience.py",
+      "reason": "Add source-bound decision format and saved GUI review, explicit validated reader history selection, and operation-scoped captured-archive validation. Add opt-in native reference-history inventories and validated explicit windows of 1\u201332 recent runs; preserve ordinary v1 defaults, exact retained records and existing reader decisions. Carry explicit per-encounter voxel teaching through retained adapter practice, Conscience validation and execution identity while preserving existing history selection and no-voxel prompt bytes. Reuse only the current admission reconstruction to avoid a second folded-packet rebuild; final native validation remains mandatory.",
+      "sha256": "e2aa1fb28487c7130ef6fb765985bf032b363f385793d594ae3f50cfa3d8335a",
+      "source_sha256": "82c2d633a5ca13c5cca2bfc92f07a8c1ee8ed87b11997b70adc989e16d1f7ba9"
+    },
+    {
       "path": "runtime/src/lodestone_nurarihyon/portable_files.py",
-      "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "5ac0be8e75162cac46b9ae7959d4a56cf4737d420fa8600c2d6f6c5c3d579edc",
+      "reason": "Use native file and directory custody on Windows/POSIX; reject raw Windows ambiguous names before absolute-path normalization can conceal them. Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
+      "sha256": "560da88edc9a372533026a3559393341566af8a456885fb3092b417c7606d3c3",
       "source_sha256": "b6713120dcd974ef3bfe6c100349e20f5d004884b4d94684a92041da3c713966"
     },
     {
-      "path": "runtime/src/lodestone_machinery/loom_garden.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
-      "sha256": "898b0a6326d33c4b123fab0399b4fd181fa6a8b73d8403d9ef4e30224630b03c",
-      "source_sha256": "d24a663c237ffca91b52f5972c1ce9c2610f40c65983947b196ddb2f9bd914ac"
+      "path": "runtime/src/lodestone_pando/__main__.py",
+      "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
+      "sha256": "080d7c7fc6916f62d47fd7aef77f1728be70572c551c287d5c0a15c363ffa004",
+      "source_sha256": "9f57dfd36ee844c6eeb8e30935bbe374fbbaced60e0bf1d80b0a5a30074818cd"
     },
     {
-      "path": "runtime/src/lodestone_machinery/loom_handoff.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
-      "sha256": "a69c70885f1b5e0fa3a9f3400bce6940e0af75717e05269a7e0b3ba01ba3320d",
-      "source_sha256": "c3f9fb64a73f2d18a8695c217e64c8ea12407799626bc1144b175ca2ba526df5"
+      "path": "runtime/src/lodestone_pando/store.py",
+      "reason": "Reject existing aliased native Windows SQLite database and journal files before connect, preserving trusted local SQLite semantics.",
+      "sha256": "fb5eb7d92e9ffc3271d3b25884e922f54621d008db66409d20ff72f63f4db412",
+      "source_sha256": "a75df102e7ffc706b09d8a2abb60e340c365703f84793e1f4c31bc0d16a192aa"
     },
     {
-      "path": "runtime/src/lodestone_machinery/loom_training.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
-      "sha256": "3b2f6476eb402803b7686750b1068f33d0e0515ff0a7765314e41edbeea935c2",
-      "source_sha256": "2e21db869eb200ee2f6bb6a5cf244b0d8de07f0897a26bbb218e4b58c9b66289"
+      "path": "runtime/tools/continuity/checkpoint.py",
+      "reason": "Use native Windows streaming source and checkpoint custody, retain lexical roots and publish immutable flushed checkpoints without changing the v1 byte/schema or preservation semantics.",
+      "sha256": "7320d435427f736f7b76b2f3903ea8fe47acfb5cece293800c3d8cb4db339b6a",
+      "source_sha256": "1cb9c4cd8abef300f3f47d03fcaac627618b37039247590ef43a3d3c9c728572"
     },
     {
-      "path": "runtime/src/lodestone_machinery/origami.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
-      "sha256": "c980c60c74d4bc65f1e99606392f890d402204229f3ba6ed8465e3d24807102a",
-      "source_sha256": "519004864947824b9a5ca38d7017c774cbe4a6dcacb8dc85ae3e523a1bd30d80"
+      "path": "runtime/tools/ecosystem/cli.py",
+      "reason": "Dispatch the reviewed native Bezoar ingest/show, catalogue readers and Pando init/verify closures with explicit local state; preserve selected Windows names before custody checks and retain unsupported-route refusals.",
+      "sha256": "483a8ed0bc615f100015c2982c3dac8126ea656d3224bac99a7e24e4f5ac1a06",
+      "source_sha256": "b72327d4b253ab04fca229c95cb3e4c560d2cb9c8282436995b9d4ec0879724e"
     },
     {
-      "path": "runtime/src/lodestone_machinery/support_review_provider.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
-      "sha256": "4f572c6960617689b092c9b6b358270e282c1d791ee41d12ea9ce123c83c0af4",
-      "source_sha256": "4a7588c2d53a07dbc4f2950e05114bb7d91af5e40a3e31205a3c2554d230e632"
+      "path": "runtime/tools/local-memory/README.md",
+      "reason": "Add bounded native Windows notebook custody with a shared OS lock, exact retained-prefix durable publication and Unicode CLI output; preserve POSIX behavior and notebook schema. Source attribution remains inert text.",
+      "sha256": "541b990c97a4f17d9adfbdfec75adcca965873af9dbf3b4a66372c51cb1e220e",
+      "source_sha256": "00f53c0c7e940359a0a0dfcd488ffef367d9edd9f5fde79402b7b8bd7cbf806a"
     },
     {
-      "path": "runtime/src/lodestone_machinery/loom_support_cli.py",
-      "reason": "Port native desktop process supervision, durable storage and retained-learning validation across the supported desktop targets.",
-      "sha256": "82478f850a4607218c0fa1a0be38ece3a36212cc3e5c8105a66f97db0603d924",
-      "source_sha256": "8c027f092d18d71f08045335e452a60946454320cb9a9044c8b94e2c02a8719e"
+      "path": "runtime/tools/local-memory/src/lodestone_memory.py",
+      "reason": "Add bounded native Windows notebook custody with a shared OS lock, exact retained-prefix durable publication and Unicode CLI output; preserve POSIX behavior and notebook schema. Source attribution remains inert text.",
+      "sha256": "a5a76f6f7bfc865b3d76ea350d5de125fdf4121ae39072d9cf314d93e2e660a3",
+      "source_sha256": "13feb8ff9a5d34d926a0c43f7fbcbbe22a0267b00feb2d123955f030198d43cf"
     },
     {
-      "path": "gui/basilisk/res/alembic/env.py",
-      "reason": "Dispose the dedicated migration engine after connection use so Windows releases database handles.",
-      "sha256": "fe98e3b284658ca6a23810a054e9751f3abc49f00f7f025268ff5eae629c926a",
-      "source_sha256": "3f1cfe2027d6c0dfc608ad0c910dca806496cb1ac4949e2177ef1df76e0475c3"
+      "path": "runtime/tools/machinery/check_repository.py",
+      "reason": "Preserve POSIX repository checks while bounding native Windows Markdown traversal and local-target custody, rejecting raw ambiguous names and reparse aliases before filesystem access.",
+      "sha256": "1381c9cd88ce975729bc378fe5873c4d995d0d32ce26d413c0c379e7fa22929d",
+      "source_sha256": "1e576b5a027bf6752845e59ef3c8c08ef12b12a1181d15afd8912fc9293bf57a"
     },
     {
-      "path": "gui/basilisk/views/main_frame.py",
-      "reason": "Stop and detach frame-owned timers before native destruction to prevent callbacks to a destroyed window.",
-      "sha256": "2d0cb39d62cd185b609adc1990e80f1d39c99704867ad169c6c1961db2d6359e",
-      "source_sha256": "19dc9d5d2664df73bdd90f859d70bcf8c7a79d29f1492454f31ba09e21ce3567"
+      "path": "runtime/tools/pando/run",
+      "reason": "Expose verified native Pando initialization and integrity checks with explicit local board selection; retain SQLite and record semantics.",
+      "sha256": "f3214bc6bea1de6ad750c5f44e5821c230a0d9780d305f618723b3819b6ce6ee",
+      "source_sha256": "862b85e6fb9f2e7f0a43219ecf628edb3141e1e5c29fbb4a5ffe71af747b69c8"
     },
     {
-      "path": "gui/basilisk/logger.py",
-      "reason": "Retain native wx diagnostics in UTF-8 application logs without modal shutdown dialogs.",
-      "sha256": "aa2c2bcfacd3461e9029f9c788273eeacabab4b374715e66341348f698197d84",
-      "source_sha256": "5756c86a50c97746a8473d77082aff27dedd215e0e595dbc276cad5e540c7e31"
-    },
-    {
-      "path": "gui/basilisk/main_app.py",
-      "reason": "Install persistent native logging before wx initialization and flush buffered diagnostics at shutdown.",
-      "sha256": "cbcc2ef3e5e1db864fa0e1306934f7a099117f507f1d455e92e0ca3def9a5ab9",
-      "source_sha256": "56c12447c9b6c825c851a69099d57afdecbd477dd163093d2524ba0aab6b8776"
-    },
-    {
-      "path": "gui/basilisk/localization.py",
-      "reason": "Choose an available native locale while preserving the requested application translation.",
-      "sha256": "40e1b651c9cf42e9b95c6845c22ce87497f7e92eb7d2684d01aca4f45f1d64cd",
-      "source_sha256": "e529d84f29f4c5d04febb5a48b1fb0e70422f1e65d3aae24ec6adc6b80ce7a7e"
-    },
-    {
-      "path": "gui/basilisk/services/loom_practice.py",
-      "reason": "Record explicit source-bound machine structural findings separately from human corrections; select only definite rejections into voxel advice without changing original answers.",
-      "sha256": "07012070c61e2e7fdf5e92fa3c8572b7740315ae02e4eba4f233240bdb2ba9da",
-      "source_sha256": "57be954048b67ff368d088386edd05fd0adb911433bc2e9174c5131438fde654"
+      "path": "runtime/verify_download.py",
+      "reason": "Accept an optional guarded reader for desktop catalogue verification while preserving standalone verification schema, defaults and CLI.",
+      "sha256": "35ba4051b45ea0480d7e3a4660b7fce9d9bccdff5520e43783bffe573a2b5336",
+      "source_sha256": "65aa5b5d148e1ae1717a3412b0b6bcb6163e22e66001cd9886a5f01f68977502"
     }
   ],
   "unified_source_commit": "d4f2f0d8cef41762b7ed08ce39b7803cebf09546"

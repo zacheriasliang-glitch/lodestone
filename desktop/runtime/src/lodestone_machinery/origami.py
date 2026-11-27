@@ -6,7 +6,7 @@ No output of this module grants action authority. Only scoped source reads run.
 """
 from __future__ import annotations
 
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from copy import deepcopy
 import hashlib
 import json
@@ -24,6 +24,10 @@ import tempfile
 import threading
 from time import perf_counter
 import uuid
+
+from lodestone_nurarihyon.common import BusyError, file_lock
+from lodestone_nurarihyon.portable_files import (absolute_path, durable_write,
+    ensure_directory, guarded_directory, read_bytes as read_file_bytes)
 
 from .engine import canonical, now
 from .nodes import _json_copy
@@ -139,11 +143,30 @@ def _strings(value, name, nonempty=False):
 
 def _write_new(path: Path, value):
     data = canonical(_json_copy(value, MAX_JSON)).encode("utf-8")
-    with path.open("xb") as stream:
-        stream.write(data)
+    if os.name == "nt":
+        durable_write(path, data, replace=False)
+    else:
+        with path.open("xb") as stream:
+            stream.write(data)
+
+
+@contextmanager
+def _new_directory(path):
+    """Keep Windows ancestors and a new record directory pinned until published."""
+    if os.name == "nt":
+        ensure_directory(path.parent)
+        with guarded_directory(path.parent):
+            path.mkdir(exist_ok=False)
+            with guarded_directory(path):
+                yield path
+    else:
+        path.mkdir(parents=True, exist_ok=False)
+        yield path
 
 
 def _read(path: Path):
+    if os.name == "nt":
+        return _json_copy(json.loads(read_file_bytes(path, MAX_JSON)), MAX_JSON)
     if path.is_symlink():
         raise ValueError("Saved run files must not be symlinks")
     with path.open("rb") as stream:
@@ -667,14 +690,15 @@ def _passage(source: dict, start: int, end: int) -> dict:
 
 def _snapshot(root: Path, paths: list[str]):
     sources, manifest, read_bytes = {}, [], 0
-    for path in paths:
-        source = anchor(root, path)
-        read_bytes += source["bytes"]
-        if read_bytes > MAX_SCOPE_BYTES:
-            raise ValueError("Declared source scope exceeds 8 MiB")
-        sources[path] = source
-        manifest.append({"path": path, "sha256": source["sha256"], "bytes": source["bytes"],
-                         "lines": len(_lines(source["text"]))})
+    with guarded_directory(root) if os.name == "nt" else nullcontext():
+        for path in paths:
+            source = anchor(root, path)
+            read_bytes += source["bytes"]
+            if read_bytes > MAX_SCOPE_BYTES:
+                raise ValueError("Declared source scope exceeds 8 MiB")
+            sources[path] = source
+            manifest.append({"path": path, "sha256": source["sha256"], "bytes": source["bytes"],
+                             "lines": len(_lines(source["text"]))})
     return sources, manifest, read_bytes
 
 
@@ -848,18 +872,29 @@ class Origami:
     """
 
     def __init__(self, workspace: str | Path):
-        self.workspace = Path(workspace).expanduser().resolve()
+        supplied = Path(workspace).expanduser()
+        self.workspace = absolute_path(supplied) if os.name == "nt" else supplied.resolve()
 
     def _dir(self, run_id):
         if type(run_id) is not str or not re.fullmatch(r"[0-9a-f]{32}", run_id):
             raise ValueError("Invalid Origami run id")
         path = self.workspace / "origami" / run_id
+        if os.name == "nt":
+            # Do not resolve an alias before the held-handle readers/lock see it.
+            return absolute_path(path)
         if path.is_symlink() or not path.resolve().is_relative_to(self.workspace):
             raise ValueError("Origami run path escapes workspace")
         return path
 
     @contextmanager
     def _lock(self, directory):
+        if os.name == "nt":
+            try:
+                with file_lock(directory / "lock"):
+                    yield
+            except BusyError as exc:
+                raise ValueError("Origami run is busy") from exc
+            return
         import fcntl
         path = directory / "lock"
         if path.is_symlink():
@@ -878,7 +913,8 @@ class Origami:
               max_read_bytes=65536, initial_passages=6, previous=None, roles=None,
               seed_passages=None, lesson_context=None, learning_context=None):
         roles = _roles(roles)
-        root = Path(root).expanduser().resolve(strict=True)
+        supplied = Path(root).expanduser()
+        root = absolute_path(supplied) if os.name == "nt" else supplied.resolve(strict=True)
         if self.workspace.is_relative_to(root):
             raise ValueError("Origami workspace must be outside the read-only source root")
         if type(paths) is not list or not 1 <= len(paths) <= MAX_SOURCES:
@@ -923,31 +959,31 @@ class Origami:
             self.workspace, learning_context, question=question, reader=roles["provider"])
         run_id = uuid.uuid4().hex
         directory = self._dir(run_id)
-        directory.mkdir(parents=True, exist_ok=False)
-        intent = {"schema_version": VERSION, "id": run_id, "created_at": now(),
-                  "root": str(root), "question": question, "epoch": epoch,
-                  "scope": {"sources": manifest, "coverage": "Only the explicitly listed paths; new unlisted files are not observed."},
-                  "authority": {"reference": authority_ref, "allowed_checks": ["read_passage"],
-                                "permits_actions": False},
-                  "limits": {"max_calls": max_calls, "max_read_bytes": max_read_bytes},
-                  "roles": roles,
-                  "preparation": {"seconds": perf_counter() - began,
-                                  "source_bytes_read_and_hashed": hashed_bytes,
-                                  "initial_evidence_bytes": selected_bytes,
-                                  **selection,
-                                  **lesson_preparation,
-                                  "omitted_initial_passages": omitted},
-                  "previous": previous, "prior_knowledge": prior}
-        if lesson_context is not None:
-            intent["lesson_context"] = lesson_context
-        if learning_context is not None:
-            intent["learning_context"] = learning_context
-        _write_new(directory / "intent.json", intent)
-        request = self._request(intent, 0, evidence, None, [], selected_bytes)
-        _write_new(directory / "request-000.json", request)
-        if learning_context is not None:
-            self.request(run_id)  # Admit before exposing a request path to an external provider.
-        return self.status(run_id)
+        with _new_directory(directory):
+            intent = {"schema_version": VERSION, "id": run_id, "created_at": now(),
+                      "root": str(root), "question": question, "epoch": epoch,
+                      "scope": {"sources": manifest, "coverage": "Only the explicitly listed paths; new unlisted files are not observed."},
+                      "authority": {"reference": authority_ref, "allowed_checks": ["read_passage"],
+                                    "permits_actions": False},
+                      "limits": {"max_calls": max_calls, "max_read_bytes": max_read_bytes},
+                      "roles": roles,
+                      "preparation": {"seconds": perf_counter() - began,
+                                      "source_bytes_read_and_hashed": hashed_bytes,
+                                      "initial_evidence_bytes": selected_bytes,
+                                      **selection,
+                                      **lesson_preparation,
+                                      "omitted_initial_passages": omitted},
+                      "previous": previous, "prior_knowledge": prior}
+            if lesson_context is not None:
+                intent["lesson_context"] = lesson_context
+            if learning_context is not None:
+                intent["learning_context"] = learning_context
+            _write_new(directory / "intent.json", intent)
+            request = self._request(intent, 0, evidence, None, [], selected_bytes)
+            _write_new(directory / "request-000.json", request)
+            if learning_context is not None:
+                self.request(run_id)  # Admit before exposing a request path to an external provider.
+            return self.status(run_id)
 
     def _prior(self, run_id, root, epoch, manifest):
         directory = self._dir(run_id)
@@ -1070,7 +1106,10 @@ class Origami:
                 result["reason"] = "Sources changed since this encounter; historical result retained"
             if "artifact_sha256" in result:
                 artifact = self._dir(run_id) / "answer.md"
-                if artifact.is_symlink() or _hash(artifact.read_bytes()) != result["artifact_sha256"]:
+                intact = (_hash(read_file_bytes(artifact, MAX_JSON)) == result["artifact_sha256"]
+                          if os.name == "nt" else not artifact.is_symlink()
+                          and _hash(artifact.read_bytes()) == result["artifact_sha256"])
+                if not intact:
                     result["inspection"]["artifact_intact"] = False
                     result["status"] = "NEEDS_REVIEW"
                     result["reason"] = "Saved answer artifact changed; historical result retained"
@@ -1154,8 +1193,11 @@ class Origami:
                     self.workspace, intent["learning_context"], result["learning_outcome"]["outcome_handle"],
                     dispatch["dispatch_handle"])
         markdown = render_answer(result)
-        with (directory / "answer.md").open("x", encoding="utf-8", newline="") as stream:
-            stream.write(markdown)
+        if os.name == "nt":
+            durable_write(directory / "answer.md", markdown.encode("utf-8"), replace=False)
+        else:
+            with (directory / "answer.md").open("x", encoding="utf-8", newline="") as stream:
+                stream.write(markdown)
         result["artifact_sha256"] = _hash(markdown.encode("utf-8"))
         result["artifact_bytes"] = len(markdown.encode("utf-8"))
         _write_new(directory / "result.json", result)

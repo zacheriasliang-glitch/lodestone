@@ -231,13 +231,10 @@ class RuntimeBoundaryTests(unittest.TestCase):
                     self.assertEqual(native.linux_group_snapshot(999),
                         [{"pid": 112, "rss_bytes": 8192, "zombie": False}])
 
-    def test_windows_optional_handoff_and_training_refuse_before_writes(self):
-        from lodestone_machinery.loom_handoff import LoomHandoff
+    def test_windows_optional_training_refuses_before_writes(self):
         from lodestone_machinery.loom_training import TrainingSupervisor
         with tempfile.TemporaryDirectory() as temporary, patch.object(sys, "platform", "win32"):
             root = Path(temporary) / "not-created"
-            with self.assertRaisesRegex(OSError, "handoff execution is unavailable on Windows"):
-                LoomHandoff(None, root)
             with self.assertRaisesRegex(OSError, "Training execution is unavailable on Windows"):
                 TrainingSupervisor().run({}, {}, {})
             self.assertFalse(root.exists())
@@ -289,9 +286,9 @@ from lodestone_machinery import loom_runtime_worker, loom_runtime
             bridge = OperationBridge(RUNTIME, Path(root) / "receipts")
             with patch.object(sys, "platform", "win32"), patch.object(subprocess, "Popen") as launch:
                 with self.assertRaisesRegex(OSError, "unavailable on Windows"):
-                    bridge.prepare("ecosystem.doctor", {}, root)
+                    bridge.prepare("nurarihyon.registry", {}, root)
                 with self.assertRaisesRegex(OSError, "unavailable on Windows"):
-                    bridge.run({"operation": "ecosystem.doctor", "inputs": {}, "workspace": root,
+                    bridge.run({"operation": "nurarihyon.registry", "inputs": {}, "workspace": root,
                                 "id": "a" * 32, "digest": "fixture"}, approved_digest="fixture")
             launch.assert_not_called()
 

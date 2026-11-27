@@ -27,16 +27,47 @@ import desktop_mechanical_check as mechanical
 import desktop_prior_evidence as evidence_format
 
 TARGETS = {"macos-x86_64": "darwin", "ubuntu-24.04-x86_64": "linux", "windows-x86_64": "win32"}
-SOURCE_TESTS = ("test_portable_process.py", "test_portable_listener.py", "test_portable_storage.py", "test_platform_install.py",
-                "test_portable_ci.py", "test_tokenizer_dependencies.py", "test_decision_format.py",
-                "test_dependencies.py", "test_build.py", "test_dependency_custody.py", "test_dependency_archives.py", "test_windows_bootstrap.py",
-                "test_mechanical_preview.py", "test_release_evidence.py")
-# Real local record publication, retained correction delivery, practice route
-# options and full-history preservation with scripted providers; no model calls.
-SOURCE_TESTS += ("test_linux_command_fence.py", "test_smoke_evidence.py", "test_learning_archive_custody.py", "test_decision_retention.py",
-                 "test_practice_selection.py", "test_practice_voxels.py", "test_reader_history_window.py")
-SOURCE_TESTS += ("test_windows_path_budget.py", "test_windows_preflight.py", "test_windows_policy_check.py")
-SOURCE_TESTS += ("test_machine_decision_assessment.py",)
+SOURCE_TESTS = (
+    'test_portable_process.py',
+    'test_portable_listener.py',
+    'test_portable_storage.py',
+    'test_platform_install.py',
+    'test_portable_ci.py',
+    'test_tokenizer_dependencies.py',
+    'test_decision_format.py',
+    'test_dependencies.py',
+    'test_build.py',
+    'test_dependency_custody.py',
+    'test_dependency_archives.py',
+    'test_windows_bootstrap.py',
+    'test_mechanical_preview.py',
+    'test_release_evidence.py',
+    'test_linux_command_fence.py',
+    'test_smoke_evidence.py',
+    'test_learning_archive_custody.py',
+    'test_decision_retention.py',
+    'test_practice_selection.py',
+    'test_practice_voxels.py',
+    'test_reader_history_window.py',
+    'test_windows_path_budget.py',
+    'test_windows_preflight.py',
+    'test_windows_policy_check.py',
+    'test_portable_operations.py',
+    'test_portable_readers.py',
+    'test_curated_handoff.py',
+    'test_windows_review_custody.py',
+    'test_portable_bezoar.py',
+    'test_catalogue_bezoar.py',
+    'test_catalogue_routes.py',
+    'test_portable_inference_skill.py',
+    'test_portable_release_reader.py',
+    'test_portable_local_memory.py',
+    'test_portable_continuity.py',
+    'test_portable_repository.py',
+    'test_portable_pando.py',
+    'test_machine_decision_assessment.py',
+)
+
 READERS = {"LODESTONE_OLD_GUI_SOURCE": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
            "LODESTONE_PREVIOUS_GUI_SOURCE": "655fa55672a4c3ae2d0284da881921b7bed97c78"}
 

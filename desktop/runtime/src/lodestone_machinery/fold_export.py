@@ -21,6 +21,7 @@ from .origami import DECISIONS, RESPONSE_SCHEMA, _keys, _text, _validate_respons
 from .support_review import REQUEST_SCHEMA, ATTRIBUTION
 from .yggdrasil_sources import binding_payload
 from .yggdrasil_runtime import _lesson_refs, _check_packet_lesson
+from lodestone_nurarihyon.portable_files import open_regular, absolute_path
 
 SCHEMA = "origami-fold-export/v1"
 SCHEMA_V2 = "origami-fold-export/v2"
@@ -50,7 +51,7 @@ def plain_path(value, *, directory=False, new=False):
     supplied = Path(value)
     if ".." in supplied.parts:
         raise ValueError("Parent traversal is forbidden")
-    path = Path(os.path.abspath(supplied))
+    path = absolute_path(supplied) if os.name == "nt" else Path(os.path.abspath(supplied))
     for part in (path, *path.parents):
         if part.is_symlink():
             raise ValueError("Symlink path is forbidden: " + str(part))
@@ -64,8 +65,7 @@ def plain_path(value, *, directory=False, new=False):
 
 def regular_bytes(value, limit=MAX_BYTES, *, stat_only=False):
     path = plain_path(value)
-    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-    try:
+    with open_regular(path) as fd:
         info = os.fstat(fd)
         if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_size > limit:
             raise ValueError("Expected a bounded singly linked regular file")
@@ -76,8 +76,6 @@ def regular_bytes(value, limit=MAX_BYTES, *, stat_only=False):
         if len(data) > limit:
             raise ValueError("File exceeds byte bound")
         return data
-    finally:
-        os.close(fd)
 
 
 def _json(data):

@@ -6,12 +6,14 @@ configured native practice provider and bounded supervisor.
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import sys
 
 from .fold_export import regular_bytes
 from .records import canonical
+from lodestone_nurarihyon.portable_files import absolute_path, durable_write, guarded_directory
 
 INPUT_SCHEMA = "loom-inference-memory-input/v1"
 SKILL_PATH = "skills/lodestone-inference-memory/SKILL.md"
@@ -48,16 +50,18 @@ def assess(spec):
 
 def candidate_manifest(root, *, evidence_handles=()):
     """Package only this skill and helper for the existing improvement cycle."""
-    root = Path(root).expanduser().resolve()
+    supplied = Path(root).expanduser()
+    root = absolute_path(supplied) if os.name == "nt" else supplied.resolve()
     if (type(evidence_handles) not in (list, tuple) or len(evidence_handles) > 16 or
             len(set(evidence_handles)) != len(evidence_handles) or
             any(type(value) is not str or re.fullmatch(r"bezoar:[0-9a-f]{64}", value) is None
                 for value in evidence_handles)):
         raise ValueError("Supply at most 16 explicit distinct native evidence handles")
     artifacts = []
-    for relative, exported in ((SKILL_PATH, "SKILL.md"), (HELPER_PATH, "loom_inference_memory.py")):
-        raw = regular_bytes(root / relative, MAX_ARTIFACT_BYTES)
-        artifacts.append({"path": exported, "content": raw.decode("utf-8")})
+    with guarded_directory(root):
+        for relative, exported in ((SKILL_PATH, "SKILL.md"), (HELPER_PATH, "loom_inference_memory.py")):
+            raw = regular_bytes(root / relative, MAX_ARTIFACT_BYTES)
+            artifacts.append({"path": exported, "content": raw.decode("utf-8")})
     if sum(len(row["content"].encode()) for row in artifacts) > MAX_ARTIFACT_BYTES:
         raise ValueError("Complete skill and helper exceed the native 32768-byte candidate limit")
     return {"id": "lodestone-inference-memory", "kind": "function",
@@ -94,9 +98,10 @@ def main(argv=None, *, root=None):
             root = root or Path(__file__).resolve().parents[2]
             value = candidate_manifest(root, evidence_handles=args.evidence_handle)
             destination = Path(args.output).expanduser()
+            destination = (absolute_path(destination) if os.name == "nt" else
+                           destination.parent.resolve() / destination.name)
             raw = canonical(value)
-            with destination.open("xb") as stream:
-                stream.write(raw)
+            durable_write(destination, raw)
             result = {"schema": "loom-inference-memory-candidate-export/v1", "output": str(destination.resolve()),
                       "sha256": hashlib.sha256(raw).hexdigest(), "artifacts": len(value["artifacts"]),
                       "native_proposal_created": False, "model_calls": 0, "authority": "NONE"}
