@@ -1691,7 +1691,7 @@
     "runtime/src/lodestone_machinery/loom_operations.py": {
       "origin": "unified-runtime",
       "path": "src/lodestone_machinery/loom_operations.py",
-      "sha256": "efbf356bfda8ab276c65e3755162fc07c93a085ff3b986af0c4e19c461c35cf2",
+      "sha256": "3cf59004f0f4c7413d99a65806c449e7a2780ab9e8c709becc01b2aa73ba88f6",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     "runtime/src/lodestone_machinery/loom_optional_operations.py": {
@@ -2482,6 +2482,8 @@
     "native_reference_history": "40e6672dd3403bae357345d7eb3016dd075e660d",
     "portable_archive_metadata": "e67c8fbf618ff9066d12c88dd641f414b37d935f",
     "portable_captured_archive": "0312c378b5ed498bd8d9757e498fef3c0da15422",
+    "portable_catalogue_ownership": "4ef5e3e13e58eb4156f9731b65f2de1cf3271c11",
+    "portable_catalogue_selected_path_custody": "e5ea6121c2e1d42fb2b302330620adc99aeb8e22",
     "portable_installer": "93217426f4db532166ca26e6d55604a5f2eb9027",
     "portable_loopback_reuse": "c7f354186bd319d9418de87f7693bf35008e4d16",
     "portable_native_ci": "5bd383a2d80ff8c5d05bff4c01df536350f3281d",
@@ -2705,8 +2707,8 @@
     },
     {
       "path": "runtime/src/lodestone_machinery/loom_operations.py",
-      "reason": "Add native Windows and Linux process supervision, file custody and durable retained-learning publication; retain original macOS behavior and explicit unsupported execution routes.",
-      "sha256": "efbf356bfda8ab276c65e3755162fc07c93a085ff3b986af0c4e19c461c35cf2",
+      "reason": "Own explicit trusted catalogue subprocesses with Windows Jobs or POSIX process groups, bounded output and elapsed time; preserve Windows path aliases for custody checks and enable only reviewed operation dependencies. No filesystem/network confinement claim.",
+      "sha256": "3cf59004f0f4c7413d99a65806c449e7a2780ab9e8c709becc01b2aa73ba88f6",
       "source_sha256": "d1702f35c66e334f81f56e61ebd725fb9c40b47639e243604c7bae5fcc55200c"
     },
     {
