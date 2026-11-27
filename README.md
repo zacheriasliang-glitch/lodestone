@@ -3,8 +3,9 @@
 **Keep useful project knowledge between AI sessions, recover your files, and run
 local toolkit tasks with a record of what happened.**
 
-[Download v0.3.2](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.2)
-· [Quickstart](docs/quickstart.md) · [All tools](docs/toolkits.md)
+[Desktop installers — preview.6](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0-preview.6)
+· [Stable core v0.3.2](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.2)
+· [Core quickstart](docs/quickstart.md) · [All tools](docs/toolkits.md)
 
 [Lodestone Desktop preview.6](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0-preview.6)
 provides separate downloads for Intel macOS, Ubuntu 24.04 x86_64 and Windows
