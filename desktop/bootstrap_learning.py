@@ -18,6 +18,13 @@ import sys
 import tempfile
 import uuid
 
+# The worker uses -I, which deliberately excludes the script directory. Load
+# this bundled installer helper explicitly; no user workspace joins sys.path.
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+from platform_support import (atomic_write, check_path, durable_move, file_lock,
+                              guarded_directory, read_file)
+
 
 BOOTSTRAP_SCHEMA = "lodestone-desktop-learning-bootstrap/v1"
 IMPORT_SCHEMA = "lodestone-desktop-learning-import/v1"
@@ -41,23 +48,21 @@ def _path(value):
     path = Path(value).expanduser().absolute()
     if path.is_symlink():
         raise ValueError("Symlink destinations are not supported: " + str(path))
-    return path.parent.resolve() / path.name
+    if os.name == "nt":
+        check_path(path)
+    return check_path(path.parent.resolve() / path.name)
 
 
 def _child(root, *parts):
     path = root
     for part in parts:
         path = path / part
-        if path.is_symlink():
-            raise ValueError("Learning path contains a symlink: " + str(path))
+        check_path(path)
     return path
 
 
 def _read(path, maximum=32768):
-    if path.is_symlink():
-        raise ValueError("Configuration cannot be a symlink")
-    with path.open("rb") as stream:
-        raw = stream.read(maximum + 1)
+    raw = read_file(path, maximum)
     if len(raw) > maximum:
         raise ValueError("Configuration exceeds its byte bound")
     return json.loads(raw)
@@ -69,40 +74,18 @@ def _create(path, value):
 
 
 def _write_new(path, data):
-    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    if path.exists() or path.is_symlink():
-        if path.is_symlink() or path.read_bytes() != data:
-            raise ValueError("Existing learning metadata differs: " + str(path))
-        return
-    temporary = None
+    path = check_path(path)
     try:
-        with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as stream:
-            temporary = Path(stream.name)
-            stream.write(data)
-            stream.flush()
-            os.fsync(stream.fileno())
-        os.link(temporary, path)
-        descriptor = os.open(path.parent, os.O_RDONLY)
-        try:
-            os.fsync(descriptor)
-        finally:
-            os.close(descriptor)
-    finally:
-        if temporary is not None:
-            temporary.unlink(missing_ok=True)
+        atomic_write(path, data, replace=False)
+    except FileExistsError:
+        if read_file(path) != data:
+            raise ValueError("Existing learning metadata differs: " + str(path))
 
 
 @contextmanager
 def _exclusive(path):
-    import fcntl
-    if path.is_symlink():
-        raise ValueError("Bootstrap lock cannot be a symlink")
-    descriptor = os.open(path, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
-    try:
-        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    with file_lock(path):
         yield
-    finally:
-        os.close(descriptor)
 
 
 def _invoke(operation, runtime, python, values):
@@ -371,6 +354,7 @@ def _record_paths(source):
         raise ValueError("Import source must be a native memory workspace containing organs")
     result = []
     for owner in sorted(organs.iterdir()):
+        check_path(owner)
         if owner.is_symlink() or not owner.is_dir() or not OWNER_NAME.fullmatch(owner.name):
             raise ValueError("Invalid native organ directory")
         records = _child(source, "organs", owner.name, "records")
@@ -379,6 +363,7 @@ def _record_paths(source):
         for path in sorted(records.iterdir()):
             if (path.is_symlink() or not path.is_file() or not RECORD_NAME.fullmatch(path.name)):
                 raise ValueError("Only immutable canonical record files can be imported")
+            check_path(path)
             result.append(path.relative_to(source))
             if len(result) > MAX_IMPORT_FILES:
                 raise ValueError("Import exceeds 2048-record bound")
@@ -388,9 +373,7 @@ def _record_paths(source):
 
 
 def _record_bytes(path):
-    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
-    with os.fdopen(descriptor, "rb") as stream:
-        raw = stream.read(MAX_RECORD_BYTES + 1)
+    raw = read_file(path, MAX_RECORD_BYTES)
     if len(raw) > MAX_RECORD_BYTES:
         raise ValueError("Native record exceeds 16 MiB bound")
     return raw
@@ -420,12 +403,7 @@ def _import(source, destination, seed_handles, *, history_references=False):
             if total > MAX_IMPORT_BYTES:
                 raise ValueError("Import exceeds 128 MiB bound")
             target = copied / relative
-            target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-            with target.open("xb") as stream:
-                stream.write(raw)
-                stream.flush()
-                os.fsync(stream.fileno())
-            target.chmod(0o600)
+            atomic_write(target, raw, replace=False)
             manifest[str(relative)] = {"sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw)}
         store = RecordStore(copied)
         catalogue = store.catalog()
@@ -460,11 +438,13 @@ def _import(source, destination, seed_handles, *, history_references=False):
         _create(temporary / "IMPORT.json", receipt)
         # Claim the destination atomically; rename alone could replace another
         # writer's empty directory. IMPORT.json is the last published receipt.
-        destination.mkdir(mode=0o700, exist_ok=False)
-        os.rename(temporary / "memory", destination / "memory")
-        os.rename(temporary / "runtime", destination / "runtime")
-        os.link(temporary / "ACTIVE.json", destination / "ACTIVE.json")
-        os.link(temporary / "IMPORT.json", destination / "IMPORT.json")
+        with guarded_directory(destination.parent):
+            destination.mkdir(mode=0o700, exist_ok=False)
+            with guarded_directory(destination):
+                durable_move(temporary / "memory", destination / "memory")
+                durable_move(temporary / "runtime", destination / "runtime")
+                _write_new(destination / "ACTIVE.json", read_file(temporary / "ACTIVE.json"))
+                _write_new(destination / "IMPORT.json", read_file(temporary / "IMPORT.json"))
         return {"schema": IMPORT_SCHEMA, "destination": str(destination),
                 "active_config": str(destination / "ACTIVE.json"), "memory_workspace": str(final_memory),
                 "origami_workspace": str(destination / "runtime"),
@@ -502,24 +482,9 @@ def _reconcile(root):
 
 
 def _replace(path, data, expected):
-    if path.is_symlink() or path.read_bytes() != expected:
+    if read_file(path) != expected:
         raise ValueError("Learning selection changed concurrently: " + str(path))
-    temporary = None
-    try:
-        with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as stream:
-            temporary = Path(stream.name)
-            stream.write(data)
-            stream.flush()
-            os.fsync(stream.fileno())
-        os.replace(temporary, path)
-        descriptor = os.open(path.parent, os.O_RDONLY)
-        try:
-            os.fsync(descriptor)
-        finally:
-            os.close(descriptor)
-    finally:
-        if temporary is not None:
-            temporary.unlink(missing_ok=True)
+    atomic_write(path, data)
 
 
 def _select(root, destination):

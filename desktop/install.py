@@ -10,7 +10,6 @@ import argparse
 import base64
 from contextlib import contextmanager
 from datetime import datetime, timezone
-import fcntl
 import hashlib
 import importlib.util
 import json
@@ -22,12 +21,17 @@ import shlex
 import shutil
 import subprocess
 import sys
-import tempfile
 import uuid
 
-VERSION = "0.4.0-preview.5"
-DEFAULT_ROOT = Path.home() / "Library/Application Support/Lodestone Preview"
-DEFAULT_APP = Path.home() / "Applications/Lodestone Preview.app"
+# Isolated (-I) bootstrap Python omits the script directory from sys.path.
+# The only added directory is this installer payload, never a user workspace.
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+from platform_support import (atomic_write, check_path, default_locations, durable_move,
+                              file_lock, guarded_directory, host_platform, read_file, remove_file)
+
+VERSION = "0.4.0-preview.6"
+DEFAULT_ROOT, DEFAULT_APP = default_locations()
 SCHEMA = "lodestone-desktop-active/v1"
 
 
@@ -40,7 +44,7 @@ def digest(data):
 
 
 def read(path):
-    return json.loads(Path(path).read_text())
+    return json.loads(read_file(path))
 
 
 def release_module(release, name):
@@ -65,24 +69,7 @@ def active_install(root):
 
 
 def atomic(path, data, mode=0o600):
-    path = Path(path)
-    for parent in (path, *path.parents):
-        if parent.is_symlink():
-            raise ValueError("Managed path became a symbolic link: " + str(parent))
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if path.is_symlink():
-        raise ValueError("Refusing to replace a symbolic link: " + str(path))
-    fd, tmp = tempfile.mkstemp(prefix="." + path.name + ".", dir=path.parent)
-    try:
-        with os.fdopen(fd, "wb") as stream:
-            stream.write(data)
-            stream.flush()
-            os.fsync(stream.fileno())
-        os.chmod(tmp, mode)
-        os.replace(tmp, path)
-    finally:
-        if os.path.exists(tmp):
-            os.unlink(tmp)
+    atomic_write(path, data, mode)
 
 
 def save(path, value):
@@ -93,32 +80,35 @@ def checked_root(path):
     path = Path(path).expanduser().absolute()
     if path.is_symlink():
         raise ValueError("Installation directory must not be a symbolic link")
+    if os.name == "nt":
+        check_path(path)
     path = path.resolve()
-    if path in (Path.home(), Path("/")):
+    check_path(path)
+    if path in (Path.home(), Path(path.anchor)):
         raise ValueError("Use a dedicated application directory")
     return path
 
 
 @contextmanager
 def locked(root):
-    root.mkdir(parents=True, exist_ok=True, mode=0o700)
-    path = root / ".installation.lock"
-    if path.is_symlink():
-        raise ValueError("Installation lock is a symbolic link")
-    with path.open("a+") as stream:
+    with guarded_directory(root, create=True):
         try:
-            fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            installation = file_lock(root / ".installation.lock")
+            installation.__enter__()
         except BlockingIOError as exc:
             raise ValueError("Another installation or recovery is already running") from exc
-        lifecycle = root / ".lifecycle.lock"
-        if lifecycle.is_symlink():
-            raise ValueError("Lifecycle lock is a symbolic link")
-        with lifecycle.open("a+") as life:
+        try:
             try:
-                fcntl.flock(life, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                lifecycle = file_lock(root / ".lifecycle.lock")
+                lifecycle.__enter__()
             except BlockingIOError as exc:
                 raise ValueError("Close this Lodestone Preview normally before changing its installation") from exc
-            yield
+            try:
+                yield
+            finally:
+                lifecycle.__exit__(None, None, None)
+        finally:
+            installation.__exit__(None, None, None)
 
 
 def ownership(root):
@@ -134,16 +124,88 @@ def ownership(root):
     save(marker, expected)
 
 
-def owned_app(app):
-    if app.resolve() != app or app.is_symlink():
+def platform_for(record):
+    # Existing v1 transactions predate a platform field and are Mac bundles.
+    platform_name = record.get("platform", "macos")
+    if platform_name not in ("macos", "linux", "windows"):
+        raise ValueError("Unsupported launcher platform")
+    return platform_name
+
+
+def app_files(app, platform_name=None):
+    platform_name = platform_name or host_platform()
+    if platform_name == "macos":
+        return [app / "Contents/Info.plist", app / "Contents/MacOS/Lodestone"]
+    if platform_name not in ("windows", "linux"):
+        raise ValueError("Unsupported launcher platform")
+    return [app]
+
+
+def launcher_marker(root):
+    return base64.b64encode(str(root).encode("utf-8")).decode("ascii")
+
+
+def owned_app(app, root=None, platform_name=None):
+    platform_name = platform_name or host_platform()
+    check_path(app)
+    if platform_name != "macos":
+        if app.exists():
+            if not app.is_file():
+                raise ValueError("Application launcher is not a regular file")
+            marker = (("rem LodestonePreviewRoot: " if platform_name == "windows" else
+                       "X-Lodestone-Root=") + launcher_marker(root))
+            if marker not in read_file(app).decode("utf-8").splitlines():
+                raise ValueError("Application launcher belongs to another installation")
+        return
+    if app.resolve() != app:
         raise ValueError("Application location changed to a symbolic link")
-    for path in (app / "Contents", app / "Contents/MacOS", app / "Contents/Info.plist",
-                 app / "Contents/MacOS/Lodestone"):
-        if path.is_symlink():
-            raise ValueError("Application contains a symbolic link: " + str(path))
+    for path in app_files(app, platform_name):
+        check_path(path)
     info = app / "Contents/Info.plist"
     if info.exists() and plistlib.loads(info.read_bytes()).get("CFBundleIdentifier") != "org.lodestone.desktop.preview":
         raise ValueError("Application does not belong to this preview")
+
+
+def launcher_files(root, app, deps, platform_name):
+    if platform_name == "macos":
+        shell = ("#!/bin/zsh\numask 077\nexport PYTHONDONTWRITEBYTECODE=1\nexec " +
+                 shlex.quote(deps["worker_python"]) + " -B " + shlex.quote(str(root / "launch.py")) +
+                 ' "$@" >> ' + shlex.quote(str(root / "launcher.log")) + " 2>&1\n").encode()
+        info = {"CFBundleDisplayName": "Lodestone Preview", "CFBundleName": "Lodestone Preview",
+                "CFBundleIdentifier": "org.lodestone.desktop.preview", "CFBundleExecutable": "Lodestone",
+                "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.4.0",
+                "CFBundleVersion": "1", "NSHighResolutionCapable": True}
+        return {app / "Contents/Info.plist": (plistlib.dumps(info), 0o644),
+                app / "Contents/MacOS/Lodestone": (shell, 0o755)}
+    if platform_name == "windows":
+        def quote(value):
+            value = str(value)
+            if any(c in value for c in '\r\n\x00"'):
+                raise ValueError("Invalid Windows launcher path")
+            return '"' + value.replace('%', '%%') + '"'
+        body = ("@echo off\r\nsetlocal DisableDelayedExpansion\r\nchcp 65001 >nul\r\n"
+                "rem LodestonePreviewRoot: " + launcher_marker(root) + "\r\n"
+                "set PYTHONDONTWRITEBYTECODE=1\r\n" + quote(deps["worker_python"]) +
+                " -B " + quote(root / "launch.py") + " %* >> " + quote(root / "launcher.log") + " 2>&1\r\n")
+    elif platform_name == "linux":
+        if "=" in deps["worker_python"]:
+            raise ValueError("Desktop executable paths cannot contain an equals sign")
+        def quote(value):
+            value = str(value)
+            if any(c in value for c in "\r\n\x00"):
+                raise ValueError("Invalid desktop launcher path")
+            # Exec quoting is its own grammar, not a shell. Escape literal field
+            # codes and backslashes through both desktop-file parsing layers.
+            value = value.replace("\\", "\\\\").replace('"', '\\"').replace('`', '\\`').replace('$', '\\$')
+            return '"' + value.replace("\\", "\\\\").replace('%', '%%') + '"'
+        body = ("[Desktop Entry]\nType=Application\nName=Lodestone Preview\n"
+                "Comment=Local Loom practice and retained corrections\n"
+                "Exec=" + quote(deps["worker_python"]) + " -B " + quote(root / "launch.py") + "\n"
+                "Terminal=false\nCategories=Education;Utility;\n"
+                "X-Lodestone-Root=" + launcher_marker(root) + "\n")
+    else:
+        raise ValueError("Unsupported launcher platform")
+    return {app: (body.encode("utf-8"), 0o755)}
 
 
 def verify_payload(payload):
@@ -159,6 +221,7 @@ def verify_payload(payload):
         if p.is_absolute() or ".." in p.parts or name == "MANIFEST.json":
             raise ValueError("Invalid payload path")
         full = payload / p
+        check_path(full)
         if any((payload / Path(*p.parts[:n])).is_symlink() for n in range(1, len(p.parts) + 1)):
             raise ValueError("Payload symbolic links are unsupported")
         if not full.is_file() or digest(full.read_bytes()) != expected:
@@ -179,10 +242,11 @@ def snapshot(paths):
     result = {}
     for path in paths:
         path = Path(path)
-        if path.is_symlink() or (path.exists() and not path.is_file()):
+        check_path(path)
+        if path.exists() and not path.is_file():
             raise ValueError("Managed file is not a regular file: " + str(path))
         result[str(path)] = None if not path.exists() else {
-            "bytes": base64.b64encode(path.read_bytes()).decode(),
+            "bytes": base64.b64encode(read_file(path)).decode(),
             "mode": path.stat().st_mode & 0o777,
         }
     return result
@@ -191,17 +255,31 @@ def snapshot(paths):
 def restore(before):
     for name, value in before.items():
         path = Path(name)
-        if any(parent.is_symlink() for parent in (path, *path.parents)):
-            raise ValueError("Managed path became a symbolic link: " + name)
+        check_path(path)
         if value is None:
-            path.unlink(missing_ok=True)
+            remove_file(path)
         else:
             atomic(path, base64.b64decode(value["bytes"], validate=True), value["mode"])
 
 
-def managed_paths(root, app):
+def managed_paths(root, app, platform_name=None):
     return [root / "ACTIVE.json", root / "Loom/runtime.json", root / "launch.py",
-            app / "Contents/Info.plist", app / "Contents/MacOS/Lodestone"]
+            *app_files(app, platform_name)]
+
+
+def transaction_paths(root, app, report):
+    paths = managed_paths(root, app, platform_for(report))
+    operation = report.get("operation", "ACTIVATE")
+    if operation == "REMOVE":
+        paths.append(root / "UNINSTALLED.json")
+    elif operation == "ROLLBACK":
+        source = Path(report["source_transaction"])
+        if source.parent != root / "transactions" or source.suffix != ".json":
+            raise ValueError("Rollback source transaction is outside this installation")
+        paths.append(source)
+    elif operation != "ACTIVATE":
+        raise ValueError("Unsupported installation transaction operation")
+    return paths
 
 
 def recover_pending(root):
@@ -214,11 +292,14 @@ def recover_pending(root):
         if report.get("schema") != "lodestone-desktop-transaction/v1" or report.get("root") != str(root):
             raise ValueError("Interrupted transaction does not belong to this installation")
         app = Path(report["app"])
-        owned_app(app)
-        if set(report["before"]) != {str(p) for p in managed_paths(root, app)}:
+        platform_name = platform_for(report)
+        owned_app(app, root, platform_name)
+        if set(report["before"]) != {str(p) for p in transaction_paths(root, app, report)}:
             raise ValueError("Interrupted transaction contains unexpected restoration paths")
         restore(report["before"])
-        report["state"] = "RECOVERED_INTERRUPTED_ACTIVATION"
+        report["state"] = {"REMOVE": "RECOVERED_INTERRUPTED_REMOVAL",
+                           "ROLLBACK": "RECOVERED_INTERRUPTED_ROLLBACK"}.get(
+                               report.get("operation"), "RECOVERED_INTERRUPTED_ACTIVATION")
         save(path, report)
         recovered.append(str(path))
     return recovered
@@ -273,9 +354,13 @@ os.execv(active["gui_python"], [active["gui_python"], "-B", str(Path(active["rel
 '''
 
 
-def install(root, payload, *, app=None, cache=None, provision=None, bootstrap=None):
+def install(root, payload, *, app=None, cache=None, provision=None, bootstrap=None, platform_name=None):
+    platform_name = platform_name or host_platform()
     root = checked_root(root)
-    app = checked_root(app or DEFAULT_APP)
+    app = checked_root(app or default_locations(platform_name)[1])
+    extension = {"windows": ".cmd", "linux": ".desktop"}.get(platform_name)
+    if extension and app.suffix.lower() != extension:
+        raise ValueError("Application launcher must end with " + extension)
     document, release_id = verify_payload(payload)
     with locked(root):
         ownership(root)
@@ -288,7 +373,9 @@ def install(root, payload, *, app=None, cache=None, provision=None, bootstrap=No
         prior = existing or (read(root / "UNINSTALLED.json") if (root / "UNINSTALLED.json").exists() else None)
         if prior and prior.get("app") != str(app):
             raise ValueError("An upgrade must retain this installation's application path")
-        owned_app(app)
+        if prior and platform_for(prior) != platform_name:
+            raise ValueError("An upgrade must retain this installation's platform")
+        owned_app(app, root, platform_name)
         already = bool(existing and existing["release_id"] == release_id)
         release = root / "releases" / release_id
         if not release.exists():
@@ -296,7 +383,7 @@ def install(root, payload, *, app=None, cache=None, provision=None, bootstrap=No
             stage = release.parent / (".stage-" + uuid.uuid4().hex)
             shutil.copytree(payload, stage, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
             verify_payload(stage)
-            os.replace(stage, release)
+            durable_move(stage, release)
         else:
             verify_payload(release)
         if provision is None:
@@ -308,12 +395,14 @@ def install(root, payload, *, app=None, cache=None, provision=None, bootstrap=No
         if bootstrap is None:
             bootstrap = release_module(release, "bootstrap_learning").initialize
         learning = bootstrap(root, release / "runtime", Path(deps["worker_python"]))
-        launcher = LAUNCHER.replace("RELEASE_PATH", repr(str(release))).encode()
-        shell = ("#!/bin/zsh\numask 077\nexport PYTHONDONTWRITEBYTECODE=1\nexec " +
-                 shlex.quote(deps["worker_python"]) + " -B " + shlex.quote(str(root / "launch.py")) +
-                 ' "$@" >> ' + shlex.quote(str(root / "launcher.log")) + " 2>&1\n").encode()
-        healthy = all(p.is_file() for p in managed_paths(root, app))
-        if already and healthy and (root / "launch.py").read_bytes() == launcher and (app / "Contents/MacOS/Lodestone").read_bytes() == shell:
+        launcher_source = LAUNCHER.replace("RELEASE_PATH", repr(str(release)))
+        if platform_name != "macos":
+            launcher_source = launcher_source.replace("Install Lodestone.command", "the Lodestone installer")
+        launcher = launcher_source.encode()
+        launch_files = launcher_files(root, app, deps, platform_name)
+        healthy = all(p.is_file() for p in managed_paths(root, app, platform_name))
+        if (already and healthy and (root / "launch.py").read_bytes() == launcher
+                and all(path.read_bytes() == content for path, (content, _) in launch_files.items())):
             return dict(existing, status="ALREADY_INSTALLED", user_data_preserved=True)
         for name, value in defaults(root).items():
             path = root / "Loom/data" / name
@@ -327,25 +416,21 @@ def install(root, payload, *, app=None, cache=None, provision=None, bootstrap=No
             for field in ("max_total_tokens", "max_new_tokens", "max_rss_bytes", "wall_seconds", "additional_profiles"):
                 if field in old:
                     wanted[field] = old[field]
-        paths = managed_paths(root, app)
+        paths = managed_paths(root, app, platform_name)
         before = snapshot(paths)
         transaction_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ-") + uuid.uuid4().hex[:8]
         transaction = root / "transactions" / (transaction_id + ".json")
         report = {"schema": "lodestone-desktop-transaction/v1", "id": transaction_id,
-                  "root": str(root), "app": str(app), "before": before,
+                  "root": str(root), "app": str(app), "platform": platform_name, "before": before,
                   "release_id": release_id, "state": "PREPARED"}
         save(transaction, report)
         try:
             save(config_path, wanted)
             atomic(root / "launch.py", launcher)
-            info = {"CFBundleDisplayName": "Lodestone Preview", "CFBundleName": "Lodestone Preview",
-                    "CFBundleIdentifier": "org.lodestone.desktop.preview", "CFBundleExecutable": "Lodestone",
-                    "CFBundlePackageType": "APPL", "CFBundleShortVersionString": "0.4.0",
-                    "CFBundleVersion": "1", "NSHighResolutionCapable": True}
-            atomic(app / "Contents/Info.plist", plistlib.dumps(info), 0o644)
-            atomic(app / "Contents/MacOS/Lodestone", shell, 0o755)
+            for path, (content, mode) in launch_files.items():
+                atomic(path, content, mode)
             active = {"schema": SCHEMA, "version": document["version"], "release_id": release_id,
-                      "release": str(release), "app": str(app), "gui_python": deps["gui_python"],
+                      "release": str(release), "app": str(app), "platform": platform_name, "gui_python": deps["gui_python"],
                       "worker_python": deps["worker_python"], "transaction": str(transaction),
                       "activated_at": datetime.now(timezone.utc).isoformat()}
             save(root / "ACTIVE.json", active)
@@ -356,7 +441,7 @@ def install(root, payload, *, app=None, cache=None, provision=None, bootstrap=No
             report["state"] = "ROLLED_BACK_AFTER_FAILURE"
             save(transaction, report)
             raise
-        (root / "UNINSTALLED.json").unlink(missing_ok=True)
+        remove_file(root / "UNINSTALLED.json")
         return dict(active, status="INSTALLED", learning=learning, user_data_preserved=True)
 
 
@@ -416,9 +501,11 @@ def rollback(root):
         if report.get("root") != str(root) or report.get("release_id") != active["release_id"]:
             raise ValueError("Transaction does not belong to this installation")
         app = Path(active["app"])
-        owned_app(app)
-        allowed = {str(p) for p in (root / "ACTIVE.json", root / "Loom/runtime.json", root / "launch.py",
-                                   app / "Contents/Info.plist", app / "Contents/MacOS/Lodestone")}
+        platform_name = platform_for(active)
+        owned_app(app, root, platform_name)
+        if platform_for(report) != platform_name:
+            raise ValueError("Transaction launcher platform differs")
+        allowed = {str(p) for p in managed_paths(root, app, platform_name)}
         if set(report["before"]) != allowed:
             raise ValueError("Transaction contains unexpected restoration paths")
         previous = report["before"][str(root / "ACTIVE.json")]
@@ -452,9 +539,26 @@ def rollback(root):
                     "Compatibility check: " + str(exc)) from exc
             if snapshot(selection_files) != before_selection:
                 raise ValueError("Learning selection changed during rollback compatibility check")
-        restore(report["before"])
-        report["state"] = "ROLLED_BACK"
-        save(transaction, report)
+        current = snapshot([*managed_paths(root, app, platform_name), transaction])
+        identity = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ-") + uuid.uuid4().hex[:8]
+        recovery_file = root / "transactions" / (identity + ".json")
+        recovery = {"schema": "lodestone-desktop-transaction/v1", "id": identity,
+                    "root": str(root), "app": str(app), "platform": platform_name,
+                    "operation": "ROLLBACK", "before": current, "state": "PREPARED",
+                    "source_transaction": str(transaction),
+                    "release_id": active["release_id"]}
+        save(recovery_file, recovery)
+        try:
+            restore(report["before"])
+            report["state"] = "ROLLED_BACK"
+            save(transaction, report)
+            recovery["state"] = "ROLLBACK_COMPLETED"
+            save(recovery_file, recovery)
+        except BaseException:
+            restore(current)
+            recovery["state"] = "ROLLBACK_RESTORED_AFTER_FAILURE"
+            save(recovery_file, recovery)
+            raise
         return {"status": "ROLLED_BACK", "transaction": str(transaction), "user_data_preserved": True}
 
 
@@ -464,19 +568,35 @@ def uninstall(root):
         recover_pending(root)
         active = active_install(root)
         app = Path(active["app"])
-        owned_app(app)
-        # Remove only the two files this installer owns; never erase an app subtree or memories.
-        for path in (app / "Contents/MacOS/Lodestone", app / "Contents/Info.plist"):
-            if path.is_symlink():
-                raise ValueError("Application path changed to a symbolic link")
-            path.unlink(missing_ok=True)
-        for directory in (app / "Contents/MacOS", app / "Contents", app):
-            try:
-                directory.rmdir()
-            except OSError:
-                pass
-        save(root / "UNINSTALLED.json", dict(active, uninstalled_at=datetime.now(timezone.utc).isoformat()))
-        (root / "ACTIVE.json").unlink()
+        platform_name = platform_for(active)
+        owned_app(app, root, platform_name)
+        before = snapshot([*managed_paths(root, app, platform_name), root / "UNINSTALLED.json"])
+        identity = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ-") + uuid.uuid4().hex[:8]
+        transaction = root / "transactions" / (identity + ".json")
+        report = {"schema": "lodestone-desktop-transaction/v1", "id": identity,
+                  "root": str(root), "app": str(app), "platform": platform_name,
+                  "operation": "REMOVE", "before": before, "state": "PREPARED",
+                  "release_id": active["release_id"]}
+        save(transaction, report)
+        try:
+            # Remove only owned launchers. Records, drafts and releases stay.
+            for path in app_files(app, platform_name):
+                remove_file(path)
+            save(root / "UNINSTALLED.json", dict(active, uninstalled_at=datetime.now(timezone.utc).isoformat()))
+            remove_file(root / "ACTIVE.json")
+            report["state"] = "REMOVED"
+            save(transaction, report)
+        except BaseException:
+            restore(before)
+            report["state"] = "REMOVAL_ROLLED_BACK_AFTER_FAILURE"
+            save(transaction, report)
+            raise
+        if platform_name == "macos":
+            for directory in (app / "Contents/MacOS", app / "Contents", app):
+                try:
+                    directory.rmdir()
+                except OSError:
+                    pass
         return {"status": "UNINSTALLED", "data_retained_at": str(root), "user_data_preserved": True}
 
 

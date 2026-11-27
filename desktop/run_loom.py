@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Launch one installed preview workspace; no model call occurs at startup."""
 import argparse
-import fcntl
 import hashlib
 import json
 import os
@@ -9,6 +8,9 @@ from pathlib import Path
 import sys
 import tempfile
 import traceback
+
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 
 def main():
@@ -20,12 +22,21 @@ def main():
     root = args.root.resolve()
     from install import recover
     recover(root)
-    lifecycle = (root / ".lifecycle.lock").open("a+")
+    from platform_support import file_lock
+    lifecycle = file_lock(root / ".lifecycle.lock", shared=True)
     try:
-        fcntl.flock(lifecycle, fcntl.LOCK_SH | fcntl.LOCK_NB)
+        lifecycle.__enter__()
     except BlockingIOError:
         raise SystemExit("Lodestone setup or recovery is running. Open the preview after it finishes.")
-    active = json.loads((root / "ACTIVE.json").read_text())
+    try:
+        return run(root, args)
+    finally:
+        lifecycle.__exit__(None, None, None)
+
+
+def run(root, args):
+    from install import active_install
+    active = active_install(root)
     release = Path(active["release"])
     source = release / "gui"
     sys.path[:0] = [str(release), str(source), str(release / "runtime/src")]
@@ -51,6 +62,10 @@ def main():
     consts.OPEN_BSKC_FILE = str(Path(consts.TMP_DIR) / "open_bskc_file")
     from basilisk.singleton_instance import SingletonInstance
     singleton = SingletonInstance()
+    if sys.platform == "win32":
+        # Bind the native mutex to this workspace and login session, just like
+        # the IPC and temporary paths. A separate preview must not focus it.
+        singleton.mutex_name = "Local\\" + consts.IPC_NAME
     if not singleton.acquire():
         from basilisk.send_signal import send_focus_signal
         send_focus_signal()

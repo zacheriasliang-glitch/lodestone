@@ -200,14 +200,13 @@ else:
         self.assertEqual([p.read_bytes() for p in paths], labelled)
 
     def test_idle_stopped_workspace_can_be_checked_but_live_reader_cannot(self):
-        import fcntl
+        from platform_support import file_lock
         initial = self.initialize()
         stop = self.root / "learning/STOP"
         stop.write_text("Explicit fixture STOP; maintenance must not clear it.\n")
         self.assertEqual(bootstrap.validate_selection(self.root, RUNTIME, Path(sys.executable))["status"], "COMPATIBLE")
         memory = Path(initial["memory_workspace"])
-        with (memory / "learning-weaving.lock").open("a+b") as lease:
-            fcntl.flock(lease.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        with file_lock(memory / "learning-weaving.lock"):
             with self.assertRaises(ValueError):
                 bootstrap.validate_selection(self.root, RUNTIME, Path(sys.executable))
         self.assertEqual(stop.read_text(), "Explicit fixture STOP; maintenance must not clear it.\n")

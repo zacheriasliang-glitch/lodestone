@@ -1,5 +1,4 @@
 import importlib.util
-import fcntl
 import json
 from pathlib import Path
 import sys
@@ -10,6 +9,7 @@ from unittest.mock import Mock, patch
 DESKTOP = Path(__file__).resolve().parents[2] / "desktop"
 sys.path.insert(0, str(DESKTOP))
 import install
+from platform_support import file_lock
 
 
 class InstallationTests(unittest.TestCase):
@@ -67,7 +67,7 @@ class InstallationTests(unittest.TestCase):
 
     def setup_install(self):
         return install.install(self.root, self.payload, app=self.app,
-                               provision=self.provision, bootstrap=self.bootstrap)
+                               provision=self.provision, bootstrap=self.bootstrap, platform_name="macos")
 
     def test_fresh_install_and_idempotence_preserve_configuration(self):
         first = self.setup_install()
@@ -104,7 +104,7 @@ class InstallationTests(unittest.TestCase):
         def broken(*args, **kwargs):
             raise ValueError("download interrupted")
         with self.assertRaisesRegex(ValueError, "download interrupted"):
-            install.install(self.root, self.payload, app=self.app, provision=broken, bootstrap=self.bootstrap)
+            install.install(self.root, self.payload, app=self.app, provision=broken, bootstrap=self.bootstrap, platform_name="macos")
         self.assertEqual((self.root / "ACTIVE.json").read_bytes(), before)
         self.assertEqual(self.setup_install()["status"], "INSTALLED")
 
@@ -180,13 +180,12 @@ class InstallationTests(unittest.TestCase):
         other = self.base / "Other.app"
         with self.assertRaisesRegex(ValueError, "application path"):
             install.install(self.root, self.payload, app=other,
-                            provision=self.provision, bootstrap=self.bootstrap)
+                            provision=self.provision, bootstrap=self.bootstrap, platform_name="macos")
         self.assertFalse(other.exists())
 
     def test_live_application_prevents_upgrade_removal_and_rollback(self):
         self.setup_install()
-        with (self.root / ".lifecycle.lock").open("a+") as lease:
-            fcntl.flock(lease, fcntl.LOCK_SH | fcntl.LOCK_NB)
+        with file_lock(self.root / ".lifecycle.lock", shared=True):
             for action in (self.setup_install, lambda: install.uninstall(self.root),
                            self.rollback):
                 with self.assertRaisesRegex(ValueError, "Close this Lodestone"):
@@ -213,7 +212,7 @@ class InstallationTests(unittest.TestCase):
 
     def test_next_launch_recovers_interrupted_activation_exactly(self):
         first = self.setup_install()
-        before = install.snapshot(install.managed_paths(self.root, self.app))
+        before = install.snapshot(install.managed_paths(self.root, self.app, "macos"))
         transaction = self.root / "transactions/zz-interrupted.json"
         install.save(transaction, {"schema": "lodestone-desktop-transaction/v1",
             "root": str(self.root), "app": str(self.app), "before": before,
@@ -221,7 +220,7 @@ class InstallationTests(unittest.TestCase):
         (self.root / "Loom/runtime.json").write_text('{"partial":"new release"}')
         (self.root / "learning/retained-failure.json").write_text('{"failure":"retained"}')
         self.assertEqual(install.recover(self.root), [str(transaction)])
-        self.assertEqual(install.snapshot(install.managed_paths(self.root, self.app)), before)
+        self.assertEqual(install.snapshot(install.managed_paths(self.root, self.app, "macos")), before)
         self.assertTrue((self.root / "learning/retained-failure.json").is_file())
         self.assertEqual(install.read(transaction)["state"], "RECOVERED_INTERRUPTED_ACTIVATION")
 
