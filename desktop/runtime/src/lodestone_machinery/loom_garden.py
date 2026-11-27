@@ -34,7 +34,7 @@ import uuid
 from .learning_cli import command_provider
 from .loom_improvement import ImprovementCycle
 from .loom_unified import UnifiedLoom
-from .origami import _profile, _program_paths, _sandbox
+from .origami import _fenced_argv
 from .records import canonical
 
 SCHEMA = "loom-garden-generation/v1"
@@ -83,12 +83,13 @@ def _signatures(artifacts):
 
 
 def sandboxed(argv, candidate_dir, checker_root):
-    """Wrap a trial command in Origami's Seatbelt profile when the platform has it."""
-    sandbox = _sandbox()
-    if sandbox is None:
-        return list(argv), False
-    profile = _profile(Path(candidate_dir), Path(checker_root), _program_paths(argv), None, None)
-    return [sandbox, "-p", profile, *argv], True
+    """Wrap a trial command in this platform's kernel fence; refuse where there is none.
+
+    Returns (argv, fence kind). The macOS form is the earlier Seatbelt invocation.
+    """
+    from .isolation import require
+    fence = require("A garden trial checker")
+    return _fenced_argv(fence, list(argv), Path(candidate_dir), Path(checker_root), None, None), fence.kind
 
 
 def loom_reader(runtime_json, *, max_tokens=512):
@@ -172,7 +173,7 @@ class Garden:
             returned = command(packet)
             observed = returned["observation"]
             observed.update(candidate_handle=candidate, artifact_verification=before,
-                            fence="sandbox-exec" if fenced else "none-on-this-platform")
+                            fence=fenced)
             try:
                 self.cycle.verify_materialized(candidate, str(directory))
             except (OSError, ValueError) as exc:

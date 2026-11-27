@@ -71,6 +71,41 @@ jobs:
         shell: bash
         run: python -B tools/release/package.py --output "$RUNNER_TEMP/lodestone-downloads"
 
+  linux-isolation:
+    # Proves the Linux kernel fence for command providers on a free public runner.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fence selection and refusal (simulated platforms)
+        run: python -B -m unittest discover -s tests/desktop -p 'test_isolation.py' -v
+      - name: Without bubblewrap, command providers are refused
+        run: |
+          if command -v bwrap; then
+            echo "bubblewrap is preinstalled on this image; the no-fence case is covered by the simulated checks"
+          else
+            LODESTONE_EXPECT_ISOLATION=REFUSED python -B -m unittest discover -s tests/desktop -p 'test_isolation.py' -k HostOutcome -v
+          fi
+      - name: Install bubblewrap
+        run: sudo apt-get update -q && sudo apt-get install -y -q bubblewrap
+      - name: "Stock Ubuntu 24.04 host with bubblewrap - fenced or refused, never unfenced"
+        run: |
+          sysctl kernel.apparmor_restrict_unprivileged_userns || true
+          python -B -m unittest discover -s tests/desktop -p 'test_isolation.py' -k HostOutcome -v
+      - name: Disposable runner only - allow user namespaces to exercise the real fence
+        # Not done by any Lodestone installer: a stock host keeps its restriction,
+        # and Lodestone then refuses command providers instead of running them unfenced.
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - name: Real bubblewrap confinement (required, not skipped)
+        env:
+          LODESTONE_REQUIRE_BWRAP: '1'
+        run: python -B -m unittest discover -s tests/desktop -p 'test_isolation.py' -v
+
   porcelain-import:
     runs-on: ubuntu-latest
     timeout-minutes: 15
