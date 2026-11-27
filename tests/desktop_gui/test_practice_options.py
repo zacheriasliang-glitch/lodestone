@@ -94,6 +94,18 @@ def engine():
 
 
 class PracticeOptionsTests(unittest.TestCase):
+    def test_machine_knot_selection_is_explicit_bound_and_persistable(self):
+        chosen = bind_options(TEXT, PURPOSE, decision_knot_handles=[HANDLE])
+        self.assertEqual(bridge_options(chosen, TEXT, PURPOSE), {"decision_knot_handles": [HANDLE]})
+        self.assertIn("machine finding", summary(chosen, TEXT, PURPOSE))
+        with self.assertRaises(ValueError):
+            bridge_options(chosen, TEXT + " changed", PURPOSE)
+        with self.assertRaises(ValueError):
+            bind_options(TEXT, PURPOSE, decision_knot_handles=[HANDLE, HANDLE])
+        original = block(chosen)
+        restored = MessageBlock.model_validate_json(original.model_dump_json())
+        self.assertEqual(restored.loom_practice_options, chosen)
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory(prefix="lodestone-practice-fixture-")
         self.addCleanup(temporary.cleanup)
@@ -129,7 +141,7 @@ class PracticeOptionsTests(unittest.TestCase):
         kwargs = dict(calls[0]); target = kwargs.pop("engine"); kwargs.pop("stream")
         target.completion(**kwargs)
         request = target.client.calls[0]
-        for key in ("seed_handles", "history_window", "decision_case_json", "decision_strategy"):
+        for key in ("seed_handles", "history_window", "decision_case_json", "decision_strategy", "decision_knot_handles"):
             self.assertNotIn(key, request)
         self.assertIsNone(bind_options(TEXT, PURPOSE))
         self.assertEqual(request["encounter"], TEXT)

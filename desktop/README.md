@@ -160,6 +160,24 @@ remains available. This can still produce a wrong decision. A separate decision
 review checks the original response against the attributed case policy; it never
 replaces that response with a computed answer.
 
+Explicit structured responses also receive an automatic **machine structural
+assessment** after their original outcome is retained. It checks source identity,
+evidence selection and internal transition consistency. Without a declared
+condition/action policy, a structurally consistent response stays **UNRESOLVED**;
+this check cannot establish that the action is correct. Generation completion
+and this assessment are separate statuses. Open **Correct → Structured case
+review** to inspect the saved machine finding and the unchanged raw answer.
+
+Machine findings are retained as attributed Bezoar evidence, separately from
+human corrections. To reuse a definite **REJECTED** finding, explicitly select
+its evidence handle in **Practice options**. The existing voxel section then
+delivers it as a named knot: what the case contract required and what was
+returned, keeping evidence, action and transition separate. Unresolved findings
+cannot be delivered as advice. Findings are recorded after the outcome with
+unknown surprise; they are not presealed predictions, probability measurements,
+weight updates or demonstrated learning. Ordinary calls omit this assessment
+and knot selection, and old study records are not retroactively changed.
+
 A `.bskc` project contains the conversation and its saved settings. Native learning
 history and correction receipts remain in the installation's data directory;
 copying the project file alone to another installation does not transfer them.

@@ -251,6 +251,11 @@ class ConversationPresenter(DestroyGuardMixin):
 		self.view.stop_completion_btn.Hide()
 		self.view.submit_btn.Enable()
 		self.view.update_loom_controls()
+		receipt = getattr(self.view.current_engine, "last_receipt", None)
+		if receipt and receipt.get("decision_assessment"):
+			status = receipt["decision_assessment"].get("status", "UNAVAILABLE")
+			self.view.SetStatusText("Decision structure: " + status
+				+ ". See Correct → Structured case review. Original answer unchanged; judgment remains unverified.")
 
 		if success:
 			self._clear_stored_content()

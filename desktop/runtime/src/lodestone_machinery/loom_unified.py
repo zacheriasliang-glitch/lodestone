@@ -74,7 +74,8 @@ class UnifiedLoom:
 
     def run(self, *, encounter, purpose, reader, context="", provider,
             run_id=None, applicability=None, wait=0, cancelled=None,
-            execution_binding=None, failure_classifier=None, history_window=None, voxel=None):
+            execution_binding=None, failure_classifier=None, history_window=None, voxel=None,
+            structural_contract=None):
         """Prepare, admit, dispatch once and retain an actual practice outcome.
 
         The provider receives ``loom-adapter-request/v1`` and returns either text
@@ -94,6 +95,11 @@ class UnifiedLoom:
             raise ValueError("Loom turn wait must be 0..86400 seconds")
         from .learning_context import history_window_policy
         history_window_policy(history_window)
+        if structural_contract is not None:
+            from . import decision_contract
+            structural_contract, _ = decision_contract._checked_contract(encounter, structural_contract)
+            if structural_contract["policy"] is not None:
+                raise ValueError("Automatic structural assessment cannot infer an action policy")
 
         def build(saved, literal):
             request = build_adapter_request(
@@ -136,7 +142,27 @@ class UnifiedLoom:
                 report = learning.finish(
                     self.memory, prepared, response=outcome["response"],
                     status=outcome["status"], observation=observation)
-            return self._result(report, reader)
+            result = self._result(report, reader)
+            if structural_contract is not None:
+                try:
+                    result["decision_assessment"] = self.assess_decision(
+                        result["outcome_handle"], contract=structural_contract)
+                except (OSError, ValueError, TypeError, RuntimeError, KeyError) as exc:
+                    # The actual broker outcome has already been retained. A
+                    # reviewer/storage failure cannot rewrite that outcome.
+                    result["decision_assessment"] = {
+                        "status": "ASSESSMENT_UNAVAILABLE", "retention": "NOT_CONFIRMED",
+                        "error": " ".join(str(exc).split())[:512],
+                        "advice_delivery": "NOT_ELIGIBLE", "authority": "NONE"}
+            return result
+
+    def assess_decision(self, outcome_handle, *, contract):
+        from .decision_assessment import assess
+        return assess(self.memory, outcome_handle, contract)
+
+    def decision_knot_voxel(self, evidence_handles):
+        from .decision_assessment import knot_voxel
+        return knot_voxel(self.memory, evidence_handles)
 
     def correct(self, outcome_handle, *, correction, author, observation="",
                 event_id=None, observed_at=None):
@@ -237,10 +263,13 @@ class UnifiedLoom:
                     "assessment": assessment, "checker_sha256": saved["checker_sha256"],
                     "reviewer": saved["reviewer"],
                     "learning_verdict": record["review"]["verdict"]})
+            from .decision_assessment import for_outcome
+            machine_assessments = for_outcome(self.memory, outcome_handle)
         return {"schema": "loom-decision-review-context/v1", "outcome_handle": outcome_handle,
             "encounter": encounter, "purpose": prepared["binding"]["purpose"],
             "response": outcome["response"], "native_status": outcome["status"],
-            "response_sha256": outcome["response_sha256"], "reviews": reviews}
+            "response_sha256": outcome["response_sha256"], "reviews": reviews,
+            "machine_assessments": machine_assessments}
 
     def preview_decision_review(self, outcome_handle, *, case_json, author, policy=None):
         """Preview a source-bound assessment; no writes, inference or promotion."""

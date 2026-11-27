@@ -202,7 +202,7 @@ def _execution_binding(config, identity, *, encounter, purpose, context, voxel=N
              "loom_adapter_local.py", "loom_adapter_torch.py", "loom_inference_memory.py",
              "learning_context.py", "learning_reader.py")
     if config.get("decision_format") is not None:
-        names += ("decision_format.py", "decision_contract.py")
+        names += ("decision_format.py", "decision_contract.py", "decision_assessment.py")
     if voxel is not None:
         names += ("loom_voxels.py",)
     sources = {name: hashlib.sha256(read_bytes(root / name, _MAX_FILE)).hexdigest()
@@ -470,7 +470,7 @@ class LoomBridge:
 
     def run(self, *, encounter, purpose, context="", route=None, max_tokens=None,
             temperature=0, top_p=1, cancel_event=None, decision_case_json=None, history_window=None,
-            seed_handles=None, decision_strategy="flat", voxel=None):
+            seed_handles=None, decision_strategy="flat", voxel=None, decision_knot_handles=None):
         # Keep a failed reread of configuration inside the durable local error
         # boundary. The constructor's validated config supplies only the ledger.
         profile_error = None
@@ -541,6 +541,10 @@ class LoomBridge:
             if cancelled():
                 raise InterruptedError("Cancelled before native preparation")
             native = _native(config)
+            if decision_knot_handles is not None:
+                if voxel is not None:
+                    raise ValueError("Select machine knots or a supplied voxel context, not both")
+                voxel = native.decision_knot_voxel(decision_knot_handles)
             stage = "PREPARATION_OR_NATIVE_DISPATCH"
             reader = ("Loom/Qwen3-0.6B/ollama-quantized-base/" + config["ollama_model_digest"]
                       if config["backend"] == "ollama_qwen3_base" else
@@ -569,7 +573,8 @@ class LoomBridge:
                 provider=provide, execution_binding=binding,
                 wait=TURN_WAIT_SECONDS, cancelled=cancelled,
                 failure_classifier=lambda returned: _resource_failure(returned, owned_result, config),
-                history_window=history_window)
+                history_window=history_window,
+                structural_contract=config.get("decision_format", {}).get("source_contract"))
             result = dict(native_result, artifacts_dir=str(directory), reader_identity=identity)
             _save(directory / "receipt.json", result)
             return result

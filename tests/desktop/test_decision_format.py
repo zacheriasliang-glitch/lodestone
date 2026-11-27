@@ -219,6 +219,8 @@ class BridgeBindingTests(unittest.TestCase):
             worker_config, path, packet, _ = bridge._worker.call_args.args
             self.assertEqual(packet, {"encounter": encounter, "purpose": "Choose", "context": "Same history"})
             self.assertEqual(worker_config["decision_format"], formats.bind_decision_format(encounter, case_json=text))
+            self.assertEqual(native.run.call_args.kwargs["structural_contract"],
+                             worker_config["decision_format"]["source_contract"])
             actual_binding = json.loads((path / "execution-binding.json").read_bytes())
             native_binding = native.run.call_args.kwargs["execution_binding"]
             self.assertEqual(actual_binding, native_binding)

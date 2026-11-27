@@ -141,7 +141,7 @@ class DecisionReviewEventTests(unittest.TestCase):
             self.app.Yield()
         return dialog
 
-    def native_fixture(self, *, status="COMPLETED", wrong=True):
+    def native_fixture(self, *, status="COMPLETED", wrong=True, automatic=False):
         initialized = bootstrap.initialize(self.root / "bootstrap", RUNTIME, Path(sys.executable))
         self.memory = LearningMemory(initialized["memory_workspace"])
         self.native = UnifiedLoom(self.memory, initialized["seed_handles"])
@@ -166,8 +166,10 @@ class DecisionReviewEventTests(unittest.TestCase):
             self.scripted_calls += 1
             return {"status": status, "response": self.raw,
                     "observation": {"source": "Authored GUI test fixture; no model", "model_calls": 0}}
+        from lodestone_machinery.decision_format import bind_decision_format
+        contract = bind_decision_format(self.encounter, case_json=self.case_json)['source_contract'] if automatic else None
         self.returned = self.native.run(encounter=self.encounter, purpose="Inspect an explicitly structured saved case.",
-            reader="Scripted GUI fixture only", context="", provider=fixture_provider)
+            reader="Scripted GUI fixture only", context="", provider=fixture_provider, structural_contract=contract)
         self.original = self.memory.read_outcome(self.returned["outcome_handle"])
         block = MessageBlock(request=Message(role=MessageRoleEnum.USER, content=self.encounter),
             response=Message(role=MessageRoleEnum.ASSISTANT, content=self.raw),
@@ -188,6 +190,19 @@ class DecisionReviewEventTests(unittest.TestCase):
         self.dump("fixture.json", {"case_json": self.case_json, "policy": self.policy,
             "encounter": self.encounter, "raw_response": self.raw, "returned": self.returned,
             "scripted_provider_calls": self.scripted_calls, "model_calls": 0})
+
+    def test_machine_finding_reopens_separately_and_never_changes_displayed_answer(self):
+        self.native_fixture(automatic=True)
+        dialog = self.open_dialog(self.receipt, self.engine, structured=True)
+        finding = self.returned['decision_assessment']
+        self.assertIn(finding['evidence_handle'], dialog.machine_findings.GetValue())
+        self.assertIn('MACHINE_STRUCTURAL_FINDING', dialog.machine_findings.GetValue())
+        self.assertIn('REJECTED', dialog.machine_findings.GetValue())
+        self.assertEqual(dialog.original_response.GetValue(), self.raw)
+        self.assertEqual(dialog.review_selection.GetCount(), 1)
+        self.assertEqual(self.receipt['decision_assessment']['evidence_handle'], finding['evidence_handle'])
+        self.assertEqual(self.counts.save_calls, 0)
+        self.assertEqual(self.scripted_calls, 1)
 
     def fill(self, dialog, *, policy=True):
         dialog.decision_fields["case_json"].SetValue(self.case_json)

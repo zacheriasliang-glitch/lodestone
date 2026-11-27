@@ -79,6 +79,12 @@ class LoomPracticeDialog(wx.Dialog):
 		self.strategy = wx.Choice(body, choices=["Flat decision (default)", "Evidence first, then decision"])
 		self.strategy.SetSelection(1 if options and options["decision_strategy"] == "evidence_first" else 0)
 		fields.Add(self.strategy, 0, wx.ALL | wx.EXPAND, 8)
+		fields.Add(wx.StaticText(body, label="Optional: machine finding handles from Structured case review (one per line). "
+			"Only definite rejections can enter this encounter as named knots."), 0, wx.ALL, 8)
+		self.knot_handles = wx.TextCtrl(body,
+			value="\n".join(options.get("decision_knot_handles", []) or []) if options else "",
+			style=wx.TE_MULTILINE, size=(-1, 65))
+		fields.Add(self.knot_handles, 0, wx.ALL | wx.EXPAND, 8)
 		self.message = wx.StaticText(body, label="")
 		fields.Add(self.message, 0, wx.ALL | wx.EXPAND, 8)
 		self.defaults = wx.Button(body, label="Clear options and use ordinary defaults")
@@ -95,7 +101,7 @@ class LoomPracticeDialog(wx.Dialog):
 		self.lessons.Bind(wx.EVT_CHECKLISTBOX, self._lesson_checked)
 		self.defaults.Bind(wx.EVT_BUTTON, self._clear)
 		self._loading_controls = (self.configured, self.lessons, self.window_enabled, self.history_window,
-			self.case_json, self.strategy, self.defaults, self.FindWindow(wx.ID_OK))
+			self.case_json, self.strategy, self.knot_handles, self.defaults, self.FindWindow(wx.ID_OK))
 		for control in self._loading_controls:
 			control.Disable()
 		self.Bind(wx.EVT_CLOSE, self._cancel_loading)
@@ -205,6 +211,7 @@ class LoomPracticeDialog(wx.Dialog):
 		self.configured.SetValue(True)
 		self.window_enabled.SetValue(False)
 		self.case_json.SetValue("")
+		self.knot_handles.SetValue("")
 		self.strategy.SetSelection(0)
 		self._controls_changed(None)
 
@@ -222,7 +229,8 @@ class LoomPracticeDialog(wx.Dialog):
 			self.result = bind_options(self.encounter, self.purpose, seed_handles=seeds,
 				history_window=self.history_window.GetValue() if self.window_enabled.GetValue() else None,
 				decision_case_json=case if case.strip() else None,
-				decision_strategy="evidence_first" if self.strategy.GetSelection() else "flat")
+				decision_strategy="evidence_first" if self.strategy.GetSelection() else "flat",
+				decision_knot_handles=self.knot_handles.GetValue().split() or None)
 		except (ValueError, TypeError) as exc:
 			self.message.SetLabel(str(exc))
 			self.message.Wrap(650)
