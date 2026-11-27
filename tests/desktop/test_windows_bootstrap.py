@@ -13,6 +13,13 @@ BOOTSTRAP = ROOT / "desktop/Install Lodestone.cmd"
 
 
 class WindowsBootstrapSource(unittest.TestCase):
+    def test_shipped_batch_bytes_keep_crlf_for_native_label_scanning(self):
+        raw = BOOTSTRAP.read_bytes()
+        self.assertGreater(raw.count(b"\r\n"), 0)
+        self.assertEqual(raw.count(b"\r\n"), raw.count(b"\n"),
+                         "cmd.exe label scanning needs CRLF in the actual shipped file")
+        self.assertNotIn(b"\r\r\n", raw)
+
     def test_download_pin_and_visible_native_entrypoint(self):
         body = BOOTSTRAP.read_text(encoding="utf-8")
         self.assertIn("setlocal DisableDelayedExpansion", body)
