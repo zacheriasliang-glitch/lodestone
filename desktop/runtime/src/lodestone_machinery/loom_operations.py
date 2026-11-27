@@ -109,6 +109,10 @@ def catalogue(package_root):
     root = Path(package_root).expanduser().resolve()
     inventory = json.loads((root / "docs/loom-integration-map.json").read_text())
     available = optional_availability(root)
+    if sys.platform == "win32":
+        available = {key: {"status": "UNAVAILABLE", "reason":
+            "Local toolkit execution requires the POSIX operation fence; Windows Job ownership is not that fence."}
+            for key in SPECS}
     operations = [{"id": key, "family": value["family"], "description": value["description"],
                    "inputs": {name: {"type": item[0], "required": True} for name, item in value["inputs"].items()},
                    "effects": value["effects"], **available.get(key, {"status": "AVAILABLE"})}
@@ -205,6 +209,8 @@ class OperationBridge:
             raise
 
     def _prepare(self, operation, inputs, workspace, *, request_id=None):
+        if sys.platform == "win32":
+            raise OSError("Local toolkit execution is unavailable on Windows: the POSIX operation fence is required")
         if operation not in SPECS or not isinstance(inputs, dict):
             raise ValueError("Unknown local operation or invalid named inputs")
         descriptor = SPECS[operation]
