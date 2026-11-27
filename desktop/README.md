@@ -22,7 +22,8 @@ unfinished research; installing the application does not complete that research.
 ## Current platform and function availability
 
 This matrix describes desktop 0.4.0. Native release checks use clean GitHub-hosted
-Intel macOS, Ubuntu 24.04 and Windows Server 2022 runners. Windows end-user
+macOS 15 (Intel), Ubuntu 24.04 and Windows Server 2022 runners. macOS 12–14 and
+Windows 11 are supported by design but were not themselves exercised. End-user
 hardware has not been independently tested. All downloads are unsigned.
 
 | Function | Intel macOS | Ubuntu 24.04 x86_64 | Windows x86_64 |
@@ -33,7 +34,7 @@ hardware has not been independently tested. All downloads are unsigned.
 | Install, upgrade, roll back and remove the app while preserving records | Release checks | Release checks | Release checks |
 | Human-curated Origami handoff from a retained encounter | Native custody checks | Native custody checks | Native custody checks |
 | Selected toolkit catalogue operations | Trusted subprocesses with bounded output and process ownership | Trusted subprocesses with bounded output and process ownership | Reviewed subset below, with bounded output and Windows Job ownership |
-| External Origami command provider | macOS sandbox when available; otherwise refused | bubblewrap and host-policy opt-in required | AppContainer when its native probe passes; otherwise refused |
+| External Origami command provider | macOS Seatbelt; refused if unavailable | Bubblewrap with the host-policy opt-in; refused otherwise | Probed AppContainer with no network capabilities; refused if it cannot start |
 
 The Windows catalogue enables these operations:
 
@@ -386,8 +387,10 @@ confinement requirement. Windows uses a fresh AppContainer with no network
 capabilities, narrow source-read/workspace-write grants and a kill-on-close Job.
 A flushed recovery journal and serialized launcher restore temporary grants;
 unconfirmed recovery blocks new fenced runs. User permission edits are retained.
+Recovery journals are stored under `%LOCALAPPDATA%\Lodestone Fence`.
 This assumes a trusted host directory tree, not a hostile process racing host
-path changes. On Linux the routes require working bubblewrap and refuse when
+path changes. External commands that declare network endpoints are refused on
+Linux and Windows; only macOS supports confinement to the local endpoint proxy. On Linux the routes require working bubblewrap and refuse when
 host policy or kernel restrictions prevent it from starting. Inspect retained
 refusals before retrying. Installation does not enable optional provider routes
 or start an external provider.
