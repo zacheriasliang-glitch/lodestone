@@ -40,6 +40,11 @@ later, Ubuntu 24.04 x86_64 and Windows 11 / Windows Server 2022 x86_64:
 - `dependencies.windows-x86_64.lock.json`: Windows source lock.
 
 Each built target archive places its selected set at `dependencies.lock.json`.
+`gui-dependencies.json` declares the direct dependencies of the shipped Loom-only
+GUI. Its exact transitive closure is pinned in each target lock. Unregistered
+provider SDKs are omitted; their upstream engine source, `gui/pyproject.toml` and
+`gui/uv.lock` remain as source and project metadata. The desktop installs its
+pinned wheels directly and does not install the upstream `basiliskllm` package.
 Its payload manifest identifies the target and checksums that selected file.
 The lock records the upstream URLs, versions, sizes and SHA-256 identities of
 Python/uv, Python wheels, the Ollama inference engine and the Qwen3 model and

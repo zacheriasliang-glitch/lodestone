@@ -1,0 +1,21 @@
+{
+  "schema": "lodestone-desktop-gui-dependencies/v1",
+  "route": "loom",
+  "installation_authority": "dependencies.lock.json",
+  "common_roots": [
+    "alembic", "babel", "fsspec", "httpx", "keyring", "markdown2",
+    "more-itertools", "numpy", "ordered-set", "pillow", "platformdirs",
+    "pydantic", "pydantic-core", "pydantic-settings", "pyyaml", "sounddevice",
+    "sqlalchemy", "truststore", "universal-pathlib", "wxpython"
+  ],
+  "platform_roots": {"Darwin": [], "Linux": [], "Windows": ["pywin32"]},
+  "unregistered_provider_distributions": [
+    "anthropic", "google-auth", "google-genai", "mistralai", "ollama", "openai"
+  ],
+  "notes": [
+    "The desktop installs pinned wheels directly; it does not install the upstream basiliskllm distribution.",
+    "gui/pyproject.toml and gui/uv.lock retain upstream project metadata and provenance; they are not the desktop installation dependency set.",
+    "Unregistered upstream provider engine source remains available for provenance, but the shipped registry exposes only Loom.",
+    "Required transitive dependencies and platform keyring backends are retained in each target lock."
+  ]
+}

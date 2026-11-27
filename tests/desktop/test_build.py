@@ -33,7 +33,7 @@ class BuildTests(unittest.TestCase):
             if system == "Linux":
                 platform.update(distribution="ubuntu", distribution_version="24.04")
             (self.source / lock_name).write_text(json.dumps({"schema": "lodestone-desktop-dependencies/v1", "platform": platform}))
-        for name in ("build.py", "verify_payload.py"):
+        for name in ("build.py", "verify_payload.py", "gui-dependencies.json"):
             shutil.copyfile(DESKTOP / name, self.source / name)
         exported = {
             "runtime/LICENSE": "Synthetic runtime notice\n",
@@ -65,7 +65,7 @@ class BuildTests(unittest.TestCase):
             self.assertEqual(set(archive.namelist()), {prefix + name for name in manifest["files"]} | {prefix + "MANIFEST.json"})
             for name, expected in manifest["files"].items():
                 self.assertEqual(hashlib.sha256(archive.read(prefix + name)).hexdigest(), expected)
-            for name in ("build.py", "verify_payload.py"):
+            for name in ("build.py", "verify_payload.py", "gui-dependencies.json"):
                 self.assertEqual(archive.read(prefix + name), (DESKTOP / name).read_bytes())
             installer = archive.getinfo(prefix + "Install Lodestone.command")
             self.assertTrue(installer.external_attr >> 16 & 0o111)
