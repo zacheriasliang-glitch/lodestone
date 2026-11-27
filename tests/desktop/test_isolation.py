@@ -419,7 +419,9 @@ class RealAppContainerTests(unittest.TestCase):
             work, source = Path(raw) / "w", Path(raw) / "s"
             work.mkdir(), source.mkdir()
             before = self._sddl(source)
-            argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", "import time; time.sleep(60)"],
+            command = ("import os,time; from pathlib import Path; "
+                       "Path('fenced-started').write_text(str(os.getpid()),encoding='ascii'); time.sleep(60)")
+            argv = origami._fenced_argv(self.fence, [sys.executable, "-I", "-c", command],
                                         work, source, None, None)
             with open(os.devnull, "wb") as output:
                 owner = WindowsJobProcess(argv, cwd=str(work), env=dict(os.environ), stdout=output,
@@ -430,7 +432,12 @@ class RealAppContainerTests(unittest.TestCase):
                     journals = self._pending()
                     owner.snapshot()
                     covered = {owner._member_identity(owner._process, owner.pid), *owner._member_handles}
-                    if (journals and any(entry.get("process_may_exist") is True
+                    try:
+                        started_pid = int((work / "fenced-started").read_text(encoding="ascii"))
+                    except (FileNotFoundError, ValueError):
+                        started_pid = None
+                    if (started_pid in {pid for pid, _ in covered}
+                            and journals and any(entry.get("process_may_exist") is True
                                          for entry in wac._Journal.entries(journals[0]))
                             and len(covered) >= 2 and owner._total_processes() == len(covered)):
                         break
