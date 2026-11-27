@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import os
 from pathlib import Path
 import stat
@@ -54,61 +55,76 @@ def _no_reparse(path):
     return path
 
 
-def _icacls():
-    return str(Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "icacls.exe")
+FILE_OBJECT, DACL_INFO = 1, 0x4
+PROTECTED_DACL, UNPROTECTED_DACL, SE_DACL_PROTECTED = 0x80000000, 0x20000000, 0x1000
+MODIFY, READ_EXECUTE = "0x1301bf", "0x1200a9"
 
 
-class _Api:
-    def __init__(self):
-        import ctypes
-        from ctypes import wintypes as w
-        if sys.platform != "win32" or ctypes.sizeof(ctypes.c_void_p) != 8:
-            raise OSError("The AppContainer fence requires 64-bit Windows")
-        self.c, self.w = ctypes, w
-        self.kernel = ctypes.WinDLL("kernel32", use_last_error=True)
-        self.userenv = ctypes.WinDLL("userenv", use_last_error=True)
-        self.advapi = ctypes.WinDLL("advapi32", use_last_error=True)
-        p, size = ctypes.c_void_p, ctypes.c_size_t
-        for lib, name, args, result in (
-            (self.userenv, "CreateAppContainerProfile", [w.LPCWSTR, w.LPCWSTR, w.LPCWSTR, p, w.DWORD, ctypes.POINTER(p)], ctypes.c_long),
-            (self.userenv, "DeleteAppContainerProfile", [w.LPCWSTR], ctypes.c_long),
-            (self.advapi, "ConvertSidToStringSidW", [p, ctypes.POINTER(w.LPWSTR)], w.BOOL),
-            (self.advapi, "FreeSid", [p], p),
-            (self.kernel, "LocalFree", [p], p),
-            (self.kernel, "GetStdHandle", [w.DWORD], w.HANDLE),
-            (self.kernel, "GetCurrentProcess", [], w.HANDLE),
-            (self.kernel, "DuplicateHandle", [w.HANDLE, w.HANDLE, w.HANDLE, p, w.DWORD, w.BOOL, w.DWORD], w.BOOL),
-            (self.kernel, "InitializeProcThreadAttributeList", [p, w.DWORD, w.DWORD, p], w.BOOL),
-            (self.kernel, "UpdateProcThreadAttribute", [p, w.DWORD, size, p, size, p, p], w.BOOL),
-            (self.kernel, "DeleteProcThreadAttributeList", [p], None),
-            (self.kernel, "CreateProcessW", [w.LPCWSTR, w.LPWSTR, p, p, w.BOOL, w.DWORD, p, w.LPCWSTR, p, p], w.BOOL),
-            (self.kernel, "CreateJobObjectW", [p, w.LPCWSTR], w.HANDLE),
-            (self.kernel, "SetInformationJobObject", [w.HANDLE, ctypes.c_int, p, w.DWORD], w.BOOL),
-            (self.kernel, "AssignProcessToJobObject", [w.HANDLE, w.HANDLE], w.BOOL),
-            (self.kernel, "ResumeThread", [w.HANDLE], w.DWORD),
-            (self.kernel, "TerminateProcess", [w.HANDLE, w.UINT], w.BOOL),
-            (self.kernel, "WaitForSingleObject", [w.HANDLE, w.DWORD], w.DWORD),
-            (self.kernel, "GetExitCodeProcess", [w.HANDLE, p], w.BOOL),
-            (self.kernel, "CloseHandle", [w.HANDLE], w.BOOL)):
-            fn = getattr(lib, name)
+class _Security:
+    """Exact DACL save/restore. icacls-style edits can drop DACL protection,
+    silently re-enabling inherited access; restoring the saved SDDL cannot."""
+
+    def __init__(self, api):
+        c, w = api.c, api.w
+        self.api, self.c = api, c
+        a = api.advapi
+        p = c.c_void_p
+        for name, args, result in (
+            ("GetNamedSecurityInfoW", [w.LPCWSTR, c.c_int, w.DWORD, p, p, c.POINTER(p), p, c.POINTER(p)], w.DWORD),
+            ("SetNamedSecurityInfoW", [w.LPWSTR, c.c_int, w.DWORD, p, p, p, p], w.DWORD),
+            ("ConvertSecurityDescriptorToStringSecurityDescriptorW", [p, w.DWORD, w.DWORD, c.POINTER(w.LPWSTR), p], w.BOOL),
+            ("ConvertStringSecurityDescriptorToSecurityDescriptorW", [w.LPCWSTR, w.DWORD, c.POINTER(p), p], w.BOOL),
+            ("GetSecurityDescriptorDacl", [p, c.POINTER(w.BOOL), c.POINTER(p), c.POINTER(w.BOOL)], w.BOOL),
+            ("GetSecurityDescriptorControl", [p, c.POINTER(w.WORD), c.POINTER(w.DWORD)], w.BOOL)):
+            fn = getattr(a, name)
             fn.argtypes, fn.restype = args, result
 
-    def check(self, value):
-        if not value:
-            raise self.c.WinError(self.c.get_last_error())
-        return value
+    def read(self, path):
+        c, a, k = self.c, self.api.advapi, self.api.kernel
+        dacl, descriptor = c.c_void_p(), c.c_void_p()
+        error = a.GetNamedSecurityInfoW(str(path), FILE_OBJECT, DACL_INFO, None, None, c.byref(dacl), None,
+                                        c.byref(descriptor))
+        if error:
+            raise c.WinError(error)
+        try:
+            text = self.api.w.LPWSTR()
+            self.api.check(a.ConvertSecurityDescriptorToStringSecurityDescriptorW(descriptor, 1, DACL_INFO,
+                                                                                    c.byref(text), None))
+            value = text.value
+            k.LocalFree(text)
+            return value
+        finally:
+            k.LocalFree(descriptor)
+
+    def write(self, path, sddl):
+        c, w, a, k = self.c, self.api.w, self.api.advapi, self.api.kernel
+        descriptor = c.c_void_p()
+        self.api.check(a.ConvertStringSecurityDescriptorToSecurityDescriptorW(sddl, 1, c.byref(descriptor), None))
+        try:
+            present, defaulted, dacl = w.BOOL(), w.BOOL(), c.c_void_p()
+            self.api.check(a.GetSecurityDescriptorDacl(descriptor, c.byref(present), c.byref(dacl), c.byref(defaulted)))
+            control, revision = w.WORD(), w.DWORD()
+            self.api.check(a.GetSecurityDescriptorControl(descriptor, c.byref(control), c.byref(revision)))
+            flags = DACL_INFO | (PROTECTED_DACL if control.value & SE_DACL_PROTECTED else UNPROTECTED_DACL)
+            error = a.SetNamedSecurityInfoW(str(path), FILE_OBJECT, flags, None, None, dacl, None)
+            if error:
+                raise c.WinError(error)
+        finally:
+            k.LocalFree(descriptor)
 
 
-def _grant(path, sid, rights):
-    path = Path(path)
-    spec = "*" + sid + ":" + ("(OI)(CI)" if path.is_dir() else "") + rights
-    subprocess.run([_icacls(), str(path), "/grant", spec], check=True, timeout=600,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-
-def _revoke(path, sid):
-    subprocess.run([_icacls(), str(path), "/remove:g", "*" + sid], check=False, timeout=600,
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+def _with_ace(sddl, sid, mask, directory):
+    """Insert one explicit allow ACE after the explicit ACEs (canonical order)."""
+    head, _, rest = sddl.partition("(")
+    aces = re.findall(r"\([^)]*\)", "(" + rest) if rest else []
+    if not head.startswith("D:") or "".join(aces) != ("(" + rest if rest else ""):
+        raise ValueError("Unexpected DACL format; refusing to edit it")
+    explicit = [ace for ace in aces if "ID" not in ace.split(";")[1]]
+    inherited = aces[len(explicit):]
+    if explicit + inherited != aces:
+        raise ValueError("DACL is not in canonical order; refusing to edit it")
+    ace = "(A;" + ("OICI" if directory else "") + ";" + mask + ";;;" + sid + ")"
+    return head + "".join(explicit) + ace + "".join(inherited)
 
 
 def _write_ledger(handle, record):
@@ -135,9 +151,9 @@ def sweep(api=None):
             except OSError:
                 continue  # A live launcher still owns this run.
             record = json.loads(handle.read().decode("utf-8") or "{}")
+            security = _Security(api)
             for item in record.get("granted", []):
-                if record.get("sid"):
-                    _revoke(item, record["sid"])
+                security.write(item["path"], item["sddl"])
             if record.get("name", "").startswith(PREFIX):
                 api.userenv.DeleteAppContainerProfile(record["name"])
             handle.seek(0)
@@ -176,11 +192,14 @@ def run(argv, *, workspace, readable):
         sid = text.value
         k.LocalFree(text)
         record["sid"] = sid
-        for item, rights in [(workspace, "(M)")] + [(item, "(RX)") for item in readable]:
-            # Record before granting: a crash between the two leaves a revocable entry.
-            record["granted"].append(str(item))
+        security = _Security(api)
+        for item, mask in [(workspace, MODIFY)] + [(item, READ_EXECUTE) for item in readable]:
+            original = security.read(item)
+            # Record the exact original DACL before changing it: a crash between
+            # the two is undone by restoring that SDDL, protection flag included.
+            record["granted"].append({"path": str(item), "sddl": original})
             _write_ledger(ledger, record)
-            _grant(item, sid, rights)
+            security.write(item, _with_ace(original, sid, mask, item.is_dir()))
             granted.append(item)
 
         class Capabilities(c.Structure):
@@ -290,10 +309,12 @@ def run(argv, *, workspace, readable):
         if job:
             k.CloseHandle(job)  # kill-on-close: no descendant outlives the run
         failures = []
-        for item in record["granted"]:
-            if subprocess.run([_icacls(), item, "/remove:g", "*" + sid], check=False, timeout=600,
-                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
-                failures.append(item)
+        security = _Security(api)
+        for item in reversed(record["granted"]):
+            try:
+                security.write(item["path"], item["sddl"])
+            except OSError:
+                failures.append(item["path"])
         api.advapi.FreeSid(sid_pointer)
         deleted = api.userenv.DeleteAppContainerProfile(name) == 0
         ledger.seek(0)
