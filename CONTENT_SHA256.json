@@ -268,7 +268,7 @@
   "tests/desktop/test_linux_command_fence.py": "e1eaf14c725e939bf8e9d33a8f047c95c4b7d45878381c7cdabdd3ce11d3e4b9",
   "tests/desktop/test_mechanical_preview.py": "bf075fb30b97047494675ab635e59f8ae539f3edf0e4fe6a748932986e928a5d",
   "tests/desktop/test_platform_install.py": "1b751864183a8bbb73775e090e5ef478b3956da67702c6f663713f657b062a7b",
-  "tests/desktop/test_portable_bezoar.py": "9fb8656a50c750ccc2d20c3381ec64516d77472908804b27df6d2aecb12083e9",
+  "tests/desktop/test_portable_bezoar.py": "4711cf6751c68f18911b4271ffc61b48ebe770c2c12fe268eadf4a9f96f7205a",
   "tests/desktop/test_portable_ci.py": "65ff456379282fb333267bc8128026f421ba21b488af5dd215000f018244c077",
   "tests/desktop/test_portable_inference_skill.py": "a6668df72f866df0bae02a7bf286999c3aba230c6e1d9860997790e739d84292",
   "tests/desktop/test_portable_listener.py": "80d0ff58d7d4c37126c2e2cbf1512db7ba0b4e4d426a393782f098eb30a2cf7e",
