@@ -64,3 +64,9 @@ to overwrite the output. This is a data export, not a matching standalone restor
 command or a full code/config backup. Use the
 [Nurarihyon selected-state recovery route](nurarihyon-recovery.md) for controller
 state and its runtime together. Keep private board exports out of public Git.
+
+## Packaged native Windows scope
+
+The desktop runtime exposes `pando --home DIRECTORY init` and `verify`, including the matching Loom catalogue operations. The directory is explicitly selected; neither command attaches to an installed board or starts a participant, service, model or synchronization. Other Pando command routes remain unavailable on native Windows until verified there.
+
+These are trusted local SQLite operations, not a filesystem sandbox. The selected directory is held while the command runs; SQLite owns its transaction locks. On the pinned Python 3.12 interpreter, Windows directories inherit their parent's ACL: POSIX-style `mkdir` and `chmod` modes do not establish private Windows permissions. Choose a user-private location. Read-only capture files retain their Windows read-only attribute; initialization and verification do not delete or rewrite them. Integrity verification checks stored bytes, links and database consistency, not the truth of their contents.

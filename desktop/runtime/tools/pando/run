@@ -6,7 +6,7 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 if sys.version_info < (3, 10):
     raise SystemExit("Python 3.10 or later is required")
-if sys.platform != "darwin" and not sys.platform.startswith("linux"):
+if sys.platform not in ("darwin", "win32") and not sys.platform.startswith("linux"):
     raise SystemExit("This toolkit requires macOS or Linux; Windows supports the existing portable preview commands only")
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))

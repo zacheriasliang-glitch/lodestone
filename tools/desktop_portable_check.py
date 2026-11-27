@@ -36,7 +36,7 @@ SOURCE_TESTS = ("test_portable_process.py", "test_portable_listener.py", "test_p
 SOURCE_TESTS += ("test_linux_command_fence.py", "test_smoke_evidence.py", "test_learning_archive_custody.py", "test_decision_retention.py",
                  "test_practice_selection.py", "test_practice_voxels.py", "test_reader_history_window.py")
 SOURCE_TESTS += ("test_windows_path_budget.py", "test_windows_preflight.py", "test_windows_policy_check.py")
-SOURCE_TESTS += ("test_portable_operations.py",)
+SOURCE_TESTS += ("test_portable_operations.py", "test_portable_pando.py")
 READERS = {"LODESTONE_OLD_GUI_SOURCE": "b82b78ddba3b8067a7c09df6c4c0a18084a7e59f",
            "LODESTONE_PREVIOUS_GUI_SOURCE": "655fa55672a4c3ae2d0284da881921b7bed97c78"}
 

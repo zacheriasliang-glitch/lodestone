@@ -1,5 +1,6 @@
 """Portable Pando CLI; no model calls, automatic sync or implicit job execution."""
 import argparse
+from contextlib import ExitStack
 import json
 from pathlib import Path
 import sqlite3
@@ -9,6 +10,10 @@ import tarfile
 from .store import Board, encoded, read_file
 from lodestone_machinery.organs._kernel import strict_load
 
+
+def _terminal_json(value):
+    # Escape only the terminal representation; stored Unicode/source hashes stay exact.
+    return json.dumps(value, ensure_ascii=True, sort_keys=True, allow_nan=False) if sys.platform == "win32" else encoded(value)
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="lodestone pando")
@@ -41,58 +46,73 @@ def main(argv=None):
     p = commands.add_parser("export"); p.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
+        if sys.platform == "win32" and args.command not in ("init", "verify"):
+            raise ValueError("Only Pando init and verify are verified on native Windows; other routes require macOS or Linux")
         if args.command == "serve":
             from .server import serve
             serve(args.home, args.port); return 0
-        participants = strict_load(args.participants) if args.command == "init" and args.participants else None
-        board = Board(args.home, participants=participants)
-        if args.command in ("init", "status"):
-            result = board.state()
-        elif args.command == "verify":
-            result = board.verify()
-        elif args.command == "ingest":
-            result = {"source_id": board.ingest(read_file(args.file), title=args.title, uri=args.uri, author=args.author, kind=args.kind)}
-        elif args.command == "mailbox":
-            result = {"source_id": board.import_mailbox(json.loads(read_file(args.file)), title=args.title, uri=args.uri, author=args.author)}
-        elif args.command == "post":
-            result = {"post_id": board.post(author=args.author, shelf=args.shelf, title=args.title,
-                      body=args.body, parent_id=args.parent_id, source_ids=args.source)}
-        elif args.command == "eat":
-            result = {"artifact_id": board.eat(args.source, author=args.author, question=args.question, title=args.title)}
-        elif args.command in ("digest", "mutate"):
-            result = {"artifact_id": getattr(board, args.command)(args.parent, strict_load(args.file), author=args.author, title=args.title)}
-        elif args.command == "show":
-            result = board.source(args.id) if args.source else board.artifact(args.id)
-        elif args.command == "apply-profile":
-            result = board.apply_profile(args.id, author=args.author)
-        elif args.command == "export":
-            # SQLite backup obtains a consistent database snapshot even with a live UI.
-            # Immutable organ files can only be added; copying all of them preserves
-            # its dependency closure. This export is data, not a restore/extract tool.
-            import tempfile
-            with tempfile.TemporaryDirectory() as temp:
-                copy = Path(temp) / "pando.sqlite3"
-                with board.connection() as source:
-                    destination = sqlite3.connect(copy)
-                    try:
-                        source.backup(destination)
-                    finally:
-                        destination.close()
-                with args.output.open("xb") as stream:
-                    with tarfile.open(fileobj=stream, mode="w:gz") as archive:
-                        archive.add(copy, arcname="pando/pando.sqlite3")
-                        for name in ("captures", "kernel"):
-                            archive.add(board.home / name, arcname="pando/" + name)
-            import hashlib
-            result = {"path": str(args.output.resolve()), "bytes": args.output.stat().st_size,
-                      "sha256": hashlib.sha256(args.output.read_bytes()).hexdigest(),
-                      "scope": "Private Pando data and organ records. Source code is a separate Git dependency."}
-        print(encoded(result))
-        return 0
+        with ExitStack() as custody:
+            if sys.platform == "win32" and args.command == "init" and args.participants:
+                from lodestone_nurarihyon.portable_files import open_regular
+                custody.enter_context(open_regular(args.participants))
+            participants = strict_load(args.participants) if args.command == "init" and args.participants else None
+            if sys.platform == "win32":
+                from lodestone_nurarihyon.portable_files import absolute_path, ensure_directory, guarded_directory
+                # SQLite owns its native file locks. Keep the selected directory
+                # stable; this does not add a filesystem sandbox or private ACL.
+                args.home = ensure_directory(absolute_path(args.home.expanduser()))
+                custody.enter_context(guarded_directory(args.home))
+            board = Board(args.home, participants=participants)
+            return _dispatch(args, board)
     except (ValueError, TypeError, OSError, sqlite3.Error) as exc:
-        print(encoded({"error": type(exc).__name__, "message": str(exc)[:1000]}), file=sys.stderr)
+        print(_terminal_json({"error": type(exc).__name__, "message": str(exc)[:1000]}), file=sys.stderr)
         return 2
 
+
+def _dispatch(args, board):
+    if args.command in ("init", "status"):
+        result = board.state()
+    elif args.command == "verify":
+        result = board.verify()
+    elif args.command == "ingest":
+        result = {"source_id": board.ingest(read_file(args.file), title=args.title, uri=args.uri, author=args.author, kind=args.kind)}
+    elif args.command == "mailbox":
+        result = {"source_id": board.import_mailbox(json.loads(read_file(args.file)), title=args.title, uri=args.uri, author=args.author)}
+    elif args.command == "post":
+        result = {"post_id": board.post(author=args.author, shelf=args.shelf, title=args.title,
+                  body=args.body, parent_id=args.parent_id, source_ids=args.source)}
+    elif args.command == "eat":
+        result = {"artifact_id": board.eat(args.source, author=args.author, question=args.question, title=args.title)}
+    elif args.command in ("digest", "mutate"):
+        result = {"artifact_id": getattr(board, args.command)(args.parent, strict_load(args.file), author=args.author, title=args.title)}
+    elif args.command == "show":
+        result = board.source(args.id) if args.source else board.artifact(args.id)
+    elif args.command == "apply-profile":
+        result = board.apply_profile(args.id, author=args.author)
+    elif args.command == "export":
+        # SQLite backup obtains a consistent database snapshot even with a live UI.
+        # Immutable organ files can only be added; copying all of them preserves
+        # its dependency closure. This export is data, not a restore/extract tool.
+        import tempfile
+        with tempfile.TemporaryDirectory() as temp:
+            copy = Path(temp) / "pando.sqlite3"
+            with board.connection() as source:
+                destination = sqlite3.connect(copy)
+                try:
+                    source.backup(destination)
+                finally:
+                    destination.close()
+            with args.output.open("xb") as stream:
+                with tarfile.open(fileobj=stream, mode="w:gz") as archive:
+                    archive.add(copy, arcname="pando/pando.sqlite3")
+                    for name in ("captures", "kernel"):
+                        archive.add(board.home / name, arcname="pando/" + name)
+        import hashlib
+        result = {"path": str(args.output.resolve()), "bytes": args.output.stat().st_size,
+                  "sha256": hashlib.sha256(args.output.read_bytes()).hexdigest(),
+                  "scope": "Private Pando data and organ records. Source code is a separate Git dependency."}
+    print(_terminal_json(result))
+    return 0
 
 if __name__ == "__main__":
     raise SystemExit(main())

@@ -139,7 +139,7 @@ UNAVAILABLE = {
 # Reviewed Windows CLI closures. Expand only alongside the operation's actual
 # dependency/custody port and native fixtures, not merely a successful import.
 # The catalogue runs trusted explicit commands; Job ownership is not a sandbox.
-WINDOWS_OPERATIONS = frozenset({"ecosystem.doctor", "ecosystem.context"})
+WINDOWS_OPERATIONS = frozenset({"ecosystem.doctor", "ecosystem.context", "pando.init", "pando.verify"})
 
 
 def _availability(root):
