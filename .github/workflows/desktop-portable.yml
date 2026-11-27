@@ -1,4 +1,4 @@
-name: Windows Job stop diagnostic only
+name: Windows stop completion regression only
 
 on:
   workflow_dispatch:
@@ -28,7 +28,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12.10'
+      - name: Verify reviewed source identity
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+      - name: Native completion regression without models
+        shell: bash
+        run: python -B -m unittest discover -s tests/desktop -p test_windows_stop_completion.py -v
+      - name: Existing native ownership regression without models
+        if: always()
+        shell: bash
+        run: python -B -m unittest discover -s tests/desktop -p test_portable_process.py -v
       - name: Observe existing native Job teardown without models
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
