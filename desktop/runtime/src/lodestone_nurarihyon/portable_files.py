@@ -250,9 +250,17 @@ def _same_file(directory, name, fd, *, unchanged):
     named = _stat_in(directory, name)
     if is_alias(named) or not stat.S_ISREG(named.st_mode):
         raise ValueError("Expected a regular, non-symlink file")
-    if ((opened.st_dev, opened.st_ino) != (named.st_dev, named.st_ino) or
-            unchanged is not None and (identity(opened) != unchanged or identity(named) != unchanged)):
+    if (opened.st_dev, opened.st_ino) != (named.st_dev, named.st_ino):
         raise ValueError("File identity changed during operation")
+    if unchanged is not None:
+        # CPython Windows fstat reports ChangeTime while path stat still reports
+        # creation time as ctime (python/cpython#157671, including 3.12). Keep
+        # both complete baselines; compare only shared fields across APIs.
+        opened_identity, named_identity = identity(opened), identity(named)
+        comparable = 4 if WINDOWS else 5
+        if (opened_identity != unchanged[0] or named_identity != unchanged[1] or
+                opened_identity[:comparable] != named_identity[:comparable]):
+            raise ValueError("File identity changed during operation")
 
 
 @contextmanager
@@ -279,7 +287,8 @@ def open_regular(path, flags=os.O_RDONLY, mode=0o600, *, lock=False):
                 raise ValueError("Expected a regular file")
             if before is not None and (before.st_dev, before.st_ino) != (info.st_dev, info.st_ino):
                 raise ValueError("File identity changed while opening")
-            unchanged = identity(info) if flags & (os.O_WRONLY | os.O_RDWR) == 0 else None
+            unchanged = ((identity(info), identity(_stat_in(directory, path.name)))
+                         if flags & (os.O_WRONLY | os.O_RDWR) == 0 else None)
             _same_file(directory, path.name, fd, unchanged=unchanged)
             yield fd
             _same_file(directory, path.name, fd, unchanged=unchanged)

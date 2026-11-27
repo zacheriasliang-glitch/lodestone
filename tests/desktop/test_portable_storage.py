@@ -128,6 +128,20 @@ with file_lock(sys.argv[2]):
                 self.assertEqual(files.read_bytes(directory / "record"), b"guarded")
                 self.assertEqual(files.read_bytes(sibling / "record"), b"sibling")
 
+    def test_modified_regular_file_keeps_separate_handle_and_path_timestamps(self):
+        path = self.root / "changed-after-creation"
+        path.write_bytes(b"before")
+        time.sleep(.02)
+        path.write_bytes(b"after!")
+        # On Windows/Python 3.12+, fstat ctime is ChangeTime while path stat
+        # ctime is creation time. This ordinary, stable read must succeed.
+        self.assertEqual(files.read_bytes(path), b"after!")
+        with installer_files.open_regular(path) as stream:
+            self.assertEqual(stream.read(), b"after!")
+        expected = (len(b"after!"), hashlib.sha256(b"after!").hexdigest())
+        with files.open_regular(path) as fd:
+            self.assertEqual(model._verify_file(path, expected), model._identity(os.fstat(fd)))
+
     def test_atomic_publish_preserves_existing_and_flush_failure_preserves_old_bytes(self):
         path = self.root / "record"
         files.durable_write(path, b"old")

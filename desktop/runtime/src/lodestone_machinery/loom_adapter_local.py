@@ -16,7 +16,7 @@ import time
 import math
 
 from lodestone_nurarihyon.portable_files import (absolute_path, guarded_directory,
-                                                 is_alias, open_regular)
+                                                 open_regular)
 
 
 REPOSITORY = "Qwen/Qwen3-0.6B"
@@ -122,6 +122,7 @@ def _verify_file(path, expected):
     size, expected_sha = expected
     with open_regular(path) as fd:
         before = os.fstat(fd)
+        named_before = path.stat(follow_symlinks=False)
         if not stat.S_ISREG(before.st_mode) or before.st_size != size:
             raise ValueError("Model asset is not a regular file of the registered size")
         digest = hashlib.sha256()
@@ -135,7 +136,7 @@ def _verify_file(path, expected):
                 raise ValueError("Model asset grew while being verified")
             digest.update(block)
         if (_identity(before) != _identity(os.fstat(fd)) or
-                _identity(before) != _identity(path.stat(follow_symlinks=False))):
+                _identity(named_before) != _identity(path.stat(follow_symlinks=False))):
             raise ValueError("Model asset changed during verification")
         if total != size or digest.hexdigest() != expected_sha:
             raise ValueError("Model asset differs from its registered SHA-256")
@@ -159,11 +160,14 @@ class VerifiedAssets:
                 raise ValueError("Model root changed")
             for name, expected in ASSETS.items():
                 path = self.root / name
-                info = path.lstat()
-                if is_alias(info) or not stat.S_ISREG(info.st_mode) or _identity(info) != self.identities[name]:
-                    raise ValueError("Verified model asset identity changed")
-                if full and _verify_file(path, expected) != self.identities[name]:
-                    raise ValueError("Verified model content changed")
+                # Compare handle metadata with handle metadata: Windows path
+                # ctime means creation time while fstat ctime means ChangeTime.
+                with open_regular(path) as fd:
+                    info = os.fstat(fd)
+                    if not stat.S_ISREG(info.st_mode) or _identity(info) != self.identities[name]:
+                        raise ValueError("Verified model asset identity changed")
+                    if full and _verify_file(path, expected) != self.identities[name]:
+                        raise ValueError("Verified model content changed")
 
     def receipt(self):
         return {"model": REPOSITORY, "revision": REVISION,

@@ -225,12 +225,17 @@ def open_regular(path):
                 return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns
             if not stat.S_ISREG(before.st_mode) or _is_link(before):
                 raise ValueError("Managed path is not a regular file: " + str(path))
-            if identity(before) != identity(path.lstat()):
+            named_before = path.lstat()
+            # CPython on Windows gives fstat ctime the ChangeTime meaning, but
+            # path stat ctime still means creation time (python/cpython#157671).
+            # Compare common fields across APIs and retain both full baselines.
+            comparable = 4 if os.name == "nt" else 5
+            if identity(before)[:comparable] != identity(named_before)[:comparable]:
                 raise ValueError("Managed file identity changed while opening: " + str(path))
             yield stream
             check_path(path)
             if (identity(before) != identity(os.fstat(stream.fileno())) or
-                    identity(before) != identity(path.lstat())):
+                    identity(named_before) != identity(path.lstat())):
                 raise ValueError("Managed file identity changed while reading: " + str(path))
 
 
