@@ -95,6 +95,24 @@ class PortableReleaseReader(unittest.TestCase):
                 self.direct()
         self.assertEqual(self.snapshot(), before)
 
+    def test_manifest_that_grows_after_initial_validation_still_has_two_mib_bound(self):
+        original_read = optional._read
+        grown = b" " * optional.MAX_INPUT_BYTES + self.manifest.read_bytes()
+        self.assertIsInstance(json.loads(grown), dict)
+        changed = False
+        def change_after_initial_read(path, maximum=optional.MAX_INPUT_BYTES):
+            nonlocal changed
+            raw = original_read(path, maximum)
+            if Path(path) == self.manifest and not changed:
+                changed = True
+                self.manifest.write_bytes(grown)
+            return raw
+        with patch.object(optional, "_read", side_effect=change_after_initial_read), \
+                self.assertRaisesRegex(ValueError, "byte bound"):
+            self.direct()
+        self.assertTrue(changed)
+        self.assertEqual(self.manifest.read_bytes(), grown)
+
     @unittest.skipUnless(os.name == "nt", "Native Windows release custody")
     def test_windows_reparse_member_refuses_even_when_hash_matches_target(self):
         outside = self.root / "other"

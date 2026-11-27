@@ -212,7 +212,8 @@ def execute(operation, inputs, *, root, workspace):
             files += 1
             if files > MAX_RELEASE_FILES + 1:  # The manifest is one additional read.
                 raise ValueError("Release verification exceeds its listed-file bound")
-            raw = _read(path, MAX_RELEASE_FILE_BYTES)
+            maximum = MAX_INPUT_BYTES if path == package / "CONTENT_SHA256.json" else MAX_RELEASE_FILE_BYTES
+            raw = _read(path, maximum)
             total += len(raw)
             if total > MAX_RELEASE_TOTAL_BYTES:
                 raise ValueError("Release verification exceeds its total byte bound")
