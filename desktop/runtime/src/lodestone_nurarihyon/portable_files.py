@@ -137,13 +137,21 @@ def _directory(path, *, create=False, cache=False, reuse=True):
     held = getattr(_DIRECTORIES, "held", None)
     if held is None:
         held = _DIRECTORIES.held = []
-    parent = max((entry for entry in held if reuse and path.is_relative_to(entry[0])),
-                 key=lambda entry: len(entry[0].parts), default=None)
+    # Compare complete lexical components without constructing every ancestor
+    # Path on each read. Windows component comparison remains case-insensitive.
+    path_parts = path.parts
+    comparison = tuple(os.path.normcase(part) for part in path_parts) if WINDOWS else path_parts
+    parent = None
+    if reuse:
+        for entry in held:
+            if (comparison[:len(entry[2])] == entry[2] and
+                    (parent is None or len(entry[2]) > len(parent[2]))):
+                parent = entry
     opened, relations = [], []
     registered = None
     try:
         current = parent[0] if parent else Path(path.anchor)
-        parts = path.relative_to(current).parts
+        parts = path_parts[len(parent[2]) if parent else 1:]
         if WINDOWS:
             if parent is None:
                 opened.append(_win_open(current, directory=True))
@@ -182,7 +190,7 @@ def _directory(path, *, create=False, cache=False, reuse=True):
                 descriptor = child
         result = (path, descriptor)
         if cache:
-            registered = result
+            registered = (path, descriptor, comparison)
             held.append(registered)
         yield result
         if WINDOWS:

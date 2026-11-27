@@ -115,6 +115,19 @@ with file_lock(sys.argv[2]):
             self.assertEqual(files.read_bytes(directory / "record"), b"second")
             self.assertEqual(files.read_bytes(nested / "record"), b"child")
 
+    def test_directory_lease_reuse_respects_components_and_native_case_rules(self):
+        directory = files.ensure_directory(self.root / "Prefix")
+        sibling = files.ensure_directory(self.root / "Prefix-sibling")
+        files.durable_write(directory / "record", b"guarded")
+        files.durable_write(sibling / "record", b"sibling")
+        with files.guarded_directory(directory):
+            self.assertEqual(files.read_bytes(sibling / "record"), b"sibling")
+            if os.name == "nt":
+                self.assertEqual(files.read_bytes(self.root / "pREFIX" / "record"), b"guarded")
+            with files.guarded_directory(sibling):
+                self.assertEqual(files.read_bytes(directory / "record"), b"guarded")
+                self.assertEqual(files.read_bytes(sibling / "record"), b"sibling")
+
     def test_atomic_publish_preserves_existing_and_flush_failure_preserves_old_bytes(self):
         path = self.root / "record"
         files.durable_write(path, b"old")

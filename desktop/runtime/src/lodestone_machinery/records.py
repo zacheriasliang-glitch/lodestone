@@ -9,6 +9,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import stat
 
 from lodestone_nurarihyon.portable_files import (absolute_path, durable_write,
                                                  ensure_directory, guarded_directory, is_alias, read_bytes)
@@ -47,13 +48,17 @@ class RecordStore:
         current = self.workspace
         for part in relative.split("/"):
             current = current / part
-            if current.exists() or current.is_symlink():
-                if is_alias(current.lstat()):
+            try:
+                info = current.lstat()
+            except FileNotFoundError:
+                info = None
+            if info is not None:
+                if is_alias(info):
                     raise ValueError("Organ record path contains a symlink or reparse point")
+                if not stat.S_ISDIR(info.st_mode):
+                    raise ValueError("Organ record directory is not a directory")
             if create:
                 ensure_directory(current)
-            if current.exists() and not current.is_dir():
-                raise ValueError("Organ record directory is not a directory")
         return current
 
     def path(self, handle):
@@ -63,7 +68,11 @@ class RecordStore:
         owner, identity = match.groups()
         directory = self._directory("organs/" + owner + "/records")
         path = directory / (identity + ".json")
-        if (path.exists() or path.is_symlink()) and is_alias(path.lstat()):
+        try:
+            info = path.lstat()
+        except FileNotFoundError:
+            info = None
+        if info is not None and is_alias(info):
             raise ValueError("Organ record is a symlink or reparse point")
         return path
 
