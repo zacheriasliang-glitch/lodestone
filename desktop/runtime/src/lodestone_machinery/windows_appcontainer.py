@@ -116,7 +116,8 @@ class _Security:
             ("ConvertSecurityDescriptorToStringSecurityDescriptorW", [p, w.DWORD, w.DWORD, c.POINTER(w.LPWSTR), p], w.BOOL),
             ("ConvertStringSecurityDescriptorToSecurityDescriptorW", [w.LPCWSTR, w.DWORD, c.POINTER(p), p], w.BOOL),
             ("GetSecurityDescriptorDacl", [p, c.POINTER(w.BOOL), c.POINTER(p), c.POINTER(w.BOOL)], w.BOOL),
-            ("GetSecurityDescriptorControl", [p, c.POINTER(w.WORD), c.POINTER(w.DWORD)], w.BOOL)):
+            ("GetSecurityDescriptorControl", [p, c.POINTER(w.WORD), c.POINTER(w.DWORD)], w.BOOL),
+            ("SetFileSecurityW", [w.LPCWSTR, w.DWORD, p], w.BOOL)):
             fn = getattr(a, name)
             fn.argtypes, fn.restype = args, result
 
@@ -152,6 +153,28 @@ class _Security:
                 raise c.WinError(error)
         finally:
             k.LocalFree(descriptor)
+
+
+    def restore(self, path, original, sid):
+        """Undo one grant exactly: strip our ACE with propagation (clearing the
+        copies descendants inherited), then write the saved DACL verbatim,
+        because SetNamedSecurityInfoW may re-express explicit ACEs as inherited."""
+        current = self.read(path)
+        if sid:
+            self.write(path, _without_sid(current, sid))
+        c, a, k = self.c, self.api.advapi, self.api.kernel
+        descriptor = c.c_void_p()
+        self.api.check(a.ConvertStringSecurityDescriptorToSecurityDescriptorW(original, 1, c.byref(descriptor), None))
+        try:
+            self.api.check(a.SetFileSecurityW(str(path), DACL_INFO, descriptor))
+        finally:
+            k.LocalFree(descriptor)
+
+
+def _without_sid(sddl, sid):
+    head, _, rest = sddl.partition("(")
+    aces = re.findall(r"\([^)]*\)", "(" + rest) if rest else []
+    return head + "".join(ace for ace in aces if not (ace.endswith(";" + sid + ")") and "ID" not in ace.split(";")[1]))
 
 
 def _with_ace(sddl, sid, mask, directory):
@@ -193,8 +216,8 @@ def sweep(api=None):
                 continue  # A live launcher still owns this run.
             record = json.loads(handle.read().decode("utf-8") or "{}")
             security = _Security(api)
-            for item in record.get("granted", []):
-                security.write(item["path"], item["sddl"])
+            for item in reversed(record.get("granted", [])):
+                security.restore(item["path"], item["sddl"], record.get("sid"))
             if record.get("name", "").startswith(PREFIX):
                 api.userenv.DeleteAppContainerProfile(record["name"])
             handle.seek(0)
@@ -353,7 +376,7 @@ def run(argv, *, workspace, readable):
         security = _Security(api)
         for item in reversed(record["granted"]):
             try:
-                security.write(item["path"], item["sddl"])
+                security.restore(item["path"], item["sddl"], sid)
             except OSError:
                 failures.append(item["path"])
         api.advapi.FreeSid(sid_pointer)
