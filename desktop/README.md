@@ -35,7 +35,7 @@ calls. The GUI requires a graphical desktop session.
 |---|---|---|
 | macOS 12 or later, Intel x86_64 | `Install Lodestone.command` | `Lodestone Preview.app` in your user Applications folder |
 | Ubuntu 24.04, x86_64 | `Install Lodestone.sh` | Lodestone Preview in the desktop applications menu |
-| Windows 11 or Windows Server 2022, x86_64 | `Install Lodestone.ps1` | The installed `Lodestone Preview.cmd` launcher |
+| Windows 11 or Windows Server 2022, x86_64 | `Install Lodestone.cmd` | The installed `Lodestone Preview.cmd` launcher |
 
 Windows Server needs a graphical Desktop Experience session. The Windows
 candidate requires OS build 20348 or later; this is not a claim of verification
@@ -68,27 +68,42 @@ check. `--no-open` completes setup without opening the GUI.
 
 ### Windows
 
-Compare the downloaded ZIP's hash using PowerShell's `Get-FileHash -Algorithm
-SHA256`. After verifying the archive and its source, use the ZIP's **Properties →
-Unblock** option if present, then extract it. Open PowerShell in the extracted
-folder and run:
+Compare the downloaded ZIP's hash using PowerShell's
+`Get-FileHash -Algorithm SHA256`. After verifying the archive and its source,
+use the ZIP's **Properties → Unblock** option if present, then extract it.
+Double-click **Install Lodestone.cmd**. The console shows setup progress and stays
+open if setup fails. It downloads the pinned Python archive, checks its hash
+before extraction and execution, and retains failed download/staging files for
+inspection. Installation does not require administrator privileges.
 
-```powershell
-powershell.exe -NoProfile -File ".\Install Lodestone.ps1"
+The `.cmd` entrypoint runs native Windows commands and small built-in PowerShell
+checks. It does not load a PowerShell script or change execution policy. From a
+Command Prompt in the extracted folder, optional arguments work as follows:
+
+```bat
+"Install Lodestone.cmd" --no-open
 ```
 
-The installer is unsigned. If the extracted script still carries a download
-block, review that specific file and use `Unblock-File -LiteralPath
-'.\Install Lodestone.ps1'` before retrying. This only unblocks that file; it does
-not change PowerShell execution policy. See Microsoft's
+`--no-open` completes setup without opening the GUI or pausing on failure. Paths
+may contain spaces and Unicode. This bootstrap refuses command-shell
+metacharacters such as `%`, `!`, `&`, `^` and parentheses in its extracted folder,
+data root, launcher or cache path before creating files. Choose ordinary directory
+names if it reports this restriction. `--root`, `--app` and `--cache` accept
+absolute local-drive paths.
+
+To reopen the installed application, press **Win+R**, enter `shell:programs`, and
+open **Lodestone Preview.cmd** in that folder. This uses the installed launcher
+directly and does not depend on Start-menu search or pinning.
+
+**Advanced PowerShell route:** the same pinned setup remains available as
+`powershell.exe -NoProfile -File ".\Install Lodestone.ps1"`, with `-Root`, `-App`,
+`-Cache` and `-NoOpen`. This script is unsigned. If it carries a download block,
+review that specific file and use `Unblock-File -LiteralPath
+'.\Install Lodestone.ps1'` before retrying; see Microsoft's
 [Unblock-File documentation](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/unblock-file).
-If host or organization policy prohibits unsigned scripts, setup remains blocked;
-use an approved installation route without weakening that policy. Installation
-does not require administrator privileges. `-NoOpen` completes setup without
-opening the GUI. To reopen the installed application, press **Win+R**, enter
-`shell:programs`, and open **Lodestone Preview.cmd** in that folder. This uses
-the installed launcher directly and does not depend on Start-menu search or
-pinning.
+This unblocks only that file and does not change execution policy. If host or
+organization policy prohibits unsigned scripts, that optional route remains
+blocked. Neither entrypoint changes the host's security policy.
 
 ## Use the preview
 
@@ -130,8 +145,9 @@ The preview keeps its launcher and data separate from existing installations:
 | Ubuntu | `$XDG_DATA_HOME/lodestone-preview`, or `~/.local/share/lodestone-preview` | `$XDG_DATA_HOME/applications/lodestone-preview.desktop`, or `~/.local/share/applications/lodestone-preview.desktop` |
 | Windows | `%LOCALAPPDATA%\Lodestone Preview` | `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Lodestone Preview.cmd` |
 
-A relative `XDG_DATA_HOME` is ignored. Shell installers accept `--root`, `--app`
-and `--cache`; the PowerShell installer accepts `-Root`, `-App` and `-Cache`.
+A relative `XDG_DATA_HOME` is ignored. The shell and Windows `.cmd` installers
+accept `--root`, `--app` and `--cache`; the optional PowerShell installer accepts
+`-Root`, `-App` and `-Cache`.
 Keep the same data root and launcher path when upgrading. Back up the complete
 data root to preserve native learning history, failed attempts, corrections,
 conversations and unsent drafts. Models, cached downloads and old release folders
