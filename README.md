@@ -28,8 +28,9 @@ Apple Silicon, ARM Windows and mobile platforms are outside this release.
 
 First setup downloads pinned runtimes, dependencies and model assets over HTTPS.
 The default desktop reader then runs locally using installed files and a loopback
-model process. Sharing records or configuring an external provider is a separate
-explicit action. Local practice does not update model weights. See
+model process. Sharing records, using network-capable toolkit operations or
+configuring an external provider are separate explicit actions. Local practice
+does not update model weights. See
 [project identity, data flow and evidence](docs/project-identity.md) for the
 capability boundaries, licenses and published verification records.
 
@@ -199,9 +200,11 @@ Checkpoint preservation checks required source identities, notes and unresolved
 questions. It does not guarantee that a summary contains everything a future
 question needs, or run automatically when an agent compacts its context.
 
-Provider commands are trusted code. The standalone core v0.3.2 launcher filters
-environment variables; filesystem and network restrictions are declarations when
-no kernel sandbox is available. Desktop v0.4.0 uses a separate confinement route
+Provider commands are trusted code. The standalone core command launcher in
+v0.3.2 and the current source checkout filters environment variables. Without an
+available kernel sandbox, filesystem and network restrictions are reported as
+`DECLARED`, and commands retain the user's ordinary privileges. Desktop v0.4.0
+uses a separate confinement route
 for external command providers and refuses them when that route is unavailable;
 see the [platform/function matrix](desktop/README.md#current-platform-and-function-availability).
 Explicitly readable source, workspace, program/system and authentication paths
@@ -240,4 +243,6 @@ Report reproducible problems through [GitHub issues](https://github.com/zacheria
 
 ## License
 
-MIT. See [LICENSE](LICENSE). Optional dependencies retain their own licenses.
+The separately usable core and runtime are [MIT-licensed](LICENSE). The combined
+desktop distribution is [GPL-2.0-only](desktop/LICENSE). Third-party dependencies
+retain their own licenses; see the [desktop credits](desktop/THIRD_PARTY.md).

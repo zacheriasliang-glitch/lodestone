@@ -47,9 +47,10 @@ Conversations, outcomes and corrections are stored locally. Sharing a handoff,
 using a network-capable toolkit operation, or explicitly configuring an external
 provider can send data outside the computer. Provider terms and costs then depend
 on that configuration. Local inference is not a promise that every possible
-operation is offline. Trusted toolkit commands are not universally restricted by
-a filesystem or network sandbox. Local storage is not a claim of encryption at
-rest or isolation from other applications with access to those files.
+operation is offline. For trusted toolkit commands, process ownership, timeouts
+and output bounds do not supply a filesystem or network sandbox. External command
+providers use a separate confinement route. Local storage is not a claim of
+encryption at rest or isolation from other applications with access to those files.
 
 The software is free to download. The combined desktop distribution is
 [GPL-2.0-only](../desktop/LICENSE); the separately usable runtime is
