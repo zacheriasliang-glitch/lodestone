@@ -1,5 +1,9 @@
 # Lodestone Lab: project identity and evidence
 
+**Lodestone Lab is a local AI project notebook that keeps selected source records,
+outcomes and corrections, and lets you inspect recorded model requests and
+responses.**
+
 **Lodestone Lab** is the public name of the open-source toolkit and desktop
 application maintained in
 [zacheriasliang-glitch/lodestone](https://github.com/zacheriasliang-glitch/lodestone).
@@ -23,12 +27,32 @@ filenames, application data directories or existing launchers. Launchers retain
 The separately usable [core v0.3.2](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.2)
 has its own release history and requirements.
 
+## Who it is useful for today
+
+- **People working on a long project:** retain decisions, their reasons and source
+  references, then prepare a handoff for a later AI session. This helps answer
+  what was decided and what the record says supported it.
+- **People studying model behavior:** inspect recorded requests, outcomes,
+  failures and corrections, and compare later encounters that receive selected
+  feedback. This supports investigating whether corrections help; it does not
+  establish that they do.
+
+Source retention is explicit. A source reference in a notebook or a checkpoint
+does not automatically copy the referenced file; use the relevant capture or
+archive operation when its contents must be preserved. A request can be recorded
+before dispatch and an interrupted attempt can have a partial or absent response.
+Inspect the actual outcome status before treating a request as a completed model
+encounter.
+
 ## What the software does
 
 - Unified Loom assembles model requests, runs the local reader and retains
   encounters, outcomes and corrections.
-- Selected retained corrections can be supplied to a later encounter. The record
-  of delivery lets a reviewer inspect what the reader actually received.
+- Corrections saved through the feedback workflow can be supplied to later
+  encounters according to the configured selection. A correction typed in an
+  ordinary chat message is not a guarantee of durable retention or future use.
+  Delivery records let a reviewer check which material was supplied; even a
+  delivered correction can be misunderstood or ignored by the reader.
 - The toolkit provides explicit operations for project memory, handoffs,
   preservation, recovery and source-bound records. Availability depends on the
   platform and operation; see the [function matrix](../desktop/README.md#current-platform-and-function-availability).
@@ -48,8 +72,10 @@ using a network-capable toolkit operation, or explicitly configuring an external
 provider can send data outside the computer. Provider terms and costs then depend
 on that configuration. Local inference is not a promise that every possible
 operation is offline. For trusted toolkit commands, process ownership, timeouts
-and output bounds do not supply a filesystem or network sandbox. External command
-providers use a separate confinement route. Local storage is not a claim of
+and output bounds do not supply a filesystem or network sandbox. In the desktop,
+optional external command providers and garden execution use a separate
+confinement route and refuse when the required fence is unavailable. This does
+not make arbitrary AI-proposed commands safe. Local storage is not a claim of
 encryption at rest or isolation from other applications with access to those files.
 
 The software is free to download. The combined desktop distribution is
@@ -70,9 +96,11 @@ The release includes a
 [verification record](https://github.com/zacheriasliang-glitch/lodestone/releases/download/v0.4.0/RELEASE_VERIFICATION.json),
 [retained validation history](https://github.com/zacheriasliang-glitch/lodestone/releases/download/v0.4.0/VALIDATION_HISTORY.json)
 and [checksums](https://github.com/zacheriasliang-glitch/lodestone/releases/download/v0.4.0/SHA256SUMS.txt).
-These bind the downloads and recorded checks to the tested source. Hashes detect
-changed bytes; they are not a publisher signature. Later documentation edits on
-the main branch do not change the v0.4.0 tag or its installer bytes.
+These bind the downloads and recorded checks to the tested source. Hashes help
+check whether bytes match a recorded reference; they do not establish truth,
+complete evidence, tamper-proof storage or a publisher signature. A false answer
+can be preserved accurately. Later documentation edits on the main branch do not
+change the v0.4.0 tag or its installer bytes.
 
 **Improved judgment and semantic learning have not been demonstrated.** Delivering
 a correction does not establish that the model understood or used it correctly.
