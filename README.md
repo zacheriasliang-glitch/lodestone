@@ -1,13 +1,14 @@
-# Lodestone
+# Lodestone Lab
 
 **Keep useful project knowledge between AI sessions, recover your files, and run
 local toolkit tasks with a record of what happened.**
 
-[Desktop installers — v0.4.0](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0)
+**Official repository:** [zacheriasliang-glitch/lodestone](https://github.com/zacheriasliang-glitch/lodestone)
+· **[Official desktop downloads — v0.4.0](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0)**
 · [Stable core v0.3.2](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.3.2)
 · [Core quickstart](docs/quickstart.md) · [All tools](docs/toolkits.md)
 
-[Lodestone Desktop v0.4.0](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0)
+[Lodestone Lab Desktop v0.4.0](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0)
 provides separate downloads for Intel macOS, Ubuntu 24.04 x86_64 and Windows
 11 / Windows Server 2022 x86_64. It combines Unified Loom, a local reader and
 retained outcomes and corrections in a per-user installation. Read the
@@ -15,8 +16,30 @@ retained outcomes and corrections in a per-user installation. Read the
 availability and verification record, and use the ZIP matching your platform.
 The desktop distribution is unsigned. Its [platform/function matrix](desktop/README.md#current-platform-and-function-availability) lists the supported Windows toolkit subset and optional routes that remain unavailable. Decision quality and semantic learning are not established. The separately usable core below keeps its own release history.
 
+| Desktop download | Architecture |
+|---|---|
+| [Intel macOS ZIP](https://github.com/zacheriasliang-glitch/lodestone/releases/download/v0.4.0/Lodestone-Desktop-0.4.0-macos-x86_64.zip) | x86_64 |
+| [Ubuntu 24.04 ZIP](https://github.com/zacheriasliang-glitch/lodestone/releases/download/v0.4.0/Lodestone-Desktop-0.4.0-ubuntu-24.04-x86_64.zip) | x86_64 |
+| [Windows ZIP](https://github.com/zacheriasliang-glitch/lodestone/releases/download/v0.4.0/Lodestone-Desktop-0.4.0-windows-x86_64.zip) | x86_64 |
+
+Check the [SHA-256 sums](https://github.com/zacheriasliang-glitch/lodestone/releases/download/v0.4.0/SHA256SUMS.txt)
+and follow the [installation guide](desktop/README.md) before running setup.
+Apple Silicon, ARM Windows and mobile platforms are outside this release.
+
+First setup downloads pinned runtimes, dependencies and model assets over HTTPS.
+The default desktop reader then runs locally using installed files and a loopback
+model process. Sharing records, using network-capable toolkit operations or
+configuring an external provider are separate explicit actions. Local practice
+does not update model weights. See
+[project identity, data flow and evidence](docs/project-identity.md) for the
+capability boundaries, licenses and published verification records.
+
+**Lodestone Lab** is the public project name. The repository slug, `lodestone`
+command, existing installer filenames and installed launcher labels stay the same
+for compatibility.
+
 The stable core v0.3.2 download above is available now. Python 3.10+ is all you
-need for the core; your notes and files stay on your computer. Use macOS or Linux
+need for the core; it stores notes and files locally. Use macOS or Linux
 for all workflows below. Local memory also works on native Windows, using `py -3` for `python3`.
 
 ## Save a decision and hand it to your next AI session
@@ -162,9 +185,10 @@ before use. There are no inherited host grants or private mailbox connections.
 
 The archive tools are the local preservation layer. This download includes no
 personal Saṃsāra snapshots and does not configure cloud storage or transfer keys.
-Origami can prepare requests without an AI account; an actual model-backed run
-requires your own explicit provider command and any credentials that provider
-needs. Nothing contacts a model automatically.
+Standalone core Origami can prepare requests without an AI account; its
+model-backed runs require your explicit provider configuration and any credentials
+that provider needs. The desktop supplies its own local reader route. Installing
+either distribution does not start a paid model service.
 
 Nurarihyon supports five fixed toolkit contracts and explicit profile-outcome
 retention. It does not infer new operations or prove useful retained learning.
@@ -176,10 +200,15 @@ Checkpoint preservation checks required source identities, notes and unresolved
 questions. It does not guarantee that a summary contains everything a future
 question needs, or run automatically when an agent compacts its context.
 
-Provider commands are trusted code. The launcher filters environment variables;
-filesystem and network restrictions require an available kernel sandbox and are
-reported as declarations when one is unavailable. Explicitly readable source,
-workspace, program/system and authentication paths can still contain credentials.
+Provider commands are trusted code. The standalone core command launcher in
+v0.3.2 and the current source checkout filters environment variables. Without an
+available kernel sandbox, filesystem and network restrictions are reported as
+`DECLARED`, and commands retain the user's ordinary privileges. Desktop v0.4.0
+uses a separate confinement route
+for external command providers and refuses them when that route is unavailable;
+see the [platform/function matrix](desktop/README.md#current-platform-and-function-availability).
+Explicitly readable source, workspace, program/system and authentication paths
+can still contain credentials.
 
 
 ## Verification and limitations
@@ -214,4 +243,6 @@ Report reproducible problems through [GitHub issues](https://github.com/zacheria
 
 ## License
 
-MIT. See [LICENSE](LICENSE). Optional dependencies retain their own licenses.
+The separately usable core and runtime are [MIT-licensed](LICENSE). The combined
+desktop distribution is [GPL-2.0-only](desktop/LICENSE). Third-party dependencies
+retain their own licenses; see the [desktop credits](desktop/THIRD_PARTY.md).
