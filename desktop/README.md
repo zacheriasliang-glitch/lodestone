@@ -1,4 +1,11 @@
-# Lodestone Desktop
+# Lodestone Lab Desktop
+
+**[Official project repository](https://github.com/zacheriasliang-glitch/lodestone)**
+· **[Official desktop downloads — v0.4.0](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0)**
+· [Project identity, data flow and evidence](https://github.com/zacheriasliang-glitch/lodestone/blob/main/docs/project-identity.md)
+
+Lodestone Lab is the public project name. Existing `Lodestone-Desktop` download
+filenames, `lodestone` commands and installed paths remain compatible.
 
 Unified Loom provides a local Qwen3 reader and retained encounters and corrections.
 Origami handoffs and toolkit execution have additional platform restrictions,
@@ -7,7 +14,7 @@ listed below.
 The `0.4.0` desktop release targets Intel macOS, Ubuntu 24.04
 x86_64 and Windows x86_64. The
 [named release page](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0)
-provides downloads when published, with the exact source commit, checksums and
+provides downloads with the exact source commit, checksums and
 native verification record. Apple Silicon, other Linux distributions, ARM Windows
 and mobile platforms are outside this target set.
 
