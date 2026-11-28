@@ -412,7 +412,7 @@
   "tools/local-memory/src/lodestone_memory.py": "13feb8ff9a5d34d926a0c43f7fbcbbe22a0267b00feb2d123955f030198d43cf",
   "tools/local-memory/src/source_addresses.py": "b5b240407277c288732adf879b982f0fb0c923490956cd752cfa2076442bf2ae",
   "tools/local-memory/tests/test_memory_engine.py": "3d3e505425366e657a643ed785c4fe478808df7391177b22abee6e2644cd5ff6",
-  "tools/local-memory/tests/test_source_addresses.py": "9d30a08c36914b1901a0b7c81b4c2a60e9624f91a1502c4699b892538cf0b1e8",
+  "tools/local-memory/tests/test_source_addresses.py": "6660e6b786efe308fc4747187ca522742246867d04cfb878b2630481a82aa701",
   "tools/machinery/append_receipt.py": "929dd4d8411ce5ad58f44ddee72ac79f014995c1f63717cd19b7a1ce00c55b51",
   "tools/machinery/check_bezoar.py": "2d97f90855c7dede3a9106203040e82851f4e3d732921035d801cbf0028dfd92",
   "tools/machinery/check_brief.py": "d8114ca810581fb06e9de3c06b5ba587b8f3186a7b639cb4feec923dd51cce42",

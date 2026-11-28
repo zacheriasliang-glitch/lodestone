@@ -80,16 +80,17 @@ class SourceAddressTests(unittest.TestCase):
         self.source("release/README.md", raw)
         identity = self.note("Project knowledge handoff", "Find the public toolkit's purpose.",
                              "repository://README.md")
-        url = "https://github.com/zacheriasliang-glitch/lodestone/blob/80e3de0d72ae02de065d463f4d45a176df81c7a2/README.md"
+        url = "https://github.com/zacheriasliang-glitch/lodestone/blob/ec4f985a25edf2e5e3e5e49ad84975322d8dae51/README.md"
         memory_before = self.snapshot(self.root)
         sources_before = self.snapshot(self.scope)
         with patch("socket.create_connection", side_effect=AssertionError("No network for source addresses")):
-            added = self.bind(identity, "release/README.md", 3, 4,
+            added = self.bind(identity, "release/README.md", 3, 5,
                               capture="public-source-copy", attribution="Lodestone README authors",
                               source_url=url)
             report = self.resolve("project knowledge")
-        expected = ("**Keep useful project knowledge between AI sessions, recover your files, and run\n"
-                    "local toolkit tasks with a record of what happened.**\n")
+        expected = ("**Lodestone Lab is a local AI project notebook that keeps selected source records,\n"
+                    "outcomes and corrections, and lets you inspect recorded model requests and\n"
+                    "responses.**\n")
         self.assertTrue(added["created"])
         self.assertEqual(added["text"], expected)
         self.assertEqual(report["schema"], "lodestone-source-addresses/v1")
@@ -102,7 +103,7 @@ class SourceAddressTests(unittest.TestCase):
         self.assertEqual(len(result["bindings"]), 1)
         binding = result["bindings"][0]
         self.assertEqual(binding["source"], "release/README.md")
-        self.assertEqual((binding["start_line"], binding["end_line"]), (3, 4))
+        self.assertEqual((binding["start_line"], binding["end_line"]), (3, 5))
         self.assertEqual(binding["source_sha256"], hashlib.sha256(raw).hexdigest())
         self.assertEqual(binding["slice_sha256"], hashlib.sha256(expected.encode()).hexdigest())
         self.assertEqual(binding["expansion"]["text"], expected)
