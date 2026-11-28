@@ -1,7 +1,8 @@
 # Lodestone Lab
 
-**Keep useful project knowledge between AI sessions, recover your files, and run
-local toolkit tasks with a record of what happened.**
+**Lodestone Lab is a local AI project notebook that keeps selected source records,
+outcomes and corrections, and lets you inspect recorded model requests and
+responses.**
 
 **Official repository:** [zacheriasliang-glitch/lodestone](https://github.com/zacheriasliang-glitch/lodestone)
 · **[Official desktop downloads — v0.4.0](https://github.com/zacheriasliang-glitch/lodestone/releases/tag/v0.4.0)**
@@ -15,6 +16,10 @@ retained outcomes and corrections in a per-user installation. Read the
 [desktop installation guide](desktop/README.md), check the named release's
 availability and verification record, and use the ZIP matching your platform.
 The desktop distribution is unsigned. Its [platform/function matrix](desktop/README.md#current-platform-and-function-availability) lists the supported Windows toolkit subset and optional routes that remain unavailable. Decision quality and semantic learning are not established. The separately usable core below keeps its own release history.
+
+Use it to keep project decisions understandable across sessions or to inspect
+model encounters and the corrections selected for later requests. See
+[current uses and limits](docs/project-identity.md#who-it-is-useful-for-today).
 
 | Desktop download | Architecture |
 |---|---|
